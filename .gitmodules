@@ -1,0 +1,4 @@
+[submodule "binacpp"]
+	path = binacpp
+	url = https://github.com/binance-exchange/binacpp.git
+	branch = master
