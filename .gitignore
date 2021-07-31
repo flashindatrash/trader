@@ -1,0 +1,11 @@
+.idea
+.DS_Store
+
+build
+CMakeLists.txt.*
+
+*.autosave
+*.swp
+*.lock
+*.idea
+*.log
