@@ -3,16 +3,13 @@
 #include "binacpp.h"
 #include "Logger.hpp"
 
-BinancePrices::BinancePrices() {
-}
-
-bool BinancePrices::init() {
+void BinancePrices::init() {
     Json::Value result;
     BinaCPP::get_allPrices( result );
 
     if (not result.isArray()) {
         log("%s\n", result.toStyledString().c_str());
-        return false;
+        return;
     }
 
     for (uint i = 0; i < result.size(); ++i) {
@@ -23,8 +20,6 @@ bool BinancePrices::init() {
 
         setPrice(symbol, price);
     }
-
-    return true;
 }
 
 void BinancePrices::setPrice(const std::string& symbol, double price) {

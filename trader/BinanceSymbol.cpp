@@ -4,6 +4,7 @@
 
 #include "proxy/BinanceAccount.hpp"
 #include "proxy/BinancePrices.hpp"
+#include "proxy/BinanceExchangeInfo.hpp"
 
 BinanceAsset::BinanceAsset()
     : std::string("")
@@ -25,9 +26,17 @@ BinanceSymbol::BinanceSymbol()
 {
 }
 
+BinanceSymbol::BinanceSymbol(const std::string& symbol)
+    : std::string(symbol)
+{
+    const BinanceSymbolData& info = getInfo();
+    _base = info.baseAsset;
+    _quote = info.quoteAsset;
+}
+
 BinanceSymbol::BinanceSymbol(BinanceAsset base, BinanceAsset second)
     : _base(base)
-    , _second(second)
+    , _quote(second)
     , std::string(base + second)
 {
 }
@@ -36,10 +45,14 @@ const BinanceAsset& BinanceSymbol::baseAsset() const {
     return _base;
 }
 
-const BinanceAsset& BinanceSymbol::secondAsset() const {
-    return _second;
+const BinanceAsset& BinanceSymbol::quoteAsset() const {
+    return _quote;
 }
 
 const double BinanceSymbol::getPrice() const {
     return SBinancePrices().getPrice(*this);
+}
+
+const BinanceSymbolData& BinanceSymbol::getInfo() const {
+    return SBinanceExchangeInfo().getSymbolInfo(*this);
 }

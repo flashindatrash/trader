@@ -1,14 +1,11 @@
 #pragma once
 
-#include <string>
-
-namespace Json {
-    class Value;
-}
+#include <global.hpp>
 
 struct BinanceBookData
 {
 public: // methods
+    BinanceBookData() {}
     BinanceBookData(const Json::Value& json);
 
 public: // vars

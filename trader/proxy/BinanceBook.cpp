@@ -2,10 +2,8 @@
 
 #include "binacpp_websocket.h"
 #include "BinanceSymbol.hpp"
+#include "proxy/BinancePrices.hpp"
 #include "data/BinanceBookData.hpp"
-
-BinanceBook::BinanceBook() {
-}
 
 void BinanceBook::connect(const BinanceSymbol& symbol) {
     std::string low_symbol = symbol;
@@ -18,6 +16,9 @@ void BinanceBook::connect(const BinanceSymbol& symbol) {
 
 int BinanceBook::handle(Json::Value& json) {
     BinanceBookData result(json);
+
+    double avgPrice = (result.bestAskPrice + result.bestBidPrice) / 2.0;
+    SBinancePrices().setPrice(result.symbol, avgPrice);
 
     for (Fn& listener : _listeners)
         listener(result);

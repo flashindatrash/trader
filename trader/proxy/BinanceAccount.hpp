@@ -1,32 +1,26 @@
 #pragma once
 
-#include <unordered_map>
-#include <string>
-
+#include <global.hpp>
 #include "Proxy.hpp"
 
-namespace Json {
-    class Value;
-}
+class BinanceBalanceData;
 
 class BinanceAccount : public Core::Proxy<BinanceAccount>
 {
 public: // methods
-    BinanceAccount();
+    BinanceAccount() {}
 
-    // websocket
+    void init();
     void connect();
     int handle(Json::Value& json);
 
-    // get balance
     double getBalance(const std::string& asset) const;
 
 protected: // methods
-    void setBalance(const std::string& asset, double free, double locked);
-
-    bool init() override;
+    void setBalance(const BinanceBalanceData& data);
 
 protected: // vars
+    std::string _listenKey = "";
     std::unordered_map<std::string, double> _balance;
 };
 

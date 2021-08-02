@@ -2,10 +2,6 @@
 
 #include "App.hpp"
 
-#include <string>
-
-#include "BinanceSymbol.hpp"
-
 class TraderApp : public Core::App
 {
 public: // static

@@ -5,9 +5,13 @@
 #include "binacpp_logger.h"
 
 #include "BinanceConfig.hpp"
+#include "proxy/BinanceTime.hpp"
 #include "proxy/BinanceAccount.hpp"
 #include "proxy/BinanceBook.hpp"
 #include "proxy/BinanceAlgorithm.hpp"
+#include "proxy/BinanceOrders.hpp"
+#include "proxy/BinancePrices.hpp"
+#include "proxy/BinanceExchangeInfo.hpp"
 
 TraderApp::TraderApp() {
 }
@@ -28,10 +32,16 @@ void TraderApp::init() {
     // init binance logger
     BinaCPP_logger::set_debug_level(0);
 
-    // init binance websocket
+    // init data
+    SBinanceTime().init();
+    SBinanceAccount().init();
+    SBinancePrices().init();
+    SBinanceExchangeInfo().init();
+    SBinanceAlgorithm().init(symbol);
+
+    // connect websocket
     BinaCPP_websocket::init();
     SBinanceAccount().connect();
     SBinanceBook().connect(symbol);
-    SBinanceAlgorithm().connect(symbol);
     BinaCPP_websocket::enter_event_loop();
 }

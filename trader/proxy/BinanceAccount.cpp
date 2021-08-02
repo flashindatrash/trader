@@ -4,37 +4,25 @@
 #include "binacpp_websocket.h"
 #include "Logger.hpp"
 #include "BinanceConfig.hpp"
-#include "data/BinanceStreamBalanceData.hpp"
+#include "data/BinanceBalanceData.hpp"
 
-BinanceAccount::BinanceAccount() {
-}
-
-bool BinanceAccount::init() {
+void BinanceAccount::init() {
     Json::Value result;
-    BinaCPP::get_account( BINANCE_RECV_WINDOW , result );
+    BinaCPP::get_account(BINANCE_RECV_WINDOW, result);
 
     const Json::Value& balances = result["balances"];
     if (not balances.isArray()) {
         log("%s\n", result.toStyledString().c_str());
-        return false;
+        return;
     }
 
     if (result["accountType"].asString() != "SPOT") {
         log("%s\n", result.toStyledString().c_str());
-        return false;
+        return;
     }
 
-    for (uint i = 0; i < balances.size(); ++i) {
-        const Json::Value& data = balances[i];
-
-        std::string asset = data["asset"].asString();
-        double free = atof(data["free"].asString().c_str());
-        double locked = atof(data["locked"].asString().c_str());
-        setBalance(asset, free, locked);
-    }
-
-
-    return true;
+    for (uint i = 0; i < balances.size(); ++i)
+        setBalance(BinanceBalanceData(balances[i], false));
 }
 
 void BinanceAccount::connect() {
@@ -73,13 +61,9 @@ int BinanceAccount::handle(Json::Value& json) {
             return 0;
         }
         log("%s %s %s %s %s\n", symbol.c_str(), side.c_str(), executionType.c_str(), orderType.c_str(), orderId.c_str());
-
-
     } else if ( action == "outboundAccountInfo" ) {
-        for (uint i = 0; i < json["B"].size(); ++i) {
-            BinanceStreamBalanceData balance(json["B"][i]);
-            setBalance(balance.asset, balance.free, balance.locked);
-        }
+        for (uint i = 0; i < json["B"].size(); ++i)
+            setBalance(BinanceBalanceData(json["B"][i], true));
     }
 
     return 0;
@@ -92,6 +76,6 @@ double BinanceAccount::getBalance(const std::string &asset) const {
     return _balance.at(asset);
 }
 
-void BinanceAccount::setBalance(const std::string& asset, double free, double locked) {
-    _balance[asset] = free;
+void BinanceAccount::setBalance(const BinanceBalanceData& data) {
+    _balance[data.asset] = data.free;
 }

@@ -1,6 +1,8 @@
 #pragma once
 
-#include <string>
+#include <global.hpp>
+
+class BinanceSymbolData;
 
 class BinanceAsset : public std::string
 {
@@ -15,13 +17,15 @@ class BinanceSymbol : public std::string
 {
 public: // methods
     BinanceSymbol();
+    BinanceSymbol(const std::string& symbol);
     BinanceSymbol(BinanceAsset base, BinanceAsset second);
 
     const BinanceAsset& baseAsset() const;
-    const BinanceAsset& secondAsset() const;
+    const BinanceAsset& quoteAsset() const;
     const double getPrice() const;
+    const BinanceSymbolData& getInfo() const;
 
 protected: // vars
     BinanceAsset _base;
-    BinanceAsset _second;
+    BinanceAsset _quote;
 };

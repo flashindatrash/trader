@@ -1,19 +1,17 @@
 #pragma once
 
+#include <global.hpp>
 #include "Proxy.hpp"
-#include <unordered_map>
-#include <string>
 
 class BinancePrices : public Core::Proxy<BinancePrices>
 {
 public: // methods
-    BinancePrices();
+    BinancePrices() {}
+
+    void init();
 
     void setPrice(const std::string& symbol, double price);
     double getPrice(const std::string& symbol) const;
-
-protected: // methods
-    bool init() override;
 
 protected: // vars
     std::unordered_map<std::string, double> _prices;
