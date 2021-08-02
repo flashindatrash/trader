@@ -11,7 +11,6 @@ public: // methods
 
 protected: // methods
     virtual void init() {}
-    virtual void tick() {};
 };
 
 }

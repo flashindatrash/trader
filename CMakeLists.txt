@@ -27,13 +27,10 @@ set(CURL_ROOT_DIR "/usr/local/Cellar/curl/7.78.0")
 include_directories(${CURL_ROOT_DIR}/include)
 list(APPEND ALL_LIBS ${CURL_ROOT_DIR}/lib/libcurl.dylib)
 
-
-# include
-include_directories(
-    ${PROJECT_SOURCE_DIR}/misc
-)
+# core
+include_directories(${PROJECT_SOURCE_DIR}/core)
 
 subdirs(
-	misc
-	app
+	core
+	trader
 )

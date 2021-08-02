@@ -1,8 +1,9 @@
 #include <argparser/ArgumentParser.hpp>
+
 #include "TraderApp.hpp"
 
 int main(int argc, char** argv) {
-	srand(time(NULL));
+    srand(time(NULL));
 
 	std::string cfg_file;
 	cppargparser::ArgumentParser args;
