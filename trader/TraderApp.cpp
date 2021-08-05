@@ -11,6 +11,8 @@
 #include "proxy/BinanceOrders.hpp"
 #include "proxy/BinancePrices.hpp"
 #include "proxy/BinanceExchangeInfo.hpp"
+#include "proxy/BinanceKlines.hpp"
+#include "wrapper/BinanceSymbol.hpp"
 
 TraderApp::TraderApp() {
 }
@@ -33,15 +35,17 @@ void TraderApp::init() {
 
     // init data
     DB().init();
-    SBinanceTime().init();
-    SBinanceExchangeInfo().init();
-    SBinanceAccount().init();
-    SBinancePrices().init();
-    SBinanceAlgorithm().init(symbol);
+    STime().init();
+    SExchangeInfo().init();
+    SAccount().init();
+    SPrices().init();
+    SKlines().init(symbol);
+    SAlgorithm().init(symbol);
 
     // connect websocket
     BinaCPP_websocket::init();
-    SBinanceAccount().connect();
-    SBinancePrices().connect(symbol);
+    SAccount().connect();
+    SPrices().connect(symbol);
+    SKlines().connect(symbol);
     BinaCPP_websocket::enter_event_loop();
 }

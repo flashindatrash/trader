@@ -1,5 +1,7 @@
 #pragma once
 
+#include <global.hpp>
+
 namespace Core {
 
 template<class T> class Proxy {
@@ -10,6 +12,24 @@ public:
         static T instance;
         return instance;
     }
+};
+
+template<class T>class Emitter {
+    typedef std::function<void(const T&)> Fn;
+
+public:
+    void addListener(Fn listener) {
+        _listeners.push_back(listener);
+    }
+
+protected:
+    void invoke(const T& data) {
+        for (Fn& listener : _listeners)
+            listener(data);
+    }
+
+protected:
+    std::vector<Fn> _listeners;
 };
 
 }

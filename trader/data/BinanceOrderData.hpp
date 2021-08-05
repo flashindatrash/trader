@@ -13,6 +13,7 @@ public: // methods
     bool isWeb() const;
     bool isRejected() const;
     bool isInvalid() const;
+    bool isEmpty() const;
 
 public: // vars
     long orderId = 0;

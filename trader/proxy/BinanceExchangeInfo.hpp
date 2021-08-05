@@ -16,4 +16,4 @@ protected: // vars
     std::unordered_map<std::string, BinanceSymbolData> _symbols;
 };
 
-#define SBinanceExchangeInfo() BinanceExchangeInfo::getInstance()
+#define SExchangeInfo() BinanceExchangeInfo::getInstance()

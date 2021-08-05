@@ -31,3 +31,7 @@ bool BinanceOrderData::isRejected() const {
 bool BinanceOrderData::isInvalid() const {
     return symbol.empty() || quantity == 0.0;
 }
+
+bool BinanceOrderData::isEmpty() const {
+    return orderId == 0;
+}

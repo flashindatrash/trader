@@ -2,7 +2,7 @@
 
 #include <global.hpp>
 
-class BinanceSymbolData;
+struct BinanceSymbolData;
 
 class BinanceAsset : public std::string
 {
@@ -24,6 +24,8 @@ public: // methods
     const BinanceAsset& quoteAsset() const;
 
     const BinanceSymbolData& getInfo() const;
+
+    const std::string toLowerCase() const;
 
     const double getPrice() const;
     const double getPrice(double quantity) const;

@@ -29,7 +29,7 @@ const BinanceOrderData BinanceOrders::createOrder(const BinanceSymbol& symbol, c
     // check minNotional
     if (info.minNotional.applyToMarket) {
         double avgPrice = symbol.getPrice();
-        if (const BinancePriceHistory* history = SBinancePrices().getPriceHistory(symbol))
+        if (const BinancePriceHistory* history = SPrices().getPriceHistory(symbol))
             avgPrice = history->getPriceAverage(info.minNotional.avgPriceMins * BinanceTime::sMinute);
 
         if (avgPrice * quantity < info.minNotional.minNotional) {

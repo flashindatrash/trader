@@ -1,22 +1,22 @@
 #pragma once
 
-#include <global.hpp>
 #include "Proxy.hpp"
 
-class BinanceBalanceData;
+struct BinanceBalanceData;
 
-class BinanceAccount : public Core::Proxy<BinanceAccount>
+class BinanceAccount : public Core::Proxy<BinanceAccount>, public Core::Emitter<BinanceBalanceData>
 {
 public: // methods
     BinanceAccount() {}
 
     void init();
     void connect();
-    int handle(Json::Value& json);
 
     double getBalance(const std::string& asset) const;
 
 protected: // methods
+    int handle(Json::Value& json);
+
     void setBalance(const BinanceBalanceData& data);
 
 protected: // vars
@@ -24,7 +24,7 @@ protected: // vars
     std::unordered_map<std::string, double> _balance;
 };
 
-#define SBinanceAccount() BinanceAccount::getInstance()
+#define SAccount() BinanceAccount::getInstance()
 
 /* onUpdateData на продаже
  * {

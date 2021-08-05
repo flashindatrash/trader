@@ -18,7 +18,7 @@ BinanceAsset::BinanceAsset(const std::string& asset)
 }
 
 const double BinanceAsset::getBalance() const {
-    return SBinanceAccount().getBalance(*this);
+    return SAccount().getBalance(*this);
 }
 
 BinanceSymbol::BinanceSymbol()
@@ -50,11 +50,18 @@ const BinanceAsset& BinanceSymbol::quoteAsset() const {
 }
 
 const BinanceSymbolData& BinanceSymbol::getInfo() const {
-    return SBinanceExchangeInfo().getSymbolInfo(*this);
+    return SExchangeInfo().getSymbolInfo(*this);
+}
+
+const std::string BinanceSymbol::toLowerCase() const {
+    std::string result(c_str());
+    for (size_t i = 0; i < result.size(); ++i)
+        result[i] = tolower(result[i]);
+    return result;
 }
 
 const double BinanceSymbol::getPrice() const {
-    return SBinancePrices().getPrice(*this);
+    return SPrices().getPrice(*this);
 }
 
 const double BinanceSymbol::getPrice(double quantity) const {

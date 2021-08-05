@@ -71,4 +71,5 @@ double BinanceAccount::getBalance(const std::string &asset) const {
 
 void BinanceAccount::setBalance(const BinanceBalanceData& data) {
     _balance[data.asset] = data.free;
+    invoke(data);
 }

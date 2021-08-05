@@ -10,13 +10,13 @@
 
 BinancePrices::~BinancePrices() {
     for (auto& pair : _histories)
-        delete pair.second;
+        SAFE_DELETE(pair.second);
     _histories.clear();
 }
 
 void BinancePrices::init() {
     Json::Value result;
-    BinaCPP::get_allPrices( result );
+    BinaCPP::get_allPrices(result);
 
     if (not result.isArray()) {
         trace("%s\n", result.toStyledString().c_str());
@@ -34,11 +34,7 @@ void BinancePrices::init() {
 }
 
 void BinancePrices::connect(const BinanceSymbol& symbol) {
-    std::string low_symbol = symbol;
-    for (size_t i = 0; i < low_symbol.size(); ++i)
-        low_symbol[i] = tolower(low_symbol[i]);
-
-    const std::string& path = "/ws/" + low_symbol + "@bookTicker";
+    const std::string& path = "/ws/" + symbol.toLowerCase() + "@bookTicker";
     BinaCPP_websocket::connect_endpoint(std::bind(&BinancePrices::handle, this, std::placeholders::_1), path.c_str());
 }
 
@@ -61,14 +57,8 @@ int BinancePrices::handle(Json::Value& json) {
     history->add(avgPrice);
 
     // invoke listeners
-    for (Fn& listener : _listeners)
-        listener(result);
-
+    invoke(result);
     return 0;
-}
-
-void BinancePrices::addListener(Fn listener) {
-    _listeners.push_back(listener);
 }
 
 void BinancePrices::setPrice(const BinanceSymbol& symbol, double price) {

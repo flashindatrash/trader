@@ -15,4 +15,4 @@ public: // methods
     const BinanceOrderData createOrder(const BinanceSymbol& symbol, const std::string& side, double quantity, const std::string& type) const;
 };
 
-#define SBinanceOrders() BinanceOrders::getInstance()
+#define SOrders() BinanceOrders::getInstance()

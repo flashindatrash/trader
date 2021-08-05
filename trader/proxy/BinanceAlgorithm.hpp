@@ -1,10 +1,9 @@
 #pragma once
 
 #include "Proxy.hpp"
-#include "wrapper/BinanceSymbol.hpp"
 
-class BinanceBookData;
-class BaseAlgorithm;
+class BinanceSymbol;
+class Algorithm;
 
 class BinanceAlgorithm : public Core::Proxy<BinanceAlgorithm>
 {
@@ -14,11 +13,8 @@ public: // methods
 
     void init(const BinanceSymbol& symbol);
 
-protected: // methods
-    void handle(const BinanceBookData& data);
-
 protected: // vars
-    BaseAlgorithm* _algorithm = nullptr;
+    Algorithm* _algorithm = nullptr;
 };
 
-#define SBinanceAlgorithm() BinanceAlgorithm::getInstance()
+#define SAlgorithm() BinanceAlgorithm::getInstance()
