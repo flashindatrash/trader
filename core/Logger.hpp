@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <iostream>
 
-#define log printf
+#define trace printf
 
 //the following are UBUNTU/LINUX, and MacOS ONLY terminal color codes.
 #define RESET   "\033[0m"

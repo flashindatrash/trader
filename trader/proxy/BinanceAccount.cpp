@@ -3,8 +3,9 @@
 #include "binacpp.h"
 #include "binacpp_websocket.h"
 #include "Logger.hpp"
-#include "BinanceConfig.hpp"
+#include "Config.hpp"
 #include "data/BinanceBalanceData.hpp"
+#include "data/BinanceOrderData.hpp"
 
 void BinanceAccount::init() {
     Json::Value result;
@@ -12,12 +13,12 @@ void BinanceAccount::init() {
 
     const Json::Value& balances = result["balances"];
     if (not balances.isArray()) {
-        log("%s\n", result.toStyledString().c_str());
+        trace("%s\n", result.toStyledString().c_str());
         return;
     }
 
     if (result["accountType"].asString() != "SPOT") {
-        log("%s\n", result.toStyledString().c_str());
+        trace("%s\n", result.toStyledString().c_str());
         return;
     }
 
@@ -30,7 +31,7 @@ void BinanceAccount::connect() {
     BinaCPP::start_userDataStream(result);
 
     if (!result["listenKey"] || !result["listenKey"].isString()) {
-        log("error: BinanceAccount::BinanceAccount, listenKey null\n");
+        trace("error: BinanceAccount::BinanceAccount, listenKey null\n");
         return;
     }
 
@@ -42,28 +43,20 @@ void BinanceAccount::connect() {
 
 int BinanceAccount::handle(Json::Value& json) {
     std::string action = json["e"].asString();
-    if ( action  == "executionReport" ) {
+    if (action  == "executionReport") {
         std::string executionType = json["x"].asString();
-        std::string orderStatus   = json["X"].asString();
-        std::string reason        = json["r"].asString();
-        std::string symbol 	      = json["s"].asString();
-        std::string side          = json["S"].asString();
-        std::string orderType     = json["o"].asString();
-        std::string orderId       = json["i"].asString();
-        std::string price 	      = json["p"].asString();
-        std::string qty           = json["q"].asString();
+        if (executionType == "NEW") {
+            BinanceOrderData order(json, true);
 
-        if ( executionType  == "NEW" ) {
-            if ( orderStatus == "REJECTED" ) {
-                log("Order Failed! Reason: %s\n", reason.c_str());
-            }
-            log("%s %s %s %s(%s) %s %s\n", symbol.c_str(), side.c_str(), orderType.c_str(), orderId.c_str(), orderStatus.c_str(), price.c_str(), qty.c_str());
-            return 0;
+            if (order.isRejected())
+                trace("Order Failed! Reason: %s\n", json["r"].asString().c_str());
+            else
+                trace("%s %f %s for %f\n", order.side.c_str(), order.quantity, order.symbol.c_str(), order.cummulativeQuoteQty);
         }
-        log("%s %s %s %s %s\n", symbol.c_str(), side.c_str(), executionType.c_str(), orderType.c_str(), orderId.c_str());
-    } else if ( action == "outboundAccountInfo" ) {
-        for (uint i = 0; i < json["B"].size(); ++i)
+    } else if (action == "outboundAccountPosition") {
+        for (uint i = 0; i < json["B"].size(); ++i) {
             setBalance(BinanceBalanceData(json["B"][i], true));
+        }
     }
 
     return 0;

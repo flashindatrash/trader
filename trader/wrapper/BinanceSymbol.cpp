@@ -49,10 +49,15 @@ const BinanceAsset& BinanceSymbol::quoteAsset() const {
     return _quote;
 }
 
+const BinanceSymbolData& BinanceSymbol::getInfo() const {
+    return SBinanceExchangeInfo().getSymbolInfo(*this);
+}
+
 const double BinanceSymbol::getPrice() const {
     return SBinancePrices().getPrice(*this);
 }
 
-const BinanceSymbolData& BinanceSymbol::getInfo() const {
-    return SBinanceExchangeInfo().getSymbolInfo(*this);
+const double BinanceSymbol::getPrice(double quantity) const {
+    return getPrice() * quantity;
 }
+

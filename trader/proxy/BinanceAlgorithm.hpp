@@ -1,31 +1,24 @@
 #pragma once
 
 #include "Proxy.hpp"
-#include "BinanceSymbol.hpp"
-#include "data/BinanceOrderData.hpp"
+#include "wrapper/BinanceSymbol.hpp"
 
 class BinanceBookData;
+class BaseAlgorithm;
 
 class BinanceAlgorithm : public Core::Proxy<BinanceAlgorithm>
 {
 public: // methods
     BinanceAlgorithm() {}
+    virtual ~BinanceAlgorithm() override;
 
     void init(const BinanceSymbol& symbol);
 
 protected: // methods
-    void onBookData(const BinanceBookData& data);
+    void handle(const BinanceBookData& data);
 
 protected: // vars
-    BinanceSymbol _symbol;
-    double _rate_up = 0.003;
-    double _rate_down = 0.002;
-    double _lot = 0.001;
-
-    std::vector<BinanceOrderData> _orderHistory;
-    // last order
-    double _last_price = 0.0;
-    std::string _last_side = "";
+    BaseAlgorithm* _algorithm = nullptr;
 };
 
 #define SBinanceAlgorithm() BinanceAlgorithm::getInstance()

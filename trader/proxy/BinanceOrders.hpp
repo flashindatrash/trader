@@ -12,9 +12,7 @@ public: // methods
 
     std::vector<BinanceOrderData> getAllOrders(const BinanceSymbol& symbol, int limit = 0) const;
     const BinanceOrderData createOrder(const BinanceSymbol& symbol, const std::string& side, double quantity) const;
-
-protected: // vars
-    BinanceOrderData _last_order;
+    const BinanceOrderData createOrder(const BinanceSymbol& symbol, const std::string& side, double quantity, const std::string& type) const;
 };
 
 #define SBinanceOrders() BinanceOrders::getInstance()

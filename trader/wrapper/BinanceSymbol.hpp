@@ -22,8 +22,11 @@ public: // methods
 
     const BinanceAsset& baseAsset() const;
     const BinanceAsset& quoteAsset() const;
-    const double getPrice() const;
+
     const BinanceSymbolData& getInfo() const;
+
+    const double getPrice() const;
+    const double getPrice(double quantity) const;
 
 protected: // vars
     BinanceAsset _base;
