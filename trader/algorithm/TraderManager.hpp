@@ -15,5 +15,6 @@ protected: // methods
 
 protected: // vars
     double _min_quantity = 0.0;
+    double _max_quantity = 0.0;
 };
 

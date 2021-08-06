@@ -11,6 +11,7 @@
 static float sMinRate = 0.003f;
 static float sMaxRate = 0.01f;
 static float sEqualRate = 0.02f;
+static float sMaxQuantity = 1.5f;
 
 TraderManager::TraderManager(OrderManager& orders)
     : BaseManager(orders)
@@ -23,10 +24,10 @@ bool TraderManager::check(const TradeSymbol& symbol) {
         return false;
 
     // устанавливаем стоимость покупки
-    if (_min_quantity == 0.0) {
+    if (_min_quantity == 0.0 || _max_quantity == 0.0) {
         _min_quantity = util::get_min_quantity(symbol) * 1.3;
-        _min_quantity = util::ceil_quantity(symbol, _min_quantity);
-        trace("trader min quantity: %f\n", _min_quantity);
+        _max_quantity = _min_quantity * sMaxQuantity;
+        trace("trader quantity: %f -> %f \n", _min_quantity, _max_quantity);
     }
 
     const KlineHistory* history = SKlines().getHistory(symbol);
@@ -40,6 +41,7 @@ bool TraderManager::check(const TradeSymbol& symbol) {
     float quoteK = 0.0f;
     util::calc_balance_rate(symbol, baseK, quoteK);
 
+    // ожидаемый рост зависит от соотношения баланса
     float change = util::get_percent(kline.priceOpen, kline.priceClose);
     float expected = sMinRate + (change > 0 ? baseK : quoteK) * (sMaxRate - sMinRate);
     if (std::abs(change) < expected)
@@ -51,7 +53,10 @@ bool TraderManager::check(const TradeSymbol& symbol) {
     if (hasEqualTransaction(side, symbol.getPrice()))
         return false;
 
-    return _orders.create(symbol, side, _min_quantity, true);
+    // цена, которую хотим вложить, зависит от соотношения баланса
+    double quantity = _min_quantity + (change > 0 ? baseK : quoteK) * (_max_quantity - _min_quantity);
+    quantity = util::ceil_quantity(symbol, quantity);
+    return _orders.create(symbol, side, quantity, true);
 }
 
 bool TraderManager::hasEqualTransaction(const std::string& side, double price) const {
