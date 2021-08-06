@@ -1,0 +1,21 @@
+#pragma once
+
+#include "data/BinanceKlineData.hpp"
+
+class KlineHistory
+{
+public: // static
+    static KlineHistory* create();
+
+public: // methods
+    void add(const BinanceKlineData& data);
+
+    const BinanceKlineData& back() const;
+
+protected: // methods
+    KlineHistory() {}
+
+protected: // vars
+    std::vector<BinanceKlineData> _klines;
+};
+

@@ -1,0 +1,43 @@
+#include "proxy/BinanceTime.hpp"
+#include "proxy/BinancePrices.hpp"
+#include "wrapper/TradeSymbol.hpp"
+#include "wrapper/PriceHistory.hpp"
+#include "data/BinanceSymbolData.hpp"
+#include "util/PriceUtil.hpp"
+
+double util::get_min_quantity(const TradeSymbol& symbol) {
+    const BinanceSymbolData& info = symbol.getInfo();
+    const BinanceSymbolData::MinNotional& min_notional = info.minNotional;
+    const BinanceSymbolData::LotSize& lot_size = info.lotSize;
+
+    double price_avg = symbol.getPrice();
+    if (const PriceHistory* history = SPrices().getHistory(symbol))
+        price_avg = history->getPriceAverage(min_notional.avgPriceMins * BinanceTime::sMinute);
+
+    return std::max(lot_size.minQty, min_notional.minNotional / price_avg);
+}
+
+double util::ceil_quantity(const TradeSymbol& symbol, double quantity) {
+    const BinanceSymbolData& info = symbol.getInfo();
+
+    if (info.lotSize.stepSize > 0.0) {
+        double steps = 0.0;
+        while (steps < quantity)
+            steps += info.lotSize.stepSize;
+        quantity = steps;
+    }
+
+    return quantity;
+}
+
+double util::get_percent(double first, double second) {
+    return (second - first) / first;
+}
+
+void util::calc_balance_rate(const TradeSymbol& symbol, float& base, float& quote) {
+    double baseQty = symbol.getPrice(symbol.baseAsset().getBalance());
+    double quoteQty = symbol.quoteAsset().getBalance();
+    double sumQty = (baseQty + quoteQty) * 0.5;
+    base = 1.0f - std::min(1.0, baseQty / sumQty);
+    quote = 1.0f - std::min(1.0, quoteQty / sumQty);
+}
