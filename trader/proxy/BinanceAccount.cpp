@@ -47,11 +47,8 @@ int BinanceAccount::handle(Json::Value& json) {
         std::string executionType = json["x"].asString();
         if (executionType == "NEW") {
             BinanceOrderData order(json, true);
-
             if (order.isRejected())
                 trace("Order Failed! Reason: %s\n", json["r"].asString().c_str());
-            else
-                trace("%s %f %s for %f\n", order.side.c_str(), order.quantity, order.symbol.c_str(), order.cummulativeQuoteQty);
         }
     } else if (action == "outboundAccountPosition") {
         for (uint i = 0; i < json["B"].size(); ++i) {

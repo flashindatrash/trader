@@ -1,5 +1,4 @@
 #include "TraderApp.hpp"
-
 #include "binacpp.h"
 #include "binacpp_websocket.h"
 #include "binacpp_logger.h"
@@ -12,24 +11,20 @@
 #include "proxy/BinancePrices.hpp"
 #include "proxy/BinanceExchangeInfo.hpp"
 #include "proxy/BinanceKlines.hpp"
-#include "wrapper/BinanceSymbol.hpp"
 
 TraderApp::TraderApp() {
 }
 
 TraderApp* TraderApp::create() {
     TraderApp* app = new TraderApp();
-    app->run();
     return app;
 }
 
-void TraderApp::init() {
-    BinanceSymbol symbol(BinanceAsset("BTC"), BinanceAsset("USDT"));
-
+void TraderApp::init(const TradeSymbol& symbol) {
     // init binance api
     static string api_key       = BINANCE_API_KEY;
     static string secret_key    = BINANCE_SECRET_KEY;
-    BinaCPP::init( api_key , secret_key );
+    BinaCPP::init(api_key, secret_key);
     // init binance logger
     BinaCPP_logger::set_debug_level(0);
 
@@ -45,7 +40,7 @@ void TraderApp::init() {
     // connect websocket
     BinaCPP_websocket::init();
     SAccount().connect();
-    SPrices().connect(symbol);
+    //SPrices().connect(symbol);
     SKlines().connect(symbol);
     BinaCPP_websocket::enter_event_loop();
 }

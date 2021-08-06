@@ -1,12 +1,11 @@
-#include "BinancePrices.hpp"
-
 #include "binacpp.h"
 #include "binacpp_websocket.h"
 #include "Logger.hpp"
 #include "proxy/BinancePrices.hpp"
-#include "wrapper/BinanceSymbol.hpp"
-#include "wrapper/BinancePriceHistory.hpp"
+#include "wrapper/TradeSymbol.hpp"
+#include "wrapper/PriceHistory.hpp"
 #include "data/BinanceBookData.hpp"
+#include "util/StringUtil.hpp"
 
 BinancePrices::~BinancePrices() {
     for (auto& pair : _histories)
@@ -33,24 +32,24 @@ void BinancePrices::init() {
     }
 }
 
-void BinancePrices::connect(const BinanceSymbol& symbol) {
-    const std::string& path = "/ws/" + symbol.toLowerCase() + "@bookTicker";
+void BinancePrices::connect(const TradeSymbol& symbol) {
+    const std::string& path = "/ws/" + util::lowercase(symbol.c_str()) + "@bookTicker";
     BinaCPP_websocket::connect_endpoint(std::bind(&BinancePrices::handle, this, std::placeholders::_1), path.c_str());
 }
 
 int BinancePrices::handle(Json::Value& json) {
     BinanceBookData result(json);
-    BinanceSymbol symbol(result.symbol);
+    TradeSymbol symbol(result.symbol);
 
     // update average price
     double avgPrice = (result.bestAskPrice + result.bestBidPrice) / 2.0;
     setPrice(symbol, avgPrice);
 
     // update history
-    BinancePriceHistory* history = nullptr;
+    PriceHistory* history = nullptr;
     auto it = _histories.find(symbol);
     if (it == _histories.end()) {
-        history = BinancePriceHistory::create();
+        history = PriceHistory::create();
         _histories[symbol] = history;
     } else
         history = it->second;
@@ -61,18 +60,18 @@ int BinancePrices::handle(Json::Value& json) {
     return 0;
 }
 
-void BinancePrices::setPrice(const BinanceSymbol& symbol, double price) {
+void BinancePrices::setPrice(const TradeSymbol& symbol, double price) {
     _prices[symbol] = price;
 }
 
-double BinancePrices::getPrice(const BinanceSymbol& symbol) const {
+double BinancePrices::getPrice(const TradeSymbol& symbol) const {
     auto it = _prices.find(symbol);
     if (it == _prices.end())
         return 0.0;
     return it->second;
 }
 
-const BinancePriceHistory* BinancePrices::getPriceHistory(const BinanceSymbol& symbol) const {
+const PriceHistory* BinancePrices::getHistory(const TradeSymbol& symbol) const {
     auto it = _histories.find(symbol);
     if (it == _histories.end())
         return nullptr;

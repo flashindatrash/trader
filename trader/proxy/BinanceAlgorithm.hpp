@@ -2,8 +2,13 @@
 
 #include "Proxy.hpp"
 
-class BinanceSymbol;
-class Algorithm;
+class TradeSymbol;
+class OrderManager;
+class ProfitManager;
+class TraderManager;
+struct BinanceBalanceData;
+struct BinanceBookData;
+struct BinanceKlineData;
 
 class BinanceAlgorithm : public Core::Proxy<BinanceAlgorithm>
 {
@@ -11,10 +16,17 @@ public: // methods
     BinanceAlgorithm() {}
     virtual ~BinanceAlgorithm() override;
 
-    void init(const BinanceSymbol& symbol);
+    void init(const TradeSymbol& symbol);
+
+protected: // methods
+    void onBalanceChanged(const BinanceBalanceData &data);
+    void onBookChanged(const BinanceBookData &data);
+    void onKlineChanged(const BinanceKlineData &data);
 
 protected: // vars
-    Algorithm* _algorithm = nullptr;
+    OrderManager* _pool = nullptr;
+    ProfitManager* _profit_manager = nullptr;
+    TraderManager* _trader_manager = nullptr;
 };
 
 #define SAlgorithm() BinanceAlgorithm::getInstance()

@@ -3,16 +3,19 @@
 #include "Proxy.hpp"
 #include "data/BinanceOrderData.hpp"
 
-class BinanceSymbol;
+class TradeSymbol;
 
 class BinanceOrders : public Core::Proxy<BinanceOrders>
 {
 public: // methods
     BinanceOrders() {}
 
-    std::vector<BinanceOrderData> getAllOrders(const BinanceSymbol& symbol, int limit = 0) const;
-    const BinanceOrderData createOrder(const BinanceSymbol& symbol, const std::string& side, double quantity) const;
-    const BinanceOrderData createOrder(const BinanceSymbol& symbol, const std::string& side, double quantity, const std::string& type) const;
+    std::vector<BinanceOrderData> getAllOrders(const TradeSymbol& symbol, int limit = 0) const;
+
+    bool isEnough(const TradeSymbol& symbol, const std::string& side, double quantity) const;
+
+    const BinanceOrderData createOrder(const TradeSymbol& symbol, const std::string& side, double quantity) const;
+    const BinanceOrderData createOrder(const TradeSymbol& symbol, const std::string& side, double quantity, const std::string& type) const;
 };
 
 #define SOrders() BinanceOrders::getInstance()

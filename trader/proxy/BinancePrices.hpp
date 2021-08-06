@@ -2,8 +2,8 @@
 
 #include "Proxy.hpp"
 
-class BinanceSymbol;
-class BinancePriceHistory;
+class TradeSymbol;
+class PriceHistory;
 struct BinanceBookData;
 
 class BinancePrices : public Core::Proxy<BinancePrices>, public Core::Emitter<BinanceBookData>
@@ -13,21 +13,21 @@ public: // methods
     virtual ~BinancePrices() override;
 
     void init();
-    void connect(const BinanceSymbol& symbol);
+    void connect(const TradeSymbol& symbol);
 
     // last average price
-    void setPrice(const BinanceSymbol& symbol, double price);
-    double getPrice(const BinanceSymbol& symbol) const;
+    void setPrice(const TradeSymbol& symbol, double price);
+    double getPrice(const TradeSymbol& symbol) const;
 
     // price history
-    const BinancePriceHistory* getPriceHistory(const BinanceSymbol& symbol) const;
+    const PriceHistory* getHistory(const TradeSymbol& symbol) const;
 
 protected: // methods
     int handle(Json::Value& json);
 
 protected: // vars
     std::unordered_map<std::string, double> _prices;
-    std::unordered_map<std::string, BinancePriceHistory*> _histories;
+    std::unordered_map<std::string, PriceHistory*> _histories;
 };
 
 #define SPrices() BinancePrices::getInstance()
