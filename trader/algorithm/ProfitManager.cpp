@@ -12,8 +12,6 @@
 static float sMinRate = 0.003f;
 static float sMaxRate = 0.04f;
 
-static const std::string& sDbKeyProfit = "stats:profit:";
-
 ProfitManager::ProfitManager(OrderManager& orders)
     : BaseManager(orders, BinanceTime::sSecond * 30)
 {
@@ -28,16 +26,11 @@ bool ProfitManager::check(const TradeSymbol& symbol) {
     if (transaction == nullptr)
         return false;
 
-    // посчитаем профит, перед закрытием, иначе позиция может сдохнуть
-    double profit = std::abs(transaction->getPrice() - symbol.getPrice()) * transaction->quantity;
-
     // пробуем создать новый ордер
     const std::string& side = transaction->side == "BUY" ? "SELL" : "BUY";
     if (not _orders.create(symbol, side, transaction->quantity, transaction))
         return false;
 
-    // сохраняем профит
-    addProfitStats(profit, symbol.quoteAsset());
     return true;
 }
 
@@ -62,7 +55,7 @@ const BinanceOrderData* ProfitManager::findClosableOrder(const TradeSymbol &symb
         if (change > 0.0 && order.side == "SELL")
             continue;
 
-        float expected = sMinRate + (change > 0 ? baseK : quoteK) * (sMaxRate - sMinRate);
+        float expected = sMinRate + (change > 0 ? 1.0f - baseK : 1.0f - quoteK) * (sMaxRate - sMinRate);
         if (abs_change < expected)
             continue;
 
@@ -78,11 +71,4 @@ const BinanceOrderData* ProfitManager::findClosableOrder(const TradeSymbol &symb
     }
 
     return transaction;
-}
-
-void ProfitManager::addProfitStats(double profit, const TradeAsset& asset) {
-    std::string balance_key = sDbKeyProfit + asset;
-    double profit_total = profit + DB().getAsDouble(balance_key);
-    DB().set(balance_key, profit_total);
-    trace("%sprofit update: +%.2f (total +%.2f) %s%s\n", GREEN, profit, profit_total, asset.c_str(), RESET);
 }

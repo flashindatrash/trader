@@ -2,6 +2,8 @@
 #include "algorithm/OrderManager.hpp"
 #include "algorithm/BaseManager.hpp"
 
+bool BaseManager::sDebug = true;
+
 BaseManager::BaseManager(OrderManager& orders, time_t interval)
     : _orders(orders)
     , _interval(interval)

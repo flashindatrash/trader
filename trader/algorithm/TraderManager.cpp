@@ -11,7 +11,7 @@
 
 // рост/падение в процентном соотношении, при котором стоит производить сделку
 // диапозон между min/max выбирается в зависимости от текущего баланса
-static float sMinRate = 0.0025f;
+static float sMinRate = 0.005f;
 static float sMaxRate = 0.01f;
 
 // процентное соотношение цены для избегания открытия повторных схожих позиций
@@ -54,7 +54,7 @@ bool TraderManager::check(const TradeSymbol& symbol) {
 
     // ожидаемый рост зависит от соотношения баланса
     float expected = sMinRate + (change > 0 ? 1.0f - baseK : 1.0f - quoteK) * (sMaxRate - sMinRate);
-    // trace("trader change: %f -> %f\n", change, expected);
+    if (sDebug) trace("trader change: %f -> %f\n", change, expected);
     if (std::abs(change) < expected)
         return false;
 
@@ -62,7 +62,7 @@ bool TraderManager::check(const TradeSymbol& symbol) {
 
     // не дублируем схожие транзакции
     if (hasEqualTransaction(side, symbol.getPrice())) {
-        // trace("trader change: has equal %s trade (%f)\n", side.c_str(), symbol.getPrice());
+        if (sDebug) trace("trader change: has equal %s trade (%f)\n", side.c_str(), symbol.getPrice());
         return false;
     }
 

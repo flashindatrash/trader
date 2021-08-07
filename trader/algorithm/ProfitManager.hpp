@@ -15,7 +15,5 @@ public: // methods
 protected: // methods
     // найти ордер, который можно закрыть по выгодной ценеы
     const BinanceOrderData* findClosableOrder(const TradeSymbol& symbol) const;
-    // добавить статистику профита
-    void addProfitStats(double profit, const TradeAsset& asset);
 };
 

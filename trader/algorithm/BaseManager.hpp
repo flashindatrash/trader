@@ -7,6 +7,9 @@ class TradeSymbol;
 
 class BaseManager
 {
+protected: // static
+    static bool sDebug;
+
 public: // methods
     BaseManager(OrderManager& orders, time_t interval);
 

@@ -14,7 +14,7 @@ double PriceAnalyzer::getChangeSince(time_t time) const {
         const BinanceKlineData& current = *it;
         const BinanceKlineData& prev = *(it + 1);
 
-        if (current.timeStart < time)
+        if (current.timeClose < time)
             break;
 
         // todo: hlco4 and etc

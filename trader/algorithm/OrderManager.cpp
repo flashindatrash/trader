@@ -7,6 +7,7 @@
 
 static const std::string& sDbKeyOrder = "order:";
 static const std::string& sDbKeyLastOrder = "stats:time_last:";
+static const std::string& sDbKeyProfit = "stats:profit:";
 
 OrderManager::OrderManager(const TradeSymbol& symbol)
 {
@@ -16,7 +17,7 @@ OrderManager::OrderManager(const TradeSymbol& symbol)
     // найдем все открытые позиции
     std::vector<std::string> keys = DB().keys(sDbKeyOrder + "*");
     for (const BinanceOrderData& order : _orders) {
-        std::string id = key(order);
+        std::string id = sDbKeyOrder + order.clientOrderId;
         if (std::find(keys.begin(), keys.end(), id) == keys.end())
             continue;
 
@@ -72,7 +73,9 @@ bool OrderManager::create(const TradeSymbol& symbol, const std::string& side, do
         open(result);
     } else {
         trace("\a%s %f %s for %f (prev %f)\n", side.c_str(), quantity, symbol.baseAsset().c_str(), symbol.getPrice(), transaction->getPrice());
-        close(*transaction);
+        double profit = std::abs(transaction->getPrice() - symbol.getPrice()) * transaction->quantity;
+        addProfitStats(profit, symbol.quoteAsset());
+        close(transaction->clientOrderId);
     }
 
     return true;
@@ -84,18 +87,23 @@ void OrderManager::updateLastTime(const TradeSymbol& symbol) {
 }
 
 void OrderManager::open(const BinanceOrderData& transaction) {
-    std::string id = key(transaction);
-    DB().set(id, true);
+    DB().set(sDbKeyOrder + transaction.clientOrderId, true);
     _positions.push_back(transaction);
 }
 
-void OrderManager::close(const BinanceOrderData& transaction) {
-    std::string id = key(transaction);
-    DB().del(id);
+void OrderManager::close(const std::string& transaction_id) {
+    DB().del(sDbKeyOrder + transaction_id);
     size_t size = _positions.size();
-    std::remove_if(_positions.begin(), _positions.end(), [id](BinanceOrderData t) { return key(t) == id; });
+    _positions.erase(std::remove_if(_positions.begin(), _positions.end(), [transaction_id](BinanceOrderData t) { return t.clientOrderId == transaction_id; }));
     if (size == _positions.size())
         logic_error("transaction wasn't closed");
+}
+
+void OrderManager::addProfitStats(double profit, const TradeAsset& asset) {
+    std::string balance_key = sDbKeyProfit + asset;
+    double profit_total = profit + DB().getAsDouble(balance_key);
+    DB().set(balance_key, profit_total);
+    trace("%sprofit update: +%.2f (total +%.2f) %s%s\n", GREEN, profit, profit_total, asset.c_str(), RESET);
 }
 
 const std::vector<BinanceOrderData>& OrderManager::getOrders() const {
@@ -104,10 +112,6 @@ const std::vector<BinanceOrderData>& OrderManager::getOrders() const {
 
 const std::vector<BinanceOrderData>& OrderManager::getTransactions() const {
     return _positions;
-}
-
-const std::string OrderManager::key(const BinanceOrderData& transaction) {
-    return sDbKeyOrder + transaction.clientOrderId;
 }
 
 time_t OrderManager::getLastTime() const {

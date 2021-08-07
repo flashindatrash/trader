@@ -3,6 +3,7 @@
 #include "data/BinanceOrderData.hpp"
 
 class TradeSymbol;
+class TradeAsset;
 
 class OrderManager
 {
@@ -20,9 +21,11 @@ public: // methods
     time_t getLastTime() const;
 
 protected: // methods
+    // добавить статистику профита
+    void addProfitStats(double profit, const TradeAsset& asset);
     void updateLastTime(const TradeSymbol& symbol);
     void open(const BinanceOrderData& transaction);
-    void close(const BinanceOrderData& transaction);
+    void close(const std::string& transaction_id);
 
 protected: // vars
     std::vector<BinanceOrderData> _orders;
