@@ -23,12 +23,13 @@ void BinanceKlines::init(const TradeSymbol& symbol) {
 
     BinanceErrorData error(result);
     if (error.has()) {
-        trace("error: %s\n", error.msg.c_str());
+        runtime_error(error.msg.c_str());
         return;
     }
 
     if (not result.isArray()) {
-        trace("error: invalid klines\n%s\n", result.toStyledString().c_str());
+        trace("%s\n", result.toStyledString().c_str());
+        runtime_error("invalid klines");
         return;
     }
 

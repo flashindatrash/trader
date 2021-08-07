@@ -10,7 +10,7 @@ public: // static
     static TraderApp* create();
 
 public: // methods
-    void init(const TradeSymbol& symbol);
+    void run(const TradeSymbol& symbol);
 
 protected: // methods
     TraderApp();

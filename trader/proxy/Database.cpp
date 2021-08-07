@@ -15,9 +15,9 @@ void Database::init() {
     /* Create Redis context and establish connection */
     _context = redisConnect(REDIS_HOST, REDIS_PORT);
     if (_context == nullptr) {
-        trace("Can't allocate redis context\n");
+        runtime_error("can't allocate redis context\n");
     } else if (_context->err) {
-        trace("Error: %s\n", _context->errstr);
+        runtime_error(_context->errstr);
     }
 }
 
@@ -27,8 +27,10 @@ redisReply* Database::cmd(const char* format, ...) {
     void* result = redisvCommand(_context, format, args);
     va_end(args);
 
-    if (result == nullptr)
-        trace("Error: %s\n", _context->errstr);
+    if (result == nullptr) {
+        trace("result Database::cmd null\n");
+        return nullptr;
+    }
 
     return (redisReply*)result;
 }

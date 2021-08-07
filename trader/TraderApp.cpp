@@ -20,7 +20,7 @@ TraderApp* TraderApp::create() {
     return app;
 }
 
-void TraderApp::init(const TradeSymbol& symbol) {
+void TraderApp::run(const TradeSymbol& symbol) {
     // init binance api
     static string api_key       = BINANCE_API_KEY;
     static string secret_key    = BINANCE_SECRET_KEY;

@@ -19,6 +19,12 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-    TraderApp::create()->init(symbol);
+    try {
+        TraderApp::create()->run(symbol);
+    } catch (const std::exception& e) {
+        trace("TraderApp failed with %s", e.what());
+        return EXIT_FAILURE;
+    }
+
 	return EXIT_SUCCESS;
 }
