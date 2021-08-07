@@ -5,12 +5,14 @@
 #include "wrapper/TradeSymbol.hpp"
 #include "algorithm/OrderManager.hpp"
 
+static const std::string& sDbKeyOrder = "order:";
+
 OrderManager::OrderManager(const TradeSymbol& symbol)
 {
     _orders = SOrders().getAllOrders(symbol);
 
     // найдем все открытые транзакции
-    std::vector<std::string> keys = DB().keys("order:*");
+    std::vector<std::string> keys = DB().keys(sDbKeyOrder + "*");
     for (const BinanceOrderData& order : _orders) {
         std::string id = key(order);
         if (std::find(keys.begin(), keys.end(), id) == keys.end())
@@ -70,7 +72,7 @@ const std::vector<BinanceOrderData>& OrderManager::getTransactions() const {
 }
 
 const std::string OrderManager::key(const BinanceOrderData& transaction) {
-    return "order:" + transaction.clientOrderId;
+    return sDbKeyOrder + transaction.clientOrderId;
 }
 
 time_t OrderManager::getLastTime() const {
