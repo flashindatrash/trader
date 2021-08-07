@@ -20,13 +20,13 @@ void BinancePrices::init() {
 
     BinanceErrorData error(result);
     if (error.has()) {
-        runtime_error(error.msg.c_str());
+        logic_error(error.msg.c_str());
         return;
     }
 
     if (not result.isArray()) {
         trace("%s\n", result.toStyledString().c_str());
-        runtime_error("invalid prices");
+        logic_error("invalid prices");
         return;
     }
 

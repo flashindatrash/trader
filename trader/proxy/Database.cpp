@@ -15,9 +15,9 @@ void Database::init() {
     /* Create Redis context and establish connection */
     _context = redisConnect(REDIS_HOST, REDIS_PORT);
     if (_context == nullptr) {
-        runtime_error("can't allocate redis context\n");
+        logic_error("can't allocate redis context\n");
     } else if (_context->err) {
-        runtime_error(_context->errstr);
+        logic_error(_context->errstr);
     }
 }
 

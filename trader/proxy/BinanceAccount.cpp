@@ -13,20 +13,20 @@ void BinanceAccount::init() {
 
     BinanceErrorData error(result);
     if (error.has()) {
-        runtime_error(error.msg.c_str());
+        logic_error(error.msg.c_str());
         return;
     }
 
     const Json::Value& balances = result["balances"];
     if (not balances.isArray()) {
         trace("%s\n", result.toStyledString().c_str());
-        runtime_error("invalid account");
+        logic_error("invalid account");
         return;
     }
 
     if (result["accountType"].asString() != "SPOT") {
         trace("%s\n", result.toStyledString().c_str());
-        runtime_error("invalid account");
+        logic_error("invalid account");
         return;
     }
 
@@ -40,13 +40,13 @@ void BinanceAccount::connect() {
 
     BinanceErrorData error(result);
     if (error.has()) {
-        runtime_error(error.msg.c_str());
+        logic_error(error.msg.c_str());
         return;
     }
 
     if (!result["listenKey"] || !result["listenKey"].isString()) {
         trace("%s\n", result.toStyledString().c_str());
-        runtime_error("can't get listenKey for stream account\n");
+        logic_error("can't get listenKey for stream account\n");
         return;
     }
 

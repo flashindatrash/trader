@@ -4,7 +4,7 @@
 #include <iostream>
 
 #define trace printf
-#define runtime_error throw std::runtime_error
+#define logic_error throw std::logic_error
 
 //the following are UBUNTU/LINUX, and MacOS ONLY terminal color codes.
 #define RESET   "\033[0m"

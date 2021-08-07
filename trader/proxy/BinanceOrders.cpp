@@ -17,13 +17,13 @@ std::vector<BinanceOrderData> BinanceOrders::getAllOrders(const TradeSymbol& sym
 
     BinanceErrorData error(result);
     if (error.has()) {
-        runtime_error(error.msg.c_str());
+        logic_error(error.msg.c_str());
         return vec;
     }
 
     if (not result.isArray()) {
         trace("%s\n", result.toStyledString().c_str());
-        runtime_error("invalid orders");
+        logic_error("invalid orders");
         return vec;
     }
 

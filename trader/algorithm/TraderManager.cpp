@@ -11,7 +11,7 @@
 
 static float sMinRate = 0.0025f;
 static float sMaxRate = 0.01f;
-static float sEqualRate = 0.01f;
+static float sEqualRate = 0.003f;
 static float sMaxQuantity = 1.5f;
 
 TraderManager::TraderManager(OrderManager& orders)

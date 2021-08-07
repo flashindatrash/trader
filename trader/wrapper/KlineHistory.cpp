@@ -1,4 +1,5 @@
 #include "wrapper/KlineHistory.hpp"
+#include "Logger.hpp"
 
 KlineHistory* KlineHistory::create() {
     KlineHistory* wrapper = new KlineHistory();
@@ -13,7 +14,7 @@ void KlineHistory::add(const BinanceKlineData &data) {
     } else if (data.timeStart == _klines.back().timeStart) {
         _klines.back() = data;
     } else
-        throw 42;
+        logic_error("kline back in time");
 }
 
 const BinanceKlineData& KlineHistory::back() const {
