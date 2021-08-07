@@ -20,6 +20,7 @@ public: // methods
     time_t getLastTime() const;
 
 protected: // methods
+    void updateLastTime(const TradeSymbol& symbol);
     void open(const BinanceOrderData& transaction);
     void close(const BinanceOrderData& transaction);
 

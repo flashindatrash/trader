@@ -10,6 +10,8 @@
 static float sMinRate = 0.003f;
 static float sMaxRate = 0.04f;
 
+static const std::string& sDbKeyProfit = "stats:profit:";
+
 ProfitManager::ProfitManager(OrderManager& orders)
     : BaseManager(orders)
 {
@@ -75,7 +77,7 @@ const BinanceOrderData* ProfitManager::findClosableOrder(const TradeSymbol &symb
 }
 
 void ProfitManager::addProfitStats(double profit, const TradeAsset& asset) {
-    std::string balance_key = "binance:stats:profit:" + asset;
+    std::string balance_key = sDbKeyProfit + asset;
     double profit_total = profit + DB().getAsDouble(balance_key);
     DB().set(balance_key, profit_total);
     trace("%sprofit update: +%.2f (total +%.2f) %s%s\n", GREEN, profit, profit_total, asset.c_str(), RESET);

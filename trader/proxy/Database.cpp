@@ -47,6 +47,10 @@ void Database::set(const std::string& key, double value) {
     cmd("SET %s %f", key.c_str(), value);
 }
 
+void Database::set(const std::string& key, long value) {
+    cmd("SET %s %l", key.c_str(), value);
+}
+
 void Database::set(const std::string& key, bool value) {
     set(key, value ? 1 : 0);
 }
@@ -90,6 +94,10 @@ int Database::getAsInt(const std::string& key) {
 
 double Database::getAsDouble(const std::string& key) {
     return atof(getAsString(key));
+}
+
+double Database::getAsLong(const std::string& key) {
+    return atol(getAsString(key));
 }
 
 bool Database::getAsBool(const std::string& key) {

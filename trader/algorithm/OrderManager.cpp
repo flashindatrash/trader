@@ -6,10 +6,12 @@
 #include "algorithm/OrderManager.hpp"
 
 static const std::string& sDbKeyOrder = "order:";
+static const std::string& sDbKeyLastOrder = "stats:time_last:";
 
 OrderManager::OrderManager(const TradeSymbol& symbol)
 {
     _orders = SOrders().getAllOrders(symbol);
+    _last_time = DB().getAsLong(sDbKeyLastOrder + symbol);
 
     // найдем все открытые транзакции
     std::vector<std::string> keys = DB().keys(sDbKeyOrder + "*");
@@ -34,7 +36,7 @@ bool OrderManager::create(const TradeSymbol& symbol, const std::string& side, do
         return false;
 
     // обновляем время даже если нам вернули сстатус REJECTED
-    _last_time = STime().getCurrent();
+    updateLastTime(symbol);
 
     // не удалось создать
     if (result.isRejected())
@@ -53,6 +55,11 @@ bool OrderManager::create(const TradeSymbol& symbol, const std::string& side, do
     }
 
     return true;
+}
+
+void OrderManager::updateLastTime(const TradeSymbol& symbol) {
+    _last_time = STime().getCurrent();
+    DB().set(sDbKeyLastOrder + symbol, _last_time);
 }
 
 void OrderManager::open(const BinanceOrderData& transaction) {
