@@ -5,7 +5,8 @@
 struct BinanceErrorData
 {
 public: // static
-    static const int ERROR_CODE_INSUFFICIENT_BALANCE;
+    static const int NEW_ORDER_REJECTED;
+    static const int INVALID_TIMESTAMP;
 
 public: // methods
     BinanceErrorData(const Json::Value& json);

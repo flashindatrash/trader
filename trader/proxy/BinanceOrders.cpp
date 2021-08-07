@@ -73,14 +73,17 @@ const BinanceOrderData BinanceOrders::createOrder(const TradeSymbol& symbol, con
     // error response
     BinanceErrorData error(result);
     if (error.has()) {
-        if (error.code == BinanceErrorData::ERROR_CODE_INSUFFICIENT_BALANCE) {
+        BinanceOrderData empty;
+        if (error.code == BinanceErrorData::NEW_ORDER_REJECTED) {
+            empty.status = "REJECTED";
             const TradeAsset& asset = side == "BUY" ? symbol.quoteAsset() : symbol.baseAsset();
             double required = side == "BUY" ? symbol.getPrice(quantity) : quantity;
             trace("don't have %f %s (current %f)\n", required, asset.c_str(), asset.getBalance());
-        } else
+        } else {
             trace("%s\n", error.msg.c_str());
+        }
 
-        return BinanceOrderData();
+        return empty;
     }
 
     return BinanceOrderData(result, false);

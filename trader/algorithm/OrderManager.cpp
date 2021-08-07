@@ -29,12 +29,15 @@ bool OrderManager::create(const TradeSymbol& symbol, const std::string& side, do
         return false;
 
     BinanceOrderData result = SOrders().createOrder(symbol, side, quantity);
+    // неизвестная ошибка
+    if (result.isEmpty())
+        return false;
 
-    // обновляем время даже если не смогли создать заказ, мб после таймаута исправится
+    // обновляем время даже если нам вернули сстатус REJECTED
     _last_time = STime().getCurrent();
 
-    // что-то случилось, не удалось создать заказ
-    if (result.isEmpty() || result.isRejected())
+    // не удалось создать
+    if (result.isRejected())
         return false;
 
     // сохраним историю

@@ -55,7 +55,7 @@ bool TraderManager::check(const TradeSymbol& symbol) {
 
     // не дублируем схожие транзакции
     if (hasEqualTransaction(side, symbol.getPrice())) {
-        trace("trader change: has equal %s trade for %f\n", side.c_str(), symbol.getPrice());
+        trace("trader change: has equal %s trade (%f)\n", side.c_str(), symbol.getPrice());
         return false;
     }
 

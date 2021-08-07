@@ -10,9 +10,7 @@ public: // methods
 
     double getPrice() const;
 
-    bool isWeb() const;
     bool isRejected() const;
-    bool isInvalid() const;
     bool isEmpty() const;
 
 public: // vars

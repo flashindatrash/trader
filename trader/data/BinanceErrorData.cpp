@@ -1,7 +1,8 @@
 #include "data/BinanceErrorData.hpp"
 #include "json/json.h"
 
-const int BinanceErrorData::ERROR_CODE_INSUFFICIENT_BALANCE = -2010;
+const int BinanceErrorData::NEW_ORDER_REJECTED = -2010;
+const int BinanceErrorData::INVALID_TIMESTAMP = -1021;
 
 BinanceErrorData::BinanceErrorData(const Json::Value& json)
 {
