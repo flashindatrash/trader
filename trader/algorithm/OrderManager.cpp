@@ -40,10 +40,10 @@ bool OrderManager::create(const TradeSymbol& symbol, const std::string& side, do
 
     // открыть/закрыть транзакцию
     if (transaction == nullptr) {
-        trace("%s %s for %f\n", side.c_str(), symbol.baseAsset().c_str(), symbol.getPrice());
+        trace("%s %f %s for %f\n", side.c_str(), quantity, symbol.baseAsset().c_str(), symbol.getPrice());
         open(result);
     } else {
-        trace("%s %s for %f (prev %f)\n", side.c_str(), symbol.baseAsset().c_str(), symbol.getPrice(), transaction->getPrice());
+        trace("%s %f %s for %f (prev %f)\n", side.c_str(), quantity, symbol.baseAsset().c_str(), symbol.getPrice(), transaction->getPrice());
         close(*transaction);
     }
 
