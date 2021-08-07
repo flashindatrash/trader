@@ -6,6 +6,7 @@
 #include "data/BinanceSymbolData.hpp"
 #include "algorithm/OrderManager.hpp"
 #include "algorithm/TraderManager.hpp"
+#include "algorithm/PriceAnalyzer.hpp"
 #include "util/PriceUtil.hpp"
 
 static float sMinRate = 0.0025f;
@@ -34,6 +35,8 @@ bool TraderManager::check(const TradeSymbol& symbol) {
     if (history == nullptr)
         return false;
 
+    PriceAnalyzer analyzer(*history);
+
     const BinanceKlineData& kline = history->back();
 
     // посчитаем коэффициенты баланса
@@ -52,7 +55,7 @@ bool TraderManager::check(const TradeSymbol& symbol) {
 
     // не дублируем схожие транзакции
     if (hasEqualTransaction(side, symbol.getPrice())) {
-        trace("trader change: has equal trade\n");
+        trace("trader change: has equal %s trade for %f\n", side.c_str(), symbol.getPrice());
         return false;
     }
 
