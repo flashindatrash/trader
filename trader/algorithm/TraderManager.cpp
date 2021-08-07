@@ -73,7 +73,7 @@ bool TraderManager::check(const TradeSymbol& symbol) {
 }
 
 bool TraderManager::hasEqualTransaction(const std::string& side, double price) const {
-    for (const BinanceOrderData& order : _orders.getTransactions()) {
+    for (const BinanceOrderData& order : _orders.getPositions()) {
         // интересуют ордеры с одним типом
         if (order.side != side)
             continue;

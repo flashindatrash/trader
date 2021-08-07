@@ -43,7 +43,7 @@ const BinanceOrderData* ProfitManager::findClosableOrder(const TradeSymbol &symb
     // найдем ордер, который стоит закрыть по более выгодному курсу
     const BinanceOrderData* transaction = nullptr;
     double best_change = 0.0;
-    for (const BinanceOrderData& order : _orders.getTransactions()) {
+    for (const BinanceOrderData& order : _orders.getPositions()) {
         double change = util::get_percent(order.getPrice(), symbol.getPrice());
         double abs_change = std::abs(change);
 
