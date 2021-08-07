@@ -8,7 +8,7 @@
 #include "util/PriceUtil.hpp"
 
 static float sMinRate = 0.003f;
-static float sMaxRate = 0.006f;
+static float sMaxRate = 0.01f;
 
 ProfitManager::ProfitManager(OrderManager& orders)
     : BaseManager(orders)

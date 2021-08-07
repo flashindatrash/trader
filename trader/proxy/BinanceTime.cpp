@@ -1,7 +1,7 @@
-#include "BinanceTime.hpp"
-
 #include "binacpp.h"
 #include "Logger.hpp"
+#include "proxy/BinanceTime.hpp"
+#include "data/BinanceErrorData.hpp"
 
 const time_t BinanceTime::sSecond = 1000;
 const time_t BinanceTime::sMinute = 60 * sSecond;
@@ -13,9 +13,15 @@ void BinanceTime::init()
     Json::Value result;
     BinaCPP::get_serverTime(result);
 
+    BinanceErrorData error(result);
+    if (error.has()) {
+        trace("error: %s\n", error.msg.c_str());
+        return;
+    }
+
     if (not result["serverTime"] || not result["serverTime"].isInt64()) {
-        trace("unknown server time\n");
-        throw 42;
+        trace("error: invalid server time\n%s\n", result.toStyledString().c_str());
+        return;
     }
 
     time_t server_time = result["serverTime"].asInt64();
@@ -25,8 +31,7 @@ void BinanceTime::init()
 
     if (std::abs(server_time - local_time) > 1000) {
         // todo: поддержать разницу во времени
-        trace("time desynchronizated\n");
-        throw 42;
+        trace("error: time desynchronizated!!!\n");
     }
 }
 

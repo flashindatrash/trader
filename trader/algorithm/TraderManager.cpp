@@ -8,7 +8,7 @@
 #include "algorithm/TraderManager.hpp"
 #include "util/PriceUtil.hpp"
 
-static float sMinRate = 0.003f;
+static float sMinRate = 0.0025f;
 static float sMaxRate = 0.01f;
 static float sEqualRate = 0.02f;
 static float sMaxQuantity = 1.5f;
@@ -44,14 +44,17 @@ bool TraderManager::check(const TradeSymbol& symbol) {
     // ожидаемый рост зависит от соотношения баланса
     float change = util::get_percent(kline.priceOpen, kline.priceClose);
     float expected = sMinRate + (change > 0 ? baseK : quoteK) * (sMaxRate - sMinRate);
+    trace("trader change: %f -> %f\n", change, expected);
     if (std::abs(change) < expected)
         return false;
 
     std::string side = change > 0.0f ? "SELL" : "BUY";
 
     // не дублируем схожие транзакции
-    if (hasEqualTransaction(side, symbol.getPrice()))
+    if (hasEqualTransaction(side, symbol.getPrice())) {
+        trace("trader change: has equal trade\n");
         return false;
+    }
 
     // цена, которую хотим вложить, зависит от соотношения баланса
     double quantity = _min_quantity + (change > 0 ? baseK : quoteK) * (_max_quantity - _min_quantity);

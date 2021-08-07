@@ -14,8 +14,17 @@ std::vector<BinanceOrderData> BinanceOrders::getAllOrders(const TradeSymbol& sym
     BinaCPP::get_allOrders(symbol.c_str(), 0, limit, BINANCE_RECV_WINDOW, result);
 
     std::vector<BinanceOrderData> vec;
-    if (!result.isArray())
+
+    BinanceErrorData error(result);
+    if (error.has()) {
+        trace("error: %s\n", error.msg.c_str());
         return vec;
+    }
+
+    if (not result.isArray()) {
+        trace("error: invalid orders\n%s\n", result.toStyledString().c_str());
+        return vec;
+    }
 
     for (uint i = 0; i < result.size(); ++i)
         vec.push_back(BinanceOrderData(result[i], false));

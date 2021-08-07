@@ -5,6 +5,7 @@
 #include "wrapper/TradeSymbol.hpp"
 #include "wrapper/PriceHistory.hpp"
 #include "data/BinanceBookData.hpp"
+#include "data/BinanceErrorData.hpp"
 #include "util/StringUtil.hpp"
 
 BinancePrices::~BinancePrices() {
@@ -17,8 +18,14 @@ void BinancePrices::init() {
     Json::Value result;
     BinaCPP::get_allPrices(result);
 
+    BinanceErrorData error(result);
+    if (error.has()) {
+        trace("error: %s\n", error.msg.c_str());
+        return;
+    }
+
     if (not result.isArray()) {
-        trace("%s\n", result.toStyledString().c_str());
+        trace("error: invalid prices\n%s\n", result.toStyledString().c_str());
         return;
     }
 

@@ -1,24 +1,30 @@
-#include "BinanceAccount.hpp"
-
 #include "binacpp.h"
 #include "binacpp_websocket.h"
 #include "Logger.hpp"
 #include "Config.hpp"
+#include "proxy/BinanceAccount.hpp"
 #include "data/BinanceBalanceData.hpp"
 #include "data/BinanceOrderData.hpp"
+#include "data/BinanceErrorData.hpp"
 
 void BinanceAccount::init() {
     Json::Value result;
     BinaCPP::get_account(BINANCE_RECV_WINDOW, result);
 
+    BinanceErrorData error(result);
+    if (error.has()) {
+        trace("error: %s\n", error.msg.c_str());
+        return;
+    }
+
     const Json::Value& balances = result["balances"];
     if (not balances.isArray()) {
-        trace("%s\n", result.toStyledString().c_str());
+        trace("error: invalid account\n%s\n", result.toStyledString().c_str());
         return;
     }
 
     if (result["accountType"].asString() != "SPOT") {
-        trace("%s\n", result.toStyledString().c_str());
+        trace("error: invalid account\n%s\n", result.toStyledString().c_str());
         return;
     }
 
