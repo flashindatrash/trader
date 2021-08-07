@@ -45,10 +45,10 @@ bool OrderManager::create(const TradeSymbol& symbol, const std::string& side, do
 
     // открыть/закрыть транзакцию
     if (transaction == nullptr) {
-        trace("%s %f %s for %f\n", side.c_str(), quantity, symbol.baseAsset().c_str(), symbol.getPrice());
+        trace("\a%s %f %s for %f\n", side.c_str(), quantity, symbol.baseAsset().c_str(), symbol.getPrice());
         open(result);
     } else {
-        trace("%s %f %s for %f (prev %f)\n", side.c_str(), quantity, symbol.baseAsset().c_str(), symbol.getPrice(), transaction->getPrice());
+        trace("\a%s %f %s for %f (prev %f)\n", side.c_str(), quantity, symbol.baseAsset().c_str(), symbol.getPrice(), transaction->getPrice());
         close(*transaction);
     }
 
@@ -56,14 +56,18 @@ bool OrderManager::create(const TradeSymbol& symbol, const std::string& side, do
 }
 
 void OrderManager::open(const BinanceOrderData& transaction) {
-    DB().set(key(transaction), true);
+    std::string id = key(transaction);
+    DB().set(id, true);
     _transactions.push_back(transaction);
 }
 
 void OrderManager::close(const BinanceOrderData& transaction) {
     std::string id = key(transaction);
     DB().del(id);
+    size_t size = _transactions.size();
     std::remove_if(_transactions.begin(), _transactions.end(), [id](BinanceOrderData t) { return key(t) == id; });
+    if (size == _transactions.size())
+        logic_error("transaction wasn't closed");
 }
 
 const std::vector<BinanceOrderData>& OrderManager::getOrders() const {
