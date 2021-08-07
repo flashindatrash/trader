@@ -44,7 +44,7 @@ bool TraderManager::check(const TradeSymbol& symbol) {
     util::calc_balance_rate(symbol, baseK, quoteK);
 
     // ожидаемый рост зависит от соотношения баланса
-    float expected = sMinRate + (change > 0 ? baseK : quoteK) * (sMaxRate - sMinRate);
+    float expected = sMinRate + (change > 0 ? 1.0f - baseK : 1.0f - quoteK) * (sMaxRate - sMinRate);
     trace("trader change: %f -> %f\n", change, expected);
     if (std::abs(change) < expected)
         return false;

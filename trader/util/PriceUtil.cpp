@@ -38,6 +38,6 @@ void util::calc_balance_rate(const TradeSymbol& symbol, float& base, float& quot
     double baseQty = symbol.getPrice(symbol.baseAsset().getBalance());
     double quoteQty = symbol.quoteAsset().getBalance();
     double sumQty = (baseQty + quoteQty) * 0.5;
-    base = 1.0f - std::min(1.0, baseQty / sumQty);
-    quote = 1.0f - std::min(1.0, quoteQty / sumQty);
+    base = std::min(1.0, baseQty / sumQty);
+    quote = std::min(1.0, quoteQty / sumQty);
 }
