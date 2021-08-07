@@ -48,7 +48,7 @@ void Database::set(const std::string& key, double value) {
 }
 
 void Database::set(const std::string& key, long value) {
-    cmd("SET %s %l", key.c_str(), value);
+    cmd("SET %s %s", key.c_str(), std::to_string(value).c_str());
 }
 
 void Database::set(const std::string& key, bool value) {

@@ -1,13 +1,13 @@
 #pragma once
 
 #include "Proxy.hpp"
-#include "data/BinanceBalanceData.hpp"
 
 class TradeSymbol;
 class OrderManager;
+class BalanceManager;
 class ProfitManager;
 class TraderManager;
-struct BinanceBookData;
+struct BinanceBalanceData;
 struct BinanceKlineData;
 
 class BinanceAlgorithm : public Core::Proxy<BinanceAlgorithm>
@@ -20,15 +20,13 @@ public: // methods
 
 protected: // methods
     void onBalanceChanged(const BinanceBalanceData &data);
-    void onBookChanged(const BinanceBookData &data);
     void onKlineChanged(const BinanceKlineData &data);
 
 protected: // vars
     OrderManager* _pool = nullptr;
+    BalanceManager* _balance_manager = nullptr;
     ProfitManager* _profit_manager = nullptr;
     TraderManager* _trader_manager = nullptr;
-
-    std::vector<BinanceBalanceData> _balances;
 };
 
 #define SAlgorithm() BinanceAlgorithm::getInstance()

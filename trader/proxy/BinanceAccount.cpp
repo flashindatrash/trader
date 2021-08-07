@@ -63,7 +63,7 @@ int BinanceAccount::handle(Json::Value& json) {
         if (executionType == "NEW") {
             BinanceOrderData order(json, true);
             if (order.isRejected())
-                trace("Order Failed! Reason: %s\n", json["r"].asString().c_str());
+                logic_error(json["r"].asString().c_str());
         }
     } else if (action == "outboundAccountPosition") {
         for (uint i = 0; i < json["B"].size(); ++i) {
@@ -75,10 +75,10 @@ int BinanceAccount::handle(Json::Value& json) {
 }
 
 double BinanceAccount::getBalance(const std::string &asset) const {
-    if (_balance.find(asset) == _balance.end())
+    auto it = _balance.find(asset);
+    if (it == _balance.end())
         return 0.0;
-
-    return _balance.at(asset);
+    return it->second;
 }
 
 void BinanceAccount::setBalance(const BinanceBalanceData& data) {

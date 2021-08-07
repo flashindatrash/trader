@@ -13,15 +13,36 @@ OrderManager::OrderManager(const TradeSymbol& symbol)
     _orders = SOrders().getAllOrders(symbol);
     _last_time = DB().getAsLong(sDbKeyLastOrder + symbol);
 
-    // найдем все открытые транзакции
+    // найдем все открытые позиции
     std::vector<std::string> keys = DB().keys(sDbKeyOrder + "*");
     for (const BinanceOrderData& order : _orders) {
         std::string id = key(order);
         if (std::find(keys.begin(), keys.end(), id) == keys.end())
             continue;
 
-        _transactions.push_back(order);
+        _positions.push_back(order);
         trace("- %s %f\n", order.side.c_str(), order.getPrice());
+    }
+
+    if (not _positions.empty()) {
+        // отсортируем позиции
+        std::sort(_positions.begin(), _positions.end(), [](const BinanceOrderData& l, const BinanceOrderData& r) {
+            return l.getPrice() < r.getPrice();
+        });
+
+        double current_price = symbol.getPrice();
+        bool current_embeded = false;
+        for (const BinanceOrderData& position : _positions) {
+            if (not current_embeded && current_price < position.getPrice()) {
+                std::cout << "|";
+                current_embeded = true;
+            }
+            if (position.side == "BUY")
+                std::cout << "+";
+            else
+                std::cout << "-";
+        }
+        std::cout << std::endl;
     }
 }
 
@@ -65,15 +86,15 @@ void OrderManager::updateLastTime(const TradeSymbol& symbol) {
 void OrderManager::open(const BinanceOrderData& transaction) {
     std::string id = key(transaction);
     DB().set(id, true);
-    _transactions.push_back(transaction);
+    _positions.push_back(transaction);
 }
 
 void OrderManager::close(const BinanceOrderData& transaction) {
     std::string id = key(transaction);
     DB().del(id);
-    size_t size = _transactions.size();
-    std::remove_if(_transactions.begin(), _transactions.end(), [id](BinanceOrderData t) { return key(t) == id; });
-    if (size == _transactions.size())
+    size_t size = _positions.size();
+    std::remove_if(_positions.begin(), _positions.end(), [id](BinanceOrderData t) { return key(t) == id; });
+    if (size == _positions.size())
         logic_error("transaction wasn't closed");
 }
 
@@ -82,7 +103,7 @@ const std::vector<BinanceOrderData>& OrderManager::getOrders() const {
 }
 
 const std::vector<BinanceOrderData>& OrderManager::getTransactions() const {
-    return _transactions;
+    return _positions;
 }
 
 const std::string OrderManager::key(const BinanceOrderData& transaction) {

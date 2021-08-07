@@ -26,7 +26,7 @@ protected: // methods
 
 protected: // vars
     std::vector<BinanceOrderData> _orders;
-    std::vector<BinanceOrderData> _transactions;
+    std::vector<BinanceOrderData> _positions;
     time_t _last_time = 0;
 };
 

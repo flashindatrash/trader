@@ -40,7 +40,6 @@ void TraderApp::run(const TradeSymbol& symbol) {
     // connect websocket
     BinaCPP_websocket::init();
     SAccount().connect();
-    //SPrices().connect(symbol);
     SKlines().connect(symbol);
     BinaCPP_websocket::enter_event_loop();
 }

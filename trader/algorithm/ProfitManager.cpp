@@ -7,15 +7,16 @@
 #include "algorithm/OrderManager.hpp"
 #include "util/PriceUtil.hpp"
 
+// рост/падение в процентном соотношении от ранее открытых позиций, которые стоит закрыть для получения профита
+// диапозон между min/max выбирается в зависимости от текущего баланса
 static float sMinRate = 0.003f;
 static float sMaxRate = 0.04f;
 
 static const std::string& sDbKeyProfit = "stats:profit:";
 
 ProfitManager::ProfitManager(OrderManager& orders)
-    : BaseManager(orders)
+    : BaseManager(orders, BinanceTime::sSecond * 30)
 {
-    _interval = BinanceTime::sSecond * 30;
 }
 
 bool ProfitManager::check(const TradeSymbol& symbol) {
@@ -27,13 +28,16 @@ bool ProfitManager::check(const TradeSymbol& symbol) {
     if (transaction == nullptr)
         return false;
 
+    // посчитаем профит, перед закрытием, иначе позиция может сдохнуть
+    double profit = std::abs(transaction->getPrice() - symbol.getPrice()) * transaction->quantity;
+
     // пробуем создать новый ордер
     const std::string& side = transaction->side == "BUY" ? "SELL" : "BUY";
     if (not _orders.create(symbol, side, transaction->quantity, transaction))
         return false;
 
     // сохраняем профит
-    addProfitStats(std::abs(transaction->getPrice() - symbol.getPrice()) * transaction->quantity, symbol.quoteAsset());
+    addProfitStats(profit, symbol.quoteAsset());
     return true;
 }
 

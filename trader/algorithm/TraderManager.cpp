@@ -9,15 +9,23 @@
 #include "algorithm/PriceAnalyzer.hpp"
 #include "util/PriceUtil.hpp"
 
+// рост/падение в процентном соотношении, при котором стоит производить сделку
+// диапозон между min/max выбирается в зависимости от текущего баланса
 static float sMinRate = 0.0025f;
 static float sMaxRate = 0.01f;
+
+// процентное соотношение цены для избегания открытия повторных схожих позиций
 static float sEqualRate = 0.003f;
-static float sMaxQuantity = 1.5f;
+
+// мин/макс объем валюты, с которым бот открывает новые заказы
+// данное число умножается на минимальный разрешенный лот
+// диапозон между min/max выбирается в зависимости от текущего баланса
+static double sMinQuantity = 1.5;
+static double sMaxQuantity = 2.5;
 
 TraderManager::TraderManager(OrderManager& orders)
-    : BaseManager(orders)
+    : BaseManager(orders, BinanceTime::sMinute * 1)
 {
-    _interval = BinanceTime::sMinute * 1;
 }
 
 bool TraderManager::check(const TradeSymbol& symbol) {
@@ -26,8 +34,9 @@ bool TraderManager::check(const TradeSymbol& symbol) {
 
     // устанавливаем стоимость покупки
     if (_min_quantity == 0.0 || _max_quantity == 0.0) {
-        _min_quantity = util::get_min_quantity(symbol) * 1.3;
-        _max_quantity = _min_quantity * sMaxQuantity;
+        double min = util::get_min_quantity(symbol);
+        _min_quantity = min * sMinQuantity;
+        _max_quantity = min * sMaxQuantity;
         trace("trader quantity: %f -> %f \n", _min_quantity, _max_quantity);
     }
 
@@ -36,7 +45,7 @@ bool TraderManager::check(const TradeSymbol& symbol) {
         return false;
 
     PriceAnalyzer analyzer(*history);
-    float change = analyzer.getChangeSince(_interval);
+    float change = analyzer.getChangeSince(_orders.getLastTime());
 
     // посчитаем коэффициенты баланса
     float baseK = 0.0f;
@@ -45,7 +54,7 @@ bool TraderManager::check(const TradeSymbol& symbol) {
 
     // ожидаемый рост зависит от соотношения баланса
     float expected = sMinRate + (change > 0 ? 1.0f - baseK : 1.0f - quoteK) * (sMaxRate - sMinRate);
-    trace("trader change: %f -> %f\n", change, expected);
+    // trace("trader change: %f -> %f\n", change, expected);
     if (std::abs(change) < expected)
         return false;
 
@@ -53,7 +62,7 @@ bool TraderManager::check(const TradeSymbol& symbol) {
 
     // не дублируем схожие транзакции
     if (hasEqualTransaction(side, symbol.getPrice())) {
-        trace("trader change: has equal %s trade (%f)\n", side.c_str(), symbol.getPrice());
+        // trace("trader change: has equal %s trade (%f)\n", side.c_str(), symbol.getPrice());
         return false;
     }
 

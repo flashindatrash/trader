@@ -2,8 +2,9 @@
 #include "algorithm/OrderManager.hpp"
 #include "algorithm/BaseManager.hpp"
 
-BaseManager::BaseManager(OrderManager& orders)
+BaseManager::BaseManager(OrderManager& orders, time_t interval)
     : _orders(orders)
+    , _interval(interval)
 {
 }
 
