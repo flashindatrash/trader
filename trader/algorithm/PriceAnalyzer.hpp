@@ -1,5 +1,7 @@
 #pragma once
 
+#include <global.hpp>
+
 class KlineHistory;
 
 class PriceAnalyzer
@@ -7,7 +9,7 @@ class PriceAnalyzer
 public: // methods
     PriceAnalyzer(const KlineHistory& history);
 
-    double predictNextPrice() const;
+    double getChangeSince(time_t time) const;
 
 protected: // vars
     const KlineHistory& _history;

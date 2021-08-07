@@ -17,7 +17,7 @@ static float sMaxQuantity = 1.5f;
 TraderManager::TraderManager(OrderManager& orders)
     : BaseManager(orders)
 {
-    _interval = BinanceTime::sMinute * 10;
+    _interval = BinanceTime::sMinute * 1;
 }
 
 bool TraderManager::check(const TradeSymbol& symbol) {
@@ -36,8 +36,7 @@ bool TraderManager::check(const TradeSymbol& symbol) {
         return false;
 
     PriceAnalyzer analyzer(*history);
-
-    const BinanceKlineData& kline = history->back();
+    float change = analyzer.getChangeSince(_interval);
 
     // посчитаем коэффициенты баланса
     float baseK = 0.0f;
@@ -45,7 +44,6 @@ bool TraderManager::check(const TradeSymbol& symbol) {
     util::calc_balance_rate(symbol, baseK, quoteK);
 
     // ожидаемый рост зависит от соотношения баланса
-    float change = util::get_percent(kline.priceOpen, kline.priceClose);
     float expected = sMinRate + (change > 0 ? baseK : quoteK) * (sMaxRate - sMinRate);
     trace("trader change: %f -> %f\n", change, expected);
     if (std::abs(change) < expected)
