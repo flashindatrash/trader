@@ -76,7 +76,7 @@ const BinanceOrderData* ProfitManager::findClosableOrder(const TradeSymbol &symb
 
 void ProfitManager::addProfitStats(double profit, const TradeAsset& asset) {
     std::string balance_key = "binance:stats:profit:" + asset;
-    profit += DB().getAsDouble(balance_key);
-    DB().set(balance_key, profit);
-    trace("%sprofit update: +%.2f %s%s\n", GREEN, profit, asset.c_str(), RESET);
+    double profit_total = profit + DB().getAsDouble(balance_key);
+    DB().set(balance_key, profit_total);
+    trace("%sprofit update: +%.2f (total +%.2f) %s%s\n", GREEN, profit, profit_total, asset.c_str(), RESET);
 }
