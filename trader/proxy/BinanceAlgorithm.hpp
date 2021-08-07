@@ -1,12 +1,12 @@
 #pragma once
 
 #include "Proxy.hpp"
+#include "data/BinanceBalanceData.hpp"
 
 class TradeSymbol;
 class OrderManager;
 class ProfitManager;
 class TraderManager;
-struct BinanceBalanceData;
 struct BinanceBookData;
 struct BinanceKlineData;
 
@@ -27,6 +27,8 @@ protected: // vars
     OrderManager* _pool = nullptr;
     ProfitManager* _profit_manager = nullptr;
     TraderManager* _trader_manager = nullptr;
+
+    std::vector<BinanceBalanceData> _balances;
 };
 
 #define SAlgorithm() BinanceAlgorithm::getInstance()

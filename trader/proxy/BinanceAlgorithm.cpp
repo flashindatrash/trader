@@ -8,7 +8,6 @@
 #include "algorithm/ProfitManager.hpp"
 #include "algorithm/TraderManager.hpp"
 #include "wrapper/TradeSymbol.hpp"
-#include "data/BinanceBalanceData.hpp"
 #include "data/BinanceKlineData.hpp"
 
 BinanceAlgorithm::~BinanceAlgorithm() {
@@ -18,7 +17,8 @@ BinanceAlgorithm::~BinanceAlgorithm() {
 }
 
 void BinanceAlgorithm::init(const TradeSymbol& symbol) {
-    trace("%s%s: %f %s: %f%s\n", GREEN, symbol.baseAsset().c_str(), symbol.baseAsset().getBalance(), symbol.quoteAsset().c_str(), symbol.quoteAsset().getBalance(), RESET);
+    _balances.push_back({symbol.baseAsset(), symbol.baseAsset().getBalance()});
+    _balances.push_back({symbol.quoteAsset(), symbol.quoteAsset().getBalance()});
 
     _pool = new OrderManager(symbol);
     if (not Migrator::migrate(*_pool))
@@ -33,7 +33,7 @@ void BinanceAlgorithm::init(const TradeSymbol& symbol) {
 }
 
 void BinanceAlgorithm::onBalanceChanged(const BinanceBalanceData &data) {
-    trace("%s%s: %f%s\n", GREEN, data.asset.c_str(), data.free, RESET);
+    _balances.push_back(data);
 }
 
 void BinanceAlgorithm::onBookChanged(const BinanceBookData& data) {
@@ -41,6 +41,18 @@ void BinanceAlgorithm::onBookChanged(const BinanceBookData& data) {
 
 void BinanceAlgorithm::onKlineChanged(const BinanceKlineData &data) {
     const TradeSymbol& symbol(data.symbol);
+
+    if (not _balances.empty()) {
+        std::string message = "";
+        for (const BinanceBalanceData &data : _balances) {
+            if (data.asset == symbol.baseAsset() || data.asset == symbol.quoteAsset())
+                message += data.asset + "(" + std::to_string(data.free) + ") ";
+        }
+        if (not message.empty())
+            trace("%sbalance update: %s%s\n", GREEN, message.c_str(), RESET);
+        _balances.clear();
+    }
+
 
     if (_profit_manager->check(symbol))
         return;

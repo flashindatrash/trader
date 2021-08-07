@@ -20,6 +20,26 @@ bool ProfitManager::check(const TradeSymbol& symbol) {
     if (not BaseManager::check(symbol))
         return false;
 
+    // находим ордер для закрытия
+    const BinanceOrderData* transaction = findClosableOrder(symbol);
+    if (transaction == nullptr)
+        return false;
+
+    // пробуем создать новый ордер
+    const std::string& side = transaction->side == "BUY" ? "SELL" : "BUY";
+    if (not _orders.create(symbol, side, transaction->quantity))
+        return false;
+
+    // закрываем старый ордер
+    trace("close %s order for %f\n", transaction->side.c_str(), transaction->getPrice());
+    _orders.close(*transaction);
+
+    // сохраняем профит
+    addProfitStats(std::abs(transaction->getPrice() - symbol.getPrice()) * transaction->quantity, symbol.quoteAsset());
+    return true;
+}
+
+const BinanceOrderData* ProfitManager::findClosableOrder(const TradeSymbol &symbol) const {
     // посчитаем коэффициенты баланса
     float baseK = 0.0f;
     float quoteK = 0.0f;
@@ -55,22 +75,12 @@ bool ProfitManager::check(const TradeSymbol& symbol) {
         best_change = abs_change;
     }
 
-    if (transaction == nullptr)
-        return false;
+    return transaction;
+}
 
-    const std::string& side = transaction->side == "BUY" ? "SELL" : "BUY";
-    if (not _orders.create(symbol, side, transaction->quantity))
-        return false;
-
-    // закрываем ордер
-    trace("close %s order for %f\n", transaction->side.c_str(), transaction->getPrice());
-    _orders.close(*transaction);
-
-    // сохраняем профит
-    double profit = std::abs(transaction->getPrice() - symbol.getPrice()) * transaction->quantity;
-    std::string balance_key = "binance:stats:profit:" + symbol.quoteAsset();
+void ProfitManager::addProfitStats(double profit, const TradeAsset& asset) {
+    std::string balance_key = "binance:stats:profit:" + asset;
     profit += DB().getAsDouble(balance_key);
     DB().set(balance_key, profit);
-    trace("%sprofit: +%.2f%s\n", GREEN, profit, RESET);
-    return true;
+    trace("%sprofit update: +%.2f %s%s\n", GREEN, profit, asset.c_str(), RESET);
 }
