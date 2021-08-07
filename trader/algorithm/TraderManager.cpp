@@ -56,7 +56,7 @@ bool TraderManager::check(const TradeSymbol& symbol) {
     // цена, которую хотим вложить, зависит от соотношения баланса
     double quantity = _min_quantity + (change > 0 ? baseK : quoteK) * (_max_quantity - _min_quantity);
     quantity = util::ceil_quantity(symbol, quantity);
-    return _orders.create(symbol, side, quantity, true);
+    return _orders.create(symbol, side, quantity, nullptr);
 }
 
 bool TraderManager::hasEqualTransaction(const std::string& side, double price) const {

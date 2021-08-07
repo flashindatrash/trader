@@ -21,7 +21,7 @@ OrderManager::OrderManager(const TradeSymbol& symbol)
     }
 }
 
-bool OrderManager::create(const TradeSymbol& symbol, const std::string& side, double quantity, bool transaction) {
+bool OrderManager::create(const TradeSymbol& symbol, const std::string& side, double quantity, const BinanceOrderData* transaction) {
     // проверяем, что достаточно средств
     if (not SOrders().isEnough(symbol, side, quantity))
         return false;
@@ -35,15 +35,17 @@ bool OrderManager::create(const TradeSymbol& symbol, const std::string& side, do
     if (result.isEmpty() || result.isRejected())
         return false;
 
-    // пишем в лог
-    trace("%s %s at price %f\n", side.c_str(), symbol.baseAsset().c_str(), symbol.getPrice());
-
-    // сохранить историю
+    // сохраним историю
     _orders.push_back(result);
 
-    // открыть транзакцию
-    if (transaction)
+    // открыть/закрыть транзакцию
+    if (transaction == nullptr) {
+        trace("%s %s for %f\n", side.c_str(), symbol.baseAsset().c_str(), symbol.getPrice());
         open(result);
+    } else {
+        trace("%s %s for %f (prev %f)\n", side.c_str(), symbol.baseAsset().c_str(), symbol.getPrice(), transaction->getPrice());
+        close(*transaction);
+    }
 
     return true;
 }

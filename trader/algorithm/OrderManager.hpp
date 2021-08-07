@@ -12,15 +12,16 @@ protected: // static
 public: // methods
     OrderManager(const TradeSymbol& symbol);
 
-    bool create(const TradeSymbol& symbol, const std::string& side, double quantity, bool transaction = false);
-
-    void open(const BinanceOrderData& transaction);
-    void close(const BinanceOrderData& transaction);
+    bool create(const TradeSymbol& symbol, const std::string& side, double quantity, const BinanceOrderData* transaction);
 
     const std::vector<BinanceOrderData>& getOrders() const;
     const std::vector<BinanceOrderData>& getTransactions() const;
 
     time_t getLastTime() const;
+
+protected: // methods
+    void open(const BinanceOrderData& transaction);
+    void close(const BinanceOrderData& transaction);
 
 protected: // vars
     std::vector<BinanceOrderData> _orders;

@@ -27,12 +27,8 @@ bool ProfitManager::check(const TradeSymbol& symbol) {
 
     // пробуем создать новый ордер
     const std::string& side = transaction->side == "BUY" ? "SELL" : "BUY";
-    if (not _orders.create(symbol, side, transaction->quantity))
+    if (not _orders.create(symbol, side, transaction->quantity, transaction))
         return false;
-
-    // закрываем старый ордер
-    trace("close %s order for %f\n", transaction->side.c_str(), transaction->getPrice());
-    _orders.close(*transaction);
 
     // сохраняем профит
     addProfitStats(std::abs(transaction->getPrice() - symbol.getPrice()) * transaction->quantity, symbol.quoteAsset());
