@@ -17,6 +17,10 @@ void KlineHistory::add(const BinanceKlineData &data) {
         logic_error("kline back in time");
 }
 
+const std::vector<BinanceKlineData>& KlineHistory::klines() const {
+    return _klines;
+}
+
 const BinanceKlineData& KlineHistory::back() const {
     return _klines.back();
 }

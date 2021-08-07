@@ -5,9 +5,11 @@ class KlineHistory;
 class PriceAnalyzer
 {
 public: // methods
-    PriceAnalyzer(const KlineHistory& klines);
+    PriceAnalyzer(const KlineHistory& history);
+
+    double predictNextPrice() const;
 
 protected: // vars
-    const KlineHistory& _klines;
+    const KlineHistory& _history;
 };
 

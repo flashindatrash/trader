@@ -10,6 +10,7 @@ public: // static
 public: // methods
     void add(const BinanceKlineData& data);
 
+    const std::vector<BinanceKlineData>& klines() const;
     const BinanceKlineData& back() const;
 
 protected: // methods

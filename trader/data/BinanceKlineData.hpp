@@ -10,6 +10,10 @@ public: // methods
 
     bool isEmpty() const;
 
+    double hl2() const;
+    double hlc3() const;
+    double ohlc4() const;
+
 public: // vars
     std::string symbol = "";
     time_t timeStart = 0;
