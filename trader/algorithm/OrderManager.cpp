@@ -18,7 +18,7 @@ OrderManager::OrderManager(const TradeSymbol& symbol)
             continue;
 
         _positions.push_back(order);
-        trace("- %s %f\n", order.side.c_str(), order.getPrice());
+        trace("- %s\t%f\n", order.side.c_str(), order.getPrice());
     }
 
     if (not _positions.empty()) {
