@@ -18,11 +18,9 @@ static float sMaxRate = 0.04f;
 // процентное соотношение цены для избегания открытия повторных схожих позиций
 static float sEqualRate = 0.003f;
 
-// мин/макс объем валюты, с которым бот открывает новые заказы
+// мин объем валюты, с которым бот открывает новые заказы
 // данное число умножается на минимальный разрешенный лот
-// диапозон между min/max выбирается в зависимости от текущего баланса
-static double sMinQuantity = 1.5;
-static double sMaxQuantity = 2.5;
+static double sMinQuantity = 2.0;
 
 TraderManager::TraderManager(OrderManager& orders)
     : BaseManager(orders, BinanceTime::sMinute * 1)
