@@ -6,10 +6,10 @@ const int BinanceErrorData::INVALID_TIMESTAMP = -1021;
 
 BinanceErrorData::BinanceErrorData(const Json::Value& json)
 {
-    if (not json.isObject())
+    if (not json.isObject() || not json["code"])
         return;
 
-    code = atoi(json["code"].asString().c_str());
+    code = atoi(json["code"].asCString());
     msg = json["msg"].asString();
 }
 

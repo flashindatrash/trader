@@ -2,13 +2,13 @@
 #include "proxy/BinanceAlgorithm.hpp"
 #include "proxy/BinanceAccount.hpp"
 #include "proxy/BinanceKlines.hpp"
+#include "wrapper/TradeSymbol.hpp"
+#include "data/BinanceKlineData.hpp"
 #include "algorithm/Migrator.hpp"
 #include "algorithm/OrderManager.hpp"
 #include "algorithm/BalanceManager.hpp"
 #include "algorithm/ProfitManager.hpp"
 #include "algorithm/TraderManager.hpp"
-#include "wrapper/TradeSymbol.hpp"
-#include "data/BinanceKlineData.hpp"
 
 BinanceAlgorithm::~BinanceAlgorithm() {
     SAFE_DELETE(_pool);
