@@ -68,6 +68,19 @@ int BinancePrices::handle(Json::Value& json) {
     return 0;
 }
 
+BinancePriceStatisticsData BinancePrices::getPriceStatistics(const TradeSymbol& symbol) {
+    Json::Value result;
+    BinaCPP::get_24hr(symbol.c_str(), result);
+
+    BinanceErrorData error(result);
+    if (error.has()) {
+        logic_error(error.msg.c_str());
+        return BinancePriceStatisticsData();
+    }
+
+    return result;
+}
+
 void BinancePrices::setPrice(const TradeSymbol& symbol, double price) {
     _prices[symbol] = price;
 }

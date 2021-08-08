@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Proxy.hpp"
+#include "data/BinancePriceStatisticsData.hpp"
 
 class TradeSymbol;
 class PriceHistory;
@@ -14,6 +15,8 @@ public: // methods
 
     void init();
     void connect(const TradeSymbol& symbol);
+
+    BinancePriceStatisticsData getPriceStatistics(const TradeSymbol& symbol);
 
     // last average price
     void setPrice(const TradeSymbol& symbol, double price);
