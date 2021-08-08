@@ -19,12 +19,16 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
+    #ifdef NDEBUG
     try {
         TraderApp::create()->run(symbol);
     } catch (const std::exception& e) {
-        trace("TraderApp failed with %s", e.what());
+        trace("TraderApp failed with %s\n", e.what());
         return EXIT_FAILURE;
     }
+    #else
+    TraderApp::create()->run(symbol);
+    #endif
 
 	return EXIT_SUCCESS;
 }
