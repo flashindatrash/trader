@@ -28,8 +28,7 @@ bool ProfitManager::check(const TradeSymbol& symbol) {
         return false;
 
     // пробуем создать новый ордер
-    const std::string& side = transaction->side == "BUY" ? "SELL" : "BUY";
-    return _orders.create(symbol, side, transaction->quantity, transaction);
+    return _orders.create(symbol, transaction->side.reverse(), transaction->quantity, transaction);
 }
 
 const BinanceOrderData* ProfitManager::findClosableOrder(const TradeSymbol &symbol) const {
@@ -42,11 +41,11 @@ const BinanceOrderData* ProfitManager::findClosableOrder(const TradeSymbol &symb
         double change = util::get_percent(order.getPrice(), symbol.getPrice());
 
         // если цена падает, но нам нужно продавать
-        if (change < 0.0 && order.side == "BUY")
+        if (change < 0.0 && order.side == BinanceSideEnum::Buy)
             continue;
 
         // если цена растет, но нам нужно покупать
-        if (change > 0.0 && order.side == "SELL")
+        if (change > 0.0 && order.side == BinanceSideEnum::Sell)
             continue;
 
         if (not decision.make(change, sMinRate, sMaxRate, DecisionMaker::Balane))
@@ -56,7 +55,7 @@ const BinanceOrderData* ProfitManager::findClosableOrder(const TradeSymbol &symb
             continue;
 
         // проверим, что достаточн средств для закрытия ордера
-        if (not SOrders().isEnough(symbol, order.side == "SELL" ? "BUY" : "SELL", order.quantity))
+        if (not SOrders().isEnough(symbol, order.side.reverse(), order.quantity))
             continue;
 
         transaction = &order;

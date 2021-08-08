@@ -2,6 +2,8 @@
 
 #include "algorithm/BaseManager.hpp"
 
+class BinanceSideEnum;
+
 class TraderManager : public BaseManager
 {
 public: // methods
@@ -11,7 +13,7 @@ public: // methods
 
 protected: // methods
     // найти схожую транзакцию по цене
-    bool hasEqualTransaction(const std::string& side, double price) const;
+    bool hasEqualTransaction(const BinanceSideEnum& side, double price) const;
 
 protected: // vars
     double _min_quantity = 0.0;

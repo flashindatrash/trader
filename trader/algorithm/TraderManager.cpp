@@ -51,7 +51,7 @@ bool TraderManager::check(const TradeSymbol& symbol) {
     if (not decision.make(change, sMinRate, sMaxRate, DecisionMaker::Balane))
         return false;
 
-    std::string side = change > 0.0f ? "SELL" : "BUY";
+    BinanceSideEnum side = change > 0.0f ? BinanceSideEnum::Sell : BinanceSideEnum::Buy;
 
     // не дублируем схожие транзакции
     if (hasEqualTransaction(side, symbol.getPrice())) {
@@ -62,7 +62,7 @@ bool TraderManager::check(const TradeSymbol& symbol) {
     return _orders.create(symbol, side, _min_quantity, nullptr);
 }
 
-bool TraderManager::hasEqualTransaction(const std::string& side, double price) const {
+bool TraderManager::hasEqualTransaction(const BinanceSideEnum& side, double price) const {
     for (const BinanceOrderData& order : _orders.getPositions()) {
         // интересуют ордеры с одним типом
         if (order.side != side)

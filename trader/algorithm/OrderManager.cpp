@@ -34,7 +34,7 @@ OrderManager::OrderManager(const TradeSymbol& symbol)
                 std::cout << "|";
                 current_embeded = true;
             }
-            if (position.side == "BUY")
+            if (position.side == BinanceSideEnum::Buy)
                 std::cout << "+";
             else
                 std::cout << "-";
@@ -43,7 +43,7 @@ OrderManager::OrderManager(const TradeSymbol& symbol)
     }
 }
 
-bool OrderManager::create(const TradeSymbol& symbol, const std::string& side, double quantity, const BinanceOrderData* transaction) {
+bool OrderManager::create(const TradeSymbol& symbol, const BinanceSideEnum& side, double quantity, const BinanceOrderData* transaction) {
     // проверяем, что достаточно средств
     if (not SOrders().isEnough(symbol, side, quantity))
         return false;

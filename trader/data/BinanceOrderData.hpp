@@ -1,6 +1,6 @@
 #pragma once
 
-#include <global.hpp>
+#include "data/BinanceSideEnum.hpp"
 
 struct BinanceOrderData
 {
@@ -18,7 +18,7 @@ public: // vars
     std::string clientOrderId = "";
     double cummulativeQuoteQty = 0.0;
     double quantity = 0.0;
-    std::string side = "";
+    BinanceSideEnum side;
     std::string status = "";
     std::string symbol = "";
 };
