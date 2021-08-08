@@ -5,13 +5,17 @@
 struct BinanceSymbolData
 {
 public: // struct
-    struct MinNotional {
+    struct BaseFilter {
+        bool has = false;
+    };
+
+    struct MinNotional : public BaseFilter {
         bool applyToMarket = false;
         int avgPriceMins = 0;
         double minNotional = 0.0;
     };
 
-    struct LotSize {
+    struct LotSize : public BaseFilter {
         double maxQty = 0.0;
         double minQty = 0.0;
         double stepSize = 0.0;

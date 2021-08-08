@@ -28,11 +28,13 @@ BinanceSymbolData::BinanceSymbolData(const Json::Value& json)
         for (uint i = 0; i < json["filters"].size(); ++i) {
             const Json::Value& filter = json["filters"][i];
             if (filter["filterType"].asString() == "MIN_NOTIONAL") {
+                minNotional.has             = true;
                 minNotional.applyToMarket   = filter["applyToMarket"].asBool();
                 minNotional.avgPriceMins    = filter["avgPriceMins"].asInt();
                 minNotional.minNotional     = atof(filter["minNotional"].asString().c_str());
             }
             else if (filter["filterType"].asString() == "LOT_SIZE") {
+                lotSize.has                 = true;
                 lotSize.minQty              = atof(filter["minQty"].asString().c_str());
                 lotSize.maxQty              = atof(filter["maxQty"].asString().c_str());
                 lotSize.stepSize            = atof(filter["stepSize"].asString().c_str());

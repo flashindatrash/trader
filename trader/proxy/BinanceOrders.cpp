@@ -67,6 +67,22 @@ const BinanceOrderData BinanceOrders::createOrder(const TradeSymbol& symbol, con
         return BinanceOrderData();
     }
 
+    // check lot size
+    if (info.lotSize.has) {
+        if (quantity < info.lotSize.minQty) {
+            trace("can't trade %f quantity (min %f)\n", quantity, info.lotSize.minQty);
+            return BinanceOrderData();
+        } else if (quantity > info.lotSize.maxQty) {
+            trace("can't trade %f quantity (max %f)\n", quantity, info.lotSize.maxQty);
+            return BinanceOrderData();
+        }
+        /* todo
+        else if ((quantity - info.lotSize.minQty) % info.lotSize.stepSize != 0) {
+            trace("can't trade %f quantity (step size %f)\n", quantity, info.lotSize.stepSize);
+            return BinanceOrderData();
+        }*/
+    }
+
     Json::Value result;
     BinaCPP::send_order(symbol.c_str(), side.c_str(), type.c_str(), "GTC", quantity , 0, "", 0, 0, BINANCE_TEST_MODE, BINANCE_RECV_WINDOW, result);
 
