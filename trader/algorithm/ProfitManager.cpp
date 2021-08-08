@@ -10,7 +10,7 @@
 // рост/падение в процентном соотношении от ранее открытых позиций, которые стоит закрыть для получения профита
 // диапозон между min/max выбирается в зависимости от текущего баланса
 static float sMinRate = 0.003f;
-static float sMaxRate = 0.04f;
+static float sMaxRate = 0.02f;
 
 ProfitManager::ProfitManager(OrderManager& orders)
     : BaseManager(orders, BinanceTime::sSecond * 30)
@@ -28,10 +28,7 @@ bool ProfitManager::check(const TradeSymbol& symbol) {
 
     // пробуем создать новый ордер
     const std::string& side = transaction->side == "BUY" ? "SELL" : "BUY";
-    if (not _orders.create(symbol, side, transaction->quantity, transaction))
-        return false;
-
-    return true;
+    return _orders.create(symbol, side, transaction->quantity, transaction);
 }
 
 const BinanceOrderData* ProfitManager::findClosableOrder(const TradeSymbol &symbol) const {
