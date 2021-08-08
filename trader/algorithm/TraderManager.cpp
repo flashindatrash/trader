@@ -7,12 +7,13 @@
 #include "algorithm/OrderManager.hpp"
 #include "algorithm/TraderManager.hpp"
 #include "algorithm/PriceAnalyzer.hpp"
+#include "algorithm/DecisionMaker.hpp"
 #include "util/PriceUtil.hpp"
 
 // рост/падение в процентном соотношении, при котором стоит производить сделку
 // диапозон между min/max выбирается в зависимости от текущего баланса
 static float sMinRate = 0.005f;
-static float sMaxRate = 0.01f;
+static float sMaxRate = 0.04f;
 
 // процентное соотношение цены для избегания открытия повторных схожих позиций
 static float sEqualRate = 0.003f;
@@ -33,11 +34,10 @@ bool TraderManager::check(const TradeSymbol& symbol) {
         return false;
 
     // устанавливаем стоимость покупки
-    if (_min_quantity == 0.0 || _max_quantity == 0.0) {
+    if (_min_quantity == 0.0) {
         double min = util::get_min_quantity(symbol);
-        _min_quantity = min * sMinQuantity;
-        _max_quantity = min * sMaxQuantity;
-        trace("trader quantity: %f -> %f \n", _min_quantity, _max_quantity);
+        _min_quantity = util::ceil_quantity(symbol, min * sMinQuantity);
+        trace("trader quantity: %f\n", _min_quantity);
     }
 
     const KlineHistory* history = SKlines().getHistory(symbol);
@@ -45,17 +45,10 @@ bool TraderManager::check(const TradeSymbol& symbol) {
         return false;
 
     PriceAnalyzer analyzer(*history);
-    float change = analyzer.getChangeSince(_orders.getLastTime());
+    float change = analyzer.getStablePriceChange(_orders.getLastTime());
 
-    // посчитаем коэффициенты баланса
-    float baseK = 0.0f;
-    float quoteK = 0.0f;
-    util::calc_balance_rate(symbol, baseK, quoteK);
-
-    // ожидаемый рост зависит от соотношения баланса
-    float expected = sMinRate + (change > 0 ? 1.0f - baseK : 1.0f - quoteK) * (sMaxRate - sMinRate);
-    if (sDebug) trace("trader change: %f -> %f\n", change, expected);
-    if (std::abs(change) < expected)
+    DecisionMaker decision(symbol);
+    if (not decision.make(change, sMinRate, sMaxRate, DecisionMaker::Balane))
         return false;
 
     std::string side = change > 0.0f ? "SELL" : "BUY";
@@ -66,10 +59,7 @@ bool TraderManager::check(const TradeSymbol& symbol) {
         return false;
     }
 
-    // цена, которую хотим вложить, зависит от соотношения баланса
-    double quantity = _min_quantity + (change > 0 ? baseK : quoteK) * (_max_quantity - _min_quantity);
-    quantity = util::ceil_quantity(symbol, quantity);
-    return _orders.create(symbol, side, quantity, nullptr);
+    return _orders.create(symbol, side, _min_quantity, nullptr);
 }
 
 bool TraderManager::hasEqualTransaction(const std::string& side, double price) const {

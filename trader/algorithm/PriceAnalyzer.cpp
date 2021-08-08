@@ -8,7 +8,7 @@ PriceAnalyzer::PriceAnalyzer(const KlineHistory& history)
 {
 }
 
-double PriceAnalyzer::getChangeSince(time_t time) const {
+double PriceAnalyzer::getStablePriceChange(time_t since) const {
     if (_history.klines().empty())
         return 0.0;
 
@@ -20,7 +20,9 @@ double PriceAnalyzer::getChangeSince(time_t time) const {
         const BinanceKlineData& right = *it;
         const BinanceKlineData& left = *(it + 1);
 
-        if (right.timeClose < time)
+        // todo: у нас нет данных о изменении цен внутри одной свечи
+        // заменить на timeClose
+        if (right.timeStart < since)
             break;
 
         // todo: hlco4 and etc
@@ -30,6 +32,7 @@ double PriceAnalyzer::getChangeSince(time_t time) const {
 
         total += change;
     }
+
     return total;
 }
 

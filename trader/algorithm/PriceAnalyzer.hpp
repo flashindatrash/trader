@@ -9,7 +9,7 @@ class PriceAnalyzer
 public: // methods
     PriceAnalyzer(const KlineHistory& history);
 
-    double getChangeSince(time_t time) const;
+    double getStablePriceChange(time_t since) const;
 
 protected: // vars
     const KlineHistory& _history;

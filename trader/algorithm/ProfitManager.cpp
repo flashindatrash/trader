@@ -5,6 +5,7 @@
 #include "wrapper/TradeSymbol.hpp"
 #include "algorithm/ProfitManager.hpp"
 #include "algorithm/OrderManager.hpp"
+#include "algorithm/DecisionMaker.hpp"
 #include "util/PriceUtil.hpp"
 
 // рост/падение в процентном соотношении от ранее открытых позиций, которые стоит закрыть для получения профита
@@ -32,17 +33,13 @@ bool ProfitManager::check(const TradeSymbol& symbol) {
 }
 
 const BinanceOrderData* ProfitManager::findClosableOrder(const TradeSymbol &symbol) const {
-    // посчитаем коэффициенты баланса
-    float baseK = 0.0f;
-    float quoteK = 0.0f;
-    util::calc_balance_rate(symbol, baseK, quoteK);
+    DecisionMaker decision(symbol);
 
     // найдем ордер, который стоит закрыть по более выгодному курсу
     const BinanceOrderData* transaction = nullptr;
     double best_change = 0.0;
     for (const BinanceOrderData& order : _orders.getPositions()) {
         double change = util::get_percent(order.getPrice(), symbol.getPrice());
-        double abs_change = std::abs(change);
 
         // если цена падает, но нам нужно продавать
         if (change < 0.0 && order.side == "BUY")
@@ -52,11 +49,10 @@ const BinanceOrderData* ProfitManager::findClosableOrder(const TradeSymbol &symb
         if (change > 0.0 && order.side == "SELL")
             continue;
 
-        float expected = sMinRate + (change > 0 ? 1.0f - baseK : 1.0f - quoteK) * (sMaxRate - sMinRate);
-        if (abs_change < expected)
+        if (not decision.make(change, sMinRate, sMaxRate, DecisionMaker::Balane))
             continue;
 
-        if (abs_change < best_change)
+        if (std::abs(change) < best_change)
             continue;
 
         // проверим, что достаточн средств для закрытия ордера
@@ -64,7 +60,7 @@ const BinanceOrderData* ProfitManager::findClosableOrder(const TradeSymbol &symb
             continue;
 
         transaction = &order;
-        best_change = abs_change;
+        best_change = std::abs(change);
     }
 
     return transaction;

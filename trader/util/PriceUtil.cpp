@@ -33,11 +33,3 @@ double util::ceil_quantity(const TradeSymbol& symbol, double quantity) {
 double util::get_percent(double first, double second) {
     return (second - first) / first;
 }
-
-void util::calc_balance_rate(const TradeSymbol& symbol, float& base, float& quote) {
-    double baseQty = symbol.getPrice(symbol.baseAsset().getBalance());
-    double quoteQty = symbol.quoteAsset().getBalance();
-    double sumQty = (baseQty + quoteQty) * 0.5;
-    base = std::min(1.0, baseQty / sumQty);
-    quote = std::min(1.0, quoteQty / sumQty);
-}

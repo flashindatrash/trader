@@ -1,5 +1,5 @@
-#include "wrapper/KlineHistory.hpp"
 #include "Logger.hpp"
+#include "wrapper/KlineHistory.hpp"
 
 KlineHistory* KlineHistory::create() {
     KlineHistory* wrapper = new KlineHistory();
