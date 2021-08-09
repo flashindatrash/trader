@@ -2,7 +2,7 @@
 
 #include <global.hpp>
 
-namespace Core {
+namespace core {
 
 template<class T> class Proxy {
 public:

@@ -5,7 +5,7 @@
 
 class TradeSymbol;
 
-class BinanceOrders : public Core::Proxy<BinanceOrders>
+class BinanceOrders : public core::Proxy<BinanceOrders>
 {
 public: // methods
     BinanceOrders() {}

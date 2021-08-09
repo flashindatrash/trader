@@ -2,7 +2,9 @@
 #include <chrono>
 #include <thread>
 
-using namespace Core;
+using namespace core;
 
-App::App() {
+App::App(Config config)
+    : _config(config)
+{
 }

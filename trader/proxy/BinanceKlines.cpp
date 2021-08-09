@@ -18,6 +18,8 @@ BinanceKlines::~BinanceKlines() {
 }
 
 void BinanceKlines::init(const TradeSymbol& symbol) {
+    trace("init candlesticks...\n");
+
     Json::Value result;
     BinaCPP::get_klines(symbol.c_str(), sInterval.c_str(), 10, 0, 0, result);
 

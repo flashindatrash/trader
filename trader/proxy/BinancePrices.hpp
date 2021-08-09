@@ -7,7 +7,7 @@ class TradeSymbol;
 class PriceHistory;
 struct BinanceBookData;
 
-class BinancePrices : public Core::Proxy<BinancePrices>, public Core::Emitter<BinanceBookData>
+class BinancePrices : public core::Proxy<BinancePrices>, public core::Emitter<BinanceBookData>
 {
 public: // methods
     BinancePrices() {}

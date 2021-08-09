@@ -2,7 +2,11 @@
 
 #include <string>
 
-namespace Tools {
-    int get_price(std::string symbol);
+namespace core {
+    class Config;
+}
+
+namespace tools {
+    int get_price(const core::Config& cfg, std::string symbol);
 };
 

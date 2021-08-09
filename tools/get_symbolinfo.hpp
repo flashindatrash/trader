@@ -2,8 +2,12 @@
 
 #include <string>
 
-namespace Tools {
-    int get_symbolinfo(std::string symbol);
+namespace core {
+    class Config;
+}
+
+namespace tools {
+    int get_symbolinfo(const core::Config& cfg, std::string symbol);
 };
 
 

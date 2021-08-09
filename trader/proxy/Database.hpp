@@ -3,17 +3,21 @@
 #include "global.hpp"
 #include "Proxy.hpp"
 
+namespace core {
+    class Config;
+}
+
 struct redisContext;
 struct redisReply;
 
-class Database : public Core::Proxy<Database>
+class Database : public core::Proxy<Database>
 {
 
 public: // methods
     Database() {}
     virtual ~Database() override;
 
-    void init();
+    void init(const core::Config& config);
 
     void set(const std::string& key, const char* value);
     void set(const std::string& key, int value);

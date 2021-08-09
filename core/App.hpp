@@ -1,11 +1,16 @@
 #pragma once
 
-namespace Core {
+#include "Config.hpp"
+
+namespace core {
 
 class App
 {
 public: // methods
-    App();
+    App(Config config);
+
+protected: // vars
+    Config _config;
 };
 
 }

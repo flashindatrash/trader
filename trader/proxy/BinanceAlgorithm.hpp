@@ -10,7 +10,7 @@ class TraderManager;
 struct BinanceBalanceData;
 struct BinanceKlineData;
 
-class BinanceAlgorithm : public Core::Proxy<BinanceAlgorithm>
+class BinanceAlgorithm : public core::Proxy<BinanceAlgorithm>
 {
 public: // methods
     BinanceAlgorithm() {}

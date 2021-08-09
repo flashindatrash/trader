@@ -10,6 +10,8 @@ const time_t BinanceTime::sDay = 24 * sHour;
 
 void BinanceTime::init()
 {
+    trace("init time...\n");
+
     Json::Value result;
     BinaCPP::get_serverTime(result);
 

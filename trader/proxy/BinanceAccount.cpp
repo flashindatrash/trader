@@ -8,6 +8,8 @@
 #include "data/BinanceErrorData.hpp"
 
 void BinanceAccount::init() {
+    trace("init account...\n");
+
     Json::Value result;
     BinaCPP::get_account(BINANCE_RECV_WINDOW, result);
 

@@ -3,7 +3,7 @@
 #include "Proxy.hpp"
 #include <global.hpp>
 
-class BinanceTime : public Core::Proxy<BinanceTime>
+class BinanceTime : public core::Proxy<BinanceTime>
 {
 public: // static
     static const time_t sSecond;

@@ -17,7 +17,9 @@ BinanceAlgorithm::~BinanceAlgorithm() {
     SAFE_DELETE(_trader_manager);
 }
 
-void BinanceAlgorithm::init(const TradeSymbol& symbol) {    
+void BinanceAlgorithm::init(const TradeSymbol& symbol) {
+    trace("init algorithm...\n");
+
     _pool = new OrderManager(symbol);
     if (not Migrator::migrate(*_pool))
         return;

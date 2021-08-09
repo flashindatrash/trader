@@ -3,7 +3,7 @@
 #include "Proxy.hpp"
 #include "data/BinanceSymbolData.hpp"
 
-class BinanceExchangeInfo : public Core::Proxy<BinanceExchangeInfo>
+class BinanceExchangeInfo : public core::Proxy<BinanceExchangeInfo>
 {
 public: // methods
     BinanceExchangeInfo() {}

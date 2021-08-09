@@ -5,10 +5,10 @@
 #include "binacpp_logger.h"
 #include "Config.hpp"
 
-int Tools::get_price(std::string symbol) {
+int tools::get_price(const core::Config& cfg, std::string symbol) {
     // init binance api
-    static string api_key       = BINANCE_API_KEY;
-    static string secret_key    = BINANCE_SECRET_KEY;
+    static string api_key       = cfg.getAsString("BINANCE_API_KEY");
+    static string secret_key    = cfg.getAsString("BINANCE_SECRET_KEY");
     BinaCPP::init( api_key , secret_key );
     // init binance logger
     BinaCPP_logger::set_debug_level(0);

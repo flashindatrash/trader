@@ -4,7 +4,7 @@
 
 struct BinanceBalanceData;
 
-class BinanceAccount : public Core::Proxy<BinanceAccount>, public Core::Emitter<BinanceBalanceData>
+class BinanceAccount : public core::Proxy<BinanceAccount>, public core::Emitter<BinanceBalanceData>
 {
 public: // methods
     BinanceAccount() {}

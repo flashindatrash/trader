@@ -16,27 +16,32 @@
 #include <thread>
 #include <chrono>
 
-TraderApp::TraderApp() {
+core::Version TraderApp::sVersion = core::Version(1, 0);
+
+TraderApp::TraderApp(core::Config config)
+    : core::App(config)
+{
 }
 
-TraderApp* TraderApp::create() {
-    TraderApp* app = new TraderApp();
+TraderApp* TraderApp::create(core::Config config) {
+    TraderApp* app = new TraderApp(config);
     return app;
 }
 
 void TraderApp::run(const TradeSymbol& symbol) {
-    // init binance api
-    static string api_key       = BINANCE_API_KEY;
-    static string secret_key    = BINANCE_SECRET_KEY;
     // init binance logger
     BinaCPP_logger::set_debug_level(2);
     BinaCPP_logger::enable_logfile(1);
+
+    // init binance api
+    static string api_key       = _config.getAsString("BINANCE_API_KEY");
+    static string secret_key    = _config.getAsString("BINANCE_SECRET_KEY");
 
     BinaCPP::init(api_key, secret_key);
     BinaCPP_websocket::init();
 
     // init data
-    DB().init();
+    DB().init(_config);
     STime().init();
     SExchangeInfo().init();
     SAccount().init();

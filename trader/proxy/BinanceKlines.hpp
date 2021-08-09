@@ -6,7 +6,7 @@ class TradeSymbol;
 class KlineHistory;
 struct BinanceKlineData;
 
-class BinanceKlines : public Core::Proxy<BinanceKlines>, public Core::Emitter<BinanceKlineData>
+class BinanceKlines : public core::Proxy<BinanceKlines>, public core::Emitter<BinanceKlineData>
 {
 public: // methods
     BinanceKlines() {}
