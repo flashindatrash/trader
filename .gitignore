@@ -4,6 +4,9 @@
 build
 CMakeLists.txt.*
 
+config/*
+!config/default.cfg
+
 *.autosave
 *.swp
 *.lock
