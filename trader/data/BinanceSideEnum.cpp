@@ -8,8 +8,13 @@ BinanceSideEnum::BinanceSideEnum(Side value)
 {
 }
 
+BinanceSideEnum::BinanceSideEnum(double change)
+    : BinanceSideEnum(change > 0.0 ? Sell : change < 0.0 ? Buy : Invalid)
+{
+}
+
 BinanceSideEnum::BinanceSideEnum(const std::string& value)
-    : BinanceSideEnum(value == sBuy ? Buy : (value == sSell ? Sell : Invalid))
+    : BinanceSideEnum(value == sBuy ? Buy : value == sSell ? Sell : Invalid)
 {
 }
 

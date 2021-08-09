@@ -14,6 +14,7 @@ public: // static
 public: // methods
     BinanceSideEnum() {};
     BinanceSideEnum(Side value);
+    BinanceSideEnum(double change);
     BinanceSideEnum(const std::string& value);
 
     BinanceSideEnum reverse() const;

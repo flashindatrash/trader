@@ -40,12 +40,8 @@ const BinanceOrderData* ProfitManager::findClosableOrder(const TradeSymbol &symb
     for (const BinanceOrderData& order : _orders.getPositions()) {
         double change = util::get_percent(order.getPrice(), symbol.getPrice());
 
-        // если цена падает, но нам нужно продавать
-        if (change < 0.0 && order.side == BinanceSideEnum::Buy)
-            continue;
-
-        // если цена растет, но нам нужно покупать
-        if (change > 0.0 && order.side == BinanceSideEnum::Sell)
+        // открытая позиция соответствует сайду
+        if (BinanceSideEnum(change) == order.side)
             continue;
 
         if (not decision.make(change, sMinRate, sMaxRate, DecisionMaker::Balane))
