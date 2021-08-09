@@ -19,6 +19,9 @@ public: // methods
 
     time_t getLastTime() const;
 
+protected: // methods
+    void printPositionsTimeline(double current);
+
 protected: // vars
     std::vector<BinanceOrderData> _orders;
     std::vector<BinanceOrderData> _positions;

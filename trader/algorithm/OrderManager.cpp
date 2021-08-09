@@ -18,29 +18,32 @@ OrderManager::OrderManager(const TradeSymbol& symbol)
             continue;
 
         _positions.push_back(order);
-        trace("- %s\t%f\n", order.side.c_str(), order.getPrice());
     }
 
-    if (not _positions.empty()) {
-        // отсортируем позиции
-        std::sort(_positions.begin(), _positions.end(), [](const BinanceOrderData& l, const BinanceOrderData& r) {
-            return l.getPrice() < r.getPrice();
-        });
+    printPositionsTimeline(symbol.getPrice());
+}
 
-        double current_price = symbol.getPrice();
-        bool current_embeded = false;
-        for (const BinanceOrderData& position : _positions) {
-            if (not current_embeded && current_price < position.getPrice()) {
-                std::cout << "|";
-                current_embeded = true;
-            }
-            if (position.side == BinanceSideEnum::Buy)
-                std::cout << "+";
-            else
-                std::cout << "-";
+void OrderManager::printPositionsTimeline(double current) {
+    if (_positions.empty())
+        return;
+
+    // отсортируем позиции
+    std::sort(_positions.begin(), _positions.end(), [](const BinanceOrderData& l, const BinanceOrderData& r) {
+        return l.getPrice() < r.getPrice();
+    });
+
+    bool current_embeded = false;
+    for (const BinanceOrderData& position : _positions) {
+        if (not current_embeded && current < position.getPrice()) {
+            std::cout << "|";
+            current_embeded = true;
         }
-        std::cout << std::endl;
+        if (position.side == BinanceSideEnum::Buy)
+            std::cout << "+";
+        else
+            std::cout << "-";
     }
+    std::cout << std::endl;
 }
 
 bool OrderManager::create(const TradeSymbol& symbol, const BinanceSideEnum& side, double quantity, const BinanceOrderData* transaction) {
@@ -79,6 +82,7 @@ bool OrderManager::create(const TradeSymbol& symbol, const BinanceSideEnum& side
         _positions.erase(std::remove_if(_positions.begin(), _positions.end(), [order_id](BinanceOrderData t) { return t.clientOrderId == order_id; }));
     }
 
+    printPositionsTimeline(symbol.getPrice());
     return true;
 }
 
