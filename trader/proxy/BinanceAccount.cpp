@@ -46,12 +46,14 @@ void BinanceAccount::connect() {
 
     if (!result["listenKey"] || !result["listenKey"].isString()) {
         trace("%s\n", result.toStyledString().c_str());
-        logic_error("can't get listenKey for stream account\n");
+        logic_error("can't get listenKey for stream account");
         return;
     }
 
+    _listenKey = result["listenKey"].asString();
+
     std::string ws_path = std::string("/ws/");
-    ws_path.append( result["listenKey"].asString() );
+    ws_path.append(_listenKey);
 
     BinaCPP_websocket::connect_endpoint(std::bind(&BinanceAccount::handle, this, std::placeholders::_1), ws_path.c_str());
 }
