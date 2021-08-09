@@ -23,7 +23,7 @@ static float sEqualRate = 0.003f;
 static double sMinQuantity = 2.0;
 
 TraderManager::TraderManager(OrderManager& orders)
-    : BaseManager(orders, BinanceTime::sMinute * 1)
+    : BaseManager(orders, BinanceTime::sSecond * 30)
 {
 }
 
@@ -43,21 +43,18 @@ bool TraderManager::check(const TradeSymbol& symbol) {
         return false;
 
     PriceAnalyzer analyzer(*history);
-    float change = analyzer.getStablePriceChange(_orders.getLastTime());
+    double change = analyzer.getStablePriceChange(_orders.getLastTime());
 
     DecisionMaker decision(symbol);
     if (not decision.make(change, sMinRate, sMaxRate, DecisionMaker::Balane))
         return false;
 
-    BinanceSideEnum side = change > 0.0f ? BinanceSideEnum::Sell : BinanceSideEnum::Buy;
 
     // не дублируем схожие транзакции
-    if (hasEqualTransaction(side, symbol.getPrice())) {
-        if (sDebug) trace("trader change: has equal %s trade (%f)\n", side.c_str(), symbol.getPrice());
+    if (hasEqualTransaction(change, symbol.getPrice()))
         return false;
-    }
 
-    return _orders.create(symbol, side, _min_quantity, nullptr);
+    return _orders.create(symbol, change, _min_quantity, nullptr);
 }
 
 bool TraderManager::hasEqualTransaction(const BinanceSideEnum& side, double price) const {
