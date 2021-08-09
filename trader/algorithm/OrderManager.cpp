@@ -43,6 +43,10 @@ void OrderManager::printPositionsTimeline(double current) {
         else
             std::cout << "-";
     }
+
+    if (not current_embeded)
+        std::cout << "|";
+
     std::cout << std::endl;
 }
 
