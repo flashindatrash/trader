@@ -10,7 +10,6 @@ public: // methods
     BinanceAccount() {}
 
     void init();
-    void connect();
 
     double getBalance(const std::string& asset) const;
 

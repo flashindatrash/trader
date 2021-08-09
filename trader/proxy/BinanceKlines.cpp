@@ -41,9 +41,7 @@ void BinanceKlines::init(const TradeSymbol& symbol) {
         data.symbol = symbol;
         add(data);
     }
-}
 
-void BinanceKlines::connect(const TradeSymbol& symbol) {
     const std::string& path = "/ws/" + util::lowercase(symbol.c_str()) + "@kline_" + sInterval;
     BinaCPP_websocket::connect_endpoint(std::bind(&BinanceKlines::handle, this, std::placeholders::_1), path.c_str());
 }

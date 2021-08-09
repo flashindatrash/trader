@@ -12,8 +12,6 @@ public: // static
 public: // methods
     void run(const TradeSymbol& symbol);
 
-    void thread_websockets(const TradeSymbol& symbol);
-
 protected: // methods
     TraderApp();
 

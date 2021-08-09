@@ -13,7 +13,6 @@ public: // methods
     virtual ~BinanceKlines() override;
 
     void init(const TradeSymbol& symbol);
-    void connect(const TradeSymbol& symbol);
 
     const KlineHistory* getHistory(const TradeSymbol& symbol) const;
 

@@ -32,13 +32,9 @@ void BinanceAccount::init() {
 
     for (uint i = 0; i < balances.size(); ++i)
         setBalance(BinanceBalanceData(balances[i], false));
-}
 
-void BinanceAccount::connect() {
-    Json::Value result;
     BinaCPP::start_userDataStream(result);
-
-    BinanceErrorData error(result);
+    error = BinanceErrorData(result);
     if (error.has()) {
         logic_error(error.msg.c_str());
         return;

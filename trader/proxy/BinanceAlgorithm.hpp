@@ -17,10 +17,10 @@ public: // methods
     virtual ~BinanceAlgorithm() override;
 
     void init(const TradeSymbol& symbol);
+    void tick(const TradeSymbol& symbol);
 
 protected: // methods
     void onBalanceChanged(const BinanceBalanceData &data);
-    void onKlineChanged(const BinanceKlineData &data);
 
 protected: // vars
     OrderManager* _pool = nullptr;

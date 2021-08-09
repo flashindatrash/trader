@@ -30,16 +30,13 @@ void BinanceAlgorithm::init(const TradeSymbol& symbol) {
     _balance_manager->add({symbol.quoteAsset(), symbol.quoteAsset().getBalance()});
 
     SAccount().addListener(std::bind(&BinanceAlgorithm::onBalanceChanged, this, std::placeholders::_1));
-    SKlines().addListener(std::bind(&BinanceAlgorithm::onKlineChanged, this, std::placeholders::_1));
 }
 
 void BinanceAlgorithm::onBalanceChanged(const BinanceBalanceData &data) {
     _balance_manager->add(data);
 }
 
-void BinanceAlgorithm::onKlineChanged(const BinanceKlineData &data) {
-    const TradeSymbol& symbol(data.symbol);
-
+void BinanceAlgorithm::tick(const TradeSymbol& symbol) {
     if (_balance_manager->check(symbol))
         return;
 

@@ -28,10 +28,12 @@ void TraderApp::run(const TradeSymbol& symbol) {
     // init binance api
     static string api_key       = BINANCE_API_KEY;
     static string secret_key    = BINANCE_SECRET_KEY;
-    BinaCPP::init(api_key, secret_key);
     // init binance logger
     BinaCPP_logger::set_debug_level(2);
     BinaCPP_logger::enable_logfile(1);
+
+    BinaCPP::init(api_key, secret_key);
+    BinaCPP_websocket::init();
 
     // init data
     DB().init();
@@ -42,17 +44,11 @@ void TraderApp::run(const TradeSymbol& symbol) {
     SKlines().init(symbol);
     SAlgorithm().init(symbol);
 
-    std::thread thread(&TraderApp::thread_websockets, this, symbol);
+    std::thread thread(&BinaCPP_websocket::enter_event_loop);
     while (true) {
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        SAlgorithm().tick(symbol);
     }
 
     thread.join();
-}
-
-void TraderApp::thread_websockets(const TradeSymbol& symbol) {
-    BinaCPP_websocket::init();
-    SAccount().connect();
-    SKlines().connect(symbol);
-    BinaCPP_websocket::enter_event_loop();
 }
