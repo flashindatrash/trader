@@ -18,8 +18,6 @@ BinanceAlgorithm::~BinanceAlgorithm() {
 }
 
 void BinanceAlgorithm::init(const TradeSymbol& symbol) {
-    trace("init algorithm...\n");
-
     _pool = new OrderManager(symbol);
     if (not Migrator::migrate(*_pool))
         return;

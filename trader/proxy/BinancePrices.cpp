@@ -15,8 +15,6 @@ BinancePrices::~BinancePrices() {
 }
 
 void BinancePrices::init() {
-    trace("init prices...\n");
-
     Json::Value result;
     BinaCPP::get_allPrices(result);
 

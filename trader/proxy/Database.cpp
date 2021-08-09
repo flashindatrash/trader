@@ -12,8 +12,6 @@ Database::~Database() {
 }
 
 void Database::init(const core::Config& config) {
-    trace("init database...\n");
-
     _context = redisConnect(config.getAsString("REDIS_HOST").c_str(), config.getAsInt("REDIS_PORT"));
     if (_context == nullptr) {
         logic_error("can't allocate redis context\n");

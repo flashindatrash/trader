@@ -4,8 +4,6 @@
 #include "data/BinanceErrorData.hpp"
 
 void BinanceExchangeInfo::init() {
-    trace("init exchange info...\n");
-
     Json::Value result;
     BinaCPP::get_exchangeInfo(result);
 
