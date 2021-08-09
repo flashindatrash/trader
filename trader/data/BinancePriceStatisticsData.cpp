@@ -19,6 +19,6 @@ BinancePriceStatisticsData::BinancePriceStatisticsData(const Json::Value& json)
     quoteVolume         = atof(json["quoteVolume"].asCString());
     openTime            = json["openTime"].asInt64();
     closeTime           = json["closeTime"].asInt64();
-    count               = atoi(json["count"].asCString());
+    count               = json["count"].asInt();
 }
 
