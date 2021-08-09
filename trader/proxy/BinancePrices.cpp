@@ -1,17 +1,16 @@
 #include "binacpp.h"
-#include "binacpp_websocket.h"
 #include "Logger.hpp"
+#include "proxy/BinanceTime.hpp"
 #include "proxy/BinancePrices.hpp"
 #include "wrapper/TradeSymbol.hpp"
-#include "wrapper/PriceHistory.hpp"
-#include "data/BinanceBookData.hpp"
+#include "wrapper/PriceSymbol.hpp"
 #include "data/BinanceErrorData.hpp"
-#include "util/StringUtil.hpp"
+#include "data/BinancePriceStatisticsData.hpp"
 
 BinancePrices::~BinancePrices() {
-    for (auto& pair : _histories)
+    for (auto& pair : _symbols)
         SAFE_DELETE(pair.second);
-    _histories.clear();
+    _symbols.clear();
 }
 
 void BinancePrices::init() {
@@ -36,65 +35,50 @@ void BinancePrices::init() {
         std::string symbol = data["symbol"].asString();
         double price = atof(data["price"].asString().c_str());
 
-        setPrice(symbol, price);
+        PriceSymbol* wrapper = PriceSymbol::create();
+        wrapper->add(price);
+
+        _symbols[symbol] = wrapper;
     }
 }
 
-void BinancePrices::connect(const TradeSymbol& symbol) {
-    const std::string& path = "/ws/" + util::lowercase(symbol.c_str()) + "@bookTicker";
-    BinaCPP_websocket::connect_endpoint(std::bind(&BinancePrices::handle, this, std::placeholders::_1), path.c_str());
-}
+const BinancePriceStatisticsData& BinancePrices::getStats(const TradeSymbol& symbol) {
+    static const BinancePriceStatisticsData sEmpty;
 
-int BinancePrices::handle(Json::Value& json) {
-    BinanceBookData result(json);
-    TradeSymbol symbol(result.symbol);
+    PriceSymbol* wrapper = getMutablePrice(symbol);
+    if (wrapper == nullptr)
+        return sEmpty;
 
-    // update average price
-    double avgPrice = (result.bestAskPrice + result.bestBidPrice) / 2.0;
-    setPrice(symbol, avgPrice);
+    BinancePriceStatisticsData& stats = wrapper->getStats();
 
-    // update history
-    PriceHistory* history = nullptr;
-    auto it = _histories.find(symbol);
-    if (it == _histories.end()) {
-        history = PriceHistory::create();
-        _histories[symbol] = history;
-    } else
-        history = it->second;
-    history->add(avgPrice);
+    // lazy update from api
+    time_t now = STime().getCurrent();
+    if (now - BinanceTime::sMinute * 10 > stats.closeTime) {
+        Json::Value result;
+        BinaCPP::get_24hr(symbol.c_str(), result);
 
-    // invoke listeners
-    invoke(result);
-    return 0;
-}
+        BinanceErrorData error(result);
+        if (error.has()) {
+            logic_error(error.msg.c_str());
+            return stats;
+        }
 
-BinancePriceStatisticsData BinancePrices::getPriceStatistics(const TradeSymbol& symbol) {
-    Json::Value result;
-    BinaCPP::get_24hr(symbol.c_str(), result);
-
-    BinanceErrorData error(result);
-    if (error.has()) {
-        logic_error(error.msg.c_str());
-        return BinancePriceStatisticsData();
+        stats = BinancePriceStatisticsData(result);
     }
 
-    return result;
+    return stats;
 }
 
-void BinancePrices::setPrice(const TradeSymbol& symbol, double price) {
-    _prices[symbol] = price;
-}
-
-double BinancePrices::getPrice(const TradeSymbol& symbol) const {
-    auto it = _prices.find(symbol);
-    if (it == _prices.end())
-        return 0.0;
+const PriceSymbol* BinancePrices::getPrice(const TradeSymbol& symbol) const {
+    auto it = _symbols.find(symbol);
+    if (it == _symbols.end())
+        return nullptr;
     return it->second;
 }
 
-const PriceHistory* BinancePrices::getHistory(const TradeSymbol& symbol) const {
-    auto it = _histories.find(symbol);
-    if (it == _histories.end())
+PriceSymbol* BinancePrices::getMutablePrice(const TradeSymbol& symbol) const {
+    auto it = _symbols.find(symbol);
+    if (it == _symbols.end())
         return nullptr;
     return it->second;
 }

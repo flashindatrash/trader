@@ -23,32 +23,7 @@ OrderManager::OrderManager(const TradeSymbol& symbol)
     printPositionsTimeline(symbol.getPrice());
 }
 
-void OrderManager::printPositionsTimeline(double current) {
-    if (_positions.empty())
-        return;
 
-    // отсортируем позиции
-    std::sort(_positions.begin(), _positions.end(), [](const BinanceOrderData& l, const BinanceOrderData& r) {
-        return l.getPrice() < r.getPrice();
-    });
-
-    bool current_embeded = false;
-    for (const BinanceOrderData& position : _positions) {
-        if (not current_embeded && current < position.getPrice()) {
-            std::cout << "|";
-            current_embeded = true;
-        }
-        if (position.side == BinanceSideEnum::Buy)
-            std::cout << "+";
-        else
-            std::cout << "-";
-    }
-
-    if (not current_embeded)
-        std::cout << "|";
-
-    std::cout << std::endl;
-}
 
 bool OrderManager::create(const TradeSymbol& symbol, const BinanceSideEnum& side, double quantity, const BinanceOrderData* transaction) {
     // проверяем, что достаточно средств
@@ -79,8 +54,7 @@ bool OrderManager::create(const TradeSymbol& symbol, const BinanceSideEnum& side
     } else {
         trace("\a%s %f %s for %f (prev %f)\n", side.c_str(), quantity, symbol.baseAsset().c_str(), symbol.getPrice(), transaction->getPrice());
         double profit = std::abs(transaction->getPrice() - symbol.getPrice()) * transaction->quantity;
-        double profit_total = DataManager::addProfit(symbol.quoteAsset(), profit);
-        trace("%sprofit update: +%.2f (total +%.2f) %s%s\n", GREEN, profit, profit_total, symbol.quoteAsset().c_str(), RESET);
+        printProfit(symbol, profit);
         std::string order_id = transaction->clientOrderId;
         DataManager::closePosition(order_id);
         _positions.erase(std::remove_if(_positions.begin(), _positions.end(), [order_id](BinanceOrderData t) { return t.clientOrderId == order_id; }));
@@ -100,5 +74,50 @@ const std::vector<BinanceOrderData>& OrderManager::getPositions() const {
 
 time_t OrderManager::getLastTime() const {
     return _last_time;
+}
+
+void OrderManager::printProfit(const TradeSymbol& symbol, double profit) {
+    double profit_total = DataManager::addProfit(symbol.quoteAsset(), profit);
+    double losses_total = 0.0;
+
+    double current_price = symbol.getPrice();
+    for (const BinanceOrderData& position : _positions) {
+        double order_price = position.getPrice();
+
+        bool sell_loss = position.side == BinanceSideEnum::Sell && current_price > order_price;
+        bool buy_loss = position.side == BinanceSideEnum::Buy && current_price < order_price;
+
+        if (sell_loss || buy_loss)
+            losses_total += std::abs(current_price - order_price) * position.quantity;
+    }
+
+    trace("%sprofit update: +%.4f (total +%.4f / loss -%.4f) %s%s\n", GREEN, profit, profit_total, losses_total, symbol.quoteAsset().c_str(), RESET);
+}
+
+void OrderManager::printPositionsTimeline(double current) {
+    if (_positions.empty())
+        return;
+
+    // отсортируем позиции
+    std::sort(_positions.begin(), _positions.end(), [](const BinanceOrderData& l, const BinanceOrderData& r) {
+        return l.getPrice() < r.getPrice();
+    });
+
+    bool current_embeded = false;
+    for (const BinanceOrderData& position : _positions) {
+        if (not current_embeded && current < position.getPrice()) {
+            std::cout << "|";
+            current_embeded = true;
+        }
+        if (position.side == BinanceSideEnum::Buy)
+            std::cout << "+";
+        else
+            std::cout << "-";
+    }
+
+    if (not current_embeded)
+        std::cout << "|";
+
+    std::cout << std::endl;
 }
 

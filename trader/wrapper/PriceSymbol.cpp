@@ -1,16 +1,16 @@
 #include "proxy/BinanceTime.hpp"
-#include "wrapper/PriceHistory.hpp"
+#include "wrapper/PriceSymbol.hpp"
 
-PriceHistory* PriceHistory::create() {
-    PriceHistory* wrapper = new PriceHistory();
+PriceSymbol* PriceSymbol::create() {
+    PriceSymbol* wrapper = new PriceSymbol();
     return wrapper;
 }
 
-void PriceHistory::add(double price) {
+void PriceSymbol::add(double price) {
     add(price, STime().getCurrent());
 }
 
-void PriceHistory::add(double price, time_t time) {
+void PriceSymbol::add(double price, time_t time) {
     if (not _per_second.empty() && std::abs(time - _per_second.back().second) < BinanceTime::sSecond)
         return;
 
@@ -18,11 +18,17 @@ void PriceHistory::add(double price, time_t time) {
     _per_second.push_back(std::make_pair(price, time));
 }
 
-double PriceHistory::getPriceBack(time_t interval) const {
+double PriceSymbol::getCurrent() const {
+    if (_per_second.empty())
+        return 0.0;
+    return _per_second.back().first;
+}
+
+double PriceSymbol::getPriceBack(time_t interval) const {
     time_t time = STime().getCurrent() - interval;
 
-    Data d1;
-    Data d2 = _per_second.back();
+    PriceTimePair d1;
+    PriceTimePair d2 = _per_second.back();
     for (auto it = _per_second.rbegin(); it < _per_second.rend(); ++it) {
         d1 = *it;
         if (it->second <= time)
@@ -35,7 +41,7 @@ double PriceHistory::getPriceBack(time_t interval) const {
     return t1 < t2 ? d1.first : d2.first;
 }
 
-double PriceHistory::getPriceAverage(time_t interval) const {
+double PriceSymbol::getPriceAverage(time_t interval) const {
     double price_back = getPriceBack(interval);
     double price_current = getPriceBack(0);
 
@@ -43,10 +49,6 @@ double PriceHistory::getPriceAverage(time_t interval) const {
     return (price_back + price_current) / 2.0;
 }
 
-float PriceHistory::getPriceChangePercent(time_t interval) const {
-    double price_back = getPriceBack(interval);
-    double price_current = getPriceBack(0);
-    double price_diff = price_current - price_back;
-
-    return price_diff / price_back;
+BinancePriceStatisticsData& PriceSymbol::getStats() {
+    return _per_day;
 }

@@ -20,6 +20,7 @@ public: // methods
     time_t getLastTime() const;
 
 protected: // methods
+    void printProfit(const TradeSymbol& symbol, double profit);
     void printPositionsTimeline(double current);
 
 protected: // vars

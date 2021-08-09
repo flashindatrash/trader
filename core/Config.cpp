@@ -3,8 +3,6 @@
 
 using namespace core;
 
-const std::string Config::sEmpty = "";
-
 bool Config::read(const char* path) {
     // std::ifstream is RAII, i.e. no need to call close
     std::ifstream cFile(path);
@@ -25,6 +23,8 @@ bool Config::read(const char* path) {
 }
 
 const std::string& Config::getAsString(const std::string& key) const {
+    static const std::string& sEmpty = "";
+
     auto it = _values.find(key);
     if (it == _values.end())
         return sEmpty;

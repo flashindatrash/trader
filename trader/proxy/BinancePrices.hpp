@@ -1,36 +1,28 @@
 #pragma once
 
 #include "Proxy.hpp"
-#include "data/BinancePriceStatisticsData.hpp"
 
 class TradeSymbol;
-class PriceHistory;
-struct BinanceBookData;
+class PriceSymbol;
+struct BinancePriceStatisticsData;
 
-class BinancePrices : public core::Proxy<BinancePrices>, public core::Emitter<BinanceBookData>
+class BinancePrices : public core::Proxy<BinancePrices>
 {
 public: // methods
     BinancePrices() {}
     virtual ~BinancePrices() override;
 
     void init();
-    void connect(const TradeSymbol& symbol);
 
-    BinancePriceStatisticsData getPriceStatistics(const TradeSymbol& symbol);
+    // get 24hr statistics
+    const BinancePriceStatisticsData& getStats(const TradeSymbol& symbol);
 
-    // last average price
-    void setPrice(const TradeSymbol& symbol, double price);
-    double getPrice(const TradeSymbol& symbol) const;
-
-    // price history
-    const PriceHistory* getHistory(const TradeSymbol& symbol) const;
-
-protected: // methods
-    int handle(Json::Value& json);
+    // get price wrapper
+    const PriceSymbol* getPrice(const TradeSymbol& symbol) const;
+    PriceSymbol* getMutablePrice(const TradeSymbol& symbol) const;
 
 protected: // vars
-    std::unordered_map<std::string, double> _prices;
-    std::unordered_map<std::string, PriceHistory*> _histories;
+    std::unordered_map<std::string, PriceSymbol*> _symbols;
 };
 
 #define SPrices() BinancePrices::getInstance()

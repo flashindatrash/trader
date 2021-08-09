@@ -8,7 +8,6 @@ class BalanceManager;
 class ProfitManager;
 class TraderManager;
 struct BinanceBalanceData;
-struct BinanceKlineData;
 
 class BinanceAlgorithm : public core::Proxy<BinanceAlgorithm>
 {

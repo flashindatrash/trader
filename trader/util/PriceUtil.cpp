@@ -1,7 +1,7 @@
 #include "proxy/BinanceTime.hpp"
 #include "proxy/BinancePrices.hpp"
 #include "wrapper/TradeSymbol.hpp"
-#include "wrapper/PriceHistory.hpp"
+#include "wrapper/PriceSymbol.hpp"
 #include "data/BinanceSymbolData.hpp"
 #include "util/PriceUtil.hpp"
 
@@ -11,7 +11,7 @@ double util::get_min_quantity(const TradeSymbol& symbol) {
     const BinanceSymbolData::LotSize& lot_size = info.lotSize;
 
     double price_avg = symbol.getPrice();
-    if (const PriceHistory* history = SPrices().getHistory(symbol))
+    if (const PriceSymbol* history = SPrices().getPrice(symbol))
         price_avg = history->getPriceAverage(min_notional.avgPriceMins * BinanceTime::sMinute);
 
     return std::max(lot_size.minQty, min_notional.minNotional / price_avg);

@@ -2,6 +2,7 @@
 #include "proxy/BinancePrices.hpp"
 #include "proxy/BinanceExchangeInfo.hpp"
 #include "wrapper/TradeSymbol.hpp"
+#include "wrapper/PriceSymbol.hpp"
 #include "util/StringUtil.hpp"
 
 TradeAsset::TradeAsset()
@@ -51,7 +52,9 @@ const BinanceSymbolData& TradeSymbol::getInfo() const {
 }
 
 const double TradeSymbol::getPrice() const {
-    return SPrices().getPrice(*this);
+    if (const PriceSymbol* wrapper = SPrices().getPrice(*this))
+        return wrapper->getCurrent();
+    return 0.0;
 }
 
 const double TradeSymbol::getPrice(double quantity) const {

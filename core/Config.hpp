@@ -10,9 +10,6 @@
 namespace core {
 
 class Config {
-protected: // static
-    static const std::string sEmpty;
-
 public: // methods
     Config() {}
 

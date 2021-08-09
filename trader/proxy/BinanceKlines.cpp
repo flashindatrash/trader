@@ -4,6 +4,7 @@
 #include "proxy/BinancePrices.hpp"
 #include "proxy/BinanceKlines.hpp"
 #include "wrapper/TradeSymbol.hpp"
+#include "wrapper/PriceSymbol.hpp"
 #include "wrapper/KlineHistory.hpp"
 #include "data/BinanceKlineData.hpp"
 #include "data/BinanceErrorData.hpp"
@@ -52,7 +53,8 @@ int BinanceKlines::handle(Json::Value& json) {
         return 0;
 
     // update price
-    SPrices().setPrice(data.symbol, data.priceClose);
+    if (PriceSymbol* wrapper = SPrices().getMutablePrice(data.symbol))
+        wrapper->add(data.priceClose);
 
     // add & invoke listeners
     add(data);
