@@ -11,6 +11,10 @@
 #include "proxy/BinancePrices.hpp"
 #include "proxy/BinanceExchangeInfo.hpp"
 #include "proxy/BinanceKlines.hpp"
+#include "wrapper/TradeSymbol.hpp"
+
+#include <thread>
+#include <chrono>
 
 TraderApp::TraderApp() {
 }
@@ -26,7 +30,8 @@ void TraderApp::run(const TradeSymbol& symbol) {
     static string secret_key    = BINANCE_SECRET_KEY;
     BinaCPP::init(api_key, secret_key);
     // init binance logger
-    BinaCPP_logger::set_debug_level(0);
+    BinaCPP_logger::set_debug_level(2);
+    BinaCPP_logger::enable_logfile(1);
 
     // init data
     DB().init();
@@ -37,7 +42,15 @@ void TraderApp::run(const TradeSymbol& symbol) {
     SKlines().init(symbol);
     SAlgorithm().init(symbol);
 
-    // connect websocket
+    std::thread thread(&TraderApp::thread_websockets, this, symbol);
+    while (true) {
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
+
+    thread.join();
+}
+
+void TraderApp::thread_websockets(const TradeSymbol& symbol) {
     BinaCPP_websocket::init();
     SAccount().connect();
     SKlines().connect(symbol);
