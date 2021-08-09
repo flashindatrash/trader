@@ -14,7 +14,7 @@ bool BalanceManager::check(const TradeSymbol& symbol) {
                 message += data.asset + "(" + std::to_string(data.free) + ") ";
         }
         if (not message.empty())
-            trace("%sbalance update: %s%s\n", GREEN, message.c_str(), RESET);
+            trace("balance update: %s\n", message.c_str());
         _balances.clear();
     }
     return false;
