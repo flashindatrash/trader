@@ -9,7 +9,7 @@ public: // struct
         Balance = 1,
         DayChange = 2,
 
-        ForTrader = Balance | DayChange,
+        ForTrader = DayChange,
         ForProfit = DayChange
     };
 
