@@ -50,7 +50,12 @@ bool TraderManager::check(const TradeSymbol& symbol) {
         return false;
 
     // цена уможается до х2 зависит от фактора DecisionMaker'а
-    double quantity = util::ceil_quantity(symbol, _min_quantity * factor);
+    double quantity = util::ceil_quantity(symbol, _min_quantity * std::abs(factor));
+    if (quantity == 0.0) {
+        trace("invalid zero quanttity, factor: %f\n", factor);
+        return false;
+    }
+
     return _orders.create(symbol, change, quantity, nullptr);
 }
 

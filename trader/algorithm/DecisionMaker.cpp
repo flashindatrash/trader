@@ -34,13 +34,17 @@ double DecisionMaker::factor(double base, int based_on) const {
 }
 
 bool DecisionMaker::make(Change base, int based_on, double& out) const {
-    double rate = base / sMinRate;
-    out = factor(rate, based_on);
+    out = 0.0;
 
+    double rate = base / sMinRate;
+    if (std::abs(rate) < 1.0)
+        return false;
+
+    out = factor(rate, based_on);
     if (not Changes::equal(rate, out))
         logic_error("DecisionMaker::make gets wrong factor");
 
-    return std::abs(rate) >= 1.0 && std::abs(out) >= 1.0;
+    return std::abs(out) >= 1.0;
 }
 
 bool DecisionMaker::has(int mask, BasedOn value) const {

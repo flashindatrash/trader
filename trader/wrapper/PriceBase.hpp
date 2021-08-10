@@ -4,6 +4,7 @@ typedef double Price;
 typedef double Change;
 
 namespace Changes {
+    bool empty(Change change);
     bool equal(Change left, Change right);
 }
 
