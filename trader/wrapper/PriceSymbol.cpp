@@ -6,11 +6,11 @@ PriceSymbol* PriceSymbol::create() {
     return wrapper;
 }
 
-void PriceSymbol::add(double price) {
+void PriceSymbol::add(Price price) {
     add(price, STime().getCurrent());
 }
 
-void PriceSymbol::add(double price, time_t time) {
+void PriceSymbol::add(Price price, time_t time) {
     if (not _per_second.empty() && std::abs(time - _per_second.back().second) < BinanceTime::sSecond)
         return;
 

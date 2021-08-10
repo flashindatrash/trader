@@ -29,7 +29,3 @@ double util::ceil_quantity(const TradeSymbol& symbol, double quantity) {
 
     return quantity;
 }
-
-double util::get_percent(double first, double second) {
-    return (second - first) / first;
-}

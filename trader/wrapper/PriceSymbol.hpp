@@ -1,18 +1,19 @@
 #pragma once
 
 #include <global.hpp>
+#include "wrapper/PriceBase.hpp"
 #include "data/BinancePriceStatisticsData.hpp"
 
 class PriceSymbol
 {
 public: // static
-    typedef std::pair<double, time_t> PriceTimePair;
+    typedef std::pair<Price, time_t> PriceTimePair;
 
     static PriceSymbol* create();
 
 public: // methods
-    void add(double price);
-    void add(double price, time_t time);
+    void add(Price price);
+    void add(Price price, time_t time);
 
     double getCurrent() const;
 

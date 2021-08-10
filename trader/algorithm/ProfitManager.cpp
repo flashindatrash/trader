@@ -2,11 +2,11 @@
 #include "proxy/BinanceTime.hpp"
 #include "proxy/Database.hpp"
 #include "proxy/BinanceOrders.hpp"
+#include "wrapper/PriceBase.hpp"
 #include "wrapper/TradeSymbol.hpp"
 #include "algorithm/ProfitManager.hpp"
 #include "algorithm/OrderManager.hpp"
 #include "algorithm/DecisionMaker.hpp"
-#include "util/PriceUtil.hpp"
 
 ProfitManager::ProfitManager(OrderManager& orders)
     : BaseManager(orders, BinanceTime::sSecond * 30)
@@ -33,7 +33,7 @@ const BinanceOrderData* ProfitManager::findClosableOrder(const TradeSymbol &symb
     const BinanceOrderData* transaction = nullptr;
     double best_change = 0.0;
     for (const BinanceOrderData& order : _orders.getPositions()) {
-        double change = util::get_percent(order.getPrice(), symbol.getPrice());
+        Change change = PriceRange(order.getPrice(), symbol.getPrice()).change();
 
         // открытая позиция соответствует сайду
         if (BinanceSideEnum(change) == order.side)

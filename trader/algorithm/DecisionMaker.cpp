@@ -30,8 +30,8 @@ double DecisionMaker::factor(double base, int based_on) const {
     return base;
 }
 
-bool DecisionMaker::make(double base, int based_on) const {
-    return std::abs(base) > 1.0 && std::abs(factor(base / sMinRate, based_on)) > 1.0;
+bool DecisionMaker::make(Change base, int based_on) const {
+    return std::abs(base) > sMinRate && std::abs(factor(base / sMinRate, based_on)) > 1.0;
 }
 
 bool DecisionMaker::has(int mask, BasedOn value) const {

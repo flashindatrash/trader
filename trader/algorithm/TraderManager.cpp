@@ -38,7 +38,7 @@ bool TraderManager::check(const TradeSymbol& symbol) {
         return false;
 
     PriceAnalyzer analyzer(*history);
-    double change = analyzer.getStablePriceChange(_orders.getLastTime());
+    Change change = analyzer.getStablePriceChange(_orders.getLastTime());
 
     DecisionMaker decision(symbol);
     if (not decision.make(change, DecisionMaker::ForTrader))
@@ -57,8 +57,7 @@ bool TraderManager::hasEqualTransaction(const BinanceSideEnum& side, double pric
         if (order.side != side)
             continue;
         // проверяем разницу в цене на минимальный порог
-        double change = util::get_percent(order.getPrice(), price);
-        if (std::abs(change) < sEqualRate)
+        if (PriceRange(order.getPrice(), price).abs() < sEqualRate)
             return true;
     }
     return false;

@@ -23,8 +23,6 @@ OrderManager::OrderManager(const TradeSymbol& symbol)
     printPositionsTimeline(symbol.getPrice());
 }
 
-
-
 bool OrderManager::create(const TradeSymbol& symbol, const BinanceSideEnum& side, double quantity, const BinanceOrderData* transaction) {
     // проверяем, что достаточно средств
     if (not SOrders().isEnough(symbol, side, quantity))

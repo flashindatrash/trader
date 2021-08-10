@@ -1,5 +1,7 @@
 #pragma once
 
+#include "wrapper/PriceBase.hpp"
+
 class TradeSymbol;
 
 class DecisionMaker
@@ -17,7 +19,7 @@ public: // methods
     DecisionMaker(const TradeSymbol& symbol);
 
     double factor(double base, int based_on) const;
-    bool make(double base, int based_on) const;
+    bool make(Change base, int based_on) const;
 
 protected: // methods
     bool has(int mask, BasedOn value) const;
