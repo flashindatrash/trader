@@ -2,7 +2,6 @@
 #include "proxy/BinanceTime.hpp"
 #include "proxy/Database.hpp"
 #include "proxy/BinanceOrders.hpp"
-#include "wrapper/PriceBase.hpp"
 #include "wrapper/TradeSymbol.hpp"
 #include "algorithm/ProfitManager.hpp"
 #include "algorithm/OrderManager.hpp"

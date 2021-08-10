@@ -1,6 +1,7 @@
 #pragma once
 
 #include <global.hpp>
+#include "wrapper/PriceBase.hpp"
 
 struct BinanceSymbolData;
 
@@ -25,8 +26,8 @@ public: // methods
 
     const BinanceSymbolData& getInfo() const;
 
-    const double getPrice() const;
-    const double getPrice(double quantity) const;
+    const Price getPrice() const;
+    const Price getPrice(double quantity) const;
 
 protected: // vars
     TradeAsset _base;

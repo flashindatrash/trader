@@ -6,6 +6,9 @@ class TradeSymbol;
 
 class DecisionMaker
 {
+private: // static
+    static double sDefaultRef;
+
 public: // struct
     enum BasedOn {
         Balance = 1,
@@ -18,10 +21,11 @@ public: // struct
 public: // methods
     DecisionMaker(const TradeSymbol& symbol);
 
-    double factor(double base, int based_on) const;
-    bool make(Change base, int based_on) const;
+    bool make(Change base, int based_on, double& out = sDefaultRef) const;
 
 protected: // methods
+    double factor(double base, int based_on) const;
+
     bool has(int mask, BasedOn value) const;
 
 protected: // vars

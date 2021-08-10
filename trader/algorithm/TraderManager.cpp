@@ -29,7 +29,7 @@ bool TraderManager::check(const TradeSymbol& symbol) {
     // устанавливаем стоимость покупки
     if (_min_quantity == 0.0) {
         double min = util::get_min_quantity(symbol);
-        _min_quantity = util::ceil_quantity(symbol, min * sMinQuantity);
+        _min_quantity = min * sMinQuantity;
         trace("trader quantity: %f\n", _min_quantity);
     }
 
@@ -40,18 +40,21 @@ bool TraderManager::check(const TradeSymbol& symbol) {
     PriceAnalyzer analyzer(*history);
     Change change = analyzer.getStablePriceChange(_orders.getLastTime());
 
-    DecisionMaker decision(symbol);
-    if (not decision.make(change, DecisionMaker::ForTrader))
+    // можем ли выполонить сделку
+    DecisionMaker decision(symbol); double factor;
+    if (not decision.make(change, DecisionMaker::ForTrader, factor))
         return false;
 
-    // не дублируем схожие транзакции
-    if (hasEqualTransaction(change, symbol.getPrice()))
+    // не дублируем схожие позиции
+    if (hasEqualPosition(change, symbol.getPrice()))
         return false;
 
-    return _orders.create(symbol, change, _min_quantity, nullptr);
+    // цена уможается до х2 зависит от фактора DecisionMaker'а
+    double quantity = util::ceil_quantity(symbol, _min_quantity * factor);
+    return _orders.create(symbol, change, quantity, nullptr);
 }
 
-bool TraderManager::hasEqualTransaction(const BinanceSideEnum& side, double price) const {
+bool TraderManager::hasEqualPosition(const BinanceSideEnum& side, double price) const {
     for (const BinanceOrderData& order : _orders.getPositions()) {
         // интересуют ордеры с одним типом
         if (order.side != side)

@@ -13,7 +13,7 @@ public: // methods
 
 protected: // methods
     // найти схожую транзакцию по цене
-    bool hasEqualTransaction(const BinanceSideEnum& side, double price) const;
+    bool hasEqualPosition(const BinanceSideEnum& side, double price) const;
 
 protected: // vars
     double _min_quantity = 0.0;

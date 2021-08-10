@@ -7,6 +7,8 @@
 // мин % соотношение, может требовать х2 взависимости от факторов
 static float sMinRate = 0.0035f;
 
+double DecisionMaker::sDefaultRef = 0.0;
+
 DecisionMaker::DecisionMaker(const TradeSymbol& symbol)
     : _symbol(symbol)
 {
@@ -30,8 +32,10 @@ double DecisionMaker::factor(double base, int based_on) const {
     return base;
 }
 
-bool DecisionMaker::make(Change base, int based_on) const {
-    return std::abs(base) > sMinRate && std::abs(factor(base / sMinRate, based_on)) > 1.0;
+bool DecisionMaker::make(Change base, int based_on, double& out) const {
+    double rate = base / sMinRate;
+    out = factor(rate, based_on);
+    return std::abs(rate) > 1.0 && std::abs(out) > 1.0;
 }
 
 bool DecisionMaker::has(int mask, BasedOn value) const {

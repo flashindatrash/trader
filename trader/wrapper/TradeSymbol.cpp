@@ -51,12 +51,12 @@ const BinanceSymbolData& TradeSymbol::getInfo() const {
     return SExchangeInfo().getSymbolInfo(*this);
 }
 
-const double TradeSymbol::getPrice() const {
+const Price TradeSymbol::getPrice() const {
     if (const PriceSymbol* wrapper = SPrices().getPrice(*this))
         return wrapper->getCurrent();
     return 0.0;
 }
 
-const double TradeSymbol::getPrice(double quantity) const {
+const Price TradeSymbol::getPrice(double quantity) const {
     return getPrice() * quantity;
 }
