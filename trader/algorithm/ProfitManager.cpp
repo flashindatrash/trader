@@ -8,11 +8,6 @@
 #include "algorithm/DecisionMaker.hpp"
 #include "util/PriceUtil.hpp"
 
-// рост/падение в процентном соотношении от ранее открытых позиций, которые стоит закрыть для получения профита
-// диапозон между min/max выбирается в зависимости от текущего баланса
-static float sMinRate = 0.003f;
-static float sMaxRate = 0.02f;
-
 ProfitManager::ProfitManager(OrderManager& orders)
     : BaseManager(orders, BinanceTime::sSecond * 30)
 {
@@ -44,7 +39,7 @@ const BinanceOrderData* ProfitManager::findClosableOrder(const TradeSymbol &symb
         if (BinanceSideEnum(change) == order.side)
             continue;
 
-        if (not decision.make(change, sMinRate, sMaxRate, DecisionMaker::Balane))
+        if (not decision.make(change, DecisionMaker::ForProfit))
             continue;
 
         if (std::abs(change) < best_change)

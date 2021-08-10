@@ -1,30 +1,39 @@
+#include "proxy/BinancePrices.hpp"
 #include "wrapper/TradeSymbol.hpp"
+#include "data/BinanceSideEnum.hpp"
+#include "data/BinancePriceStatisticsData.hpp"
 #include "algorithm/DecisionMaker.hpp"
+
+// мин % соотношение, может требовать х2 взависимости от факторов
+static float sMinRate = 0.0035f;
 
 DecisionMaker::DecisionMaker(const TradeSymbol& symbol)
     : _symbol(symbol)
 {
 }
 
-bool DecisionMaker::make(double change, double min, double max, int based_on) {
-    if (based_on == 0)
-        return false;
+double DecisionMaker::factor(double base, int based_on) const {
+    BinanceSideEnum side(base);
 
-    if (has(based_on, Balane)) {
-        double baseQty = _symbol.getPrice(_symbol.baseAsset().getBalance());
-        double quoteQty = _symbol.quoteAsset().getBalance();
-        double sumQty = (baseQty + quoteQty) * 0.5;
-        double base = std::min(1.0, baseQty / sumQty);
-        double quote = std::min(1.0, quoteQty / sumQty);
-
-        double expected = min + (change > 0 ? 1.0 - base : 1.0 - quote) * (max - min);
-        if (std::abs(change) < expected)
-            return false;
+    if (has(based_on, DayChange)) {
+        const BinancePriceStatisticsData& stats = SPrices().getStats(_symbol);
+        if (stats.priceChangePercent != 0.0)
+            base *= 1.0 + stats.priceChangePercent / 100.0 * (side == BinanceSideEnum::Buy ? 1 : -1);
     }
 
-    return true;
+    if (has(based_on, Balance)) {
+        double baseQty = _symbol.getPrice(_symbol.baseAsset().getBalance());
+        double quoteQty = _symbol.quoteAsset().getBalance();
+        base *= (side == BinanceSideEnum::Sell ? baseQty : quoteQty) / ((baseQty + quoteQty) * 0.5);
+    }
+
+    return base;
 }
 
-bool DecisionMaker::has(int mask, BasedOn value) {
+bool DecisionMaker::make(double base, int based_on) const {
+    return std::abs(base) > 1.0 && std::abs(factor(base / sMinRate, based_on)) > 1.0;
+}
+
+bool DecisionMaker::has(int mask, BasedOn value) const {
     return 0 != (mask & value);
 }

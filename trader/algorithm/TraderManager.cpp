@@ -10,17 +10,12 @@
 #include "algorithm/DecisionMaker.hpp"
 #include "util/PriceUtil.hpp"
 
-// рост/падение в процентном соотношении, при котором стоит производить сделку
-// диапозон между min/max выбирается в зависимости от текущего баланса
-static float sMinRate = 0.005f;
-static float sMaxRate = 0.04f;
-
 // процентное соотношение цены для избегания открытия повторных схожих позиций
 static float sEqualRate = 0.003f;
 
 // мин объем валюты, с которым бот открывает новые заказы
 // данное число умножается на минимальный разрешенный лот
-static double sMinQuantity = 2.0;
+static double sMinQuantity = 1.5;
 
 TraderManager::TraderManager(OrderManager& orders)
     : BaseManager(orders, BinanceTime::sSecond * 30)
@@ -46,9 +41,8 @@ bool TraderManager::check(const TradeSymbol& symbol) {
     double change = analyzer.getStablePriceChange(_orders.getLastTime());
 
     DecisionMaker decision(symbol);
-    if (not decision.make(change, sMinRate, sMaxRate, DecisionMaker::Balane))
+    if (not decision.make(change, DecisionMaker::ForTrader))
         return false;
-
 
     // не дублируем схожие транзакции
     if (hasEqualTransaction(change, symbol.getPrice()))

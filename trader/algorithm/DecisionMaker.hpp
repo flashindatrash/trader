@@ -6,16 +6,21 @@ class DecisionMaker
 {
 public: // struct
     enum BasedOn {
-        Balane = 1
+        Balance = 1,
+        DayChange = 2,
+
+        ForTrader = Balance | DayChange,
+        ForProfit = DayChange
     };
 
 public: // methods
     DecisionMaker(const TradeSymbol& symbol);
 
-    bool make(double change, double min, double max, int based_on);
+    double factor(double base, int based_on) const;
+    bool make(double base, int based_on) const;
 
 protected: // methods
-    bool has(int mask, BasedOn value);
+    bool has(int mask, BasedOn value) const;
 
 protected: // vars
     const TradeSymbol& _symbol;
