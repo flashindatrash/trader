@@ -18,3 +18,7 @@ Change PriceRange::change() const {
 Change PriceRange::abs() const {
     return std::abs(_change);
 }
+
+bool Changes::equal(Change left, Change right) {
+    return (left > 0.0 && right > 0.0) || (left < 0.0 || right < 0.0);
+}

@@ -1,3 +1,4 @@
+#include "Logger.hpp"
 #include "proxy/BinancePrices.hpp"
 #include "wrapper/TradeSymbol.hpp"
 #include "data/BinanceSideEnum.hpp"
@@ -35,7 +36,11 @@ double DecisionMaker::factor(double base, int based_on) const {
 bool DecisionMaker::make(Change base, int based_on, double& out) const {
     double rate = base / sMinRate;
     out = factor(rate, based_on);
-    return std::abs(rate) > 1.0 && std::abs(out) > 1.0;
+
+    if (not Changes::equal(rate, out))
+        logic_error("DecisionMaker::make gets wrong factor");
+
+    return std::abs(rate) >= 1.0 && std::abs(out) >= 1.0;
 }
 
 bool DecisionMaker::has(int mask, BasedOn value) const {

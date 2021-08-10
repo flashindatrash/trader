@@ -26,7 +26,7 @@ Change PriceAnalyzer::getStablePriceChange(time_t since) const {
 
         // todo: hlco4 and etc
         const Change change = PriceRange(left.priceClose, right.priceClose).change();
-        if ((total > 0.0 && change < 0.0) || (total < 0.0 && change > 0.0))
+        if (total != 0.0 && not Changes::equal(change, total))
             break;
 
         total += change;

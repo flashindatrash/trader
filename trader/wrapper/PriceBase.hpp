@@ -3,6 +3,10 @@
 typedef double Price;
 typedef double Change;
 
+namespace Changes {
+    bool equal(Change left, Change right);
+}
+
 class PriceRange {
 
 public:  // methods
