@@ -9,7 +9,7 @@ struct BinanceKlineData;
 class BinanceKlines : public core::Proxy<BinanceKlines>, public core::Emitter<BinanceKlineData>
 {
 public: // methods
-    BinanceKlines() {}
+    BinanceKlines() = default;
     virtual ~BinanceKlines() override;
 
     void init(const TradeSymbol& symbol);

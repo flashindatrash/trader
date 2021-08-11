@@ -6,7 +6,7 @@
 class BinanceExchangeInfo : public core::Proxy<BinanceExchangeInfo>
 {
 public: // methods
-    BinanceExchangeInfo() {}
+    BinanceExchangeInfo() = default;
 
     void init();
 

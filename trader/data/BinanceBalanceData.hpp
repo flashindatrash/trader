@@ -5,7 +5,7 @@
 struct BinanceBalanceData
 {
 public: // methods
-    BinanceBalanceData() {}
+    BinanceBalanceData() = default;
     BinanceBalanceData(std::string a, double f);
     BinanceBalanceData(const Json::Value& json, bool minimized);
 

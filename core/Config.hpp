@@ -11,7 +11,7 @@ namespace core {
 
 class Config {
 public: // methods
-    Config() {}
+    Config() = default;
 
     bool read(const char* path);
 

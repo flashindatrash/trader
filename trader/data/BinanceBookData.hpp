@@ -5,7 +5,7 @@
 struct BinanceBookData
 {
 public: // methods
-    BinanceBookData() {}
+    BinanceBookData() = default;
     BinanceBookData(const Json::Value& json);
 
 public: // vars

@@ -11,7 +11,7 @@ namespace Changes {
 class PriceRange {
 
 public:  // methods
-    PriceRange() {}
+    PriceRange() = default;
     PriceRange(Change change);
     PriceRange(Price left, Price right);
 

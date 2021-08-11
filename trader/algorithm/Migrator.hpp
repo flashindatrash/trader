@@ -8,6 +8,6 @@ public: // static
     static bool migrate(OrderManager& orders);
 
 public: // methods
-    Migrator() {}
+    Migrator() = default;
 };
 

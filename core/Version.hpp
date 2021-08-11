@@ -5,7 +5,7 @@ namespace core {
 struct Version
 {
 public: // constructors
-    Version() {}
+    Version() = default;
     Version(int major, int minor, int patch = 0);
 
 public: // vars

@@ -7,7 +7,7 @@ class TradeSymbol;
 class BalanceManager
 {
 public: // methods
-    BalanceManager() {}
+    BalanceManager() = default;
 
     void add(const BinanceBalanceData& balance);
     bool check(const TradeSymbol& symbol);

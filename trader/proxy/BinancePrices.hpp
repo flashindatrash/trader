@@ -9,7 +9,7 @@ struct BinancePriceStatisticsData;
 class BinancePrices : public core::Proxy<BinancePrices>
 {
 public: // methods
-    BinancePrices() {}
+    BinancePrices() = default;
     virtual ~BinancePrices() override;
 
     void init();

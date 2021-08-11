@@ -14,7 +14,7 @@ class Database : public core::Proxy<Database>
 {
 
 public: // methods
-    Database() {}
+    Database() = default;
     virtual ~Database() override;
 
     void init(const core::Config& config);

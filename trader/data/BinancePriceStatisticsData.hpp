@@ -5,7 +5,7 @@
 struct BinancePriceStatisticsData
 {
 public: // methods
-    BinancePriceStatisticsData() {}
+    BinancePriceStatisticsData() = default;
     BinancePriceStatisticsData(const Json::Value& json);
 
 public: // vars

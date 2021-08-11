@@ -5,7 +5,7 @@
 struct BinanceKlineData
 {
 public: // methods
-    BinanceKlineData() {}
+    BinanceKlineData() = default;
     BinanceKlineData(const Json::Value& json);
 
     bool isEmpty() const;

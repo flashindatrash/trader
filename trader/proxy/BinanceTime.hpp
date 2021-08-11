@@ -12,7 +12,7 @@ public: // static
     static const time_t sDay;
 
 public: // methods
-    BinanceTime() {}
+    BinanceTime() = default;
 
     void init();
     time_t getCurrent() const;

@@ -12,7 +12,7 @@ struct BinanceBalanceData;
 class BinanceAlgorithm : public core::Proxy<BinanceAlgorithm>
 {
 public: // methods
-    BinanceAlgorithm() {}
+    BinanceAlgorithm() = default;
     virtual ~BinanceAlgorithm() override;
 
     void init(const TradeSymbol& symbol);

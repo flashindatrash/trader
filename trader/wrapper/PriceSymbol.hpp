@@ -23,7 +23,7 @@ public: // methods
     BinancePriceStatisticsData& getStats();
 
 protected: // methods
-    PriceSymbol() {}
+    PriceSymbol() = default;
 
 protected: // vars
     BinancePriceStatisticsData _per_day;

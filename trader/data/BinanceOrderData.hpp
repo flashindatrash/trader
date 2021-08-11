@@ -5,7 +5,7 @@
 struct BinanceOrderData
 {
 public: // methods
-    BinanceOrderData() {}
+    BinanceOrderData() = default;
     BinanceOrderData(const Json::Value& json, bool minimized);
 
     double getPrice() const;

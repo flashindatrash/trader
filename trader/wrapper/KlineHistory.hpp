@@ -14,7 +14,7 @@ public: // methods
     const BinanceKlineData& back() const;
 
 protected: // methods
-    KlineHistory() {}
+    KlineHistory() = default;
 
 protected: // vars
     std::vector<BinanceKlineData> _klines;

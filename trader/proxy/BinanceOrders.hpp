@@ -8,7 +8,7 @@ class TradeSymbol;
 class BinanceOrders : public core::Proxy<BinanceOrders>
 {
 public: // methods
-    BinanceOrders() {}
+    BinanceOrders() = default;
 
     std::vector<BinanceOrderData> getAllOrders(const TradeSymbol& symbol, int limit = 0) const;
 

@@ -22,7 +22,7 @@ public: // struct
     };
 
 public: // methods
-    BinanceSymbolData() {}
+    BinanceSymbolData() = default;
     BinanceSymbolData(const Json::Value& json);
 
     bool hasOrderType(const std::string& type) const;
