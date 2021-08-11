@@ -15,7 +15,7 @@ static float sEqualRate = 0.001f;
 
 // мин объем валюты, с которым бот открывает новые заказы
 // данное число умножается на минимальный разрешенный лот
-static double sMinQuantity = 1.5;
+static double sMinQuantity = 1.3;
 
 TraderManager::TraderManager(OrderManager& orders)
     : BaseManager(orders, BinanceTime::sSecond * 30)
@@ -40,7 +40,7 @@ bool TraderManager::check(const TradeSymbol& symbol) {
     PriceAnalyzer analyzer(*history);
     Change change = analyzer.getStablePriceChange(_orders.getLastTime());
 
-    // можем ли выполонить сделку
+    // проверим можем ли выполонить сделку, сохранив множитель
     DecisionMaker decision(symbol); double factor;
     if (not decision.make(change, DecisionMaker::ForTrader, factor))
         return false;
@@ -50,12 +50,7 @@ bool TraderManager::check(const TradeSymbol& symbol) {
         return false;
 
     // цена уможается до х2 зависит от фактора DecisionMaker'а
-    double quantity = util::ceil_quantity(symbol, _min_quantity * std::abs(factor));
-    if (quantity == 0.0) {
-        trace("invalid zero quanttity, factor: %f\n", factor);
-        return false;
-    }
-
+    double quantity = util::ceil_quantity(symbol, _min_quantity * std::max(factor, 1.0));
     return _orders.create(symbol, change, quantity, nullptr);
 }
 
