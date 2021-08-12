@@ -19,12 +19,12 @@ BinanceSymbolData::BinanceSymbolData(const Json::Value& json)
     isSpotTradingAllowed        = json["isSpotTradingAllowed"].asBool();
     ocoAllowed                  = json["ocoAllowed"].asBool();
 
-    if (json["orderTypes"] && json["orderTypes"].isArray()) {
+    if (json["orderTypes"].isArray()) {
         for (uint i = 0; i < json["orderTypes"].size(); ++i)
             _orderTypes.push_back(json["orderTypes"][i].asString());
     }
 
-    if (json["filters"] && json["filters"].isArray()) {
+    if (json["filters"].isArray()) {
         for (uint i = 0; i < json["filters"].size(); ++i) {
             const Json::Value& filter = json["filters"][i];
             if (filter["filterType"].asString() == "MIN_NOTIONAL") {
