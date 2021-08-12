@@ -1,5 +1,6 @@
 #include "Config.hpp"
 #include <fstream>
+#include <algorithm>
 
 using namespace core;
 

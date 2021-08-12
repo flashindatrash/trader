@@ -2,6 +2,7 @@
 #include "Logger.hpp"
 #include "proxy/BinanceTime.hpp"
 #include "data/BinanceErrorData.hpp"
+#include <chrono>
 
 const time_t BinanceTime::sSecond = 1000;
 const time_t BinanceTime::sMinute = 60 * sSecond;
