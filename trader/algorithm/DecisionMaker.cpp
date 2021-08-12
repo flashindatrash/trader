@@ -26,8 +26,8 @@ double DecisionMaker::calc(const BinanceSideEnum& side, int based_on) const {
     }
 
     if (has(based_on, Balance)) {
-        // понижаем рейтинг на сделки, при балансе ассета < 25%
-        static double sBalanceThreshold = 0.25;
+        // понижаем рейтинг на сделки, при балансе ассета < 50%
+        static double sBalanceThreshold = 0.5;
         double baseQty = _symbol.getPrice(_symbol.baseAsset().getBalance());
         double quoteQty = _symbol.quoteAsset().getBalance();
         result *= std::abs((side == BinanceSideEnum::Sell ? baseQty : quoteQty) / ((baseQty + quoteQty) * sBalanceThreshold));
