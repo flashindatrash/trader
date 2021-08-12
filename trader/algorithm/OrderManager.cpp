@@ -50,7 +50,7 @@ bool OrderManager::create(const TradeSymbol& symbol, const BinanceSideEnum& side
         DataManager::openPosition(result.clientOrderId);
         _positions.push_back(result);
     } else {
-        trace("\a%s %f %s for %f (prev %f)\n", side.c_str(), quantity, symbol.baseAsset().c_str(), symbol.getPrice(), transaction->getPrice());
+        trace("\a%s %f %s for %f (%s for %f)\n", side.c_str(), quantity, symbol.baseAsset().c_str(), symbol.getPrice(), transaction->side.c_str(), transaction->getPrice());
         double profit = std::abs(transaction->getPrice() - symbol.getPrice()) * transaction->quantity;
         printProfit(symbol, profit);
         std::string order_id = transaction->clientOrderId;
