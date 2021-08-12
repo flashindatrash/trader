@@ -11,7 +11,7 @@
 #include "util/PriceUtil.hpp"
 
 // мин % соотношение, может требовать х2 взависимости от факторов
-static float sRate = 0.005f;
+static float sRate = 0.007f;
 
 // процентное соотношение цены для избегания открытия повторных схожих позиций
 static float sEqualRate = 0.001f;

@@ -34,11 +34,6 @@ double DecisionMaker::calc(const BinanceSideEnum& side, int based_on) const {
 }
 
 bool DecisionMaker::make(double rate, int based_on, double& factor) const {
-    factor = 0.0;
-
-    if (std::abs(rate) < 1.0)
-        return false;
-
     factor = calc(rate, based_on);
     if (factor < 0.0)
         logic_error("factor of DecisionMaker must be positive");

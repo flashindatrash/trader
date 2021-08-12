@@ -7,7 +7,10 @@
 #include "algorithm/OrderManager.hpp"
 #include "algorithm/DecisionMaker.hpp"
 
-// мин % соотношение, может требовать х2 взависимости от факторов
+// мин % соотношение, меньше которого не сливать
+static float sMinRate = 0.0035f;
+
+// желаемое % соотношение
 static float sRate = 0.005f;
 
 ProfitManager::ProfitManager(OrderManager& orders)
@@ -39,6 +42,10 @@ const BinanceOrderData* ProfitManager::findClosableOrder(const TradeSymbol &symb
 
         // открытая позиция соответствует сайду
         if (BinanceSideEnum(change) == order.side)
+            continue;
+
+        // не продаем меньше, чтобы профит перекрывал комисию
+        if (std::abs(change) < sMinRate)
             continue;
 
         if (not decision.make(change / sRate, DecisionMaker::ForProfit))

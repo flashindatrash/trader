@@ -9,7 +9,7 @@ int main(int argc, char** argv) {
 
     cppargparser::ArgumentParser args;
     args.addArgument(cppargparser::Argument("-c", "--config", "config", 1, true));
-    args.addArgument(cppargparser::Argument("-a", "--action", "price", 1, true));
+    args.addArgument(cppargparser::Argument("-a", "--action", "action", 1, true));
     args.addArgument(cppargparser::Argument("-s", "--symbol", "symbol", 1, true));
 
     auto parsed = args.parse(argc, argv);
