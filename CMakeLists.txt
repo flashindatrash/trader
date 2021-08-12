@@ -47,37 +47,37 @@ message("-- Found hiredis lib: ${HIREDIS_LIBRARY}")
 
 # jsoncpp
 if(APPLE)
-set(JSONCPP_ROOT_DIR "/usr/local/Cellar/jsoncpp/1.9.4_1")
-FIND_LIBRARY(JSONCPP_LIBRARY
-        NAMES libjsoncpp
-        PATHS /usr/lib /usr/local/lib
-)
-include_directories(${JSONCPP_ROOT_DIR}/include)
-list(APPEND ALL_LIBS ${JSONCPP_LIBRARY})
-message("-- Found jsoncpp lib: ${JSONCPP_LIBRARY}")
+    set(JSONCPP_ROOT_DIR "/usr/local/Cellar/jsoncpp/1.9.4_1")
+    FIND_LIBRARY(JSONCPP_LIBRARY
+            NAMES libjsoncpp
+            PATHS /usr/lib /usr/local/lib
+    )
+    include_directories(${JSONCPP_ROOT_DIR}/include)
+    list(APPEND ALL_LIBS ${JSONCPP_LIBRARY})
+    message("-- Found jsoncpp lib: ${JSONCPP_LIBRARY}")
 elseif(UNIX)
-include_directories(/usr/include/jsoncpp)
-list(APPEND ALL_LIBS /usr/lib/x86_64-linux-gnu/libjsoncpp.so)
+    include_directories(/usr/include/jsoncpp)
+    list(APPEND ALL_LIBS /usr/lib/x86_64-linux-gnu/libjsoncpp.so)
 endif()
 
 # websockets
 if(APPLE)
-set(WEBSOCKETS_ROOT_DIR "/usr/local/Cellar/libwebsockets/4.2.1")
-FIND_LIBRARY(WEBSOCKETS_LIBRARY
-        NAMES libwebsockets
-        PATHS /usr/lib /usr/local/lib
-)
-include_directories(${WEBSOCKETS_ROOT_DIR}/include)
-list(APPEND ALL_LIBS ${WEBSOCKETS_ROOT_DIR}/lib/libwebsockets.dylib)
-message("-- Found websockets lib: ${WEBSOCKETS_LIBRARY}")
+    set(WEBSOCKETS_ROOT_DIR "/usr/local/Cellar/libwebsockets/4.2.1")
+    FIND_LIBRARY(WEBSOCKETS_LIBRARY
+            NAMES libwebsockets
+            PATHS /usr/lib /usr/local/lib
+    )
+    include_directories(${WEBSOCKETS_ROOT_DIR}/include)
+    list(APPEND ALL_LIBS ${WEBSOCKETS_ROOT_DIR}/lib/libwebsockets.dylib)
+    message("-- Found websockets lib: ${WEBSOCKETS_LIBRARY}")
 elseif(UNIX)
-include_directories(/usr/local/include/libwebsockets/)
-list(APPEND ALL_LIBS /usr/local/lib/libwebsockets.so)
+    include_directories(/usr/local/include/libwebsockets/)
+    list(APPEND ALL_LIBS /usr/local/lib/libwebsockets.so)
 endif()
 
 # hotfix
-if(UNIX)
-list(APPEND ALL_LIBS -lpthread)
+    if(UNIX)
+    list(APPEND ALL_LIBS -lpthread)
 endif()
 
 # core
