@@ -7,6 +7,9 @@
 #include "algorithm/OrderManager.hpp"
 #include "algorithm/DecisionMaker.hpp"
 
+// мин % соотношение, может требовать х2 взависимости от факторов
+static float sRate = 0.005f;
+
 ProfitManager::ProfitManager(OrderManager& orders)
     : BaseManager(orders, BinanceTime::sSecond * 30)
 {
@@ -38,7 +41,7 @@ const BinanceOrderData* ProfitManager::findClosableOrder(const TradeSymbol &symb
         if (BinanceSideEnum(change) == order.side)
             continue;
 
-        if (not decision.make(change, DecisionMaker::ForProfit))
+        if (not decision.make(change / sRate, DecisionMaker::ForProfit))
             continue;
 
         if (std::abs(change) < best_change)

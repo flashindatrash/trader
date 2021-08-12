@@ -3,7 +3,7 @@
 #include "Proxy.hpp"
 #include <global.hpp>
 
-class BinanceTime : public core::Proxy<BinanceTime>
+class BinanceTime : public core::Proxy<BinanceTime>, public core::Emitter<time_t>
 {
 public: // static
     static const time_t sSecond;
@@ -15,6 +15,7 @@ public: // methods
     BinanceTime() = default;
 
     void init();
+    void tick();
     time_t getCurrent() const;
 };
 

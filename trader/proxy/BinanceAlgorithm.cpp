@@ -1,3 +1,4 @@
+#include "proxy/BinanceTime.hpp"
 #include "proxy/BinanceAlgorithm.hpp"
 #include "proxy/BinanceAccount.hpp"
 #include "wrapper/TradeSymbol.hpp"
@@ -15,6 +16,8 @@ BinanceAlgorithm::~BinanceAlgorithm() {
 }
 
 void BinanceAlgorithm::init(const TradeSymbol& symbol) {
+    _symbol = &symbol;
+
     _pool = new OrderManager(symbol);
     if (not Migrator::migrate(*_pool))
         return;
@@ -26,6 +29,7 @@ void BinanceAlgorithm::init(const TradeSymbol& symbol) {
     _balance_manager->add({symbol.baseAsset(), symbol.baseAsset().getBalance()});
     _balance_manager->add({symbol.quoteAsset(), symbol.quoteAsset().getBalance()});
 
+    STime().addListener(std::bind(&BinanceAlgorithm::tick, this, std::placeholders::_1));
     SAccount().addListener(std::bind(&BinanceAlgorithm::onBalanceChanged, this, std::placeholders::_1));
 }
 
@@ -33,13 +37,13 @@ void BinanceAlgorithm::onBalanceChanged(const BinanceBalanceData &data) {
     _balance_manager->add(data);
 }
 
-void BinanceAlgorithm::tick(const TradeSymbol& symbol) {
-    if (_balance_manager->check(symbol))
+void BinanceAlgorithm::tick(time_t now) {
+    if (_balance_manager->check(*_symbol))
         return;
 
-    if (_profit_manager->check(symbol))
+    if (_profit_manager->check(*_symbol))
         return;
 
-    if (_trader_manager->check(symbol))
+    if (_trader_manager->check(*_symbol))
         return;
 }

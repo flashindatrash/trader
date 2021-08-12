@@ -52,7 +52,7 @@ void TraderApp::run(const TradeSymbol& symbol) {
     std::thread thread(&BinaCPP_websocket::enter_event_loop);
     while (true) {
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        SAlgorithm().tick(symbol);
+        STime().tick();
     }
 
     thread.join();

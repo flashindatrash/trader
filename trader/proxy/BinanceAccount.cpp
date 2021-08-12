@@ -2,6 +2,7 @@
 #include "binacpp_websocket.h"
 #include "Logger.hpp"
 #include "Config.hpp"
+#include "proxy/BinanceTime.hpp"
 #include "proxy/BinanceAccount.hpp"
 #include "data/BinanceBalanceData.hpp"
 #include "data/BinanceOrderData.hpp"
@@ -46,12 +47,15 @@ void BinanceAccount::init() {
         return;
     }
 
-    _listenKey = result["listenKey"].asString();
+    _listen_key = result["listenKey"].asString();
 
     std::string ws_path = std::string("/ws/");
-    ws_path.append(_listenKey);
+    ws_path.append(_listen_key);
 
     BinaCPP_websocket::connect_endpoint(std::bind(&BinanceAccount::handle, this, std::placeholders::_1), ws_path.c_str());
+
+    _ping_time = STime().getCurrent();
+    STime().addListener(std::bind(&BinanceAccount::tick, this, std::placeholders::_1));
 }
 
 int BinanceAccount::handle(Json::Value& json) {
@@ -70,6 +74,17 @@ int BinanceAccount::handle(Json::Value& json) {
     }
 
     return 0;
+}
+
+void BinanceAccount::tick(time_t now) {
+    // Keepalive a user data stream to prevent a time out.
+    // User data streams will close after 60 minutes.
+    // It's recommended to send a ping about every 30 minutes
+    if (now < _ping_time * BinanceTime::sMinute * 30)
+        return;
+
+    BinaCPP::keep_userDataStream(_listen_key.c_str());
+    _ping_time = now;
 }
 
 double BinanceAccount::getBalance(const std::string &asset) const {

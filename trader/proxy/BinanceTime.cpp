@@ -36,6 +36,10 @@ void BinanceTime::init()
     }
 }
 
+void BinanceTime::tick() {
+    invoke(getCurrent());
+}
+
 time_t BinanceTime::getCurrent() const {
     using namespace std::chrono;
     return duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();

@@ -5,9 +5,6 @@
 #include "data/BinancePriceStatisticsData.hpp"
 #include "algorithm/DecisionMaker.hpp"
 
-// мин % соотношение, может требовать х2 взависимости от факторов
-static float sRate = 0.005f;
-
 double DecisionMaker::sDefaultRef = 0.0;
 
 DecisionMaker::DecisionMaker(const TradeSymbol& symbol)
@@ -36,10 +33,9 @@ double DecisionMaker::calc(const BinanceSideEnum& side, int based_on) const {
     return result;
 }
 
-bool DecisionMaker::make(Change change, int based_on, double& factor) const {
+bool DecisionMaker::make(double rate, int based_on, double& factor) const {
     factor = 0.0;
 
-    double rate = change / sRate;
     if (std::abs(rate) < 1.0)
         return false;
 

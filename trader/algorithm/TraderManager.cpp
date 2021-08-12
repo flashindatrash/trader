@@ -10,6 +10,9 @@
 #include "algorithm/DecisionMaker.hpp"
 #include "util/PriceUtil.hpp"
 
+// мин % соотношение, может требовать х2 взависимости от факторов
+static float sRate = 0.005f;
+
 // процентное соотношение цены для избегания открытия повторных схожих позиций
 static float sEqualRate = 0.001f;
 
@@ -42,7 +45,7 @@ bool TraderManager::check(const TradeSymbol& symbol) {
 
     // проверим можем ли выполонить сделку, сохранив множитель
     DecisionMaker decision(symbol); double factor;
-    if (not decision.make(change, DecisionMaker::ForTrader, factor))
+    if (not decision.make(change / sRate, DecisionMaker::ForTrader, factor))
         return false;
 
     // не дублируем схожие позиции

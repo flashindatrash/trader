@@ -15,11 +15,13 @@ public: // methods
 
 protected: // methods
     int handle(Json::Value& json);
+    void tick(time_t now);
 
     void setBalance(const BinanceBalanceData& data);
 
 protected: // vars
-    std::string _listenKey = "";
+    std::string _listen_key = "";
+    time_t _ping_time = 0;
     std::unordered_map<std::string, double> _balance;
 };
 
