@@ -8,7 +8,6 @@
 OrderManager::OrderManager(const Symbol& symbol)
 {
     _orders = SOrders().getAllOrders(symbol);
-    _last_time = DataManager::getLastOrderTime(symbol);
 
     // найдем все открытые позиции
     std::vector<std::string> keys = DataManager::getPositionIds();
@@ -32,10 +31,6 @@ bool OrderManager::create(const Symbol& symbol, const BinanceSideEnum& side, dou
     // неизвестная ошибка
     if (result.isEmpty())
         return false;
-
-    // обновляем время даже если нам вернули сстатус REJECTED
-    _last_time = STime().getCurrent();
-    DataManager::setLastOrderTime(symbol, _last_time);
 
     // не удалось создать
     if (result.isRejected())
@@ -68,10 +63,6 @@ const std::vector<BinanceOrderData>& OrderManager::getOrders() const {
 
 const std::vector<BinanceOrderData>& OrderManager::getPositions() const {
     return _positions;
-}
-
-time_t OrderManager::getLastTime() const {
-    return _last_time;
 }
 
 void OrderManager::printProfit(const Symbol& symbol, double profit) {

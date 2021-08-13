@@ -48,7 +48,6 @@ std::vector<std::pair<Symbol, Price>> BinanceController::getAllPrices() {
 
     for (uint i = 0; i < result.size(); ++i) {
         const Json::Value& data = result[i];
-
         Symbol symbol = data["symbol"].asString();
         Price price = atof(data["price"].asString().c_str());
         vec.push_back(std::make_pair(symbol, price));

@@ -6,7 +6,6 @@ class DataManager
 {
 public: // vars
     static const std::string& sDbKeyOrder;
-    static const std::string& sDbKeyLastOrder;
     static const std::string& sDbKeyProfit;
 
 public: // methods
@@ -14,7 +13,6 @@ public: // methods
     static void openPosition(const std::string& order_id);
     static void closePosition(const std::string& order_id);
     static time_t getLastOrderTime(const std::string& symbol);
-    static void setLastOrderTime(const std::string& symbol, time_t time);
     static double addProfit(const std::string& asset, double profit);
 };
 

@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Proxy.hpp"
+#include "exchanger/wrapper/SymbolSet.hpp"
+#include "exchanger/wrapper/PriceContainer.hpp"
 
 namespace core {
     class Config;
@@ -15,6 +17,8 @@ public: // methods
 
     void init(const core::Config& config);
     void run();
+
+    CONTAINER(PriceContainer, price)
 
 protected: // vars
     ExchangerController* _controller = nullptr;

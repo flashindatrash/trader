@@ -2,7 +2,6 @@
 #include "algorithm/DataManager.hpp"
 
 const std::string& DataManager::sDbKeyOrder = "order:";
-const std::string& DataManager::sDbKeyLastOrder = "stats:time_last:";
 const std::string& DataManager::sDbKeyProfit = "stats:profit:";
 
 std::vector<std::string> DataManager::getPositionIds() {
@@ -15,14 +14,6 @@ void DataManager::openPosition(const std::string& order_id) {
 
 void DataManager::closePosition(const std::string& order_id) {
     DB().del(sDbKeyOrder + order_id);
-}
-
-time_t DataManager::getLastOrderTime(const std::string& symbol) {
-    return DB().getAsLong(sDbKeyLastOrder + symbol);
-}
-
-void DataManager::setLastOrderTime(const std::string& symbol, time_t time) {
-    DB().set(sDbKeyLastOrder + symbol, time);
 }
 
 double DataManager::addProfit(const std::string& asset, double profit) {

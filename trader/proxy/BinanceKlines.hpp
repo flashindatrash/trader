@@ -6,7 +6,7 @@ class Symbol;
 class CandlestickContainer;
 struct BinanceKlineData;
 
-class BinanceKlines : public core::Proxy<BinanceKlines>, public core::Emitter<BinanceKlineData>
+class BinanceKlines : public core::Proxy<BinanceKlines>
 {
 public: // methods
     BinanceKlines() = default;

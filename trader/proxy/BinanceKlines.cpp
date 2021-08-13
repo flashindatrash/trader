@@ -1,7 +1,7 @@
 #include "binacpp.h"
 #include "binacpp_websocket.h"
 #include "Logger.hpp"
-#include "proxy/BinancePrices.hpp"
+#include "proxy/ExchangerProxy.hpp"
 #include "proxy/BinanceKlines.hpp"
 #include "exchanger/wrapper/Symbol.hpp"
 #include "exchanger/wrapper/PriceContainer.hpp"
@@ -53,12 +53,11 @@ int BinanceKlines::handle(Json::Value& json) {
         return 0;
 
     // update price
-    if (PriceContainer* wrapper = SPrices().getMutablePrice(data.symbol))
+    if (PriceContainer* wrapper = Exchanger().price_mutable(data.symbol))
         wrapper->add(data.priceClose);
 
     // add & invoke listeners
     add(data);
-    invoke(data);
     return 0;
 }
 

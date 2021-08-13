@@ -17,8 +17,6 @@ public: // methods
     const std::vector<BinanceOrderData>& getOrders() const;
     const std::vector<BinanceOrderData>& getPositions() const;
 
-    time_t getLastTime() const;
-
 protected: // methods
     void printProfit(const Symbol& symbol, double profit);
     void printPositionsTimeline(double current);
@@ -26,6 +24,5 @@ protected: // methods
 protected: // vars
     std::vector<BinanceOrderData> _orders;
     std::vector<BinanceOrderData> _positions;
-    time_t _last_time = 0;
 };
 

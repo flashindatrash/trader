@@ -3,7 +3,7 @@
 #include "Config.hpp"
 #include "proxy/BinanceOrders.hpp"
 #include "proxy/BinanceTime.hpp"
-#include "proxy/BinancePrices.hpp"
+#include "proxy/ExchangerProxy.hpp"
 #include "exchanger/wrapper/Symbol.hpp"
 #include "exchanger/wrapper/PriceContainer.hpp"
 #include "exchanger/binance/response/BinanceSymbolData.hpp"
@@ -46,7 +46,7 @@ const BinanceOrderData BinanceOrders::createOrder(const Symbol& symbol, const Bi
     // check minNotional
     if (info.minNotional.applyToMarket) {
         double avgPrice = symbol.getPrice();
-        if (const PriceContainer* history = SPrices().getPrice(symbol))
+        if (const PriceContainer* history = Exchanger().price(symbol))
             avgPrice = history->getPriceAverage(info.minNotional.avgPriceMins * BinanceTime::sMinute);
 
         if (avgPrice * quantity < info.minNotional.minNotional) {

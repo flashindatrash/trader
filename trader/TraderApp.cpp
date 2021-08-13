@@ -8,8 +8,6 @@
 #include "proxy/BinanceAccount.hpp"
 #include "proxy/BinanceAlgorithm.hpp"
 #include "proxy/BinanceOrders.hpp"
-#include "proxy/BinancePrices.hpp"
-#include "proxy/BinanceExchangeInfo.hpp"
 #include "proxy/BinanceKlines.hpp"
 #include "exchanger/wrapper/Symbol.hpp"
 
@@ -29,9 +27,7 @@ void TraderApp::run(const Symbol& symbol) {
     DB().init(_config);
     Exchanger().init(_config);
     STime().init();
-    SExchangeInfo().init();
     SAccount().init();
-    SPrices().init();
     SKlines().init(symbol);
     SAlgorithm().init(symbol);
 

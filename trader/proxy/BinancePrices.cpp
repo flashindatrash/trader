@@ -2,50 +2,16 @@
 #include "Logger.hpp"
 #include "proxy/BinanceTime.hpp"
 #include "proxy/BinancePrices.hpp"
+#include "proxy/ExchangerProxy.hpp"
 #include "exchanger/wrapper/Symbol.hpp"
 #include "exchanger/wrapper/PriceContainer.hpp"
 #include "exchanger/binance/response/BinanceErrorData.hpp"
 #include "exchanger/binance/response/BinancePriceStatisticsData.hpp"
 
-BinancePrices::~BinancePrices() {
-    for (auto& pair : _symbols)
-        SAFE_DELETE(pair.second);
-    _symbols.clear();
-}
-
-void BinancePrices::init() {
-    Json::Value result;
-    BinaCPP::get_allPrices(result);
-
-    BinanceErrorData error(result);
-    if (error.has()) {
-        logic_error(error.msg.c_str());
-        return;
-    }
-
-    if (not result.isArray()) {
-        trace("%s\n", result.toStyledString().c_str());
-        logic_error("invalid prices");
-        return;
-    }
-
-    for (uint i = 0; i < result.size(); ++i) {
-        const Json::Value& data = result[i];
-
-        std::string symbol = data["symbol"].asString();
-        double price = atof(data["price"].asString().c_str());
-
-        PriceContainer* wrapper = PriceContainer::create();
-        wrapper->add(price);
-
-        _symbols[symbol] = wrapper;
-    }
-}
-
 const BinancePriceStatisticsData& BinancePrices::getStats(const Symbol& symbol) {
     static const BinancePriceStatisticsData sEmpty;
 
-    PriceContainer* wrapper = getMutablePrice(symbol);
+    PriceContainer* wrapper = Exchanger().price_mutable(symbol);
     if (wrapper == nullptr)
         return sEmpty;
 
@@ -67,18 +33,4 @@ const BinancePriceStatisticsData& BinancePrices::getStats(const Symbol& symbol) 
     }
 
     return stats;
-}
-
-const PriceContainer* BinancePrices::getPrice(const Symbol& symbol) const {
-    auto it = _symbols.find(symbol);
-    if (it == _symbols.end())
-        return nullptr;
-    return it->second;
-}
-
-PriceContainer* BinancePrices::getMutablePrice(const Symbol& symbol) const {
-    auto it = _symbols.find(symbol);
-    if (it == _symbols.end())
-        return nullptr;
-    return it->second;
 }

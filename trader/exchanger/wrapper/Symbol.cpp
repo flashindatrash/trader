@@ -1,5 +1,5 @@
 #include "proxy/BinanceAccount.hpp"
-#include "proxy/BinancePrices.hpp"
+#include "proxy/ExchangerProxy.hpp"
 #include "proxy/BinanceExchangeInfo.hpp"
 #include "exchanger/wrapper/Symbol.hpp"
 #include "exchanger/wrapper/PriceContainer.hpp"
@@ -52,7 +52,7 @@ const BinanceSymbolData& Symbol::getInfo() const {
 }
 
 const Price Symbol::getPrice() const {
-    if (const PriceContainer* wrapper = SPrices().getPrice(*this))
+    if (const PriceContainer* wrapper = Exchanger().price(*this))
         return wrapper->getCurrent();
     return 0.0;
 }
