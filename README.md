@@ -10,6 +10,9 @@ sudo apt -y install libhiredis-dev
 sudo apt -y install libjsoncpp-dev
 sudo apt -y install redis
 
+# запускаем сервис редиса
+sudo /etc/init.d/redis-server start
+
 # создаем в юзере папку Developer и переходим
 cd ~
 mkdir Developer

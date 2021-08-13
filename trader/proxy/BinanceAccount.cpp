@@ -25,11 +25,11 @@ void BinanceAccount::init() {
         return;
     }
 
-    if (result["accountType"].asString() != "SPOT") {
-        trace("%s\n", result.toStyledString().c_str());
-        logic_error("invalid account");
-        return;
-    }
+//    if (result["accountType"].asString() != "SPOT") {
+//        trace("%s\n", result.toStyledString().c_str());
+//        logic_error("invalid account");
+//        return;
+//    }
 
     for (uint i = 0; i < balances.size(); ++i)
         setBalance(BinanceBalanceData(balances[i], false));
