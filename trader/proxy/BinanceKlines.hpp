@@ -14,7 +14,7 @@ public: // methods
 
     void init(const TradeSymbol& symbol);
 
-    const KlineHistory* getHistory(const TradeSymbol& symbol) const;
+    KlineHistory* get(const TradeSymbol& symbol) const;
 
 protected: // methods
     int handle(Json::Value& json);

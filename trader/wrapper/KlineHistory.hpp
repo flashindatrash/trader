@@ -1,9 +1,10 @@
 #pragma once
 
+#include <global.hpp>
+#include "Proxy.hpp"
 #include "data/BinanceKlineData.hpp"
 
-class KlineHistory
-{
+class KlineHistory : public core::Emitter<BinanceKlineData> {
 public: // static
     static KlineHistory* create();
 

@@ -3,7 +3,9 @@
 #include "proxy/BinanceKlines.hpp"
 #include "wrapper/KlineHistory.hpp"
 #include "wrapper/TradeSymbol.hpp"
+#include "wrapper/Candlestick.hpp"
 #include "data/BinanceSymbolData.hpp"
+#include "data/BinanceKlineData.hpp"
 #include "algorithm/OrderManager.hpp"
 #include "algorithm/TraderManager.hpp"
 #include "algorithm/PriceAnalyzer.hpp"
@@ -36,11 +38,16 @@ bool TraderManager::check(const TradeSymbol& symbol) {
         trace("trader quantity: %f\n", _min_quantity);
     }
 
-    const KlineHistory* history = SKlines().getHistory(symbol);
-    if (history == nullptr)
+    // устанавливаем враппер свеч
+    if (_candlesticks == nullptr) {
+        _candlesticks = SKlines().get(symbol);
+        _candlesticks->addListener(std::bind(&TraderManager::onCloseCandle, this, std::placeholders::_1));
+    }
+
+    if (_candlesticks == nullptr)
         return false;
 
-    PriceAnalyzer analyzer(*history);
+    PriceAnalyzer analyzer(*_candlesticks);
     Change change = analyzer.getStablePriceChange(_orders.getLastTime());
 
     // проверим можем ли выполонить сделку, сохранив множитель
@@ -67,4 +74,8 @@ bool TraderManager::hasEqualPosition(const BinanceSideEnum& side, double price) 
             return true;
     }
     return false;
+}
+
+void TraderManager::onCloseCandle(const BinanceKlineData& data) {
+    trace("candle closed o(%f) h(%f) l(%f) c(%f)\n", data.priceOpen, data.priceHigh, data.priceLow, data.priceClose);
 }
