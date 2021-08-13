@@ -1,8 +1,8 @@
+#include "BinanceController.hpp"
 #include "binacpp.h"
 #include "binacpp_websocket.h"
 #include "binacpp_logger.h"
 #include "Config.hpp"
-#include "controller/binance/BinanceController.hpp"
 
 BinanceController::~BinanceController() {
     if (_thread.joinable())

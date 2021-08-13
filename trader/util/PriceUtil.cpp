@@ -1,8 +1,8 @@
 #include "proxy/BinanceTime.hpp"
 #include "proxy/BinancePrices.hpp"
-#include "wrapper/TradeSymbol.hpp"
-#include "wrapper/PriceSymbol.hpp"
-#include "data/BinanceSymbolData.hpp"
+#include "exchanger/wrapper/TradeSymbol.hpp"
+#include "exchanger/wrapper/PriceSymbol.hpp"
+#include "exchanger/binance/response/BinanceSymbolData.hpp"
 #include "util/PriceUtil.hpp"
 
 double util::get_min_quantity(const TradeSymbol& symbol) {

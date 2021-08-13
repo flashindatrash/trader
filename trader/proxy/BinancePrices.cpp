@@ -2,10 +2,10 @@
 #include "Logger.hpp"
 #include "proxy/BinanceTime.hpp"
 #include "proxy/BinancePrices.hpp"
-#include "wrapper/TradeSymbol.hpp"
-#include "wrapper/PriceSymbol.hpp"
-#include "data/BinanceErrorData.hpp"
-#include "data/BinancePriceStatisticsData.hpp"
+#include "exchanger/wrapper/TradeSymbol.hpp"
+#include "exchanger/wrapper/PriceSymbol.hpp"
+#include "exchanger/binance/response/BinanceErrorData.hpp"
+#include "exchanger/binance/response/BinancePriceStatisticsData.hpp"
 
 BinancePrices::~BinancePrices() {
     for (auto& pair : _symbols)

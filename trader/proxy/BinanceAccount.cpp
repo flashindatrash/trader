@@ -4,9 +4,9 @@
 #include "Config.hpp"
 #include "proxy/BinanceTime.hpp"
 #include "proxy/BinanceAccount.hpp"
-#include "data/BinanceBalanceData.hpp"
-#include "data/BinanceOrderData.hpp"
-#include "data/BinanceErrorData.hpp"
+#include "exchanger/binance/response/BinanceBalanceData.hpp"
+#include "exchanger/binance/response/BinanceOrderData.hpp"
+#include "exchanger/binance/response/BinanceErrorData.hpp"
 
 void BinanceAccount::init() {
     Json::Value result;

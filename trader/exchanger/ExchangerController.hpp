@@ -4,16 +4,16 @@ namespace core {
     class Config;
 }
 
-class StockController {
+class ExchangerController {
 public: // static
-    static StockController* create();
+    static ExchangerController* create();
 
 public: // virtual
-    virtual ~StockController() = default;
+    virtual ~ExchangerController() = default;
     virtual void init(const core::Config& config) {}
     virtual void run() {}
 
 protected: // methods
-    StockController() = default;
+    ExchangerController() = default;
 };
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "data/BinanceSideEnum.hpp"
+#include "exchanger/binance/response/BinanceSideEnum.hpp"
 
 struct BinanceOrderData
 {

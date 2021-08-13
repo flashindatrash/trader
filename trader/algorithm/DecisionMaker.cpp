@@ -1,8 +1,8 @@
 #include "Logger.hpp"
 #include "proxy/BinancePrices.hpp"
-#include "wrapper/TradeSymbol.hpp"
-#include "data/BinanceSideEnum.hpp"
-#include "data/BinancePriceStatisticsData.hpp"
+#include "exchanger/wrapper/TradeSymbol.hpp"
+#include "exchanger/binance/response/BinanceSideEnum.hpp"
+#include "exchanger/binance/response/BinancePriceStatisticsData.hpp"
 #include "algorithm/DecisionMaker.hpp"
 
 double DecisionMaker::sDefaultRef = 0.0;

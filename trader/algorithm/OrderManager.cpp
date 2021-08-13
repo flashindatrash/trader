@@ -1,7 +1,7 @@
 #include "Logger.hpp"
 #include "proxy/BinanceOrders.hpp"
 #include "proxy/BinanceTime.hpp"
-#include "wrapper/TradeSymbol.hpp"
+#include "exchanger/wrapper/TradeSymbol.hpp"
 #include "algorithm/OrderManager.hpp"
 #include "algorithm/DataManager.hpp"
 

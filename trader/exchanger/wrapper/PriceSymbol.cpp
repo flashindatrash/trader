@@ -1,5 +1,5 @@
+#include "PriceSymbol.hpp"
 #include "proxy/BinanceTime.hpp"
-#include "wrapper/PriceSymbol.hpp"
 
 PriceSymbol* PriceSymbol::create() {
     PriceSymbol* wrapper = new PriceSymbol();

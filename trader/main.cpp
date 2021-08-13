@@ -2,7 +2,7 @@
 #include "Logger.hpp"
 #include "Config.hpp"
 #include "TraderApp.hpp"
-#include "wrapper/TradeSymbol.hpp"
+#include "exchanger/wrapper/TradeSymbol.hpp"
 
 int main(int argc, char** argv) {
     srand(time(NULL));

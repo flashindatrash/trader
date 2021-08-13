@@ -1,7 +1,7 @@
 #include "binacpp.h"
 #include "Logger.hpp"
 #include "proxy/BinanceExchangeInfo.hpp"
-#include "data/BinanceErrorData.hpp"
+#include "exchanger/binance/response/BinanceErrorData.hpp"
 
 void BinanceExchangeInfo::init() {
     Json::Value result;

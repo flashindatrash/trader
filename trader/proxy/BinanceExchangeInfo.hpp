@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Proxy.hpp"
-#include "data/BinanceSymbolData.hpp"
+#include "exchanger/binance/response/BinanceSymbolData.hpp"
 
 class BinanceExchangeInfo : public core::Proxy<BinanceExchangeInfo>
 {

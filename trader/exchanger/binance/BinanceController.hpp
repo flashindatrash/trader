@@ -1,9 +1,9 @@
 #pragma once
 
 #include <thread>
-#include "controller/StockController.hpp"
+#include "exchanger/ExchangerController.hpp"
 
-class BinanceController : public StockController {
+class BinanceController : public ExchangerController {
 public: // methods
     BinanceController() = default;
 

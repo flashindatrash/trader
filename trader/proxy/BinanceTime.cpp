@@ -1,7 +1,7 @@
 #include "binacpp.h"
 #include "Logger.hpp"
 #include "proxy/BinanceTime.hpp"
-#include "data/BinanceErrorData.hpp"
+#include "exchanger/binance/response/BinanceErrorData.hpp"
 #include <chrono>
 
 const time_t BinanceTime::sSecond = 1000;

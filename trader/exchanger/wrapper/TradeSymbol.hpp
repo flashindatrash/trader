@@ -1,7 +1,7 @@
 #pragma once
 
 #include <global.hpp>
-#include "wrapper/PriceBase.hpp"
+#include "exchanger/wrapper/PriceBase.hpp"
 
 struct BinanceSymbolData;
 

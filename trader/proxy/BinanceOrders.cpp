@@ -4,10 +4,10 @@
 #include "proxy/BinanceOrders.hpp"
 #include "proxy/BinanceTime.hpp"
 #include "proxy/BinancePrices.hpp"
-#include "wrapper/TradeSymbol.hpp"
-#include "wrapper/PriceSymbol.hpp"
-#include "data/BinanceSymbolData.hpp"
-#include "data/BinanceErrorData.hpp"
+#include "exchanger/wrapper/TradeSymbol.hpp"
+#include "exchanger/wrapper/PriceSymbol.hpp"
+#include "exchanger/binance/response/BinanceSymbolData.hpp"
+#include "exchanger/binance/response/BinanceErrorData.hpp"
 
 std::vector<BinanceOrderData> BinanceOrders::getAllOrders(const TradeSymbol& symbol, int limit/* = 0*/) const {
     Json::Value result;

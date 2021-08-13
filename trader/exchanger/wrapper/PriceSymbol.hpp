@@ -1,8 +1,8 @@
 #pragma once
 
 #include <global.hpp>
-#include "wrapper/PriceBase.hpp"
-#include "data/BinancePriceStatisticsData.hpp"
+#include "exchanger/wrapper/PriceBase.hpp"
+#include "exchanger/binance/response/BinancePriceStatisticsData.hpp"
 
 class PriceSymbol
 {

@@ -1,5 +1,5 @@
-#include "wrapper/KlineHistory.hpp"
-#include "data/BinanceKlineData.hpp"
+#include "exchanger/wrapper/KlineHistory.hpp"
+#include "exchanger/binance/response/BinanceKlineData.hpp"
 #include "algorithm/PriceAnalyzer.hpp"
 
 PriceAnalyzer::PriceAnalyzer(const KlineHistory& history)

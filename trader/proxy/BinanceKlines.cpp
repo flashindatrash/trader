@@ -3,12 +3,12 @@
 #include "Logger.hpp"
 #include "proxy/BinancePrices.hpp"
 #include "proxy/BinanceKlines.hpp"
-#include "wrapper/TradeSymbol.hpp"
-#include "wrapper/PriceSymbol.hpp"
-#include "wrapper/KlineHistory.hpp"
-#include "wrapper/Candlestick.hpp"
-#include "data/BinanceKlineData.hpp"
-#include "data/BinanceErrorData.hpp"
+#include "exchanger/wrapper/TradeSymbol.hpp"
+#include "exchanger/wrapper/PriceSymbol.hpp"
+#include "exchanger/wrapper/KlineHistory.hpp"
+#include "exchanger/wrapper/Candlestick.hpp"
+#include "exchanger/binance/response/BinanceKlineData.hpp"
+#include "exchanger/binance/response/BinanceErrorData.hpp"
 #include "util/StringUtil.hpp"
 
 static const std::string& sInterval = "15m";

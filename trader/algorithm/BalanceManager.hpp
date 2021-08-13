@@ -1,6 +1,6 @@
 #pragma once
 
-#include "data/BinanceBalanceData.hpp"
+#include "exchanger/binance/response/BinanceBalanceData.hpp"
 
 class TradeSymbol;
 

@@ -2,7 +2,7 @@
 
 #include <global.hpp>
 #include "Proxy.hpp"
-#include "data/BinanceKlineData.hpp"
+#include "exchanger/binance/response/BinanceKlineData.hpp"
 
 class KlineHistory : public core::Emitter<BinanceKlineData> {
 public: // static

@@ -1,5 +1,5 @@
+#include "exchanger/wrapper/Candlestick.hpp"
 #include <algorithm>
-#include "wrapper/Candlestick.hpp"
 
 Candlestick::Candlestick(Price open, Price high, Price low, Price close)
     : open(open), high(high), low(low), close(close)

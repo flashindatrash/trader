@@ -1,9 +1,9 @@
+#include "TraderApp.hpp"
 #include <thread>
 #include <chrono>
-#include "TraderApp.hpp"
 #include "Config.hpp"
 #include "proxy/Database.hpp"
-#include "proxy/StockProxy.hpp"
+#include "proxy/ExchangerProxy.hpp"
 #include "proxy/BinanceTime.hpp"
 #include "proxy/BinanceAccount.hpp"
 #include "proxy/BinanceAlgorithm.hpp"
@@ -11,7 +11,7 @@
 #include "proxy/BinancePrices.hpp"
 #include "proxy/BinanceExchangeInfo.hpp"
 #include "proxy/BinanceKlines.hpp"
-#include "wrapper/TradeSymbol.hpp"
+#include "exchanger/wrapper/TradeSymbol.hpp"
 
 core::Version TraderApp::sVersion = core::Version(1, 0);
 
@@ -27,7 +27,7 @@ TraderApp* TraderApp::create(core::Config config) {
 
 void TraderApp::run(const TradeSymbol& symbol) {
     DB().init(_config);
-    Stock().init(_config);
+    Exchanger().init(_config);
     STime().init();
     SExchangeInfo().init();
     SAccount().init();
@@ -35,7 +35,7 @@ void TraderApp::run(const TradeSymbol& symbol) {
     SKlines().init(symbol);
     SAlgorithm().init(symbol);
 
-    Stock().run();
+    Exchanger().run();
     while (true) {
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
         STime().tick();

@@ -1,8 +1,8 @@
 #include "proxy/BinanceAccount.hpp"
 #include "proxy/BinancePrices.hpp"
 #include "proxy/BinanceExchangeInfo.hpp"
-#include "wrapper/TradeSymbol.hpp"
-#include "wrapper/PriceSymbol.hpp"
+#include "exchanger/wrapper/TradeSymbol.hpp"
+#include "exchanger/wrapper/PriceSymbol.hpp"
 #include "util/StringUtil.hpp"
 
 TradeAsset::TradeAsset()
