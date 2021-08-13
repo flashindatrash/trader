@@ -1,13 +1,13 @@
 #include "Logger.hpp"
 #include "proxy/BinancePrices.hpp"
-#include "exchanger/wrapper/TradeSymbol.hpp"
+#include "exchanger/wrapper/Symbol.hpp"
 #include "exchanger/binance/response/BinanceSideEnum.hpp"
 #include "exchanger/binance/response/BinancePriceStatisticsData.hpp"
 #include "algorithm/DecisionMaker.hpp"
 
 double DecisionMaker::sDefaultRef = 0.0;
 
-DecisionMaker::DecisionMaker(const TradeSymbol& symbol)
+DecisionMaker::DecisionMaker(const Symbol& symbol)
     : _symbol(symbol)
 {
 }

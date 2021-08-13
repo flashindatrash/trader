@@ -2,8 +2,8 @@
 #include "Logger.hpp"
 #include "proxy/BinanceTime.hpp"
 #include "proxy/BinancePrices.hpp"
-#include "exchanger/wrapper/TradeSymbol.hpp"
-#include "exchanger/wrapper/PriceSymbol.hpp"
+#include "exchanger/wrapper/Symbol.hpp"
+#include "exchanger/wrapper/PriceContainer.hpp"
 #include "exchanger/binance/response/BinanceErrorData.hpp"
 #include "exchanger/binance/response/BinancePriceStatisticsData.hpp"
 
@@ -35,17 +35,17 @@ void BinancePrices::init() {
         std::string symbol = data["symbol"].asString();
         double price = atof(data["price"].asString().c_str());
 
-        PriceSymbol* wrapper = PriceSymbol::create();
+        PriceContainer* wrapper = PriceContainer::create();
         wrapper->add(price);
 
         _symbols[symbol] = wrapper;
     }
 }
 
-const BinancePriceStatisticsData& BinancePrices::getStats(const TradeSymbol& symbol) {
+const BinancePriceStatisticsData& BinancePrices::getStats(const Symbol& symbol) {
     static const BinancePriceStatisticsData sEmpty;
 
-    PriceSymbol* wrapper = getMutablePrice(symbol);
+    PriceContainer* wrapper = getMutablePrice(symbol);
     if (wrapper == nullptr)
         return sEmpty;
 
@@ -69,14 +69,14 @@ const BinancePriceStatisticsData& BinancePrices::getStats(const TradeSymbol& sym
     return stats;
 }
 
-const PriceSymbol* BinancePrices::getPrice(const TradeSymbol& symbol) const {
+const PriceContainer* BinancePrices::getPrice(const Symbol& symbol) const {
     auto it = _symbols.find(symbol);
     if (it == _symbols.end())
         return nullptr;
     return it->second;
 }
 
-PriceSymbol* BinancePrices::getMutablePrice(const TradeSymbol& symbol) const {
+PriceContainer* BinancePrices::getMutablePrice(const Symbol& symbol) const {
     auto it = _symbols.find(symbol);
     if (it == _symbols.end())
         return nullptr;

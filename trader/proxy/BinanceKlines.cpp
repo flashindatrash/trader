@@ -3,10 +3,10 @@
 #include "Logger.hpp"
 #include "proxy/BinancePrices.hpp"
 #include "proxy/BinanceKlines.hpp"
-#include "exchanger/wrapper/TradeSymbol.hpp"
-#include "exchanger/wrapper/PriceSymbol.hpp"
-#include "exchanger/wrapper/KlineHistory.hpp"
-#include "exchanger/wrapper/Candlestick.hpp"
+#include "exchanger/wrapper/Symbol.hpp"
+#include "exchanger/wrapper/PriceContainer.hpp"
+#include "exchanger/wrapper/CandlestickContainer.hpp"
+#include "exchanger/wrapper/CandlestickWrapper.hpp"
 #include "exchanger/binance/response/BinanceKlineData.hpp"
 #include "exchanger/binance/response/BinanceErrorData.hpp"
 #include "util/StringUtil.hpp"
@@ -19,7 +19,7 @@ BinanceKlines::~BinanceKlines() {
     _histories.clear();
 }
 
-void BinanceKlines::init(const TradeSymbol& symbol) {
+void BinanceKlines::init(const Symbol& symbol) {
     Json::Value result;
     BinaCPP::get_klines(symbol.c_str(), sInterval.c_str(), 10, 0, 0, result);
 
@@ -49,20 +49,20 @@ void BinanceKlines::init(const TradeSymbol& symbol) {
         const BinanceKlineData& current_data = *it;
         const BinanceKlineData& previous_data = *(it + 1);
 
-        Candlestick current(current_data.priceOpen, current_data.priceHigh, current_data.priceLow, current_data.priceClose);
-        Candlestick previous(previous_data.priceOpen, previous_data.priceHigh, previous_data.priceLow, previous_data.priceClose);
+        CandlestickWrapper current(current_data.priceOpen, current_data.priceHigh, current_data.priceLow, current_data.priceClose);
+        CandlestickWrapper previous(previous_data.priceOpen, previous_data.priceHigh, previous_data.priceLow, previous_data.priceClose);
 
         trace("--%d--\n", j++);
-        if (Candlestick::isHammer(current)) { trace("> isHammer\n"); }
-        if (Candlestick::isInvertedHammer(current)) { trace("> isInvertedHammer\n"); }
-        if (Candlestick::isHangingMan(previous, current)) { trace("> isHangingMan\n"); }
-        if (Candlestick::isShootingStar(previous, current)) { trace("> isShootingStar\n"); }
-        if (Candlestick::isBullishEngulfing(previous, current)) { trace("> isBullishEngulfing\n"); }
-        if (Candlestick::isBearishEngulfing(previous, current)) { trace("> isBearishEngulfing\n"); }
-        if (Candlestick::isBullishHarami(previous, current)) { trace("> isBullishHarami\n"); }
-        if (Candlestick::isBearishHarami(previous, current)) { trace("> isBearishHarami\n"); }
-        if (Candlestick::isBullishKicker(previous, current)) { trace("> isBullishKicker\n"); }
-        if (Candlestick::isBearishKicker(previous, current)) { trace("> isBearishKicker\n"); }
+        if (CandlestickWrapper::isHammer(current)) { trace("> isHammer\n"); }
+        if (CandlestickWrapper::isInvertedHammer(current)) { trace("> isInvertedHammer\n"); }
+        if (CandlestickWrapper::isHangingMan(previous, current)) { trace("> isHangingMan\n"); }
+        if (CandlestickWrapper::isShootingStar(previous, current)) { trace("> isShootingStar\n"); }
+        if (CandlestickWrapper::isBullishEngulfing(previous, current)) { trace("> isBullishEngulfing\n"); }
+        if (CandlestickWrapper::isBearishEngulfing(previous, current)) { trace("> isBearishEngulfing\n"); }
+        if (CandlestickWrapper::isBullishHarami(previous, current)) { trace("> isBullishHarami\n"); }
+        if (CandlestickWrapper::isBearishHarami(previous, current)) { trace("> isBearishHarami\n"); }
+        if (CandlestickWrapper::isBullishKicker(previous, current)) { trace("> isBullishKicker\n"); }
+        if (CandlestickWrapper::isBearishKicker(previous, current)) { trace("> isBearishKicker\n"); }
     }
 
     const std::string& path = "/ws/" + util::lowercase(symbol.c_str()) + "@kline_" + sInterval;
@@ -75,7 +75,7 @@ int BinanceKlines::handle(Json::Value& json) {
         return 0;
 
     // update price
-    if (PriceSymbol* wrapper = SPrices().getMutablePrice(data.symbol))
+    if (PriceContainer* wrapper = SPrices().getMutablePrice(data.symbol))
         wrapper->add(data.priceClose);
 
     // add & invoke listeners
@@ -88,17 +88,17 @@ void BinanceKlines::add(const BinanceKlineData& data) {
     if (data.symbol.empty())
         return;
 
-    KlineHistory* history = nullptr;
+    CandlestickContainer* history = nullptr;
     auto it = _histories.find(data.symbol);
     if (it == _histories.end()) {
-        history = KlineHistory::create();
+        history = CandlestickContainer::create();
         _histories[data.symbol] = history;
     } else
         history = it->second;
     history->add(data);
 }
 
-KlineHistory* BinanceKlines::get(const TradeSymbol& symbol) const {
+CandlestickContainer* BinanceKlines::get(const Symbol& symbol) const {
     auto it = _histories.find(symbol);
     if (it == _histories.end())
         return nullptr;

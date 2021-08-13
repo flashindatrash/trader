@@ -1,12 +1,12 @@
 #include "Logger.hpp"
-#include "exchanger/wrapper/TradeSymbol.hpp"
+#include "exchanger/wrapper/Symbol.hpp"
 #include "algorithm/BalanceManager.hpp"
 
 void BalanceManager::add(const BinanceBalanceData& balance) {
     _balances.push_back(balance);
 }
 
-bool BalanceManager::check(const TradeSymbol& symbol) {
+bool BalanceManager::check(const Symbol& symbol) {
     if (not _balances.empty()) {
         std::string message = "";
         for (const BinanceBalanceData &data : _balances) {

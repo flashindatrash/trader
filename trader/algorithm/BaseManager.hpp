@@ -3,7 +3,7 @@
 #include <global.hpp>
 
 class OrderManager;
-class TradeSymbol;
+class Symbol;
 
 class BaseManager
 {
@@ -13,7 +13,7 @@ protected: // static
 public: // methods
     BaseManager(OrderManager& orders, time_t interval);
 
-    virtual bool check(const TradeSymbol& symbol);
+    virtual bool check(const Symbol& symbol);
 
 protected: // vars
     OrderManager& _orders;

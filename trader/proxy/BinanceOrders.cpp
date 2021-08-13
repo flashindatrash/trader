@@ -4,12 +4,12 @@
 #include "proxy/BinanceOrders.hpp"
 #include "proxy/BinanceTime.hpp"
 #include "proxy/BinancePrices.hpp"
-#include "exchanger/wrapper/TradeSymbol.hpp"
-#include "exchanger/wrapper/PriceSymbol.hpp"
+#include "exchanger/wrapper/Symbol.hpp"
+#include "exchanger/wrapper/PriceContainer.hpp"
 #include "exchanger/binance/response/BinanceSymbolData.hpp"
 #include "exchanger/binance/response/BinanceErrorData.hpp"
 
-std::vector<BinanceOrderData> BinanceOrders::getAllOrders(const TradeSymbol& symbol, int limit/* = 0*/) const {
+std::vector<BinanceOrderData> BinanceOrders::getAllOrders(const Symbol& symbol, int limit/* = 0*/) const {
     Json::Value result;
     BinaCPP::get_allOrders(symbol.c_str(), 0, limit, BINANCE_RECV_WINDOW, result);
 
@@ -33,20 +33,20 @@ std::vector<BinanceOrderData> BinanceOrders::getAllOrders(const TradeSymbol& sym
     return vec;
 }
 
-bool BinanceOrders::isEnough(const TradeSymbol& symbol, const BinanceSideEnum& side, double quantity) const {
+bool BinanceOrders::isEnough(const Symbol& symbol, const BinanceSideEnum& side, double quantity) const {
     if (side == BinanceSideEnum::Buy)
         return symbol.quoteAsset().getBalance() >= symbol.getPrice(quantity);
     else
         return symbol.baseAsset().getBalance() > quantity;
 }
 
-const BinanceOrderData BinanceOrders::createOrder(const TradeSymbol& symbol, const BinanceSideEnum& side, double quantity) const {
+const BinanceOrderData BinanceOrders::createOrder(const Symbol& symbol, const BinanceSideEnum& side, double quantity) const {
     const BinanceSymbolData& info = symbol.getInfo();
 
     // check minNotional
     if (info.minNotional.applyToMarket) {
         double avgPrice = symbol.getPrice();
-        if (const PriceSymbol* history = SPrices().getPrice(symbol))
+        if (const PriceContainer* history = SPrices().getPrice(symbol))
             avgPrice = history->getPriceAverage(info.minNotional.avgPriceMins * BinanceTime::sMinute);
 
         if (avgPrice * quantity < info.minNotional.minNotional) {
@@ -58,7 +58,7 @@ const BinanceOrderData BinanceOrders::createOrder(const TradeSymbol& symbol, con
     return createOrder(symbol, side, quantity, "MARKET");
 }
 
-const BinanceOrderData BinanceOrders::createOrder(const TradeSymbol& symbol, const BinanceSideEnum& side, double quantity, const std::string& type) const {
+const BinanceOrderData BinanceOrders::createOrder(const Symbol& symbol, const BinanceSideEnum& side, double quantity, const std::string& type) const {
     const BinanceSymbolData& info = symbol.getInfo();
 
     // check if symbol can trade on market
@@ -92,7 +92,7 @@ const BinanceOrderData BinanceOrders::createOrder(const TradeSymbol& symbol, con
         BinanceOrderData empty;
         if (error.code == BinanceErrorData::NEW_ORDER_REJECTED) {
             empty.status = "REJECTED";
-            const TradeAsset& asset = side == BinanceSideEnum::Buy ? symbol.quoteAsset() : symbol.baseAsset();
+            const Asset& asset = side == BinanceSideEnum::Buy ? symbol.quoteAsset() : symbol.baseAsset();
             double required = side == BinanceSideEnum::Buy ? symbol.getPrice(quantity) : quantity;
             trace("don't have %f %s (current %f)\n", required, asset.c_str(), asset.getBalance());
         } else {

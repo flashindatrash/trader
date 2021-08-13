@@ -1,16 +1,16 @@
-#include "PriceSymbol.hpp"
+#include "PriceContainer.hpp"
 #include "proxy/BinanceTime.hpp"
 
-PriceSymbol* PriceSymbol::create() {
-    PriceSymbol* wrapper = new PriceSymbol();
+PriceContainer* PriceContainer::create() {
+    PriceContainer* wrapper = new PriceContainer();
     return wrapper;
 }
 
-void PriceSymbol::add(Price price) {
+void PriceContainer::add(Price price) {
     add(price, STime().getCurrent());
 }
 
-void PriceSymbol::add(Price price, time_t time) {
+void PriceContainer::add(Price price, time_t time) {
     if (not _per_second.empty() && std::abs(time - _per_second.back().second) < BinanceTime::sSecond)
         return;
 
@@ -18,13 +18,13 @@ void PriceSymbol::add(Price price, time_t time) {
     _per_second.push_back(std::make_pair(price, time));
 }
 
-double PriceSymbol::getCurrent() const {
+double PriceContainer::getCurrent() const {
     if (_per_second.empty())
         return 0.0;
     return _per_second.back().first;
 }
 
-double PriceSymbol::getPriceBack(time_t interval) const {
+double PriceContainer::getPriceBack(time_t interval) const {
     time_t time = STime().getCurrent() - interval;
 
     PriceTimePair d1;
@@ -41,7 +41,7 @@ double PriceSymbol::getPriceBack(time_t interval) const {
     return t1 < t2 ? d1.first : d2.first;
 }
 
-double PriceSymbol::getPriceAverage(time_t interval) const {
+double PriceContainer::getPriceAverage(time_t interval) const {
     double price_back = getPriceBack(interval);
     double price_current = getPriceBack(0);
 
@@ -49,6 +49,6 @@ double PriceSymbol::getPriceAverage(time_t interval) const {
     return (price_back + price_current) / 2.0;
 }
 
-BinancePriceStatisticsData& PriceSymbol::getStats() {
+BinancePriceStatisticsData& PriceContainer::getStats() {
     return _per_day;
 }

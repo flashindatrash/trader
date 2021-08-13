@@ -2,8 +2,8 @@
 
 #include "Proxy.hpp"
 
-class TradeSymbol;
-class KlineHistory;
+class Symbol;
+class CandlestickContainer;
 struct BinanceKlineData;
 
 class BinanceKlines : public core::Proxy<BinanceKlines>, public core::Emitter<BinanceKlineData>
@@ -12,9 +12,9 @@ public: // methods
     BinanceKlines() = default;
     virtual ~BinanceKlines() override;
 
-    void init(const TradeSymbol& symbol);
+    void init(const Symbol& symbol);
 
-    KlineHistory* get(const TradeSymbol& symbol) const;
+    CandlestickContainer* get(const Symbol& symbol) const;
 
 protected: // methods
     int handle(Json::Value& json);
@@ -22,7 +22,7 @@ protected: // methods
     void add(const BinanceKlineData& data);
 
 protected: // vars
-    std::unordered_map<std::string, KlineHistory*> _histories;
+    std::unordered_map<std::string, CandlestickContainer*> _histories;
 };
 
 #define SKlines() BinanceKlines::getInstance()

@@ -1,8 +1,8 @@
-#include "exchanger/wrapper/KlineHistory.hpp"
+#include "exchanger/wrapper/CandlestickContainer.hpp"
 #include "exchanger/binance/response/BinanceKlineData.hpp"
 #include "algorithm/PriceAnalyzer.hpp"
 
-PriceAnalyzer::PriceAnalyzer(const KlineHistory& history)
+PriceAnalyzer::PriceAnalyzer(const CandlestickContainer& history)
     : _history(history)
 {
 }

@@ -1,7 +1,7 @@
 #include "proxy/BinanceTime.hpp"
 #include "proxy/BinanceAlgorithm.hpp"
 #include "proxy/BinanceAccount.hpp"
-#include "exchanger/wrapper/TradeSymbol.hpp"
+#include "exchanger/wrapper/Symbol.hpp"
 #include "algorithm/Migrator.hpp"
 #include "algorithm/OrderManager.hpp"
 #include "algorithm/BalanceManager.hpp"
@@ -15,7 +15,7 @@ BinanceAlgorithm::~BinanceAlgorithm() {
     SAFE_DELETE(_trader_manager);
 }
 
-void BinanceAlgorithm::init(const TradeSymbol& symbol) {
+void BinanceAlgorithm::init(const Symbol& symbol) {
     _symbol = &symbol;
 
     _pool = new OrderManager(symbol);

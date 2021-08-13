@@ -3,7 +3,7 @@
 #include "App.hpp"
 #include "Version.hpp"
 
-class TradeSymbol;
+class Symbol;
 
 class TraderApp : public core::App
 {
@@ -15,7 +15,7 @@ public: // static
 
 public: // methods
     // run app
-    void run(const TradeSymbol& symbol);
+    void run(const Symbol& symbol);
 
 protected: // methods
     TraderApp(core::Config config);

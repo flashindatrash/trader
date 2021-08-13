@@ -2,7 +2,7 @@
 
 #include "exchanger/binance/response/BinanceOrderData.hpp"
 
-class TradeSymbol;
+class Symbol;
 
 class OrderManager
 {
@@ -10,9 +10,9 @@ protected: // static
     static const std::string key(const BinanceOrderData& transaction);
 
 public: // methods
-    OrderManager(const TradeSymbol& symbol);
+    OrderManager(const Symbol& symbol);
 
-    bool create(const TradeSymbol& symbol, const BinanceSideEnum& side, double quantity, const BinanceOrderData* transaction);
+    bool create(const Symbol& symbol, const BinanceSideEnum& side, double quantity, const BinanceOrderData* transaction);
 
     const std::vector<BinanceOrderData>& getOrders() const;
     const std::vector<BinanceOrderData>& getPositions() const;
@@ -20,7 +20,7 @@ public: // methods
     time_t getLastTime() const;
 
 protected: // methods
-    void printProfit(const TradeSymbol& symbol, double profit);
+    void printProfit(const Symbol& symbol, double profit);
     void printPositionsTimeline(double current);
 
 protected: // vars

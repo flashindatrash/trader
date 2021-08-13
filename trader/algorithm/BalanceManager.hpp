@@ -2,7 +2,7 @@
 
 #include "exchanger/binance/response/BinanceBalanceData.hpp"
 
-class TradeSymbol;
+class Symbol;
 
 class BalanceManager
 {
@@ -10,7 +10,7 @@ public: // methods
     BalanceManager() = default;
 
     void add(const BinanceBalanceData& balance);
-    bool check(const TradeSymbol& symbol);
+    bool check(const Symbol& symbol);
 
 protected: // vars
     std::vector<BinanceBalanceData> _balances;

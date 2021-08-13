@@ -11,7 +11,7 @@
 #include "proxy/BinancePrices.hpp"
 #include "proxy/BinanceExchangeInfo.hpp"
 #include "proxy/BinanceKlines.hpp"
-#include "exchanger/wrapper/TradeSymbol.hpp"
+#include "exchanger/wrapper/Symbol.hpp"
 
 core::Version TraderApp::sVersion = core::Version(1, 0);
 
@@ -25,7 +25,7 @@ TraderApp* TraderApp::create(core::Config config) {
     return app;
 }
 
-void TraderApp::run(const TradeSymbol& symbol) {
+void TraderApp::run(const Symbol& symbol) {
     DB().init(_config);
     Exchanger().init(_config);
     STime().init();

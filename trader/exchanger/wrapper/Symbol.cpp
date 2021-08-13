@@ -1,30 +1,30 @@
 #include "proxy/BinanceAccount.hpp"
 #include "proxy/BinancePrices.hpp"
 #include "proxy/BinanceExchangeInfo.hpp"
-#include "exchanger/wrapper/TradeSymbol.hpp"
-#include "exchanger/wrapper/PriceSymbol.hpp"
+#include "exchanger/wrapper/Symbol.hpp"
+#include "exchanger/wrapper/PriceContainer.hpp"
 #include "util/StringUtil.hpp"
 
-TradeAsset::TradeAsset()
+Asset::Asset()
     : std::string("")
 {
 }
 
-TradeAsset::TradeAsset(const std::string& asset)
+Asset::Asset(const std::string& asset)
     : std::string(util::uppercase(asset.c_str()))
 {
 }
 
-const double TradeAsset::getBalance() const {
+const double Asset::getBalance() const {
     return SAccount().getBalance(*this);
 }
 
-TradeSymbol::TradeSymbol()
+Symbol::Symbol()
     : std::string("")
 {
 }
 
-TradeSymbol::TradeSymbol(const std::string& symbol)
+Symbol::Symbol(const std::string& symbol)
     : std::string(symbol)
 {
     const BinanceSymbolData& info = getInfo();
@@ -32,31 +32,31 @@ TradeSymbol::TradeSymbol(const std::string& symbol)
     _quote = info.quoteAsset;
 }
 
-TradeSymbol::TradeSymbol(TradeAsset base, TradeAsset second)
+Symbol::Symbol(Asset base, Asset second)
     : _base(base)
     , _quote(second)
     , std::string(base + second)
 {
 }
 
-const TradeAsset& TradeSymbol::baseAsset() const {
+const Asset& Symbol::baseAsset() const {
     return _base;
 }
 
-const TradeAsset& TradeSymbol::quoteAsset() const {
+const Asset& Symbol::quoteAsset() const {
     return _quote;
 }
 
-const BinanceSymbolData& TradeSymbol::getInfo() const {
+const BinanceSymbolData& Symbol::getInfo() const {
     return SExchangeInfo().getSymbolInfo(*this);
 }
 
-const Price TradeSymbol::getPrice() const {
-    if (const PriceSymbol* wrapper = SPrices().getPrice(*this))
+const Price Symbol::getPrice() const {
+    if (const PriceContainer* wrapper = SPrices().getPrice(*this))
         return wrapper->getCurrent();
     return 0.0;
 }
 
-const Price TradeSymbol::getPrice(double quantity) const {
+const Price Symbol::getPrice(double quantity) const {
     return getPrice() * quantity;
 }

@@ -1,5 +1,5 @@
+#include "PriceWrapper.hpp"
 #include <global.hpp>
-#include "exchanger/wrapper/PriceBase.hpp"
 
 PriceRange::PriceRange(Change change)
     : _change(change)

@@ -2,8 +2,8 @@
 
 #include "Proxy.hpp"
 
-class TradeSymbol;
-class PriceSymbol;
+class Symbol;
+class PriceContainer;
 struct BinancePriceStatisticsData;
 
 class BinancePrices : public core::Proxy<BinancePrices>
@@ -15,14 +15,14 @@ public: // methods
     void init();
 
     // get 24hr statistics
-    const BinancePriceStatisticsData& getStats(const TradeSymbol& symbol);
+    const BinancePriceStatisticsData& getStats(const Symbol& symbol);
 
     // get price wrapper
-    const PriceSymbol* getPrice(const TradeSymbol& symbol) const;
-    PriceSymbol* getMutablePrice(const TradeSymbol& symbol) const;
+    const PriceContainer* getPrice(const Symbol& symbol) const;
+    PriceContainer* getMutablePrice(const Symbol& symbol) const;
 
 protected: // vars
-    std::unordered_map<std::string, PriceSymbol*> _symbols;
+    std::unordered_map<std::string, PriceContainer*> _symbols;
 };
 
 #define SPrices() BinancePrices::getInstance()

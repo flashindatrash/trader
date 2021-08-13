@@ -3,17 +3,17 @@
 #include "algorithm/BaseManager.hpp"
 
 struct BinanceOrderData;
-class TradeAsset;
+class Asset;
 
 class ProfitManager : public BaseManager
 {
 public: // methods
     ProfitManager(OrderManager& orders);
 
-    bool check(const TradeSymbol& symbol) override;
+    bool check(const Symbol& symbol) override;
 
 protected: // methods
     // найти ордер, который можно закрыть по выгодной ценеы
-    const BinanceOrderData* findClosableOrder(const TradeSymbol& symbol) const;
+    const BinanceOrderData* findClosableOrder(const Symbol& symbol) const;
 };
 

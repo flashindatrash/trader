@@ -2,9 +2,9 @@
 #include "Logger.hpp"
 #include "proxy/BinanceTime.hpp"
 #include "proxy/BinanceKlines.hpp"
-#include "exchanger/wrapper/KlineHistory.hpp"
-#include "exchanger/wrapper/TradeSymbol.hpp"
-#include "exchanger/wrapper/Candlestick.hpp"
+#include "exchanger/wrapper/CandlestickContainer.hpp"
+#include "exchanger/wrapper/Symbol.hpp"
+#include "exchanger/wrapper/CandlestickWrapper.hpp"
 #include "exchanger/binance/response/BinanceSymbolData.hpp"
 #include "exchanger/binance/response/BinanceKlineData.hpp"
 #include "algorithm/OrderManager.hpp"
@@ -27,7 +27,7 @@ TraderManager::TraderManager(OrderManager& orders)
 {
 }
 
-bool TraderManager::check(const TradeSymbol& symbol) {
+bool TraderManager::check(const Symbol& symbol) {
     if (not BaseManager::check(symbol))
         return false;
 

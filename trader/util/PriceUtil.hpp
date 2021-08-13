@@ -1,9 +1,9 @@
 #pragma once
 
-class TradeSymbol;
+class Symbol;
 
 namespace util {
-    double get_min_quantity(const TradeSymbol& symbol);
-    double ceil_quantity(const TradeSymbol& symbol, double quantity);
+    double get_min_quantity(const Symbol& symbol);
+    double ceil_quantity(const Symbol& symbol, double quantity);
 }
 

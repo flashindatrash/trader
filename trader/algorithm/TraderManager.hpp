@@ -3,7 +3,7 @@
 #include "algorithm/BaseManager.hpp"
 
 class BinanceSideEnum;
-class KlineHistory;
+class CandlestickContainer;
 class BinanceKlineData;
 
 class TraderManager : public BaseManager
@@ -11,7 +11,7 @@ class TraderManager : public BaseManager
 public: // methods
     TraderManager(OrderManager& orders);
 
-    bool check(const TradeSymbol& symbol) override;
+    bool check(const Symbol& symbol) override;
 
 protected: // methods
     // найти схожую транзакцию по цене
@@ -21,6 +21,6 @@ protected: // methods
 
 protected: // vars
     double _min_quantity = 0.0;
-    KlineHistory* _candlesticks = nullptr;
+    CandlestickContainer* _candlesticks = nullptr;
 };
 

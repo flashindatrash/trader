@@ -1,6 +1,6 @@
 #pragma once
 
-class TradeSymbol;
+class Symbol;
 class BinanceSideEnum;
 
 class DecisionMaker
@@ -18,7 +18,7 @@ public: // struct
     };
 
 public: // methods
-    DecisionMaker(const TradeSymbol& symbol);
+    DecisionMaker(const Symbol& symbol);
 
     bool make(double rate, int based_on, double& factor = sDefaultRef) const;
 
@@ -27,7 +27,7 @@ protected: // methods
     bool has(int mask, BasedOn value) const;
 
 protected: // vars
-    const TradeSymbol& _symbol;
+    const Symbol& _symbol;
 
 };
 

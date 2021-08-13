@@ -1,12 +1,12 @@
-#include "KlineHistory.hpp"
+#include "CandlestickContainer.hpp"
 #include "Logger.hpp"
 
-KlineHistory* KlineHistory::create() {
-    KlineHistory* wrapper = new KlineHistory();
+CandlestickContainer* CandlestickContainer::create() {
+    CandlestickContainer* wrapper = new CandlestickContainer();
     return wrapper;
 }
 
-void KlineHistory::add(const BinanceKlineData& data) {
+void CandlestickContainer::add(const BinanceKlineData& data) {
     if (_klines.empty() || data.timeStart > _klines.back().timeStart) {
         if (not _klines.empty()) {
             _klines.back().isClosed = true;
@@ -21,10 +21,10 @@ void KlineHistory::add(const BinanceKlineData& data) {
         logic_error("kline back in time");
 }
 
-const std::vector<BinanceKlineData>& KlineHistory::klines() const {
+const std::vector<BinanceKlineData>& CandlestickContainer::klines() const {
     return _klines;
 }
 
-const BinanceKlineData& KlineHistory::back() const {
+const BinanceKlineData& CandlestickContainer::back() const {
     return _klines.back();
 }

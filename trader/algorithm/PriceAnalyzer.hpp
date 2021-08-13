@@ -1,18 +1,18 @@
 #pragma once
 
 #include <global.hpp>
-#include "exchanger/wrapper/PriceBase.hpp"
+#include "exchanger/wrapper/PriceWrapper.hpp"
 
-class KlineHistory;
+class CandlestickContainer;
 
 class PriceAnalyzer
 {
 public: // methods
-    PriceAnalyzer(const KlineHistory& history);
+    PriceAnalyzer(const CandlestickContainer& history);
 
     Change getStablePriceChange(time_t since) const;
 
 protected: // vars
-    const KlineHistory& _history;
+    const CandlestickContainer& _history;
 };
 

@@ -10,7 +10,7 @@ BaseManager::BaseManager(OrderManager& orders, time_t interval)
 {
 }
 
-bool BaseManager::check(const TradeSymbol& symbol) {
+bool BaseManager::check(const Symbol& symbol) {
     if (STime().getCurrent() < _orders.getLastTime() + _interval)
         return false;
 

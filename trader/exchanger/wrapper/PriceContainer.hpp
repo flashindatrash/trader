@@ -1,15 +1,15 @@
 #pragma once
 
 #include <global.hpp>
-#include "exchanger/wrapper/PriceBase.hpp"
+#include "exchanger/wrapper/PriceWrapper.hpp"
 #include "exchanger/binance/response/BinancePriceStatisticsData.hpp"
 
-class PriceSymbol
+class PriceContainer
 {
 public: // static
     typedef std::pair<Price, time_t> PriceTimePair;
 
-    static PriceSymbol* create();
+    static PriceContainer* create();
 
 public: // methods
     void add(Price price);
@@ -23,7 +23,7 @@ public: // methods
     BinancePriceStatisticsData& getStats();
 
 protected: // methods
-    PriceSymbol() = default;
+    PriceContainer() = default;
 
 protected: // vars
     BinancePriceStatisticsData _per_day;

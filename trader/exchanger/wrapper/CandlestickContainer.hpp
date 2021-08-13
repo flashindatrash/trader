@@ -4,9 +4,9 @@
 #include "Proxy.hpp"
 #include "exchanger/binance/response/BinanceKlineData.hpp"
 
-class KlineHistory : public core::Emitter<BinanceKlineData> {
+class CandlestickContainer : public core::Emitter<BinanceKlineData> {
 public: // static
-    static KlineHistory* create();
+    static CandlestickContainer* create();
 
 public: // methods
     void add(const BinanceKlineData& data);
@@ -15,7 +15,7 @@ public: // methods
     const BinanceKlineData& back() const;
 
 protected: // methods
-    KlineHistory() = default;
+    CandlestickContainer() = default;
 
 protected: // vars
     std::vector<BinanceKlineData> _klines;

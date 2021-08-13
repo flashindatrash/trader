@@ -1,11 +1,11 @@
 #include "Logger.hpp"
 #include "proxy/BinanceOrders.hpp"
 #include "proxy/BinanceTime.hpp"
-#include "exchanger/wrapper/TradeSymbol.hpp"
+#include "exchanger/wrapper/Symbol.hpp"
 #include "algorithm/OrderManager.hpp"
 #include "algorithm/DataManager.hpp"
 
-OrderManager::OrderManager(const TradeSymbol& symbol)
+OrderManager::OrderManager(const Symbol& symbol)
 {
     _orders = SOrders().getAllOrders(symbol);
     _last_time = DataManager::getLastOrderTime(symbol);
@@ -23,7 +23,7 @@ OrderManager::OrderManager(const TradeSymbol& symbol)
     printPositionsTimeline(symbol.getPrice());
 }
 
-bool OrderManager::create(const TradeSymbol& symbol, const BinanceSideEnum& side, double quantity, const BinanceOrderData* transaction) {
+bool OrderManager::create(const Symbol& symbol, const BinanceSideEnum& side, double quantity, const BinanceOrderData* transaction) {
     // проверяем, что достаточно средств
     if (not SOrders().isEnough(symbol, side, quantity))
         return false;
@@ -74,7 +74,7 @@ time_t OrderManager::getLastTime() const {
     return _last_time;
 }
 
-void OrderManager::printProfit(const TradeSymbol& symbol, double profit) {
+void OrderManager::printProfit(const Symbol& symbol, double profit) {
     double profit_total = DataManager::addProfit(symbol.quoteAsset(), profit);
     double losses_total = 0.0;
 

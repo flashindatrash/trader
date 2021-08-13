@@ -2,7 +2,7 @@
 #include "proxy/BinanceTime.hpp"
 #include "proxy/Database.hpp"
 #include "proxy/BinanceOrders.hpp"
-#include "exchanger/wrapper/TradeSymbol.hpp"
+#include "exchanger/wrapper/Symbol.hpp"
 #include "algorithm/ProfitManager.hpp"
 #include "algorithm/OrderManager.hpp"
 #include "algorithm/DecisionMaker.hpp"
@@ -18,7 +18,7 @@ ProfitManager::ProfitManager(OrderManager& orders)
 {
 }
 
-bool ProfitManager::check(const TradeSymbol& symbol) {
+bool ProfitManager::check(const Symbol& symbol) {
     if (not BaseManager::check(symbol))
         return false;
 
@@ -31,7 +31,7 @@ bool ProfitManager::check(const TradeSymbol& symbol) {
     return _orders.create(symbol, transaction->side.reverse(), transaction->quantity, transaction);
 }
 
-const BinanceOrderData* ProfitManager::findClosableOrder(const TradeSymbol &symbol) const {
+const BinanceOrderData* ProfitManager::findClosableOrder(const Symbol &symbol) const {
     DecisionMaker decision(symbol);
 
     // найдем ордер, который стоит закрыть по более выгодному курсу
