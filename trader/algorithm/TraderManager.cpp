@@ -1,81 +1,71 @@
-#include "algorithm/TraderManager.hpp"
+#include "TraderManager.hpp"
 #include "Logger.hpp"
-#include "proxy/BinanceTime.hpp"
-#include "proxy/BinanceKlines.hpp"
-#include "exchanger/wrapper/CandlestickContainer.hpp"
 #include "exchanger/wrapper/Symbol.hpp"
+#include "exchanger/wrapper/CandlestickContainer.hpp"
 #include "exchanger/wrapper/CandlestickWrapper.hpp"
-#include "exchanger/binance/response/BinanceSymbolData.hpp"
 #include "exchanger/binance/response/BinanceKlineData.hpp"
 #include "algorithm/OrderManager.hpp"
-#include "algorithm/PriceAnalyzer.hpp"
 #include "algorithm/DecisionMaker.hpp"
 #include "util/PriceUtil.hpp"
-
-// мин % соотношение, может требовать х2 взависимости от факторов
-static float sRate = 0.007f;
-
-// процентное соотношение цены для избегания открытия повторных схожих позиций
-static float sEqualRate = 0.001f;
 
 // мин объем валюты, с которым бот открывает новые заказы
 // данное число умножается на минимальный разрешенный лот
 static double sMinQuantity = 1.3;
 
 TraderManager::TraderManager(OrderManager& orders)
-    : BaseManager(orders, BinanceTime::sSecond * 30)
+    : BaseManager(orders)
 {
 }
 
-bool TraderManager::check(const Symbol& symbol) {
-    if (not BaseManager::check(symbol))
+bool TraderManager::init(const Symbol& symbol) {
+    if (not BaseManager::init(symbol))
         return false;
 
     // устанавливаем стоимость покупки
-    if (_min_quantity == 0.0) {
-        double min = util::get_min_quantity(symbol);
-        _min_quantity = min * sMinQuantity;
-        trace("trader quantity: %f\n", _min_quantity);
-    }
-
-    // устанавливаем враппер свеч
-    if (_candlesticks == nullptr) {
-        _candlesticks = SKlines().get(symbol);
-        _candlesticks->addListener(std::bind(&TraderManager::onCloseCandle, this, std::placeholders::_1));
-    }
-
-    if (_candlesticks == nullptr)
-        return false;
-
-    PriceAnalyzer analyzer(*_candlesticks);
-    Change change = analyzer.getStablePriceChange(_orders.getLastTime());
-
-    // проверим можем ли выполонить сделку, сохранив множитель
-    DecisionMaker decision(symbol); double factor;
-    if (not decision.make(change / sRate, DecisionMaker::ForTrader, factor))
-        return false;
-
-    // не дублируем схожие позиции
-    if (hasEqualPosition(change, symbol.getPrice()))
-        return false;
-
-    // цена уможается до х2 зависит от фактора DecisionMaker'а
-    double quantity = util::ceil_quantity(symbol, _min_quantity * std::max(factor, 1.0));
-    return _orders.create(symbol, change, quantity, nullptr);
-}
-
-bool TraderManager::hasEqualPosition(const BinanceSideEnum& side, double price) const {
-    for (const BinanceOrderData& order : _orders.getPositions()) {
-        // интересуют ордеры с одним типом
-        if (order.side != side)
-            continue;
-        // проверяем разницу в цене на минимальный порог
-        if (PriceRange(order.getPrice(), price).abs() < sEqualRate)
-            return true;
-    }
-    return false;
+    double min = util::get_min_quantity(symbol);
+    _min_quantity = min * sMinQuantity;
+    trace("trader quantity: %f\n", _min_quantity);
+    return true;
 }
 
 void TraderManager::onCloseCandle(const BinanceKlineData& data) {
-    trace("candle closed o(%f) h(%f) l(%f) c(%f)\n", data.priceOpen, data.priceHigh, data.priceLow, data.priceClose);
+    const std::vector<BinanceKlineData>& candlesticks = _candlesticks->klines();
+    if (candlesticks.size() < 2)
+        return;
+
+    const BinanceKlineData& current_data = *candlesticks.end();
+    const BinanceKlineData& previous_data = *(candlesticks.end() - 1);
+
+    CandlestickWrapper current(current_data.priceOpen, current_data.priceHigh, current_data.priceLow, current_data.priceClose);
+    CandlestickWrapper previous(previous_data.priceOpen, previous_data.priceHigh, previous_data.priceLow, previous_data.priceClose);
+
+    CandlestickWrapper::Pattern pattern = current.getPattern(previous);
+    trace("candle closed (pattern %d)\n", pattern);
+
+    BinanceSideEnum side;
+    switch (pattern) {
+    case CandlestickWrapper::Hammer:            side = BinanceSideEnum::Buy; break;
+    case CandlestickWrapper::InvertedHammer:    side = BinanceSideEnum::Buy; break;
+    case CandlestickWrapper::HangingMan:        side = BinanceSideEnum::Sell; break;
+    case CandlestickWrapper::ShootingStar:      side = BinanceSideEnum::Sell; break;
+    case CandlestickWrapper::BullishEngulfing:  side = BinanceSideEnum::Buy; break;
+    case CandlestickWrapper::BearishEngulfing:  side = BinanceSideEnum::Sell; break;
+    case CandlestickWrapper::BullishHarami:     side = BinanceSideEnum::Buy; break;
+    case CandlestickWrapper::BearishHarami:     side = BinanceSideEnum::Sell; break;
+    case CandlestickWrapper::BullishKicker:     side = BinanceSideEnum::Buy; break;
+    case CandlestickWrapper::BearishKicker:     side = BinanceSideEnum::Sell; break;
+    default: return;
+    }
+
+    // проверим можем ли выполонить сделку, сохранив множитель
+    Symbol symbol(data.symbol);
+    DecisionMaker decision(symbol);
+    double factor = decision.factor(side, DecisionMaker::ForTrader);
+    trace("trader factor: %f\n", factor);
+    if (factor < 0.5)
+        return;
+
+    // цена уможается до х2 зависит от фактора DecisionMaker'а
+    double quantity = util::ceil_quantity(symbol, _min_quantity/* * std::max(factor, 1.0)*/);
+    _orders.create(symbol, side, quantity, nullptr);
 }

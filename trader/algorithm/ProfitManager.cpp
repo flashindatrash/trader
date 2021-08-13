@@ -1,9 +1,9 @@
+#include "ProfitManager.hpp"
 #include "Logger.hpp"
-#include "proxy/BinanceTime.hpp"
 #include "proxy/Database.hpp"
 #include "proxy/BinanceOrders.hpp"
 #include "exchanger/wrapper/Symbol.hpp"
-#include "algorithm/ProfitManager.hpp"
+#include "exchanger/binance/response/BinanceKlineData.hpp"
 #include "algorithm/OrderManager.hpp"
 #include "algorithm/DecisionMaker.hpp"
 
@@ -14,21 +14,8 @@ static float sMinRate = 0.0035f;
 static float sRate = 0.005f;
 
 ProfitManager::ProfitManager(OrderManager& orders)
-    : BaseManager(orders, BinanceTime::sSecond * 30)
+    : BaseManager(orders)
 {
-}
-
-bool ProfitManager::check(const Symbol& symbol) {
-    if (not BaseManager::check(symbol))
-        return false;
-
-    // находим ордер для закрытия
-    const BinanceOrderData* transaction = findClosableOrder(symbol);
-    if (transaction == nullptr)
-        return false;
-
-    // пробуем создать новый ордер
-    return _orders.create(symbol, transaction->side.reverse(), transaction->quantity, transaction);
 }
 
 const BinanceOrderData* ProfitManager::findClosableOrder(const Symbol &symbol) const {
@@ -48,7 +35,8 @@ const BinanceOrderData* ProfitManager::findClosableOrder(const Symbol &symbol) c
         if (std::abs(change) < sMinRate)
             continue;
 
-        if (not decision.make(change / sRate, DecisionMaker::ForProfit))
+        double factor = decision.factor(change, DecisionMaker::ForProfit);
+        if (std::abs(change) / sRate * factor < 1.0)
             continue;
 
         if (std::abs(change) < best_change)
@@ -63,4 +51,16 @@ const BinanceOrderData* ProfitManager::findClosableOrder(const Symbol &symbol) c
     }
 
     return transaction;
+}
+
+void ProfitManager::onCloseCandle(const BinanceKlineData& data) {
+    Symbol symbol(data.symbol);
+
+    // находим ордер для закрытия
+    const BinanceOrderData* transaction = findClosableOrder(symbol);
+    if (transaction == nullptr)
+        return;
+
+    // пробуем создать новый ордер
+    _orders.create(symbol, transaction->side.reverse(), transaction->quantity, transaction);
 }

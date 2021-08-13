@@ -2,23 +2,23 @@
 
 #include <global.hpp>
 
+class CandlestickContainer;
+class BinanceKlineData;
 class OrderManager;
 class Symbol;
 
 class BaseManager
 {
-protected: // static
-    static bool sDebug;
-
 public: // methods
-    BaseManager(OrderManager& orders, time_t interval);
+    BaseManager(OrderManager& orders);
 
-    virtual bool check(const Symbol& symbol);
+    virtual bool init(const Symbol& symbol);
 
 protected: // vars
     OrderManager& _orders;
+    CandlestickContainer* _candlesticks = nullptr;
 
-private: // vars
-    time_t _interval = 0;
+    // свеча закрылась
+    virtual void onCloseCandle(const BinanceKlineData& data) {};
 };
 

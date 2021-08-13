@@ -5,9 +5,6 @@ class BinanceSideEnum;
 
 class DecisionMaker
 {
-private: // static
-    static double sDefaultRef;
-
 public: // struct
     enum BasedOn {
         Balance = 1,
@@ -20,10 +17,9 @@ public: // struct
 public: // methods
     DecisionMaker(const Symbol& symbol);
 
-    bool make(double rate, int based_on, double& factor = sDefaultRef) const;
+    double factor(const BinanceSideEnum& side, int based_on) const;
 
 protected: // methods
-    double calc(const BinanceSideEnum& side, int based_on) const;
     bool has(int mask, BasedOn value) const;
 
 protected: // vars

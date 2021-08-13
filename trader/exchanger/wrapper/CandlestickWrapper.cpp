@@ -111,3 +111,17 @@ bool CandlestickWrapper::isBearishKicker(const CandlestickWrapper& previous, con
            isBearish(current) &&
            isGapDown(previous, current);
 }
+
+CandlestickWrapper::Pattern CandlestickWrapper::getPattern(const CandlestickWrapper& previous) const {
+    if (CandlestickWrapper::isHammer(*this)) return Hammer;
+    if (CandlestickWrapper::isInvertedHammer(*this)) return InvertedHammer;
+    if (CandlestickWrapper::isHangingMan(previous, *this)) return HangingMan;
+    if (CandlestickWrapper::isShootingStar(previous, *this)) return ShootingStar;
+    if (CandlestickWrapper::isBullishEngulfing(previous, *this)) return BullishEngulfing;
+    if (CandlestickWrapper::isBearishEngulfing(previous, *this)) return BearishEngulfing;
+    if (CandlestickWrapper::isBullishHarami(previous, *this)) return BullishHarami;
+    if (CandlestickWrapper::isBearishHarami(previous, *this)) return BearishHarami;
+    if (CandlestickWrapper::isBullishKicker(previous, *this)) return BullishKicker;
+    if (CandlestickWrapper::isBearishKicker(previous, *this)) return BearishKicker;
+    return None;
+}

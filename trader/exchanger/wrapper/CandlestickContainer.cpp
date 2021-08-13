@@ -8,7 +8,8 @@ CandlestickContainer* CandlestickContainer::create() {
 
 void CandlestickContainer::add(const BinanceKlineData& data) {
     if (_klines.empty() || data.timeStart > _klines.back().timeStart) {
-        if (not _klines.empty()) {
+        // если предыдущая не закрылась
+        if (not _klines.empty() && not _klines.back().isClosed) {
             _klines.back().isClosed = true;
             invoke(_klines.back());
         }

@@ -6,7 +6,7 @@ void BalanceManager::add(const BinanceBalanceData& balance) {
     _balances.push_back(balance);
 }
 
-bool BalanceManager::check(const Symbol& symbol) {
+void BalanceManager::print(const Symbol& symbol) {
     if (not _balances.empty()) {
         std::string message = "";
         for (const BinanceBalanceData &data : _balances) {
@@ -17,5 +17,4 @@ bool BalanceManager::check(const Symbol& symbol) {
             trace("balance update: %s\n", message.c_str());
         _balances.clear();
     }
-    return false;
 }

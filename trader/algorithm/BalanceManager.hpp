@@ -10,7 +10,7 @@ public: // methods
     BalanceManager() = default;
 
     void add(const BinanceBalanceData& balance);
-    bool check(const Symbol& symbol);
+    void print(const Symbol& symbol);
 
 protected: // vars
     std::vector<BinanceBalanceData> _balances;
