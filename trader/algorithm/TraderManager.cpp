@@ -62,7 +62,7 @@ void TraderManager::onCloseCandle(const BinanceKlineData& data) {
     DecisionMaker decision(symbol);
     double factor = decision.factor(side, DecisionMaker::ForTrader);
     trace("trader factor: %f\n", factor);
-    if (factor < 0.5)
+    if (factor < 0.3)
         return;
 
     // цена уможается до х2 зависит от фактора DecisionMaker'а
