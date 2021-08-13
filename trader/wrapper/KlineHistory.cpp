@@ -6,13 +6,17 @@ KlineHistory* KlineHistory::create() {
     return wrapper;
 }
 
-void KlineHistory::add(const BinanceKlineData &data) {
+void KlineHistory::add(const BinanceKlineData& data) {
     if (_klines.empty() || data.timeStart > _klines.back().timeStart) {
-        if (not _klines.empty())
+        if (not _klines.empty()) {
             _klines.back().isClosed = true;
+            invoke(_klines.back());
+        }
         _klines.push_back(data);
     } else if (data.timeStart == _klines.back().timeStart) {
         _klines.back() = data;
+        if (_klines.back().isClosed)
+            invoke(_klines.back());
     } else
         logic_error("kline back in time");
 }
