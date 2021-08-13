@@ -33,8 +33,8 @@ void TraderManager::onCloseCandle(const BinanceKlineData& data) {
     if (candlesticks.size() < 2)
         return;
 
-    const BinanceKlineData& current_data = *candlesticks.end();
-    const BinanceKlineData& previous_data = *(candlesticks.end() - 1);
+    const BinanceKlineData& current_data = *(candlesticks.end() - 1);
+    const BinanceKlineData& previous_data = *(candlesticks.end() - 2);
 
     CandlestickWrapper current(current_data.priceOpen, current_data.priceHigh, current_data.priceLow, current_data.priceClose);
     CandlestickWrapper previous(previous_data.priceOpen, previous_data.priceHigh, previous_data.priceLow, previous_data.priceClose);
