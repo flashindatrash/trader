@@ -56,14 +56,17 @@ void TraderManager::onCloseCandle(const BinanceKlineData& data) {
     case CandlestickWrapper::InvertedHammer:    side = SideEnum::Buy; break;
     case CandlestickWrapper::HangingMan:        side = SideEnum::Sell; break;
     case CandlestickWrapper::ShootingStar:      side = SideEnum::Sell; break;
-    case CandlestickWrapper::BullishEngulfing:  side = SideEnum::Buy; break;
-    case CandlestickWrapper::BearishEngulfing:  side = SideEnum::Sell; break;
+    //case CandlestickWrapper::BullishEngulfing:  side = SideEnum::Sell; break;
+    //case CandlestickWrapper::BearishEngulfing:  side = SideEnum::Buy; break;
     case CandlestickWrapper::BullishHarami:     side = SideEnum::Buy; break;
     case CandlestickWrapper::BearishHarami:     side = SideEnum::Sell; break;
     case CandlestickWrapper::BullishKicker:     side = SideEnum::Buy; break;
     case CandlestickWrapper::BearishKicker:     side = SideEnum::Sell; break;
-    default: return;
+    default: break;
     }
+
+    if (side == SideEnum::Invalid)
+        return;
 
     // проверим можем ли выполонить сделку, сохранив множитель
     Symbol symbol(data.symbol);
