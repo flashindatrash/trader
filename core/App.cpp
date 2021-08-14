@@ -2,9 +2,11 @@
 #include <chrono>
 #include <thread>
 
-using namespace core;
-
-App::App(Config config)
+core::App::App(Config config)
     : _config(config)
 {
+}
+
+void core::App::sleep_ms(int ms) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(ms));
 }

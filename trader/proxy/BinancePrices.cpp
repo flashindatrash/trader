@@ -25,7 +25,7 @@ const BinancePriceStatisticsData& BinancePrices::getStats(const Symbol& symbol) 
 
         BinanceErrorData error(result);
         if (error.has()) {
-            logic_error(error.msg.c_str());
+            Logger::error(error.msg.c_str());
             return stats;
         }
 

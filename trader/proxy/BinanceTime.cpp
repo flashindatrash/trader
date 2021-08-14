@@ -16,13 +16,13 @@ void BinanceTime::init()
 
     BinanceErrorData error(result);
     if (error.has()) {
-        logic_error(error.msg.c_str());
+        Logger::error(error.msg.c_str());
         return;
     }
 
     if (not result["serverTime"] || not result["serverTime"].isInt64()) {
         trace("%s\n", result.toStyledString().c_str());
-        logic_error("invalid server time");
+        Logger::error("invalid server time");
         return;
     }
 
@@ -33,7 +33,7 @@ void BinanceTime::init()
 
     if (std::abs(server_time - local_time) > 1000) {
         // todo: поддержать разницу во времени
-        logic_error("time desynchronizated\n");
+        Logger::error("time desynchronizated\n");
     }
 }
 

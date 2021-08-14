@@ -5,8 +5,7 @@
 
 class Symbol;
 
-class TraderApp : public core::App
-{
+class TraderApp : public core::App {
 public: // static
     static core::Version sVersion;
 

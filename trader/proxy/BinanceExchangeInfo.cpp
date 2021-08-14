@@ -9,14 +9,14 @@ void BinanceExchangeInfo::init() {
 
     BinanceErrorData error(result);
     if (error.has()) {
-        logic_error(error.msg.c_str());
+        Logger::error(error.msg.c_str());
         return;
     }
 
     const Json::Value& symbols = result["symbols"];
     if (not symbols.isArray()) {
         trace("%s\n", result.toStyledString().c_str());
-        logic_error("invalid exchange");
+        Logger::error("invalid exchange");
         return;
     }
 

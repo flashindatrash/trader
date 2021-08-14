@@ -2,9 +2,10 @@
 
 #include <stdio.h>
 #include <iostream>
+#include <string>
+#include <csignal>
 
 #define trace printf
-#define logic_error throw std::logic_error
 
 //the following are UBUNTU/LINUX, and MacOS ONLY terminal color codes.
 #define RESET   "\033[0m"
@@ -24,3 +25,11 @@
 #define BOLDMAGENTA "\033[1m\033[35m"      /* Bold Magenta */
 #define BOLDCYAN    "\033[1m\033[36m"      /* Bold Cyan */
 #define BOLDWHITE   "\033[1m\033[37m"      /* Bold White */
+
+class Logger {
+public: //
+    static void error(const char* error) {
+        std::cout << error << std::endl;
+        std::raise(SIGSEGV);
+    }
+};

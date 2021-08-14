@@ -19,7 +19,7 @@ void CandlestickContainer::add(const BinanceKlineData& data) {
         if (_klines.back().isClosed)
             invoke(_klines.back());
     } else
-        logic_error("kline back in time");
+        Logger::error("kline back in time");
 }
 
 const std::vector<BinanceKlineData>& CandlestickContainer::klines() const {

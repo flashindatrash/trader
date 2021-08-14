@@ -11,6 +11,11 @@ set(PROJ_WARNINGS "-Wno-write-strings -Wsign-compare -Wreturn-type -Wno-deprecat
 set(CMAKE_CXX_FLAGS_DEBUG "-O0 -DDEBUG -std=c++11 -g ${PROJ_WARNINGS}")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG -std=c++11 ${PROJ_WARNINGS}")
 
+# add for stacktrace
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_link_options(-rdynamic)
+endif()
+
 # openssl
 if(APPLE)
         SET(OPENSSL_ROOT_DIR /usr/local/opt/openssl@1.1)

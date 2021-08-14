@@ -1,10 +1,29 @@
+#include <stdio.h>
+#include <execinfo.h>
+#include <signal.h>
+#include <stdlib.h>
+#include <unistd.h>
 #include <argparser/ArgumentParser.hpp>
 #include "Logger.hpp"
 #include "Config.hpp"
 #include "TraderApp.hpp"
 #include "exchanger/wrapper/Symbol.hpp"
 
+void handler(int sig) {
+  void *array[10];
+  size_t size;
+
+  // get void*'s for all entries on the stack
+  size = backtrace(array, 10);
+
+  // print out all the frames to stderr
+  fprintf(stderr, "Error: signal %d:\n", sig);
+  backtrace_symbols_fd(array, size, STDERR_FILENO);
+  exit(1);
+}
+
 int main(int argc, char** argv) {
+    signal(SIGSEGV, handler);
     srand(time(NULL));
 
     Symbol symbol;
@@ -31,16 +50,6 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-    #ifdef NDEBUG
-    try {
-        TraderApp::create(cfg)->run(symbol);
-    } catch (const std::exception& e) {
-        trace("TraderApp failed with %s\n", e.what());
-        return EXIT_FAILURE;
-    }
-    #else
     TraderApp::create(cfg)->run(symbol);
-    #endif
-
 	return EXIT_SUCCESS;
 }

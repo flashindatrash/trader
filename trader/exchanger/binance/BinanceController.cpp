@@ -50,14 +50,14 @@ bool BinanceController::getSymbolInfo(Storage::Type_info& container) const {
 
     BinanceErrorData error(json);
     if (error.has()) {
-        logic_error(error.msg.c_str());
+        Logger::error(error.msg.c_str());
         return false;
     }
 
     const Json::Value& symbols = json["symbols"];
     if (not symbols.isArray()) {
         trace("%s\n", json.toStyledString().c_str());
-        logic_error("invalid exchange");
+        Logger::error("invalid exchange");
         return false;
     }
 
@@ -77,13 +77,13 @@ bool BinanceController::getAllPrices(Storage::Type_price& container) const {
 
     BinanceErrorData error(json);
     if (error.has()) {
-        logic_error(error.msg.c_str());
+        Logger::error(error.msg.c_str());
         return false;
     }
 
     if (not json.isArray()) {
         trace("%s\n", json.toStyledString().c_str());
-        logic_error("invalid prices");
+        Logger::error("invalid prices");
         return false;
     }
 
@@ -103,14 +103,14 @@ bool BinanceController::getBalances(Storage::Type_balance& container) const {
 
     BinanceErrorData error(json);
     if (error.has()) {
-        logic_error(error.msg.c_str());
+        Logger::error(error.msg.c_str());
         return false;
     }
 
     const Json::Value& balances = json["balances"];
     if (not balances.isArray()) {
         trace("%s\n", json.toStyledString().c_str());
-        logic_error("invalid account");
+        Logger::error("invalid account");
         return false;
     }
 
@@ -132,13 +132,13 @@ void BinanceController::initUserListenKey() {
     BinaCPP::start_userDataStream(json);
     BinanceErrorData error(json);
     if (error.has()) {
-        logic_error(error.msg.c_str());
+        Logger::error(error.msg.c_str());
         return;
     }
 
     if (!json["listenKey"] || !json["listenKey"].isString()) {
         trace("%s\n", json.toStyledString().c_str());
-        logic_error("can't get listenKey for stream account");
+        Logger::error("can't get listenKey for stream account");
         return;
     }
 
@@ -160,7 +160,7 @@ int BinanceController::onUserDataStream(Json::Value &json) {
         if (executionType == "NEW") {
             BinanceOrderData order(json, true);
             if (order.isRejected())
-                logic_error(json["r"].asString().c_str());
+                Logger::error(json["r"].asString().c_str());
         }
     } else if (action == "outboundAccountPosition") {
         for (uint i = 0; i < json["B"].size(); ++i) {

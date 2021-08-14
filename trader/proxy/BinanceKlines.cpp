@@ -24,13 +24,13 @@ void BinanceKlines::init(const Symbol& symbol) {
 
     BinanceErrorData error(result);
     if (error.has()) {
-        logic_error(error.msg.c_str());
+        Logger::error(error.msg.c_str());
         return;
     }
 
     if (not result.isArray()) {
         trace("%s\n", result.toStyledString().c_str());
-        logic_error("invalid klines");
+        Logger::error("invalid klines");
         return;
     }
 

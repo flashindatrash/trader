@@ -1,7 +1,4 @@
 #include "TraderApp.hpp"
-#include <thread>
-#include <chrono>
-#include "Config.hpp"
 #include "proxy/Database.hpp"
 #include "proxy/ExchangerProxy.hpp"
 #include "proxy/BinanceTime.hpp"
@@ -10,7 +7,7 @@
 #include "proxy/BinanceKlines.hpp"
 #include "exchanger/wrapper/Symbol.hpp"
 
-core::Version TraderApp::sVersion = core::Version(1, 0);
+core::Version TraderApp::sVersion = core::Version(1, 1);
 
 TraderApp::TraderApp(core::Config config)
     : core::App(config)
@@ -31,7 +28,7 @@ void TraderApp::run(const Symbol& symbol) {
 
     Exchanger().run();
     while (true) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        sleep_ms(100);
         STime().tick();
     }
 }

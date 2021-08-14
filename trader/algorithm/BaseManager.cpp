@@ -12,7 +12,7 @@ bool BaseManager::init(const Symbol& symbol) {
     // устанавливаем враппер свеч
     _candlesticks = SKlines().get(symbol);
     if (_candlesticks == nullptr)
-        logic_error("BaseManager can't init candlestick container");
+        Logger::error("BaseManager can't init candlestick container");
 
     _candlesticks->addListener(std::bind(&BaseManager::onCloseCandle, this, std::placeholders::_1));
     return true;
