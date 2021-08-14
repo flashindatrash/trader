@@ -1,5 +1,6 @@
 #pragma once
 
+#include <vector>
 #include <functional>
 
 template<class T>class Signal {
