@@ -80,7 +80,7 @@ void BinanceAccount::tick(time_t now) {
     // Keepalive a user data stream to prevent a time out.
     // User data streams will close after 60 minutes.
     // It's recommended to send a ping about every 30 minutes
-    if (now < _ping_time * BinanceTime::sMinute * 30)
+    if (now < _ping_time + BinanceTime::sMinute * 30)
         return;
 
     BinaCPP::keep_userDataStream(_listen_key.c_str());
