@@ -76,5 +76,6 @@ void TraderManager::onCloseCandle(const BinanceKlineData& data) {
     if (factor < 0.3)
         return;
 
-    _orders.create(symbol, side, _min_quantity, nullptr);
+    if (not _orders.create(symbol, side, _min_quantity, nullptr))
+        trace("failed create order\n");
 }
