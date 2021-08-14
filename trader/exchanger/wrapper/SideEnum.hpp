@@ -2,7 +2,7 @@
 
 #include <global.hpp>
 
-struct BinanceSideEnum
+struct SideEnum
 {
 public: // static
     enum Side {
@@ -12,25 +12,25 @@ public: // static
     };
 
 public: // methods
-    BinanceSideEnum() = default;
-    BinanceSideEnum(Side value);
-    BinanceSideEnum(double change);
-    BinanceSideEnum(const std::string& value);
+    SideEnum() = default;
+    SideEnum(Side value);
+    SideEnum(double change);
+    SideEnum(const std::string& value);
 
-    BinanceSideEnum reverse() const;
+    SideEnum reverse() const;
 
     const char* c_str() const;
 
 public: // operators
-    bool operator==(const BinanceSideEnum other) const {
+    bool operator==(const SideEnum other) const {
         return other._value == _value;
     };
 
-    bool operator!=(const BinanceSideEnum other) const {
+    bool operator!=(const SideEnum other) const {
         return other._value != _value;
     };
 
-    bool operator==(BinanceSideEnum::Side other) const {
+    bool operator==(SideEnum::Side other) const {
         return other == _value;
     };
 

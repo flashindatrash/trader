@@ -4,7 +4,11 @@
 #include "binacpp_logger.h"
 #include "Config.hpp"
 #include "Logger.hpp"
+#include "exchanger/wrapper/SymbolSet.hpp"
+#include "exchanger/wrapper/PriceContainer.hpp"
+#include "exchanger/wrapper/SymbolInfo.hpp"
 #include "response/BinanceErrorData.hpp"
+#include "response/BinanceSymbolData.hpp"
 
 BinanceController::~BinanceController() {
     if (_thread.joinable())
@@ -28,30 +32,55 @@ void BinanceController::run() {
     _thread = std::thread(&BinaCPP_websocket::enter_event_loop);
 }
 
-std::vector<std::pair<Symbol, Price>> BinanceController::getAllPrices() {
-    std::vector<std::pair<Symbol, Price>> vec;
+bool BinanceController::getSymbolInfo(SymbolSet<SymbolInfo>& result) {
+    Json::Value json;
+    BinaCPP::get_exchangeInfo(json);
 
-    Json::Value result;
-    BinaCPP::get_allPrices(result);
-
-    BinanceErrorData error(result);
+    BinanceErrorData error(json);
     if (error.has()) {
         logic_error(error.msg.c_str());
-        return vec;
+        return false;
     }
 
-    if (not result.isArray()) {
-        trace("%s\n", result.toStyledString().c_str());
+    const Json::Value& symbols = json["symbols"];
+    if (not symbols.isArray()) {
+        trace("%s\n", json.toStyledString().c_str());
+        logic_error("invalid exchange");
+        return false;
+    }
+
+    for (uint i = 0; i < symbols.size(); ++i) {
+        BinanceSymbolData data(symbols[i]);
+
+        SymbolInfo* wrapper = result.get_mutable(data.symbol);
+        wrapper->setAssets(data.baseAsset, data.quoteAsset);
+    }
+
+    return true;
+}
+
+bool BinanceController::getAllPrices(SymbolSet<PriceContainer>& result) {
+    Json::Value json;
+    BinaCPP::get_allPrices(json);
+
+    BinanceErrorData error(json);
+    if (error.has()) {
+        logic_error(error.msg.c_str());
+        return false;
+    }
+
+    if (not json.isArray()) {
+        trace("%s\n", json.toStyledString().c_str());
         logic_error("invalid prices");
-        return vec;
+        return false;
     }
 
-    for (uint i = 0; i < result.size(); ++i) {
-        const Json::Value& data = result[i];
-        Symbol symbol = data["symbol"].asString();
+    for (uint i = 0; i < json.size(); ++i) {
+        const Json::Value& data = json[i];
+        std::string symbol = data["symbol"].asString();
         Price price = atof(data["price"].asString().c_str());
-        vec.push_back(std::make_pair(symbol, price));
+        result.get_mutable(symbol)->add(price);
     }
 
-    return vec;
+    return true;
 }

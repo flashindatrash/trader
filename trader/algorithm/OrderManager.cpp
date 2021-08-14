@@ -22,7 +22,7 @@ OrderManager::OrderManager(const Symbol& symbol)
     printPositionsTimeline(symbol.getPrice());
 }
 
-bool OrderManager::create(const Symbol& symbol, const BinanceSideEnum& side, double quantity, const BinanceOrderData* transaction) {
+bool OrderManager::create(const Symbol& symbol, const SideEnum& side, double quantity, const BinanceOrderData* transaction) {
     // проверяем, что достаточно средств
     if (not SOrders().isEnough(symbol, side, quantity))
         return false;
@@ -73,8 +73,8 @@ void OrderManager::printProfit(const Symbol& symbol, double profit) {
     for (const BinanceOrderData& position : _positions) {
         double order_price = position.getPrice();
 
-        bool sell_loss = position.side == BinanceSideEnum::Sell && current_price > order_price;
-        bool buy_loss = position.side == BinanceSideEnum::Buy && current_price < order_price;
+        bool sell_loss = position.side == SideEnum::Sell && current_price > order_price;
+        bool buy_loss = position.side == SideEnum::Buy && current_price < order_price;
 
         if (sell_loss || buy_loss)
             losses_total += std::abs(current_price - order_price) * position.quantity;
@@ -98,7 +98,7 @@ void OrderManager::printPositionsTimeline(double current) {
             std::cout << "|";
             current_embeded = true;
         }
-        if (position.side == BinanceSideEnum::Buy)
+        if (position.side == SideEnum::Buy)
             std::cout << "+";
         else
             std::cout << "-";

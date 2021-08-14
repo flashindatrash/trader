@@ -1,7 +1,9 @@
 #pragma once
 
+#include "exchanger/wrapper/PriceWrapper.hpp"
 #include "exchanger/binance/response/BinanceBalanceData.hpp"
 
+class Asset;
 class Symbol;
 
 class BalanceManager
@@ -13,6 +15,6 @@ public: // methods
     void print(const Symbol& symbol);
 
 protected: // vars
-    std::vector<BinanceBalanceData> _balances;
+    std::unordered_map<std::string, Price> _balances;
 };
 

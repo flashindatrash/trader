@@ -42,18 +42,18 @@ void TraderManager::onCloseCandle(const BinanceKlineData& data) {
     CandlestickWrapper::Pattern pattern = current.getPattern(previous);
     trace("candle closed (pattern %d)\n", pattern);
 
-    BinanceSideEnum side;
+    SideEnum side;
     switch (pattern) {
-    case CandlestickWrapper::Hammer:            side = BinanceSideEnum::Buy; break;
-    case CandlestickWrapper::InvertedHammer:    side = BinanceSideEnum::Buy; break;
-    case CandlestickWrapper::HangingMan:        side = BinanceSideEnum::Sell; break;
-    case CandlestickWrapper::ShootingStar:      side = BinanceSideEnum::Sell; break;
-    case CandlestickWrapper::BullishEngulfing:  side = BinanceSideEnum::Buy; break;
-    case CandlestickWrapper::BearishEngulfing:  side = BinanceSideEnum::Sell; break;
-    case CandlestickWrapper::BullishHarami:     side = BinanceSideEnum::Buy; break;
-    case CandlestickWrapper::BearishHarami:     side = BinanceSideEnum::Sell; break;
-    case CandlestickWrapper::BullishKicker:     side = BinanceSideEnum::Buy; break;
-    case CandlestickWrapper::BearishKicker:     side = BinanceSideEnum::Sell; break;
+    case CandlestickWrapper::Hammer:            side = SideEnum::Buy; break;
+    case CandlestickWrapper::InvertedHammer:    side = SideEnum::Buy; break;
+    case CandlestickWrapper::HangingMan:        side = SideEnum::Sell; break;
+    case CandlestickWrapper::ShootingStar:      side = SideEnum::Sell; break;
+    case CandlestickWrapper::BullishEngulfing:  side = SideEnum::Buy; break;
+    case CandlestickWrapper::BearishEngulfing:  side = SideEnum::Sell; break;
+    case CandlestickWrapper::BullishHarami:     side = SideEnum::Buy; break;
+    case CandlestickWrapper::BearishHarami:     side = SideEnum::Sell; break;
+    case CandlestickWrapper::BullishKicker:     side = SideEnum::Buy; break;
+    case CandlestickWrapper::BearishKicker:     side = SideEnum::Sell; break;
     default: return;
     }
 

@@ -12,7 +12,8 @@ public: // virtual
     void init(const core::Config& config) override;
     void run() override;
 
-    std::vector<std::pair<Symbol, Price>> getAllPrices() override;
+    bool getSymbolInfo(SymbolSet<SymbolInfo>& result) override;
+    bool getAllPrices(SymbolSet<PriceContainer>& result) override;
 
 protected: // methods
     std::thread _thread;

@@ -1,10 +1,14 @@
 #pragma once
 
 #include "wrapper/Symbol.hpp"
+#include "wrapper/SymbolSet.hpp"
 
 namespace core {
     class Config;
 }
+
+class SymbolInfo;
+class PriceContainer;
 
 class ExchangerController {
 public: // static
@@ -15,7 +19,8 @@ public: // virtual
     virtual void init(const core::Config& config) = 0;
     virtual void run() = 0;
 
-    virtual std::vector<std::pair<Symbol, Price>> getAllPrices() = 0;
+    virtual bool getSymbolInfo(SymbolSet<SymbolInfo>& result) = 0;
+    virtual bool getAllPrices(SymbolSet<PriceContainer>& result) = 0;
 
 protected: // methods
     ExchangerController() = default;

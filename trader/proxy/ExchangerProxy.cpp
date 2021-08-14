@@ -2,7 +2,7 @@
 #include <global.hpp>
 #include "Config.hpp"
 #include "exchanger/ExchangerController.hpp"
-#include "exchanger/SymbolSet.hpp"
+#include "exchanger/wrapper/SymbolSet.hpp"
 #include "exchanger/wrapper/PriceContainer.hpp"
 
 #include "proxy/BinanceExchangeInfo.hpp"
@@ -17,9 +17,8 @@ void ExchangerProxy::init(const core::Config& config) {
 
     SExchangeInfo().init();
 
-    std::vector<std::pair<Symbol, Price>> prices = _controller->getAllPrices();
-    for (const auto& pair : prices)
-        price_mutable(pair.first)->add(pair.second);
+    _controller->getSymbolInfo(_infos);
+    _controller->getAllPrices(_prices);
 }
 
 void ExchangerProxy::run() {

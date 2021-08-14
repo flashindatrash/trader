@@ -28,7 +28,7 @@ const BinanceOrderData* ProfitManager::findClosableOrder(const Symbol &symbol) c
         Change change = PriceRange(order.getPrice(), symbol.getPrice()).change();
 
         // открытая позиция соответствует сайду
-        if (BinanceSideEnum(change) == order.side)
+        if (SideEnum(change) == order.side)
             continue;
 
         // не продаем меньше, чтобы профит перекрывал комисию

@@ -5,25 +5,25 @@
 
 class Symbol;
 
-template<class T> class BaseSymbolContainer : protected std::unordered_map<std::string, T*> {
+template<class T> class SymbolSet : protected std::unordered_map<std::string, T*> {
     typedef std::unordered_map<std::string, T*> BaseClass;
 public: // methods
-    BaseSymbolContainer() = default;
-    virtual ~BaseSymbolContainer() {
+    SymbolSet() = default;
+    virtual ~SymbolSet() {
         for (auto& pair : *this)
             SAFE_DELETE(pair.second);
         BaseClass::clear();
     }
 
 public: // methods
-    const T* get(const Symbol& symbol) const {
+    const T* get(const std::string& symbol) const {
         auto it = BaseClass::find(symbol);
         if (it == BaseClass::end())
             return nullptr;
         return it->second;
     }
 
-    T* get_mutable(const Symbol& symbol) {
+    T* get_mutable(const std::string& symbol) {
         T* wrapper = nullptr;
         auto it = BaseClass::find(symbol);
         if (it == BaseClass::end()) {
@@ -40,6 +40,6 @@ public: // methods
     inline const Class* Name(const Symbol& symbol) const { return _##Name##s.get(symbol); } \
     inline Class* Name##_mutable(const Symbol& symbol) { return _##Name##s.get_mutable(symbol); } \
     protected: \
-    BaseSymbolContainer<Class> _##Name##s;
+    SymbolSet<Class> _##Name##s;
 
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "exchanger/binance/response/BinanceSideEnum.hpp"
+#include "exchanger/wrapper/SideEnum.hpp"
 
 struct BinanceOrderData
 {
@@ -18,7 +18,7 @@ public: // vars
     std::string clientOrderId = "";
     double cummulativeQuoteQty = 0.0;
     double quantity = 0.0;
-    BinanceSideEnum side;
+    SideEnum side;
     std::string status = "";
     std::string symbol = "";
 };

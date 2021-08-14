@@ -2,7 +2,7 @@
 
 #include "BaseManager.hpp"
 
-class BinanceSideEnum;
+class SideEnum;
 
 class TraderManager : public BaseManager
 {

@@ -33,14 +33,14 @@ std::vector<BinanceOrderData> BinanceOrders::getAllOrders(const Symbol& symbol, 
     return vec;
 }
 
-bool BinanceOrders::isEnough(const Symbol& symbol, const BinanceSideEnum& side, double quantity) const {
-    if (side == BinanceSideEnum::Buy)
+bool BinanceOrders::isEnough(const Symbol& symbol, const SideEnum& side, double quantity) const {
+    if (side == SideEnum::Buy)
         return symbol.quoteAsset().getBalance() >= symbol.getPrice(quantity);
     else
         return symbol.baseAsset().getBalance() > quantity;
 }
 
-const BinanceOrderData BinanceOrders::createOrder(const Symbol& symbol, const BinanceSideEnum& side, double quantity) const {
+const BinanceOrderData BinanceOrders::createOrder(const Symbol& symbol, const SideEnum& side, double quantity) const {
     const BinanceSymbolData& info = symbol.getInfo();
 
     // check minNotional
@@ -58,7 +58,7 @@ const BinanceOrderData BinanceOrders::createOrder(const Symbol& symbol, const Bi
     return createOrder(symbol, side, quantity, "MARKET");
 }
 
-const BinanceOrderData BinanceOrders::createOrder(const Symbol& symbol, const BinanceSideEnum& side, double quantity, const std::string& type) const {
+const BinanceOrderData BinanceOrders::createOrder(const Symbol& symbol, const SideEnum& side, double quantity, const std::string& type) const {
     const BinanceSymbolData& info = symbol.getInfo();
 
     // check if symbol can trade on market
@@ -92,8 +92,8 @@ const BinanceOrderData BinanceOrders::createOrder(const Symbol& symbol, const Bi
         BinanceOrderData empty;
         if (error.code == BinanceErrorData::NEW_ORDER_REJECTED) {
             empty.status = "REJECTED";
-            const Asset& asset = side == BinanceSideEnum::Buy ? symbol.quoteAsset() : symbol.baseAsset();
-            double required = side == BinanceSideEnum::Buy ? symbol.getPrice(quantity) : quantity;
+            const Asset& asset = side == SideEnum::Buy ? symbol.quoteAsset() : symbol.baseAsset();
+            double required = side == SideEnum::Buy ? symbol.getPrice(quantity) : quantity;
             trace("don't have %f %s (current %f)\n", required, asset.c_str(), asset.getBalance());
         } else {
             trace("%s\n", error.msg.c_str());

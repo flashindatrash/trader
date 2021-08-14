@@ -12,7 +12,7 @@ protected: // static
 public: // methods
     OrderManager(const Symbol& symbol);
 
-    bool create(const Symbol& symbol, const BinanceSideEnum& side, double quantity, const BinanceOrderData* transaction);
+    bool create(const Symbol& symbol, const SideEnum& side, double quantity, const BinanceOrderData* transaction);
 
     const std::vector<BinanceOrderData>& getOrders() const;
     const std::vector<BinanceOrderData>& getPositions() const;

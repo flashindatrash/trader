@@ -12,10 +12,10 @@ public: // methods
 
     std::vector<BinanceOrderData> getAllOrders(const Symbol& symbol, int limit = 0) const;
 
-    bool isEnough(const Symbol& symbol, const BinanceSideEnum& side, double quantity) const;
+    bool isEnough(const Symbol& symbol, const SideEnum& side, double quantity) const;
 
-    const BinanceOrderData createOrder(const Symbol& symbol, const BinanceSideEnum& side, double quantity) const;
-    const BinanceOrderData createOrder(const Symbol& symbol, const BinanceSideEnum& side, double quantity, const std::string& type) const;
+    const BinanceOrderData createOrder(const Symbol& symbol, const SideEnum& side, double quantity) const;
+    const BinanceOrderData createOrder(const Symbol& symbol, const SideEnum& side, double quantity, const std::string& type) const;
 };
 
 #define SOrders() BinanceOrders::getInstance()

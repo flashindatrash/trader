@@ -2,7 +2,7 @@
 #include "DecisionMaker.hpp"
 #include "proxy/BinancePrices.hpp"
 #include "exchanger/wrapper/Symbol.hpp"
-#include "exchanger/binance/response/BinanceSideEnum.hpp"
+#include "exchanger/wrapper/SideEnum.hpp"
 #include "exchanger/binance/response/BinancePriceStatisticsData.hpp"
 
 DecisionMaker::DecisionMaker(const Symbol& symbol)
@@ -10,8 +10,8 @@ DecisionMaker::DecisionMaker(const Symbol& symbol)
 {
 }
 
-double DecisionMaker::factor(const BinanceSideEnum& side, int based_on) const {
-    if (side == BinanceSideEnum::Invalid)
+double DecisionMaker::factor(const SideEnum& side, int based_on) const {
+    if (side == SideEnum::Invalid)
         return 0.0;
 
     double result = 1.0;
@@ -20,7 +20,7 @@ double DecisionMaker::factor(const BinanceSideEnum& side, int based_on) const {
         // увеличиваем/понижаем рейтинг при отрицательном дневном росте/падении
         const BinancePriceStatisticsData& stats = SPrices().getStats(_symbol);
         if (stats.priceChangePercent != 0.0)
-            result *= 1.0 + stats.priceChangePercent / 100.0 * (side == BinanceSideEnum::Buy ? 1 : -1);
+            result *= 1.0 + stats.priceChangePercent / 100.0 * (side == SideEnum::Buy ? 1 : -1);
     }
 
     if (has(based_on, Balance)) {
@@ -28,7 +28,7 @@ double DecisionMaker::factor(const BinanceSideEnum& side, int based_on) const {
         static double sBalanceThreshold = 0.5;
         double baseQty = _symbol.getPrice(_symbol.baseAsset().getBalance());
         double quoteQty = _symbol.quoteAsset().getBalance();
-        result *= std::abs((side == BinanceSideEnum::Sell ? baseQty : quoteQty) / ((baseQty + quoteQty) * sBalanceThreshold));
+        result *= std::abs((side == SideEnum::Sell ? baseQty : quoteQty) / ((baseQty + quoteQty) * sBalanceThreshold));
     }
 
     return result;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Proxy.hpp"
+#include "exchanger/wrapper/SymbolInfo.hpp"
 #include "exchanger/wrapper/SymbolSet.hpp"
 #include "exchanger/wrapper/PriceContainer.hpp"
 
@@ -18,6 +19,7 @@ public: // methods
     void init(const core::Config& config);
     void run();
 
+    CONTAINER(SymbolInfo, info)
     CONTAINER(PriceContainer, price)
 
 protected: // vars
