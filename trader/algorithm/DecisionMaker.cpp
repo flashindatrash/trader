@@ -18,8 +18,10 @@ double DecisionMaker::factor(const SideEnum& side, int based_on) const {
     if (has(based_on, DayChange)) {
         // увеличиваем/понижаем рейтинг при отрицательном дневном росте/падении
         KlineWrapper* kline = Exchanger().getDailyChange(_symbol);
-        PriceRange range(kline->open(), _symbol.getPrice());
-        result *= 1.0 + range.change() * (side == SideEnum::Buy ? 1 : -1);
+        if (kline->open() > 0.0) {
+            PriceRange range(kline->open(), _symbol.getPrice());
+            result *= 1.0 + range.change() * (side == SideEnum::Buy ? 1 : -1);
+        }
     }
 
     if (has(based_on, Balance)) {

@@ -35,7 +35,7 @@ KlineWrapper* ExchangerProxy::getDailyChange(const Symbol& symbol) {
         return wrapper;
 
     if (not _controller->getDailyChange(*wrapper, symbol))
-        Logger::error("ExchangerProxy::getDailyChange");
+        wrapper->setTimeClose(STime().getCurrent());
 
     return wrapper;
 }

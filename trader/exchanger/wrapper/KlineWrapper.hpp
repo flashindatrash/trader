@@ -7,12 +7,12 @@ public: // static
     static KlineWrapper* create();
 
 public: // methods
+    void setPrice(Price open, Price high, Price low, Price close);
     const Price& open() const;
     const Price& close() const;
 
-    void setPrice(Price open, Price high, Price low, Price close);
     void setTime(time_t open, time_t close);
-
+    void setTimeClose(time_t close);
     const time_t& timeClose() const;
 
 protected: // methods
