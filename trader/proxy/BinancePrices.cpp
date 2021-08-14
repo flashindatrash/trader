@@ -11,7 +11,7 @@
 const BinancePriceStatisticsData& BinancePrices::getStats(const Symbol& symbol) {
     static const BinancePriceStatisticsData sEmpty;
 
-    PriceContainer* wrapper = Exchanger().price_mutable(symbol);
+    PriceContainer* wrapper = Exchanger().price(symbol);
     if (wrapper == nullptr)
         return sEmpty;
 

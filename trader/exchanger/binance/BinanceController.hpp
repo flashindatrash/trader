@@ -2,7 +2,11 @@
 
 #include <thread>
 #include <string>
-#include "exchanger/ExchangerController.hpp"
+#include "exchanger/base/ExchangerController.hpp"
+
+namespace Json {
+    class Value;
+}
 
 class BinanceController : public ExchangerController {
 public: // methods
@@ -14,11 +18,11 @@ public: // virtual
     void run() override;
     void tick(time_t now) override;
 
-    bool getSymbolInfo(SymbolSet<SymbolInfo>& result) override;
-    bool getAllPrices(SymbolSet<PriceContainer>& result) override;
-    bool getBalances(SymbolSet<Balance>& result) override;
+    bool getSymbolInfo(Storage::Type_info& container) const override;
+    bool getAllPrices(Storage::Type_price& container) const override;
+    bool getBalances(Storage::Type_balance& container) const override;
 
-    void connectBalances(SymbolSet<Balance>& result, Signal<Asset>& signal) override;
+    void connectBalances(Storage::Type_balance& container) override;
 
 protected: // methods
     void initUserListenKey();
@@ -33,8 +37,7 @@ protected: // vars
     // user data stream
     std::string _stream_listen_key = "";
     time_t _stream_keep_alive = 0;
-    // balance container
-    SymbolSet<Balance>* _balance_container = nullptr;
-    Signal<Asset>* _balance_signal = nullptr;
+    // connectors
+    Storage::Type_balance* _connect_balances = nullptr;
 };
 

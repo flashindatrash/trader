@@ -1,8 +1,6 @@
 #pragma once
 
-#include "Signal.hpp"
-#include "wrapper/Symbol.hpp"
-#include "wrapper/SymbolSet.hpp"
+#include "exchanger/base/Storage.hpp"
 
 namespace core {
     class Config;
@@ -22,11 +20,11 @@ public: // virtual
     virtual void run() = 0;
     virtual void tick(time_t now) = 0;
 
-    virtual bool getSymbolInfo(SymbolSet<SymbolInfo>& result) = 0;
-    virtual bool getAllPrices(SymbolSet<PriceContainer>& result) = 0;
-    virtual bool getBalances(SymbolSet<Balance>& result) = 0;
+    virtual bool getSymbolInfo(Storage::Type_info& container) const = 0;
+    virtual bool getAllPrices(Storage::Type_price& container) const = 0;
+    virtual bool getBalances(Storage::Type_balance& container) const = 0;
 
-    virtual void connectBalances(SymbolSet<Balance>& result, Signal<Asset>& signal) = 0;
+    virtual void connectBalances(Storage::Type_balance& container) = 0;
 
 protected: // methods
     ExchangerController() = default;
