@@ -19,7 +19,7 @@ const BinancePriceStatisticsData& BinancePrices::getStats(const Symbol& symbol) 
 
     // lazy update from api
     time_t now = STime().getCurrent();
-    if (now - BinanceTime::sMinute * 10 > stats.closeTime) {
+    if (now - BinanceTime::sMinute * 20 > stats.closeTime) {
         Json::Value result;
         BinaCPP::get_24hr(symbol.c_str(), result);
 

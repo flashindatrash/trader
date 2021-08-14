@@ -2,6 +2,7 @@
 
 #include "Proxy.hpp"
 
+class Asset;
 class Symbol;
 class OrderManager;
 class BalanceManager;
@@ -19,7 +20,7 @@ public: // methods
     void tick(time_t now);
 
 protected: // methods
-    void onBalanceChanged(const BinanceBalanceData &data);
+    void onBalanceChanged(const Asset& asset);
 
 protected: // vars
     const Symbol* _symbol;

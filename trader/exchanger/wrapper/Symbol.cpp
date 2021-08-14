@@ -1,4 +1,3 @@
-#include "proxy/BinanceAccount.hpp"
 #include "proxy/ExchangerProxy.hpp"
 #include "proxy/BinanceExchangeInfo.hpp"
 #include "exchanger/wrapper/Symbol.hpp"

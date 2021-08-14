@@ -11,7 +11,7 @@ class BalanceManager
 public: // methods
     BalanceManager() = default;
 
-    void add(const BinanceBalanceData& balance);
+    void add(const Asset& asset);
     void tick(const Symbol& symbol);
 
 protected: // vars

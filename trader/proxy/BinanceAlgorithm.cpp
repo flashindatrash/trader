@@ -1,6 +1,6 @@
 #include "BinanceAlgorithm.hpp"
 #include "proxy/BinanceTime.hpp"
-#include "proxy/BinanceAccount.hpp"
+#include "proxy/ExchangerProxy.hpp"
 #include "exchanger/wrapper/Symbol.hpp"
 #include "algorithm/Migrator.hpp"
 #include "algorithm/OrderManager.hpp"
@@ -26,18 +26,18 @@ void BinanceAlgorithm::init(const Symbol& symbol) {
     _profit_manager = new ProfitManager(*_pool);
     _trader_manager = new TraderManager(*_pool);
 
-    _balance_manager->add({symbol.baseAsset(), symbol.baseAsset().getBalance()});
-    _balance_manager->add({symbol.quoteAsset(), symbol.quoteAsset().getBalance()});
+    _balance_manager->add(symbol.baseAsset());
+    _balance_manager->add(symbol.quoteAsset());
 
     _profit_manager->init(symbol);
     _trader_manager->init(symbol);
 
     STime().addListener(std::bind(&BinanceAlgorithm::tick, this, std::placeholders::_1));
-    SAccount().addListener(std::bind(&BinanceAlgorithm::onBalanceChanged, this, std::placeholders::_1));
+    Exchanger().onBalanceChanged.connect(std::bind(&BinanceAlgorithm::onBalanceChanged, this, std::placeholders::_1));
 }
 
-void BinanceAlgorithm::onBalanceChanged(const BinanceBalanceData &data) {
-    _balance_manager->add(data);
+void BinanceAlgorithm::onBalanceChanged(const Asset& asset) {
+    _balance_manager->add(asset);
 }
 
 void BinanceAlgorithm::tick(time_t now) {

@@ -1,9 +1,9 @@
+#include "BalanceManager.hpp"
 #include "Logger.hpp"
 #include "exchanger/wrapper/Symbol.hpp"
-#include "algorithm/BalanceManager.hpp"
 
-void BalanceManager::add(const BinanceBalanceData& balance) {
-    _balances[balance.asset] = balance.free;
+void BalanceManager::add(const Asset& asset) {
+    _balances[asset] = asset.getBalance();
 }
 
 void BalanceManager::tick(const Symbol& symbol) {

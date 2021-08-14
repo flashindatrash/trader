@@ -5,7 +5,6 @@
 #include "proxy/Database.hpp"
 #include "proxy/ExchangerProxy.hpp"
 #include "proxy/BinanceTime.hpp"
-#include "proxy/BinanceAccount.hpp"
 #include "proxy/BinanceAlgorithm.hpp"
 #include "proxy/BinanceOrders.hpp"
 #include "proxy/BinanceKlines.hpp"
@@ -27,7 +26,6 @@ void TraderApp::run(const Symbol& symbol) {
     DB().init(_config);
     Exchanger().init(_config);
     STime().init();
-    SAccount().init();
     SKlines().init(symbol);
     SAlgorithm().init(symbol);
 
