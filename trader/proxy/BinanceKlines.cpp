@@ -53,7 +53,7 @@ int BinanceKlines::handle(Json::Value& json) {
         return 0;
 
     // update price
-    if (PriceContainer* wrapper = Exchanger().price_mutable(data.symbol))
+    if (PriceContainer* wrapper = Exchanger().price(data.symbol))
         wrapper->add(data.priceClose);
 
     // add & invoke listeners

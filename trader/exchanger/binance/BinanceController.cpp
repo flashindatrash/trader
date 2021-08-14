@@ -5,10 +5,6 @@
 #include "Config.hpp"
 #include "Logger.hpp"
 #include "proxy/BinanceTime.hpp"
-#include "exchanger/wrapper/SymbolSet.hpp"
-#include "exchanger/wrapper/PriceContainer.hpp"
-#include "exchanger/wrapper/SymbolInfo.hpp"
-#include "exchanger/wrapper/Balance.hpp"
 #include "response/BinanceErrorData.hpp"
 #include "response/BinanceSymbolData.hpp"
 #include "response/BinanceBalanceData.hpp"
@@ -48,7 +44,7 @@ void BinanceController::tick(time_t now) {
     }
 }
 
-bool BinanceController::getSymbolInfo(SymbolSet<SymbolInfo>& result) {
+bool BinanceController::getSymbolInfo(Storage::Type_info& container) const {
     Json::Value json;
     BinaCPP::get_exchangeInfo(json);
 
@@ -68,14 +64,14 @@ bool BinanceController::getSymbolInfo(SymbolSet<SymbolInfo>& result) {
     for (uint i = 0; i < symbols.size(); ++i) {
         BinanceSymbolData data(symbols[i]);
 
-        SymbolInfo* wrapper = result.get_mutable(data.symbol);
+        SymbolInfo* wrapper = container.get(data.symbol);
         wrapper->setAssets(data.baseAsset, data.quoteAsset);
     }
 
     return true;
 }
 
-bool BinanceController::getAllPrices(SymbolSet<PriceContainer>& result) {
+bool BinanceController::getAllPrices(Storage::Type_price& container) const {
     Json::Value json;
     BinaCPP::get_allPrices(json);
 
@@ -95,13 +91,13 @@ bool BinanceController::getAllPrices(SymbolSet<PriceContainer>& result) {
         const Json::Value& data = json[i];
         std::string symbol = data["symbol"].asString();
         Price price = atof(data["price"].asString().c_str());
-        result.get_mutable(symbol)->add(price);
+        container.get(symbol)->add(price);
     }
 
     return true;
 }
 
-bool BinanceController::getBalances(SymbolSet<Balance>& result) {
+bool BinanceController::getBalances(Storage::Type_balance& container) const {
     Json::Value json;
     BinaCPP::get_account(BINANCE_RECV_WINDOW, json);
 
@@ -120,13 +116,13 @@ bool BinanceController::getBalances(SymbolSet<Balance>& result) {
 
     for (uint i = 0; i < balances.size(); ++i) {
         BinanceBalanceData data(balances[i], false);
-        result.get_mutable(data.asset)->set(data.free, data.locked);
+        container.get(data.asset)->set(data.free, data.locked);
     }
     return true;
 }
 
-void BinanceController::connectBalances(SymbolSet<Balance>& result, Signal<Asset>& signal) {
-    _balance_container = &result;
+void BinanceController::connectBalances(Storage::Type_balance& container) {
+    _connect_balances = &container;
     startUserDataStream();
 }
 
@@ -169,8 +165,10 @@ int BinanceController::onUserDataStream(Json::Value &json) {
     } else if (action == "outboundAccountPosition") {
         for (uint i = 0; i < json["B"].size(); ++i) {
             BinanceBalanceData data(json["B"][i], true);
-            if (_balance_container != nullptr)
-                _balance_container->get_mutable(data.asset)->set(data.free, data.locked);
+            if (_connect_balances != nullptr) {
+                _connect_balances->get(data.asset)->set(data.free, data.locked);
+                _connect_balances->onChanged.emmit(data.asset);
+            }
         }
     }
 

@@ -2,10 +2,7 @@
 
 #include "Proxy.hpp"
 #include "Signal.hpp"
-#include "exchanger/wrapper/SymbolInfo.hpp"
-#include "exchanger/wrapper/SymbolSet.hpp"
-#include "exchanger/wrapper/PriceContainer.hpp"
-#include "exchanger/wrapper/Balance.hpp"
+#include "exchanger/base/Storage.hpp"
 
 namespace core {
     class Config;
@@ -13,20 +10,13 @@ namespace core {
 
 class ExchangerController;
 
-class ExchangerProxy : public core::Proxy<ExchangerProxy> {
+class ExchangerProxy : public core::Proxy<ExchangerProxy>, public Storage {
 public: // methods
     ExchangerProxy() = default;
     virtual ~ExchangerProxy() override;
 
     void init(const core::Config& config);
     void run();
-
-    CONTAINER(Symbol, SymbolInfo, info)
-    CONTAINER(Symbol, PriceContainer, price)
-    CONTAINER(Asset, Balance, balance)
-
-public: // signals
-    Signal<Asset> onBalanceChanged;
 
 protected: // vars
     ExchangerController* _controller = nullptr;

@@ -1,4 +1,5 @@
 #include "BinanceAlgorithm.hpp"
+#include "Signal.hpp"
 #include "proxy/BinanceTime.hpp"
 #include "proxy/ExchangerProxy.hpp"
 #include "exchanger/wrapper/Symbol.hpp"
@@ -33,7 +34,7 @@ void BinanceAlgorithm::init(const Symbol& symbol) {
     _trader_manager->init(symbol);
 
     STime().addListener(std::bind(&BinanceAlgorithm::tick, this, std::placeholders::_1));
-    Exchanger().onBalanceChanged.connect(std::bind(&BinanceAlgorithm::onBalanceChanged, this, std::placeholders::_1));
+    Exchanger().balances().onChanged.connect(std::bind(&BinanceAlgorithm::onBalanceChanged, this, std::placeholders::_1));
 }
 
 void BinanceAlgorithm::onBalanceChanged(const Asset& asset) {

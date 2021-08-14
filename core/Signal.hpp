@@ -10,7 +10,6 @@ public:
         _listeners.push_back(listener);
     }
 
-protected:
     void emmit(const T& data) {
         for (Fn& listener : _listeners)
             listener(data);
