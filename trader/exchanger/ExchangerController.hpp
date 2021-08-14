@@ -9,6 +9,7 @@ namespace core {
 
 class SymbolInfo;
 class PriceContainer;
+class Balance;
 
 class ExchangerController {
 public: // static
@@ -21,6 +22,7 @@ public: // virtual
 
     virtual bool getSymbolInfo(SymbolSet<SymbolInfo>& result) = 0;
     virtual bool getAllPrices(SymbolSet<PriceContainer>& result) = 0;
+    virtual bool getBalances(SymbolSet<Balance>& result) = 0;
 
 protected: // methods
     ExchangerController() = default;

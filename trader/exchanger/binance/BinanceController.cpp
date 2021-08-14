@@ -7,8 +7,10 @@
 #include "exchanger/wrapper/SymbolSet.hpp"
 #include "exchanger/wrapper/PriceContainer.hpp"
 #include "exchanger/wrapper/SymbolInfo.hpp"
+#include "exchanger/wrapper/Balance.hpp"
 #include "response/BinanceErrorData.hpp"
 #include "response/BinanceSymbolData.hpp"
+#include "response/BinanceBalanceData.hpp"
 
 BinanceController::~BinanceController() {
     if (_thread.joinable())
@@ -80,6 +82,31 @@ bool BinanceController::getAllPrices(SymbolSet<PriceContainer>& result) {
         std::string symbol = data["symbol"].asString();
         Price price = atof(data["price"].asString().c_str());
         result.get_mutable(symbol)->add(price);
+    }
+
+    return true;
+}
+
+bool BinanceController::getBalances(SymbolSet<Balance>& result) {
+    Json::Value json;
+    BinaCPP::get_account(BINANCE_RECV_WINDOW, json);
+
+    BinanceErrorData error(json);
+    if (error.has()) {
+        logic_error(error.msg.c_str());
+        return false;
+    }
+
+    const Json::Value& balances = json["balances"];
+    if (not balances.isArray()) {
+        trace("%s\n", json.toStyledString().c_str());
+        logic_error("invalid account");
+        return false;
+    }
+
+    for (uint i = 0; i < balances.size(); ++i) {
+        BinanceBalanceData data(balances[i], false);
+        result.get_mutable(data.asset)->set(data.free, data.locked);
     }
 
     return true;

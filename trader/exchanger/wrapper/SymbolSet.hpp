@@ -16,29 +16,29 @@ public: // methods
     }
 
 public: // methods
-    const T* get(const std::string& symbol) const {
-        auto it = BaseClass::find(symbol);
+    const T* get(const std::string& key) const {
+        auto it = BaseClass::find(key);
         if (it == BaseClass::end())
             return nullptr;
         return it->second;
     }
 
-    T* get_mutable(const std::string& symbol) {
+    T* get_mutable(const std::string& key) {
         T* wrapper = nullptr;
-        auto it = BaseClass::find(symbol);
+        auto it = BaseClass::find(key);
         if (it == BaseClass::end()) {
             wrapper = T::create();
-            BaseClass::insert(std::make_pair(symbol, wrapper));
+            BaseClass::insert(std::make_pair(key, wrapper));
         } else
             wrapper = it->second;
         return wrapper;
     }
 };
 
-#define CONTAINER(Class, Name) \
+#define CONTAINER(Key, Class, Name) \
     public: \
-    inline const Class* Name(const Symbol& symbol) const { return _##Name##s.get(symbol); } \
-    inline Class* Name##_mutable(const Symbol& symbol) { return _##Name##s.get_mutable(symbol); } \
+    inline const Class* Name(const Key& key) const { return _##Name##s.get(key); } \
+    inline Class* Name##_mutable(const Key& key) { return _##Name##s.get_mutable(key); } \
     protected: \
     SymbolSet<Class> _##Name##s;
 

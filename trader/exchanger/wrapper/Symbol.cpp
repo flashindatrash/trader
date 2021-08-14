@@ -15,8 +15,8 @@ Asset::Asset(const std::string& asset)
 {
 }
 
-const double Asset::getBalance() const {
-    return SAccount().getBalance(*this);
+const double& Asset::getBalance() const {
+    return Exchanger().balance(*this)->get();
 }
 
 Symbol::Symbol()

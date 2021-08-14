@@ -1,7 +1,5 @@
 #pragma once
 
-#include <global.hpp>
-
 class CandlestickContainer;
 class BinanceKlineData;
 class OrderManager;
@@ -13,6 +11,7 @@ public: // methods
     BaseManager(OrderManager& orders);
 
     virtual bool init(const Symbol& symbol);
+    virtual void tick(const Symbol& symbol) {}
 
 protected: // vars
     OrderManager& _orders;

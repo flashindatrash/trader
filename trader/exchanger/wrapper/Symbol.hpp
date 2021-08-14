@@ -11,7 +11,7 @@ public: // methods
     Asset();
     Asset(const std::string& asset);
 
-    const double getBalance() const;
+    const double& getBalance() const;
 };
 
 class Symbol : public std::string

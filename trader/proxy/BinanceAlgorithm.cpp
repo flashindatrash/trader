@@ -41,5 +41,7 @@ void BinanceAlgorithm::onBalanceChanged(const BinanceBalanceData &data) {
 }
 
 void BinanceAlgorithm::tick(time_t now) {
-    _balance_manager->print(*_symbol);
+    _balance_manager->tick(*_symbol);
+    _profit_manager->tick(*_symbol);
+    _trader_manager->tick(*_symbol);
 }

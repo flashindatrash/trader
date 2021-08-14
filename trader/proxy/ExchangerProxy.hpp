@@ -4,6 +4,7 @@
 #include "exchanger/wrapper/SymbolInfo.hpp"
 #include "exchanger/wrapper/SymbolSet.hpp"
 #include "exchanger/wrapper/PriceContainer.hpp"
+#include "exchanger/wrapper/Balance.hpp"
 
 namespace core {
     class Config;
@@ -19,8 +20,9 @@ public: // methods
     void init(const core::Config& config);
     void run();
 
-    CONTAINER(SymbolInfo, info)
-    CONTAINER(PriceContainer, price)
+    CONTAINER(Symbol, SymbolInfo, info)
+    CONTAINER(Symbol, PriceContainer, price)
+    CONTAINER(Asset, Balance, balance)
 
 protected: // vars
     ExchangerController* _controller = nullptr;

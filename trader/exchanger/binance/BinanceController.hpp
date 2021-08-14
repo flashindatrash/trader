@@ -14,6 +14,7 @@ public: // virtual
 
     bool getSymbolInfo(SymbolSet<SymbolInfo>& result) override;
     bool getAllPrices(SymbolSet<PriceContainer>& result) override;
+    bool getBalances(SymbolSet<Balance>& result) override;
 
 protected: // methods
     std::thread _thread;

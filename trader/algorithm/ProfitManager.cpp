@@ -1,6 +1,5 @@
 #include "ProfitManager.hpp"
 #include "Logger.hpp"
-#include "proxy/Database.hpp"
 #include "proxy/BinanceOrders.hpp"
 #include "exchanger/wrapper/Symbol.hpp"
 #include "exchanger/binance/response/BinanceKlineData.hpp"
@@ -16,6 +15,16 @@ static float sRate = 0.005f;
 ProfitManager::ProfitManager(OrderManager& orders)
     : BaseManager(orders)
 {
+}
+
+void ProfitManager::tick(const Symbol& symbol) {
+    // находим ордер для закрытия
+    const BinanceOrderData* transaction = findClosableOrder(symbol);
+    if (transaction == nullptr)
+        return;
+
+    // пробуем создать новый ордер
+    _orders.create(symbol, transaction->side.reverse(), transaction->quantity, transaction);
 }
 
 const BinanceOrderData* ProfitManager::findClosableOrder(const Symbol &symbol) const {
@@ -51,16 +60,4 @@ const BinanceOrderData* ProfitManager::findClosableOrder(const Symbol &symbol) c
     }
 
     return transaction;
-}
-
-void ProfitManager::onCloseCandle(const BinanceKlineData& data) {
-    Symbol symbol(data.symbol);
-
-    // находим ордер для закрытия
-    const BinanceOrderData* transaction = findClosableOrder(symbol);
-    if (transaction == nullptr)
-        return;
-
-    // пробуем создать новый ордер
-    _orders.create(symbol, transaction->side.reverse(), transaction->quantity, transaction);
 }

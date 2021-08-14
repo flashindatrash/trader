@@ -6,7 +6,7 @@ void BalanceManager::add(const BinanceBalanceData& balance) {
     _balances[balance.asset] = balance.free;
 }
 
-void BalanceManager::print(const Symbol& symbol) {
+void BalanceManager::tick(const Symbol& symbol) {
     if (not _balances.empty()) {
         std::string message = "";
         for (auto& pair : _balances) {

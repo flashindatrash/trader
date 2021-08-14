@@ -4,38 +4,16 @@
 #include "Config.hpp"
 #include "proxy/BinanceTime.hpp"
 #include "proxy/BinanceAccount.hpp"
+#include "proxy/ExchangerProxy.hpp"
 #include "exchanger/binance/response/BinanceBalanceData.hpp"
 #include "exchanger/binance/response/BinanceOrderData.hpp"
 #include "exchanger/binance/response/BinanceErrorData.hpp"
 
 void BinanceAccount::init() {
     Json::Value result;
-    BinaCPP::get_account(BINANCE_RECV_WINDOW, result);
-
-    BinanceErrorData error(result);
-    if (error.has()) {
-        logic_error(error.msg.c_str());
-        return;
-    }
-
-    const Json::Value& balances = result["balances"];
-    if (not balances.isArray()) {
-        trace("%s\n", result.toStyledString().c_str());
-        logic_error("invalid account");
-        return;
-    }
-
-//    if (result["accountType"].asString() != "SPOT") {
-//        trace("%s\n", result.toStyledString().c_str());
-//        logic_error("invalid account");
-//        return;
-//    }
-
-    for (uint i = 0; i < balances.size(); ++i)
-        setBalance(BinanceBalanceData(balances[i], false));
 
     BinaCPP::start_userDataStream(result);
-    error = BinanceErrorData(result);
+    BinanceErrorData error(result);
     if (error.has()) {
         logic_error(error.msg.c_str());
         return;
@@ -69,7 +47,8 @@ int BinanceAccount::handle(Json::Value& json) {
         }
     } else if (action == "outboundAccountPosition") {
         for (uint i = 0; i < json["B"].size(); ++i) {
-            setBalance(BinanceBalanceData(json["B"][i], true));
+            BinanceBalanceData data(json["B"][i], true);
+            Exchanger().balance_mutable(data.asset)->set(data.free, data.locked);
         }
     }
 
@@ -85,16 +64,4 @@ void BinanceAccount::tick(time_t now) {
 
     BinaCPP::keep_userDataStream(_listen_key.c_str());
     _ping_time = now;
-}
-
-double BinanceAccount::getBalance(const std::string &asset) const {
-    auto it = _balance.find(asset);
-    if (it == _balance.end())
-        return 0.0;
-    return it->second;
-}
-
-void BinanceAccount::setBalance(const BinanceBalanceData& data) {
-    _balance[data.asset] = data.free;
-    invoke(data);
 }

@@ -12,7 +12,7 @@ public: // methods
     BalanceManager() = default;
 
     void add(const BinanceBalanceData& balance);
-    void print(const Symbol& symbol);
+    void tick(const Symbol& symbol);
 
 protected: // vars
     std::unordered_map<std::string, Price> _balances;
