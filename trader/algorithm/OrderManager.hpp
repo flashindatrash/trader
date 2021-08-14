@@ -1,8 +1,10 @@
 #pragma once
 
+#include <vector>
 #include "exchanger/binance/response/BinanceOrderData.hpp"
 
 class Symbol;
+class SideEnum;
 
 class OrderManager
 {

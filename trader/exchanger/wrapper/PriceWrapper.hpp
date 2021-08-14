@@ -1,24 +1,32 @@
 #pragma once
 
-typedef double Price;
-typedef double Change;
+#include <global.hpp>
+#include "exchanger/base/ExchangerTypes.hpp"
+#include "exchanger/binance/response/BinancePriceStatisticsData.hpp"
 
-namespace Changes {
-    bool empty(Change change);
-    bool equal(Change left, Change right);
-}
+class PriceWrapper
+{
+public: // static
+    typedef std::pair<Price, time_t> PriceTimePair;
 
-class PriceRange {
+    static PriceWrapper* create();
 
-public:  // methods
-    PriceRange() = default;
-    PriceRange(Change change);
-    PriceRange(Price left, Price right);
+public: // methods
+    void add(Price price);
+    void add(Price price, time_t time);
 
-    Change change() const;
-    Change abs() const;
+    double get() const;
+
+    double getPriceBack(time_t interval) const;
+    double getPriceAverage(time_t interval) const;
+
+    BinancePriceStatisticsData& getStats();
+
+protected: // methods
+    PriceWrapper() = default;
 
 protected: // vars
-    Change _change;
+    BinancePriceStatisticsData _per_day;
+    std::vector<PriceTimePair> _per_second;
 };
 

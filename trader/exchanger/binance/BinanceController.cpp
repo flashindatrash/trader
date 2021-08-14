@@ -64,7 +64,7 @@ bool BinanceController::getSymbolInfo(Storage::Type_info& container) const {
     for (uint i = 0; i < symbols.size(); ++i) {
         BinanceSymbolData data(symbols[i]);
 
-        SymbolInfo* wrapper = container.get(data.symbol);
+        ExchangeWrapper* wrapper = container.get(data.symbol);
         wrapper->setAssets(data.baseAsset, data.quoteAsset);
     }
 

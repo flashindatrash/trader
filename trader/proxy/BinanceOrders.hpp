@@ -4,6 +4,7 @@
 #include "exchanger/binance/response/BinanceOrderData.hpp"
 
 class Symbol;
+struct SideEnum;
 
 class BinanceOrders : public core::Proxy<BinanceOrders>
 {

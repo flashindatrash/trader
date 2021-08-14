@@ -4,8 +4,8 @@
 #include "proxy/ExchangerProxy.hpp"
 #include "proxy/BinanceKlines.hpp"
 #include "exchanger/wrapper/Symbol.hpp"
-#include "exchanger/wrapper/PriceContainer.hpp"
-#include "exchanger/wrapper/CandlestickContainer.hpp"
+#include "exchanger/wrapper/PriceWrapper.hpp"
+#include "exchanger/wrapper/ChartWrapper.hpp"
 #include "exchanger/binance/response/BinanceKlineData.hpp"
 #include "exchanger/binance/response/BinanceErrorData.hpp"
 #include "util/StringUtil.hpp"
@@ -53,7 +53,7 @@ int BinanceKlines::handle(Json::Value& json) {
         return 0;
 
     // update price
-    if (PriceContainer* wrapper = Exchanger().price(data.symbol))
+    if (PriceWrapper* wrapper = Exchanger().price(data.symbol))
         wrapper->add(data.priceClose);
 
     // add & invoke listeners
@@ -65,17 +65,17 @@ void BinanceKlines::add(const BinanceKlineData& data) {
     if (data.symbol.empty())
         return;
 
-    CandlestickContainer* history = nullptr;
+    ChartWrapper* history = nullptr;
     auto it = _histories.find(data.symbol);
     if (it == _histories.end()) {
-        history = CandlestickContainer::create();
+        history = ChartWrapper::create();
         _histories[data.symbol] = history;
     } else
         history = it->second;
     history->add(data);
 }
 
-CandlestickContainer* BinanceKlines::get(const Symbol& symbol) const {
+ChartWrapper* BinanceKlines::get(const Symbol& symbol) const {
     auto it = _histories.find(symbol);
     if (it == _histories.end())
         return nullptr;

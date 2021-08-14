@@ -1,12 +1,12 @@
-#include "CandlestickContainer.hpp"
+#include "ChartWrapper.hpp"
 #include "Logger.hpp"
 
-CandlestickContainer* CandlestickContainer::create() {
-    CandlestickContainer* wrapper = new CandlestickContainer();
+ChartWrapper* ChartWrapper::create() {
+    ChartWrapper* wrapper = new ChartWrapper();
     return wrapper;
 }
 
-void CandlestickContainer::add(const BinanceKlineData& data) {
+void ChartWrapper::add(const BinanceKlineData& data) {
     if (_klines.empty() || data.timeStart > _klines.back().timeStart) {
         // если предыдущая не закрылась
         if (not _klines.empty() && not _klines.back().isClosed) {
@@ -22,10 +22,10 @@ void CandlestickContainer::add(const BinanceKlineData& data) {
         Logger::error("kline back in time");
 }
 
-const std::vector<BinanceKlineData>& CandlestickContainer::klines() const {
+const std::vector<BinanceKlineData>& ChartWrapper::klines() const {
     return _klines;
 }
 
-const BinanceKlineData& CandlestickContainer::back() const {
+const BinanceKlineData& ChartWrapper::back() const {
     return _klines.back();
 }
