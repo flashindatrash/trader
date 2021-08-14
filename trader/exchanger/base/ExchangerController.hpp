@@ -6,10 +6,6 @@ namespace core {
     class Config;
 }
 
-class ExchangeWrapper;
-class PriceWrapper;
-class BalanceWrapper;
-
 class ExchangerController {
 public: // static
     static ExchangerController* create();
@@ -23,6 +19,8 @@ public: // virtual
     virtual bool getSymbolInfo(Storage::Type_info& container) const = 0;
     virtual bool getAllPrices(Storage::Type_price& container) const = 0;
     virtual bool getBalances(Storage::Type_balance& container) const = 0;
+
+    virtual bool getDailyChange(KlineWrapper& wrapper, const Symbol& symbol) const = 0;
 
     virtual void connectBalances(Storage::Type_balance& container) = 0;
 

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Proxy.hpp"
-#include "Signal.hpp"
 #include "exchanger/base/Storage.hpp"
 
 namespace core {
@@ -9,6 +8,7 @@ namespace core {
 }
 
 class ExchangerController;
+class KlineWrapper;
 
 class ExchangerProxy : public core::Proxy<ExchangerProxy>, public Storage {
 public: // methods
@@ -17,6 +17,8 @@ public: // methods
 
     void init(const core::Config& config);
     void run();
+
+    KlineWrapper* getDailyChange(const Symbol& symbol);
 
 protected: // vars
     ExchangerController* _controller = nullptr;

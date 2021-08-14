@@ -1,6 +1,6 @@
 #pragma once
 
-#include "exchanger/wrapper/PriceWrapper.hpp"
+#include "exchanger/base/ExchangerTypes.hpp"
 
 class CandlestickWrapper {
 public: // enum

@@ -9,6 +9,7 @@
 #include "response/BinanceSymbolData.hpp"
 #include "response/BinanceBalanceData.hpp"
 #include "response/BinanceOrderData.hpp"
+#include "response/BinancePriceStatisticsData.hpp"
 
 BinanceController::~BinanceController() {
     if (_thread.joinable())
@@ -118,6 +119,22 @@ bool BinanceController::getBalances(Storage::Type_balance& container) const {
         BinanceBalanceData data(balances[i], false);
         container.get(data.asset)->set(data.free, data.locked);
     }
+    return true;
+}
+
+bool BinanceController::getDailyChange(KlineWrapper& wrapper, const Symbol& symbol) const {
+    Json::Value json;
+    BinaCPP::get_24hr(symbol.c_str(), json);
+
+    BinanceErrorData error(json);
+    if (error.has()) {
+        Logger::error(error.msg.c_str());
+        return false;
+    }
+
+    BinancePriceStatisticsData data(json);
+    wrapper.setPrice(data.openPrice, data.highPrice, data.lowPrice, 0.0);
+    wrapper.setTime(data.openTime, data.closeTime);
     return true;
 }
 

@@ -48,7 +48,3 @@ double PriceWrapper::getPriceAverage(time_t interval) const {
     // todo: не учитывает цены в интервале, так и должно ли
     return (price_back + price_current) / 2.0;
 }
-
-BinancePriceStatisticsData& PriceWrapper::getStats() {
-    return _per_day;
-}

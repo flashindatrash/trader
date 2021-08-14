@@ -22,6 +22,8 @@ public: // virtual
     bool getAllPrices(Storage::Type_price& container) const override;
     bool getBalances(Storage::Type_balance& container) const override;
 
+    bool getDailyChange(KlineWrapper& wrapper, const Symbol& symbol) const override;
+
     void connectBalances(Storage::Type_balance& container) override;
 
 protected: // methods

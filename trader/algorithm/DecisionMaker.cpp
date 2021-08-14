@@ -1,9 +1,8 @@
 #include "Logger.hpp"
 #include "DecisionMaker.hpp"
-#include "proxy/BinancePrices.hpp"
+#include "proxy/ExchangerProxy.hpp"
 #include "exchanger/base/ExchangerTypes.hpp"
 #include "exchanger/wrapper/Symbol.hpp"
-#include "exchanger/binance/response/BinancePriceStatisticsData.hpp"
 
 DecisionMaker::DecisionMaker(const Symbol& symbol)
     : _symbol(symbol)
@@ -18,9 +17,9 @@ double DecisionMaker::factor(const SideEnum& side, int based_on) const {
 
     if (has(based_on, DayChange)) {
         // увеличиваем/понижаем рейтинг при отрицательном дневном росте/падении
-        const BinancePriceStatisticsData& stats = SPrices().getStats(_symbol);
-        if (stats.priceChangePercent != 0.0)
-            result *= 1.0 + stats.priceChangePercent / 100.0 * (side == SideEnum::Buy ? 1 : -1);
+        KlineWrapper* kline = Exchanger().getDailyChange(_symbol);
+        PriceRange range(kline->open(), _symbol.getPrice());
+        result *= 1.0 + range.change() * (side == SideEnum::Buy ? 1 : -1);
     }
 
     if (has(based_on, Balance)) {
