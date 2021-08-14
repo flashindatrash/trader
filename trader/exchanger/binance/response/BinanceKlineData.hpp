@@ -1,6 +1,10 @@
 #pragma once
 
-#include <global.hpp>
+#include <string>
+
+namespace Json {
+    class Value;
+}
 
 struct BinanceKlineData
 {
@@ -9,10 +13,6 @@ public: // methods
     BinanceKlineData(const Json::Value& json);
 
     bool isEmpty() const;
-
-    double hl2() const;
-    double hlc3() const;
-    double ohlc4() const;
 
 public: // vars
     std::string symbol = "";

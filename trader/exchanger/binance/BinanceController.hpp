@@ -22,13 +22,14 @@ public: // virtual
     bool getAllPrices(Storage::Type_price& container) const override;
     bool getBalances(Storage::Type_balance& container) const override;
 
-    bool getDailyChange(KlineWrapper& wrapper, const Symbol& symbol) const override;
-
     void connectBalances(Storage::Type_balance& container) override;
+    void connectDailyChange(KlineWrapper& wrapper) override;
 
 protected: // methods
     void initUserListenKey();
     void startUserDataStream();
+    void keepUserDataStream();
+    void updateDailyChange();
 
 protected: // callbacks
     int onUserDataStream(Json::Value& json);
@@ -38,8 +39,11 @@ protected: // vars
     std::thread _thread;
     // user data stream
     std::string _stream_listen_key = "";
-    time_t _stream_keep_alive = 0;
-    // connectors
+    // balance connector
     Storage::Type_balance* _connect_balances = nullptr;
+    time_t _time_userstream = 0;
+    // daily change connector
+    KlineWrapper* _connect_daily_change = nullptr;
+    time_t _time_daily_change = 0;
 };
 

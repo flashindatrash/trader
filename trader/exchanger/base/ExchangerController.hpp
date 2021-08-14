@@ -1,6 +1,6 @@
 #pragma once
 
-#include "exchanger/base/Storage.hpp"
+#include "exchanger/base/Storage-include.hpp"
 
 namespace core {
     class Config;
@@ -20,9 +20,8 @@ public: // virtual
     virtual bool getAllPrices(Storage::Type_price& container) const = 0;
     virtual bool getBalances(Storage::Type_balance& container) const = 0;
 
-    virtual bool getDailyChange(KlineWrapper& wrapper, const Symbol& symbol) const = 0;
-
     virtual void connectBalances(Storage::Type_balance& container) = 0;
+    virtual void connectDailyChange(KlineWrapper& wrapper) = 0;
 
 protected: // methods
     ExchangerController() = default;

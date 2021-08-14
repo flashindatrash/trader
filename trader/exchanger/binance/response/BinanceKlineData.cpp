@@ -26,15 +26,3 @@ BinanceKlineData::BinanceKlineData(const Json::Value& json)
 bool BinanceKlineData::isEmpty() const {
     return timeStart == 0 || timeClose == 0;
 }
-
-double BinanceKlineData::hl2() const {
-    return (priceHigh + priceLow) / 2.0;
-}
-
-double BinanceKlineData::hlc3() const {
-    return (priceHigh + priceLow + priceClose) / 3.0;
-}
-
-double BinanceKlineData::ohlc4() const {
-    return (priceOpen + priceHigh + priceLow + priceClose) / 4.0;
-}

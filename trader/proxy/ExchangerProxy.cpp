@@ -16,26 +16,19 @@ void ExchangerProxy::init(const core::Config& config) {
 
     SExchangeInfo().init();
 
-    _controller->getSymbolInfo(infos());
-    _controller->getAllPrices(prices());
-    _controller->getBalances(balances());
+    _controller->getSymbolInfo(_infos);
+    _controller->getAllPrices(_prices);
+    _controller->getBalances(_balances);
 
-    _controller->connectBalances(balances());
+    _controller->connectBalances(_balances);
 
     STime().addListener(std::bind(&ExchangerController::tick, _controller, std::placeholders::_1));
 }
 
-void ExchangerProxy::run() {
-    _controller->run();
+void ExchangerProxy::connect(const Symbol& symbol) {
+    _controller->connectDailyChange(*_daily_changes.get(symbol));
 }
 
-KlineWrapper* ExchangerProxy::getDailyChange(const Symbol& symbol) {
-    KlineWrapper* wrapper = daily_change(symbol);
-    if (wrapper->timeClose() > STime().getCurrent() - BinanceTime::sMinute * 30)
-        return wrapper;
-
-    if (not _controller->getDailyChange(*wrapper, symbol))
-        wrapper->setTimeClose(STime().getCurrent());
-
-    return wrapper;
+void ExchangerProxy::run() {
+    _controller->run();
 }

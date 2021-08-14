@@ -8,7 +8,7 @@
 #include "algorithm/DecisionMaker.hpp"
 #include "util/PriceUtil.hpp"
 
-static double sMinRate = 0.004;
+static double sMinRate = 0.003;
 
 // мин объем валюты, с которым бот открывает новые заказы
 // данное число умножается на минимальный разрешенный лот

@@ -39,10 +39,11 @@ void BinanceController::tick(time_t now) {
     // Keepalive a user data stream to prevent a time out.
     // User data streams will close after 60 minutes.
     // It's recommended to send a ping about every 30 minutes
-    if (now >= _stream_keep_alive + BinanceTime::sMinute * 30) {
-        BinaCPP::keep_userDataStream(_stream_listen_key.c_str());
-        _stream_keep_alive = now;
-    }
+    if (now >= _time_userstream + BinanceTime::sMinute * 30)
+        keepUserDataStream();
+
+    if (now >= _time_daily_change + BinanceTime::sMinute * 15)
+        updateDailyChange();
 }
 
 bool BinanceController::getSymbolInfo(Storage::Type_info& container) const {
@@ -122,20 +123,29 @@ bool BinanceController::getBalances(Storage::Type_balance& container) const {
     return true;
 }
 
-bool BinanceController::getDailyChange(KlineWrapper& wrapper, const Symbol& symbol) const {
+void BinanceController::connectDailyChange(KlineWrapper& wrapper) {
+    _connect_daily_change = &wrapper;
+    updateDailyChange();
+}
+
+void BinanceController::updateDailyChange() {
+    if (_connect_daily_change == nullptr)
+        return;
+
+    _time_daily_change = STime().getCurrent();
+
     Json::Value json;
-    BinaCPP::get_24hr(symbol.c_str(), json);
+    BinaCPP::get_24hr(_connect_daily_change->getIdentifier().c_str(), json);
 
     BinanceErrorData error(json);
     if (error.has()) {
         Logger::error(error.msg.c_str());
-        return false;
+        return;
     }
 
     BinancePriceStatisticsData data(json);
-    wrapper.setPrice(data.openPrice, data.highPrice, data.lowPrice, 0.0);
-    wrapper.setTime(data.openTime, data.closeTime);
-    return true;
+    _connect_daily_change->setPrice(data.openPrice, data.highPrice, data.lowPrice, 0.0);
+    _connect_daily_change->setTime(data.openTime, data.closeTime);
 }
 
 void BinanceController::connectBalances(Storage::Type_balance& container) {
@@ -160,7 +170,7 @@ void BinanceController::initUserListenKey() {
     }
 
     _stream_listen_key = json["listenKey"].asString();
-    _stream_keep_alive = STime().getCurrent();
+    _time_userstream = STime().getCurrent();
 }
 
 void BinanceController::startUserDataStream() {
@@ -168,6 +178,14 @@ void BinanceController::startUserDataStream() {
     ws_path.append(_stream_listen_key);
 
     BinaCPP_websocket::connect_endpoint(std::bind(&BinanceController::onUserDataStream, this, std::placeholders::_1), ws_path.c_str());
+}
+
+void BinanceController::keepUserDataStream() {
+    if (_stream_listen_key.empty())
+        return;
+
+    _time_userstream = STime().getCurrent();
+    BinaCPP::keep_userDataStream(_stream_listen_key.c_str());
 }
 
 int BinanceController::onUserDataStream(Json::Value &json) {

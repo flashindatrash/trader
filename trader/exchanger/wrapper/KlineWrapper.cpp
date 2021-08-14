@@ -32,3 +32,16 @@ void KlineWrapper::setTimeClose(time_t close) {
 const time_t& KlineWrapper::timeClose() const {
     return _time_close;
 }
+
+const double KlineWrapper::hl2() const {
+    return (_high + _low) / 2.0;
+}
+
+const double KlineWrapper::hlc3() const {
+    return (_high + _low + _close) / 3.0;
+}
+
+const double KlineWrapper::ohlc4() const {
+    return (_open + _high + _low + _close) / 4.0;
+}
+

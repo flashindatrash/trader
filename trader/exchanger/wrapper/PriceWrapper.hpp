@@ -1,9 +1,9 @@
 #pragma once
 
-#include <global.hpp>
+#include "exchanger/base/Storage.hpp"
 #include "exchanger/base/ExchangerTypes.hpp"
 
-class PriceWrapper
+class PriceWrapper : public MapIdentifier<std::string>
 {
 public: // static
     typedef std::pair<Price, time_t> PriceTimePair;

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Proxy.hpp"
-#include "exchanger/base/Storage.hpp"
+#include "exchanger/base/Storage-include.hpp"
 
 namespace core {
     class Config;
@@ -16,9 +16,8 @@ public: // methods
     virtual ~ExchangerProxy() override;
 
     void init(const core::Config& config);
+    void connect(const Symbol& symbol);
     void run();
-
-    KlineWrapper* getDailyChange(const Symbol& symbol);
 
 protected: // vars
     ExchangerController* _controller = nullptr;
