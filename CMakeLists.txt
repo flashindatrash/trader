@@ -12,10 +12,9 @@ set(CMAKE_CXX_FLAGS_DEBUG "-O0 -DDEBUG -std=c++11 -g ${PROJ_WARNINGS}")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG -std=c++11 ${PROJ_WARNINGS}")
 
 # add for stacktrace
-#if (CMAKE_BUILD_TYPE STREQUAL "Debug" AND NOT CMAKE_VERSION VERSION_LESS "3.13")
-#    add_link_options(-rdynamic)
-#endif()
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -rdynamic -pthread")
+if (CMAKE_BUILD_TYPE STREQUAL "Debug" AND UNIX)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -rdynamic -pthread")
+endif()
 
 # openssl
 if(APPLE)
@@ -80,11 +79,6 @@ elseif(UNIX)
     include_directories(/usr/local/include/libwebsockets/)
     list(APPEND ALL_LIBS /usr/local/lib/libwebsockets.so)
 endif()
-
-# hotfix
-#if(UNIX)
-#    list(APPEND ALL_LIBS -lpthread)
-#endif()
 
 # core
 include_directories(${PROJECT_SOURCE_DIR}/core)
