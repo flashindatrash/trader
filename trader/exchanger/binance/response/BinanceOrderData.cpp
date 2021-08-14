@@ -1,7 +1,5 @@
 #include "BinanceOrderData.hpp"
-
 #include <json/json.h>
-#include "Logger.hpp"
 
 BinanceOrderData::BinanceOrderData(const Json::Value& json, bool minimized) {
     orderId             = atol(json[minimized ? "i" : "orderId"].asString().c_str());

@@ -1,5 +1,5 @@
-#include "json/json.h"
-#include "exchanger/binance/response/BinancePriceStatisticsData.hpp"
+#include "BinancePriceStatisticsData.hpp"
+#include <json/json.h>
 
 BinancePriceStatisticsData::BinancePriceStatisticsData(const Json::Value& json)
 {

@@ -1,5 +1,4 @@
 #include "BinanceBalanceData.hpp"
-
 #include <json/json.h>
 
 BinanceBalanceData::BinanceBalanceData(const Json::Value& json, bool minimized)

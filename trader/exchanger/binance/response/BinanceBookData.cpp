@@ -1,6 +1,5 @@
 #include "BinanceBookData.hpp"
-
-#include "json/json.h"
+#include <json/json.h>
 
 BinanceBookData::BinanceBookData(const Json::Value& json)
 {

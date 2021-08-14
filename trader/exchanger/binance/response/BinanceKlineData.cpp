@@ -1,5 +1,4 @@
 #include "exchanger/binance/response/BinanceKlineData.hpp"
-
 #include <json/json.h>
 
 BinanceKlineData::BinanceKlineData(const Json::Value& json)

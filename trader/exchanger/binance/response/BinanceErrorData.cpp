@@ -1,5 +1,5 @@
 #include "exchanger/binance/response/BinanceErrorData.hpp"
-#include "json/json.h"
+#include <json/json.h>
 
 const int BinanceErrorData::NEW_ORDER_REJECTED = -2010;
 const int BinanceErrorData::INVALID_TIMESTAMP = -1021;

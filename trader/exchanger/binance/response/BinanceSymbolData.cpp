@@ -1,5 +1,4 @@
 #include "BinanceSymbolData.hpp"
-
 #include <json/json.h>
 
 BinanceSymbolData::BinanceSymbolData(const Json::Value& json)
