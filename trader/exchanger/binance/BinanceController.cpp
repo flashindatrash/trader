@@ -171,6 +171,12 @@ void BinanceController::startUserDataStream() {
 }
 
 int BinanceController::onUserDataStream(Json::Value &json) {
+    BinanceErrorData error(json);
+    if (error.has()) {
+        Logger::error(error.msg.c_str());
+        return 0;
+    }
+
     std::string action = json["e"].asString();
     if (action  == "executionReport") {
         std::string executionType = json["x"].asString();

@@ -30,6 +30,6 @@ class Logger {
 public: //
     static void error(const char* error) {
         std::cout << error << std::endl;
-        std::raise(SIGSEGV);
+        // std::raise(SIGSEGV);
     }
 };

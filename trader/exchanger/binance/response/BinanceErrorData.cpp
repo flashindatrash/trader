@@ -6,6 +6,12 @@ const int BinanceErrorData::INVALID_TIMESTAMP = -1021;
 
 BinanceErrorData::BinanceErrorData(const Json::Value& json)
 {
+    if (json.isNull()) {
+        code = -1;
+        msg = "empty json";
+        return;
+    }
+
     if (not json.isObject() || not json["code"] || not json["code"].isInt())
         return;
 
