@@ -24,6 +24,7 @@ bool TraderManager::init(const Symbol& symbol) {
     // устанавливаем стоимость покупки
     double min = util::get_min_quantity(symbol);
     _min_quantity = min * sMinQuantity;
+    _min_quantity = util::ceil_quantity(symbol, _min_quantity/* * std::max(factor, 1.0)*/);
     trace("trader quantity: %f\n", _min_quantity);
     return true;
 }
@@ -61,11 +62,9 @@ void TraderManager::onCloseCandle(const BinanceKlineData& data) {
     Symbol symbol(data.symbol);
     DecisionMaker decision(symbol);
     double factor = decision.factor(side, DecisionMaker::ForTrader);
-    trace("trader factor: %f\n", factor);
+    trace("trader %s factor: %f\n", side.c_str(), factor);
     if (factor < 0.3)
         return;
 
-    // цена уможается до х2 зависит от фактора DecisionMaker'а
-    double quantity = util::ceil_quantity(symbol, _min_quantity/* * std::max(factor, 1.0)*/);
-    _orders.create(symbol, side, quantity, nullptr);
+    _orders.create(symbol, side, _min_quantity, nullptr);
 }

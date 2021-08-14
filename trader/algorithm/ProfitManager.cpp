@@ -10,7 +10,7 @@
 static float sMinRate = 0.0035f;
 
 // желаемое % соотношение
-static float sRate = 0.005f;
+static float sRate = 0.006f;
 
 ProfitManager::ProfitManager(OrderManager& orders)
     : BaseManager(orders)
