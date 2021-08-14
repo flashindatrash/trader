@@ -1,6 +1,7 @@
 #include "Logger.hpp"
 #include "proxy/BinanceOrders.hpp"
 #include "proxy/BinanceTime.hpp"
+#include "exchanger/base/ExchangerTypes.hpp"
 #include "exchanger/wrapper/Symbol.hpp"
 #include "algorithm/OrderManager.hpp"
 #include "algorithm/DataManager.hpp"
@@ -73,8 +74,8 @@ void OrderManager::printProfit(const Symbol& symbol, double profit) {
     for (const BinanceOrderData& position : _positions) {
         double order_price = position.getPrice();
 
-        bool sell_loss = position.side == SideEnum::Sell && current_price > order_price;
-        bool buy_loss = position.side == SideEnum::Buy && current_price < order_price;
+        bool sell_loss = SideEnum(position.side) == SideEnum::Sell && current_price > order_price;
+        bool buy_loss = SideEnum(position.side) == SideEnum::Buy && current_price < order_price;
 
         if (sell_loss || buy_loss)
             losses_total += std::abs(current_price - order_price) * position.quantity;
@@ -98,7 +99,7 @@ void OrderManager::printPositionsTimeline(double current) {
             std::cout << "|";
             current_embeded = true;
         }
-        if (position.side == SideEnum::Buy)
+        if (SideEnum(position.side) == SideEnum::Buy)
             std::cout << "+";
         else
             std::cout << "-";

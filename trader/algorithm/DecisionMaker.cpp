@@ -1,8 +1,8 @@
 #include "Logger.hpp"
 #include "DecisionMaker.hpp"
 #include "proxy/BinancePrices.hpp"
+#include "exchanger/base/ExchangerTypes.hpp"
 #include "exchanger/wrapper/Symbol.hpp"
-#include "exchanger/wrapper/SideEnum.hpp"
 #include "exchanger/binance/response/BinancePriceStatisticsData.hpp"
 
 DecisionMaker::DecisionMaker(const Symbol& symbol)

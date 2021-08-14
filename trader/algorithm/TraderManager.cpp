@@ -1,7 +1,7 @@
 #include "TraderManager.hpp"
 #include "Logger.hpp"
 #include "exchanger/wrapper/Symbol.hpp"
-#include "exchanger/wrapper/CandlestickContainer.hpp"
+#include "exchanger/wrapper/ChartWrapper.hpp"
 #include "exchanger/wrapper/CandlestickWrapper.hpp"
 #include "exchanger/binance/response/BinanceKlineData.hpp"
 #include "algorithm/OrderManager.hpp"

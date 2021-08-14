@@ -1,7 +1,7 @@
 #include "proxy/ExchangerProxy.hpp"
 #include "proxy/BinanceExchangeInfo.hpp"
 #include "exchanger/wrapper/Symbol.hpp"
-#include "exchanger/wrapper/PriceContainer.hpp"
+#include "exchanger/wrapper/PriceWrapper.hpp"
 #include "util/StringUtil.hpp"
 
 Asset::Asset()
@@ -51,9 +51,7 @@ const BinanceSymbolData& Symbol::getInfo() const {
 }
 
 const Price Symbol::getPrice() const {
-    if (const PriceContainer* wrapper = Exchanger().price(*this))
-        return wrapper->getCurrent();
-    return 0.0;
+    return Exchanger().price(*this)->get();
 }
 
 const Price Symbol::getPrice(double quantity) const {

@@ -1,7 +1,7 @@
 #include "BaseManager.hpp"
 #include "Logger.hpp"
 #include "proxy/BinanceKlines.hpp"
-#include "exchanger/wrapper/CandlestickContainer.hpp"
+#include "exchanger/wrapper/ChartWrapper.hpp"
 
 BaseManager::BaseManager(OrderManager& orders)
     : _orders(orders)

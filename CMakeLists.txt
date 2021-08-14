@@ -13,6 +13,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG -std=c++11 ${PROJ_WARNINGS}")
 
 # add for stacktrace
 if (CMAKE_BUILD_TYPE STREQUAL "Debug" AND UNIX)
+    message("-- wtf")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -rdynamic -pthread")
 endif()
 

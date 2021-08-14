@@ -4,14 +4,14 @@
 #include "proxy/BinancePrices.hpp"
 #include "proxy/ExchangerProxy.hpp"
 #include "exchanger/wrapper/Symbol.hpp"
-#include "exchanger/wrapper/PriceContainer.hpp"
+#include "exchanger/wrapper/PriceWrapper.hpp"
 #include "exchanger/binance/response/BinanceErrorData.hpp"
 #include "exchanger/binance/response/BinancePriceStatisticsData.hpp"
 
 const BinancePriceStatisticsData& BinancePrices::getStats(const Symbol& symbol) {
     static const BinancePriceStatisticsData sEmpty;
 
-    PriceContainer* wrapper = Exchanger().price(symbol);
+    PriceWrapper* wrapper = Exchanger().price(symbol);
     if (wrapper == nullptr)
         return sEmpty;
 

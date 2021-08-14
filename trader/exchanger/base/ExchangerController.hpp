@@ -6,9 +6,9 @@ namespace core {
     class Config;
 }
 
-class SymbolInfo;
-class PriceContainer;
-class Balance;
+class ExchangeWrapper;
+class PriceWrapper;
+class BalanceWrapper;
 
 class ExchangerController {
 public: // static

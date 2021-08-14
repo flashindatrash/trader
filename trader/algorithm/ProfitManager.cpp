@@ -24,7 +24,7 @@ void ProfitManager::tick(const Symbol& symbol) {
         return;
 
     // пробуем создать новый ордер
-    _orders.create(symbol, transaction->side.reverse(), transaction->quantity, transaction);
+    _orders.create(symbol, SideEnum(transaction->side).reverse(), transaction->quantity, transaction);
 }
 
 const BinanceOrderData* ProfitManager::findClosableOrder(const Symbol &symbol) const {
@@ -52,7 +52,7 @@ const BinanceOrderData* ProfitManager::findClosableOrder(const Symbol &symbol) c
             continue;
 
         // проверим, что достаточн средств для закрытия ордера
-        if (not SOrders().isEnough(symbol, order.side.reverse(), order.quantity))
+        if (not SOrders().isEnough(symbol, SideEnum(order.side).reverse(), order.quantity))
             continue;
 
         transaction = &order;

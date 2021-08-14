@@ -1,16 +1,15 @@
 #pragma once
 
-
-class Balance {
+class BalanceWrapper {
 public: // static
-    static Balance* create();
+    static BalanceWrapper* create();
 
 public: // methods
     void set(double free, double locked);
     const double& get() const;
 
 protected: // methods
-    Balance() = default;
+    BalanceWrapper() = default;
 
 protected: // vars
     double _free = 0.0;

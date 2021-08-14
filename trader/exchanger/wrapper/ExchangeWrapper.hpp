@@ -2,9 +2,9 @@
 
 #include "Symbol.hpp"
 
-class SymbolInfo {
+class ExchangeWrapper {
 public: // static
-    static SymbolInfo* create();
+    static ExchangeWrapper* create();
 
 public: // methods
     void setAssets(const Asset& base, const Asset& quote);
@@ -12,7 +12,7 @@ public: // methods
     const Asset& quoteAsset() const;
 
 protected: // methods
-    SymbolInfo() = default;
+    ExchangeWrapper() = default;
 
 protected: // vars
     Asset _baseAsset;
