@@ -6,7 +6,7 @@
 #include "exchanger/wrapper/BalanceWrapper.hpp"
 
 class Storage {
-    MAP(std::string, SymbolInfo, info)
+    MAP(std::string, ExchangeWrapper, info)
     MAP(std::string, PriceWrapper, price)
     MAP(std::string, BalanceWrapper, balance)
 };

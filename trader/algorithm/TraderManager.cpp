@@ -8,6 +8,8 @@
 #include "algorithm/DecisionMaker.hpp"
 #include "util/PriceUtil.hpp"
 
+static double sMinRate = 0.004;
+
 // мин объем валюты, с которым бот открывает новые заказы
 // данное число умножается на минимальный разрешенный лот
 static double sMinQuantity = 1.3;
@@ -44,6 +46,11 @@ void TraderManager::onCloseCandle(const BinanceKlineData& data) {
     trace("candle closed (pattern %d)\n", pattern);
 
     SideEnum side;
+
+    PriceRange range(current.open, current.close);
+    if (std::abs(range.change()) >= sMinRate)
+        side = range.change();
+
     switch (pattern) {
     case CandlestickWrapper::Hammer:            side = SideEnum::Buy; break;
     case CandlestickWrapper::InvertedHammer:    side = SideEnum::Buy; break;
