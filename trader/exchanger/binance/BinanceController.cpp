@@ -60,7 +60,7 @@ bool BinanceController::getSymbolInfo(Storage::Type_info& container) const {
     Json::Value json;
     BinaCPP::get_exchangeInfo(json);
 
-    BinanceErrorData error(json);
+    BinanceErrorData error(json, "BinanceController::getSymbolInfo");
     if (error.has()) {
         Logger::error(error.msg.c_str());
         return false;
@@ -87,7 +87,7 @@ bool BinanceController::getAllPrices(Storage::Type_price& container) const {
     Json::Value json;
     BinaCPP::get_allPrices(json);
 
-    BinanceErrorData error(json);
+    BinanceErrorData error(json, "BinanceController::getAllPrices");
     if (error.has()) {
         Logger::error(error.msg.c_str());
         return false;
@@ -120,7 +120,7 @@ bool BinanceController::getBalances(Storage::Type_balance& container) const {
     Json::Value json;
     BinaCPP::get_account(BINANCE_RECV_WINDOW, json);
 
-    BinanceErrorData error(json);
+    BinanceErrorData error(json, "BinanceController::getBalances");
     if (error.has()) {
         Logger::error(error.msg.c_str());
         return false;
@@ -152,7 +152,7 @@ void BinanceController::initUserListenKey() {
     Json::Value json;
 
     BinaCPP::start_userDataStream(json);
-    BinanceErrorData error(json);
+    BinanceErrorData error(json, "BinanceController::initUserListenKey");
     if (error.has()) {
         Logger::error(error.msg.c_str());
         return;
@@ -184,7 +184,7 @@ void BinanceController::keepUserDataStream() {
 }
 
 int BinanceController::onUserDataStream(Json::Value &json) {
-    BinanceErrorData error(json);
+    BinanceErrorData error(json, "BinanceController::onUserDataStream");
     if (error.has()) {
         Logger::error(error.msg.c_str());
         return 0;
@@ -225,7 +225,7 @@ void BinanceController::updateDailyChange() {
     Json::Value json;
     BinaCPP::get_24hr(_connect_daily_change->getIdentifier().c_str(), json);
 
-    BinanceErrorData error(json);
+    BinanceErrorData error(json, "BinanceController::updateDailyChange");
     if (error.has()) {
         Logger::error(error.msg.c_str());
         return;
@@ -244,7 +244,7 @@ bool BinanceController::getChart(ChartWrapper &wrapper, ChartInterval interval) 
     Json::Value json;
     BinaCPP::get_klines(wrapper.getIdentifier().c_str(), interval_converted.c_str(), 40, 0, 0, json);
 
-    BinanceErrorData error(json);
+    BinanceErrorData error(json, "BinanceController::getChart");
     if (error.has()) {
         Logger::error(error.msg.c_str());
         return false;

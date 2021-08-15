@@ -15,7 +15,7 @@ std::vector<BinanceOrderData> BinanceOrders::getAllOrders(const Symbol& symbol, 
 
     std::vector<BinanceOrderData> vec;
 
-    BinanceErrorData error(result);
+    BinanceErrorData error(result, "BinanceOrders::getAllOrders");
     if (error.has()) {
         Logger::error(error.msg.c_str());
         return vec;
@@ -87,7 +87,7 @@ const BinanceOrderData BinanceOrders::createOrder(const Symbol& symbol, const Si
     BinaCPP::send_order(symbol.c_str(), side.c_str(), type.c_str(), "GTC", quantity , 0, "", 0, 0, BINANCE_TEST_MODE, BINANCE_RECV_WINDOW, result);
 
     // error response
-    BinanceErrorData error(result);
+    BinanceErrorData error(result, "BinanceOrders::createOrder");
     if (error.has()) {
         BinanceOrderData empty;
         if (error.code == BinanceErrorData::NEW_ORDER_REJECTED) {

@@ -14,7 +14,7 @@ void BinanceTime::init()
     Json::Value result;
     BinaCPP::get_serverTime(result);
 
-    BinanceErrorData error(result);
+    BinanceErrorData error(result, "BinanceTime::init");
     if (error.has()) {
         Logger::error(error.msg.c_str());
         return;

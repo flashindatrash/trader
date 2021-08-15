@@ -4,11 +4,14 @@
 const int BinanceErrorData::NEW_ORDER_REJECTED = -2010;
 const int BinanceErrorData::INVALID_TIMESTAMP = -1021;
 
-BinanceErrorData::BinanceErrorData(const Json::Value& json)
+BinanceErrorData::BinanceErrorData(const Json::Value& json, std::string context)
 {
+    if (not context.empty())
+        context = context + ": ";
+
     if (json.isNull()) {
         code = -1;
-        msg = "empty json";
+        msg = context + "empty json";
         return;
     }
 
@@ -16,7 +19,7 @@ BinanceErrorData::BinanceErrorData(const Json::Value& json)
         return;
 
     code = json["code"].asInt();
-    msg = json["msg"].asString();
+    msg = context + json["msg"].asString();
 }
 
 bool BinanceErrorData::has() const {

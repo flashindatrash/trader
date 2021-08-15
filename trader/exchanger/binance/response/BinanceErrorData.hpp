@@ -1,6 +1,10 @@
 #pragma once
 
-#include <global.hpp>
+#include <string>
+
+namespace Json {
+    class Value;
+}
 
 struct BinanceErrorData
 {
@@ -9,7 +13,7 @@ public: // static
     static const int INVALID_TIMESTAMP;
 
 public: // methods
-    BinanceErrorData(const Json::Value& json);
+    BinanceErrorData(const Json::Value& json, std::string context = "");
 
     bool has() const;
 

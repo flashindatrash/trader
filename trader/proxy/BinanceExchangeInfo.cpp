@@ -7,7 +7,7 @@ void BinanceExchangeInfo::init() {
     Json::Value result;
     BinaCPP::get_exchangeInfo(result);
 
-    BinanceErrorData error(result);
+    BinanceErrorData error(result, "BinanceExchangeInfo::init");
     if (error.has()) {
         Logger::error(error.msg.c_str());
         return;
