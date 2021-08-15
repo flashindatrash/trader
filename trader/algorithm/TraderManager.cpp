@@ -8,7 +8,7 @@
 #include "algorithm/DecisionMaker.hpp"
 #include "util/PriceUtil.hpp"
 
-static double sMinRate = 0.003;
+static double sMinRate = 0.004;
 
 // мин объем валюты, с которым бот открывает новые заказы
 // данное число умножается на минимальный разрешенный лот
@@ -55,10 +55,10 @@ void TraderManager::onCloseCandle(const CandlestickWrapper& wrapper) {
     case CandlestickPattern::ShootingStar:      side = SideEnum::Sell; break;
     //case CandlestickWrapper::BullishEngulfing:  side = SideEnum::Sell; break;
     //case CandlestickWrapper::BearishEngulfing:  side = SideEnum::Buy; break;
-    case CandlestickPattern::BullishHarami:     side = SideEnum::Buy; break;
-    case CandlestickPattern::BearishHarami:     side = SideEnum::Sell; break;
-    case CandlestickPattern::BullishKicker:     side = SideEnum::Buy; break;
-    case CandlestickPattern::BearishKicker:     side = SideEnum::Sell; break;
+    //case CandlestickPattern::BullishHarami:     side = SideEnum::Buy; break;
+    //case CandlestickPattern::BearishHarami:     side = SideEnum::Sell; break;
+    //case CandlestickPattern::BullishKicker:     side = SideEnum::Buy; break;
+    //case CandlestickPattern::BearishKicker:     side = SideEnum::Sell; break;
     default: break;
     }
 
@@ -69,8 +69,7 @@ void TraderManager::onCloseCandle(const CandlestickWrapper& wrapper) {
     Symbol symbol(_candlesticks->getIdentifier());
     DecisionMaker decision(symbol);
     double factor = decision.factor(side, DecisionMaker::ForTrader);
-    Logger::info("trader %s factor: %f", side.c_str(), factor);
-    if (factor < 0.3)
+    if (factor < 0.7)
         return;
 
     if (not _orders.create(symbol, side, _min_quantity, nullptr))
