@@ -19,7 +19,7 @@ int main(int argc, char** argv) {
 
     core::Config cfg;
     if (!cfg.read(cfg_file.c_str())) {
-        trace("Can't init config %s", cfg_file.c_str());
+        Logger::info("Can't init config %s", cfg_file.c_str());
         return EXIT_FAILURE;
     }
 

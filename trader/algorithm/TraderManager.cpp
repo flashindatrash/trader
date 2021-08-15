@@ -27,7 +27,7 @@ bool TraderManager::init(const Symbol& symbol) {
     double min = util::get_min_quantity(symbol);
     _min_quantity = min * sMinQuantity;
     _min_quantity = util::ceil_quantity(symbol, _min_quantity/* * std::max(factor, 1.0)*/);
-    trace("trader quantity: %f\n", _min_quantity);
+    Logger::info("lot quantity: %f", _min_quantity);
     return true;
 }
 
@@ -40,7 +40,7 @@ void TraderManager::onCloseCandle(const CandlestickWrapper& wrapper) {
     const CandlestickWrapper* previous = *(candlesticks.end() - 2);
 
     CandlestickPattern::Pattern pattern = CandlestickPattern::find(*current, *previous);
-    trace("candle closed (pattern %d)\n", pattern);
+    Logger::info("candle closed (pattern %d)", pattern);
 
     SideEnum side;
 
@@ -69,10 +69,10 @@ void TraderManager::onCloseCandle(const CandlestickWrapper& wrapper) {
     Symbol symbol(_candlesticks->getIdentifier());
     DecisionMaker decision(symbol);
     double factor = decision.factor(side, DecisionMaker::ForTrader);
-    trace("trader %s factor: %f\n", side.c_str(), factor);
-    if (factor < 0.3)
+    Logger::info("trader %s factor: %f", side.c_str(), factor);
+    if (factor < 0.3 || true)
         return;
 
     if (not _orders.create(symbol, side, _min_quantity, nullptr))
-        trace("failed create order\n");
+        Logger::info("failed create order");
 }

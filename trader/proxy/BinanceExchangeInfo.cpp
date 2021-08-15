@@ -15,7 +15,7 @@ void BinanceExchangeInfo::init() {
 
     const Json::Value& symbols = result["symbols"];
     if (not symbols.isArray()) {
-        trace("%s\n", result.toStyledString().c_str());
+        Logger::info("%s", result.toStyledString().c_str());
         Logger::error("invalid exchange");
         return;
     }

@@ -1,11 +1,8 @@
 #pragma once
 
-#include <stdio.h>
 #include <iostream>
-#include <string>
+#include <sys/time.h>
 #include <csignal>
-
-#define trace printf
 
 //the following are UBUNTU/LINUX, and MacOS ONLY terminal color codes.
 #define RESET   "\033[0m"
@@ -28,8 +25,28 @@
 
 class Logger {
 public: //
-    static void error(const char* error) {
-        std::cout << error << std::endl;
+    static void info(const char *fmt, ...) {
+        va_list arg;
+
+        char new_fmt[1024];
+
+        struct timeval tv;
+        gettimeofday(&tv, NULL);
+        time_t t = tv.tv_sec;
+        struct tm* now = localtime(&t);
+
+        sprintf(new_fmt, "[%04d-%02d-%02d %02d:%02d:%02d %06ld] T: %s\n", now->tm_year + 1900, now->tm_mon + 1, now->tm_mday, now->tm_hour, now->tm_min, now->tm_sec, (long)tv.tv_usec, fmt);
+
+        va_start(arg, fmt);
+
+        vfprintf(stdout, new_fmt, arg);
+        fflush(stdout);
+
+        va_end (arg);
+    }
+
+    static void error(const char* msg) {
+        info("Error! %s", msg);
         // std::raise(SIGSEGV);
     }
 };

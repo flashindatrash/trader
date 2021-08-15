@@ -14,7 +14,7 @@ void BalanceManager::tick(const Symbol& symbol) {
                 message += pair.first + "(" + std::to_string(pair.second) + ") ";
         }
         if (not message.empty())
-            trace("balance update: %s\n", message.c_str());
+            Logger::info("balance update: %s", message.c_str());
         _balances.clear();
     }
 }

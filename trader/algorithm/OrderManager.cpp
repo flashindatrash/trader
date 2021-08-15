@@ -42,11 +42,11 @@ bool OrderManager::create(const Symbol& symbol, const SideEnum& side, double qua
 
     // открыть/закрыть транзакцию
     if (transaction == nullptr) {
-        trace("\a%s %f %s for %f\n", side.c_str(), quantity, symbol.baseAsset().c_str(), symbol.getPrice());
+        Logger::info("\a%s %f %s for %f", side.c_str(), quantity, symbol.baseAsset().c_str(), symbol.getPrice());
         DataManager::openPosition(result.clientOrderId);
         _positions.push_back(result);
     } else {
-        trace("\a%s %f %s for %f (%s for %f)\n", side.c_str(), quantity, symbol.baseAsset().c_str(), symbol.getPrice(), transaction->side.c_str(), transaction->getPrice());
+        Logger::info("\a%s %f %s for %f (%s for %f)", side.c_str(), quantity, symbol.baseAsset().c_str(), symbol.getPrice(), transaction->side.c_str(), transaction->getPrice());
         double profit = std::abs(transaction->getPrice() - symbol.getPrice()) * transaction->quantity;
         printProfit(symbol, profit);
         std::string order_id = transaction->clientOrderId;
@@ -81,7 +81,7 @@ void OrderManager::printProfit(const Symbol& symbol, double profit) {
             losses_total += std::abs(current_price - order_price) * position.quantity;
     }
 
-    trace("%sprofit update: +%.4f (total +%.4f / loss -%.4f) %s%s\n", GREEN, profit, profit_total, losses_total, symbol.quoteAsset().c_str(), RESET);
+    Logger::info("%sprofit update: +%.4f (total +%.4f / loss -%.4f) %s%s", GREEN, profit, profit_total, losses_total, symbol.quoteAsset().c_str(), RESET);
 }
 
 void OrderManager::printPositionsTimeline(double current) {

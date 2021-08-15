@@ -68,7 +68,7 @@ bool BinanceController::getSymbolInfo(Storage::Type_info& container) const {
 
     const Json::Value& symbols = json["symbols"];
     if (not symbols.isArray()) {
-        trace("%s\n", json.toStyledString().c_str());
+        Logger::info("%s", json.toStyledString().c_str());
         Logger::error("invalid exchange");
         return false;
     }
@@ -94,7 +94,7 @@ bool BinanceController::getAllPrices(Storage::Type_price& container) const {
     }
 
     if (not json.isArray()) {
-        trace("%s\n", json.toStyledString().c_str());
+        Logger::info("%s\n", json.toStyledString().c_str());
         Logger::error("invalid prices");
         return false;
     }
@@ -128,7 +128,7 @@ bool BinanceController::getBalances(Storage::Type_balance& container) const {
 
     const Json::Value& balances = json["balances"];
     if (not balances.isArray()) {
-        trace("%s\n", json.toStyledString().c_str());
+        Logger::info("%s", json.toStyledString().c_str());
         Logger::error("invalid account");
         return false;
     }
@@ -159,7 +159,7 @@ void BinanceController::initUserListenKey() {
     }
 
     if (!json["listenKey"] || !json["listenKey"].isString()) {
-        trace("%s\n", json.toStyledString().c_str());
+        Logger::info("%s", json.toStyledString().c_str());
         Logger::error("can't get listenKey for stream account");
         return;
     }
@@ -251,7 +251,7 @@ bool BinanceController::getChart(ChartWrapper &wrapper, ChartInterval interval) 
     }
 
     if (not json.isArray()) {
-        trace("%s\n", json.toStyledString().c_str());
+        Logger::info("%s", json.toStyledString().c_str());
         Logger::error("invalid chart json");
         return false;
     }
@@ -259,7 +259,7 @@ bool BinanceController::getChart(ChartWrapper &wrapper, ChartInterval interval) 
     for (Json::ArrayIndex i = 0; i < json.size(); ++i) {
         Json::Value& item = json[i];
         if (not wrapper.add(BinanceKlineData(item)))
-            trace("skip kline: %s\n", item.toStyledString().c_str());
+            Logger::info("skip kline: %s", item.toStyledString().c_str());
     }
 
     return true;
@@ -286,7 +286,7 @@ int BinanceController::onKlineDataStream(Json::Value& json) {
 
     if (_connect_chart != nullptr) {
         if (not _connect_chart->add(data))
-            trace("skip kline: %s\n", json.toStyledString().c_str());
+            Logger::info("skip kline: %s", json.toStyledString().c_str());
     }
     return 0;
 }

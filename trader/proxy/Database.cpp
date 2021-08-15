@@ -27,7 +27,7 @@ redisReply* Database::cmd(const char* format, ...) {
     va_end(args);
 
     if (result == nullptr) {
-        trace("result Database::cmd null\n");
+        Logger::info("result Database::cmd null");
         return nullptr;
     }
 

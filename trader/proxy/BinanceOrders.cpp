@@ -22,7 +22,7 @@ std::vector<BinanceOrderData> BinanceOrders::getAllOrders(const Symbol& symbol, 
     }
 
     if (not result.isArray()) {
-        trace("%s\n", result.toStyledString().c_str());
+        Logger::info("%s", result.toStyledString().c_str());
         Logger::error("invalid orders");
         return vec;
     }
@@ -50,7 +50,7 @@ const BinanceOrderData BinanceOrders::createOrder(const Symbol& symbol, const Si
             avgPrice = history->getPriceAverage(info.minNotional.avgPriceMins * BinanceTime::sMinute);
 
         if (avgPrice * quantity < info.minNotional.minNotional) {
-            trace("can't trade %f %s less minNotional\n", quantity, symbol.c_str());
+            Logger::info("can't trade %f %s less minNotional", quantity, symbol.c_str());
             return BinanceOrderData();
         }
     }
@@ -63,22 +63,22 @@ const BinanceOrderData BinanceOrders::createOrder(const Symbol& symbol, const Si
 
     // check if symbol can trade on market
     if (not info.hasOrderType(type)) {
-        trace("can't trade symbol %s on %s\n", symbol.c_str(), type.c_str());
+        Logger::info("can't trade symbol %s on %s", symbol.c_str(), type.c_str());
         return BinanceOrderData();
     }
 
     // check lot size
     if (info.lotSize.has) {
         if (quantity < info.lotSize.minQty) {
-            trace("can't trade %f quantity (min %f)\n", quantity, info.lotSize.minQty);
+            Logger::info("can't trade %f quantity (min %f)", quantity, info.lotSize.minQty);
             return BinanceOrderData();
         } else if (quantity > info.lotSize.maxQty) {
-            trace("can't trade %f quantity (max %f)\n", quantity, info.lotSize.maxQty);
+            Logger::info("can't trade %f quantity (max %f)", quantity, info.lotSize.maxQty);
             return BinanceOrderData();
         }
         /* todo
         else if ((quantity - info.lotSize.minQty) % info.lotSize.stepSize != 0) {
-            trace("can't trade %f quantity (step size %f)\n", quantity, info.lotSize.stepSize);
+            Logger::info("can't trade %f quantity (step size %f)\n", quantity, info.lotSize.stepSize);
             return BinanceOrderData();
         }*/
     }
@@ -94,9 +94,9 @@ const BinanceOrderData BinanceOrders::createOrder(const Symbol& symbol, const Si
             empty.status = "REJECTED";
             const Asset& asset = side == SideEnum::Buy ? symbol.quoteAsset() : symbol.baseAsset();
             double required = side == SideEnum::Buy ? symbol.getPrice(quantity) : quantity;
-            trace("don't have %f %s (current %f)\n", required, asset.c_str(), asset.getBalance());
+            Logger::info("don't have %f %s (current %f)", required, asset.c_str(), asset.getBalance());
         } else {
-            trace("%s\n", error.msg.c_str());
+            Logger::info("%s", error.msg.c_str());
         }
 
         return empty;

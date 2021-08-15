@@ -21,7 +21,7 @@ void BinanceTime::init()
     }
 
     if (not result["serverTime"] || not result["serverTime"].isInt64()) {
-        trace("%s\n", result.toStyledString().c_str());
+        Logger::info("%s", result.toStyledString().c_str());
         Logger::error("invalid server time");
         return;
     }
