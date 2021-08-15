@@ -23,14 +23,9 @@ void ProfitManager::tick(const Symbol& symbol) {
     // обновляем заголовок
     if (not _candlesticks->klines().empty()) {
         CandlestickWrapper* last = _candlesticks->klines().back();
-        double change = PriceRange(last->priceOpen(), last->priceClose()).change();
-        double percent = std::round(change * 1000.0) / 10;
-        std::string str = "";
-        if (percent < 0.0)
-            str = std::to_string(percent);
-        else if (percent > 0.0)
-            str = "+" + std::to_string(percent);
-        Logger::title("%s - %s %s", symbol.baseAsset().c_str(), symbol.quoteAsset().c_str(), str.c_str());
+        double change = PriceRange(last->priceOpen(), last->priceClose()).change() * 100.0;
+        std::string plus = change > 0.0 ? "+" : "";
+        Logger::title("%s - %s %s%.3f%%", symbol.baseAsset().c_str(), symbol.quoteAsset().c_str(), plus.c_str(), change);
     }
 
     // находим ордер для закрытия
