@@ -1,60 +1,42 @@
 #pragma once
 
+#include "exchanger/base/Storage.hpp"
 #include "exchanger/base/ExchangerTypes.hpp"
 
-class CandlestickWrapper {
-public: // enum
-    enum Pattern {
-        None,
-        Hammer,
-        InvertedHammer,
-        HangingMan,
-        ShootingStar,
-        BullishEngulfing,
-        BearishEngulfing,
-        BullishHarami,
-        BearishHarami,
-        BullishKicker,
-        BearishKicker
-    };
+struct Candlestick {
+    Price price_open, price_high, price_low, price_close = 0.0;
+    time_t time_open, time_close = 0;
+    bool closed = false;
+};
 
-protected: // static
-    static bool isEngulfed(const CandlestickWrapper& shortest, const CandlestickWrapper& longest);
-    static bool isGap(const CandlestickWrapper& lowest, const CandlestickWrapper& upmost);
-    static bool isGapUp(const CandlestickWrapper& previous, const CandlestickWrapper& current);
-    static bool isGapDown(const CandlestickWrapper& previous, const CandlestickWrapper& current);
-
-    static bool isBullish(const CandlestickWrapper& candlestick);
-    static bool isBearish(const CandlestickWrapper& candlestick);
-    static bool isHammerLike(const CandlestickWrapper& candlestick);
-    static bool isInvertedHammerLike(const CandlestickWrapper& candlestick);
+class CandlestickWrapper : public MapIdentifier<std::string> {
+public: // static
+    static CandlestickWrapper* create();
 
 public: // methods
-    CandlestickWrapper(Price open, Price high, Price low, Price close);
+    void set(Candlestick data);
 
-    Pattern getPattern(const CandlestickWrapper& previous) const;
+    const Price& priceOpen() const;
+    const Price& priceClose() const;
+
+    const Price bodyLen() const;
+    const Price wickLen() const;
+    const Price tailLen() const;
+
+    const Price hl2() const;
+    const Price hlc3() const;
+    const Price ohlc4() const;
+
+    const time_t& timeOpen() const;
+    const time_t& timeClose() const;
+
+    const bool& isClosed() const;
+    void close();
 
 protected: // methods
-    Price bodyLen() const;
-    Price wickLen() const;
-    Price tailLen() const;
+    CandlestickWrapper() = default;
 
-public: // pattern detection.
-    static bool isHammer(const CandlestickWrapper& candlestick);
-    static bool isInvertedHammer(const CandlestickWrapper& candlestick);
-    static bool isHangingMan(const CandlestickWrapper& previous, const CandlestickWrapper& current);
-    static bool isShootingStar(const CandlestickWrapper& previous, const CandlestickWrapper& current);
-    static bool isBullishEngulfing(const CandlestickWrapper& previous, const CandlestickWrapper& current);
-    // A bearish engulfing pattern is a technical chart pattern that signals lower prices to come
-    static bool isBearishEngulfing(const CandlestickWrapper& previous, const CandlestickWrapper& current);
-    // A bullish harami is a candlestick chart indicator suggesting that a bearish trend may be coming to end. Some investors may look at a bullish harami as a good sign that they should enter a long position on an asset.
-    static bool isBullishHarami(const CandlestickWrapper& previous, const CandlestickWrapper& current);
-    // A bearish harami is a two bar Japanese candlestick pattern that suggests prices may soon reverse to the downside
-    static bool isBearishHarami(const CandlestickWrapper& previous, const CandlestickWrapper& current);
-    static bool isBullishKicker(const CandlestickWrapper& previous, const CandlestickWrapper& current);
-    static bool isBearishKicker(const CandlestickWrapper& previous, const CandlestickWrapper& current);
-
-public: // vars
-    Price open, high, low, close = 0.0;
+protected: // vars
+    Candlestick _data;
 };
 

@@ -2,8 +2,6 @@
 
 #include "BaseManager.hpp"
 
-class SideEnum;
-
 class TraderManager : public BaseManager
 {
 public: // methods
@@ -13,7 +11,7 @@ public: // methods
 
 protected: // methods
     // свеча закрылась
-    void onCloseCandle(const BinanceKlineData& data) override;
+    void onCloseCandle(const CandlestickWrapper& wrapper) override;
 
 protected: // vars
     double _min_quantity = 0.0;

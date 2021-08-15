@@ -1,13 +1,13 @@
 #pragma once
 
 #include <string>
+#include "exchanger/wrapper/CandlestickWrapper.hpp"
 
 namespace Json {
     class Value;
 }
 
-struct BinanceKlineData
-{
+struct BinanceKlineData : public Candlestick {
 public: // methods
     BinanceKlineData() = default;
     BinanceKlineData(const Json::Value& json);
@@ -16,17 +16,10 @@ public: // methods
 
 public: // vars
     std::string symbol = "";
-    time_t timeStart = 0;
-    time_t timeClose = 0;
-    double priceOpen = 0.0;
-    double priceClose = 0.0;
-    double priceHigh = 0.0;
-    double priceLow = 0.0;
     double baseAssetVolume = 0.0;
     double quoteAssetVolume = 0.0;
     double takerBaseAssetVolume = 0.0;
     double takerQuoteAssetVolume = 0.0;
-    bool isClosed = false;
     int tradesCount = 0;
 };
 

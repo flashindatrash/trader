@@ -1,9 +1,13 @@
 #pragma once
 
-#include <global.hpp>
+#include <string>
+#include "exchanger/wrapper/CandlestickWrapper.hpp"
 
-struct BinancePriceStatisticsData
-{
+namespace Json {
+    class Value;
+}
+
+struct BinancePriceStatisticsData : public Candlestick {
 public: // methods
     BinancePriceStatisticsData() = default;
     BinancePriceStatisticsData(const Json::Value& json);
@@ -18,13 +22,8 @@ public: // vars
     double lastQty = 0.0;
     double bidPrice = 0.0;
     double askPrice = 0.0;
-    double openPrice = 0.0;
-    double highPrice = 0.0;
-    double lowPrice = 0.0;
     double volume = 0.0;
     double quoteVolume = 0.0;
-    time_t openTime = 0;
-    time_t closeTime = 0;
     int count = 0;
 };
 

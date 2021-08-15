@@ -1,127 +1,59 @@
-#include "exchanger/wrapper/CandlestickWrapper.hpp"
-#include <algorithm>
+#include "CandlestickWrapper.hpp"
 
-CandlestickWrapper::CandlestickWrapper(Price open, Price high, Price low, Price close)
-    : open(open), high(high), low(low), close(close)
-{
+CandlestickWrapper* CandlestickWrapper::create() {
+    CandlestickWrapper* wrapper = new CandlestickWrapper();
+    return wrapper;
 }
 
-Price CandlestickWrapper::bodyLen() const {
-    return std::abs(open - close);
+void CandlestickWrapper::set(Candlestick data) {
+    _data = data;
 }
 
-Price CandlestickWrapper::wickLen() const {
-    return high - std::max(open, close);
+const Price& CandlestickWrapper::priceOpen() const {
+    return _data.price_open;
 }
 
-Price CandlestickWrapper::tailLen() const {
-    return std::min(open, close) - low;
+const Price& CandlestickWrapper::priceClose() const {
+    return _data.price_close;
 }
 
-bool CandlestickWrapper::isBullish(const CandlestickWrapper& candlestick) {
-    return candlestick.open < candlestick.close;
+const Price CandlestickWrapper::bodyLen() const {
+    return std::abs(_data.price_open - _data.price_close);
 }
 
-bool CandlestickWrapper::isBearish(const CandlestickWrapper& candlestick) {
-    return candlestick.open > candlestick.close;
+const Price CandlestickWrapper::wickLen() const {
+    return _data.price_high - std::max(_data.price_open, _data.price_close);
 }
 
-bool CandlestickWrapper::isHammerLike(const CandlestickWrapper& candlestick) {
-    return candlestick.tailLen() > (candlestick.bodyLen() * 2) &&
-           candlestick.wickLen() < candlestick.bodyLen();
+const Price CandlestickWrapper::tailLen() const {
+    return std::min(_data.price_open, _data.price_close) - _data.price_low;
 }
 
-bool CandlestickWrapper::isInvertedHammerLike(const CandlestickWrapper& candlestick) {
-    return candlestick.wickLen() > (candlestick.bodyLen() * 2) &&
-           candlestick.tailLen() < candlestick.bodyLen();
+const Price CandlestickWrapper::hl2() const {
+    return (_data.price_high + _data.price_low) / 2.0;
 }
 
-bool CandlestickWrapper::isEngulfed(const CandlestickWrapper& shortest, const CandlestickWrapper& longest) {
-    return shortest.bodyLen() < longest.bodyLen();
+const Price CandlestickWrapper::hlc3() const {
+    return (_data.price_high + _data.price_low + _data.price_close) / 3.0;
 }
 
-bool CandlestickWrapper::isGap(const CandlestickWrapper& lowest, const CandlestickWrapper& upmost) {
-    return std::max(lowest.open, lowest.close) < std::min(upmost.open, upmost.close);
+const Price CandlestickWrapper::ohlc4() const {
+    return (_data.price_open + _data.price_high + _data.price_low + _data.price_close) / 4.0;
 }
 
-bool CandlestickWrapper::isGapUp(const CandlestickWrapper& previous, const CandlestickWrapper& current) {
-    return isGap(previous, current);
+const time_t& CandlestickWrapper::timeOpen() const {
+    return _data.time_open;
 }
 
-bool CandlestickWrapper::isGapDown(const CandlestickWrapper& previous, const CandlestickWrapper& current) {
-    return isGap(current, previous);
+const time_t& CandlestickWrapper::timeClose() const {
+    return _data.time_close;
 }
 
-bool CandlestickWrapper::isHammer(const CandlestickWrapper& candlestick) {
-    return isBullish(candlestick) &&
-           isHammerLike(candlestick);
+const bool& CandlestickWrapper::isClosed() const {
+    return _data.closed;
 }
 
-bool CandlestickWrapper::isInvertedHammer(const CandlestickWrapper& candlestick) {
-    return isBearish(candlestick) &&
-           isInvertedHammerLike(candlestick);
+void CandlestickWrapper::close() {
+    _data.closed = true;
 }
 
-bool CandlestickWrapper::isHangingMan(const CandlestickWrapper& previous, const CandlestickWrapper& current) {
-    return isBullish(previous) &&
-           isBearish(current) &&
-           isGapUp(previous, current) &&
-           isHammerLike(current);
-}
-
-bool CandlestickWrapper::isShootingStar(const CandlestickWrapper& previous, const CandlestickWrapper& current) {
-    return isBullish(previous) &&
-           isBearish(current) &&
-           isGapUp(previous, current) &&
-           isInvertedHammerLike(current);
-}
-
-bool CandlestickWrapper::isBullishEngulfing(const CandlestickWrapper& previous, const CandlestickWrapper& current) {
-    return isBearish(previous) &&
-           isBullish(current) &&
-           isEngulfed(previous, current);
-}
-
-bool CandlestickWrapper::isBearishEngulfing(const CandlestickWrapper& previous, const CandlestickWrapper& current) {
-    return isBullish(previous) &&
-           isBearish(current) &&
-           isEngulfed(previous, current);
-}
-
-bool CandlestickWrapper::isBullishHarami(const CandlestickWrapper& previous, const CandlestickWrapper& current) {
-    return isBearish(previous) &&
-           isBullish(current) &&
-           isEngulfed(current, previous);
-}
-
-bool CandlestickWrapper::isBearishHarami(const CandlestickWrapper& previous, const CandlestickWrapper& current) {
-    return isBullish(previous) &&
-           isBearish(current) &&
-           isEngulfed(current, previous);
-}
-
-bool CandlestickWrapper::isBullishKicker(const CandlestickWrapper& previous, const CandlestickWrapper& current) {
-    return isBearish(previous) &&
-           isBullish(current) &&
-           isGapUp(previous, current);
-}
-
-bool CandlestickWrapper::isBearishKicker(const CandlestickWrapper& previous, const CandlestickWrapper& current) {
-    return isBullish(previous) &&
-           isBearish(current) &&
-           isGapDown(previous, current);
-}
-
-CandlestickWrapper::Pattern CandlestickWrapper::getPattern(const CandlestickWrapper& previous) const {
-    if (CandlestickWrapper::isHammer(*this)) return Hammer;
-    if (CandlestickWrapper::isInvertedHammer(*this)) return InvertedHammer;
-    if (CandlestickWrapper::isHangingMan(previous, *this)) return HangingMan;
-    if (CandlestickWrapper::isShootingStar(previous, *this)) return ShootingStar;
-    if (CandlestickWrapper::isBullishEngulfing(previous, *this)) return BullishEngulfing;
-    if (CandlestickWrapper::isBearishEngulfing(previous, *this)) return BearishEngulfing;
-    if (CandlestickWrapper::isBullishHarami(previous, *this)) return BullishHarami;
-    if (CandlestickWrapper::isBearishHarami(previous, *this)) return BearishHarami;
-    if (CandlestickWrapper::isBullishKicker(previous, *this)) return BullishKicker;
-    if (CandlestickWrapper::isBearishKicker(previous, *this)) return BearishKicker;
-    return None;
-}

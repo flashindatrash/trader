@@ -1,7 +1,7 @@
 #pragma once
 
 class ChartWrapper;
-class BinanceKlineData;
+class CandlestickWrapper;
 class OrderManager;
 class Symbol;
 
@@ -18,6 +18,6 @@ protected: // vars
     ChartWrapper* _candlesticks = nullptr;
 
     // свеча закрылась
-    virtual void onCloseCandle(const BinanceKlineData& data) {};
+    virtual void onCloseCandle(const CandlestickWrapper& wrapper) {};
 };
 

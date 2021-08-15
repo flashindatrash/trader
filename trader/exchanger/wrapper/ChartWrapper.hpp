@@ -1,23 +1,27 @@
 #pragma once
 
-#include <global.hpp>
 #include "Proxy.hpp"
-#include "exchanger/binance/response/BinanceKlineData.hpp"
+#include "exchanger/base/Storage.hpp"
 
-class ChartWrapper : public core::Emitter<BinanceKlineData> {
+struct Candlestick;
+class CandlestickWrapper;
+
+class ChartWrapper : public MapIdentifier<std::string> {
 public: // static
     static ChartWrapper* create();
 
 public: // methods
-    void add(const BinanceKlineData& data);
+    bool add(const Candlestick& data);
 
-    const std::vector<BinanceKlineData>& klines() const;
-    const BinanceKlineData& back() const;
+    const std::vector<CandlestickWrapper*>& klines() const;
+
+public: // signals
+    Signal<const CandlestickWrapper&> onCandleClosed;
 
 protected: // methods
     ChartWrapper() = default;
 
 protected: // vars
-    std::vector<BinanceKlineData> _klines;
+    std::vector<CandlestickWrapper*> _candlesticks;
 };
 

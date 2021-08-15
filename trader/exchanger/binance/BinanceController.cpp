@@ -4,12 +4,22 @@
 #include "binacpp_logger.h"
 #include "Config.hpp"
 #include "Logger.hpp"
+#include "util/StringUtil.hpp"
 #include "proxy/BinanceTime.hpp"
 #include "response/BinanceErrorData.hpp"
 #include "response/BinanceSymbolData.hpp"
 #include "response/BinanceBalanceData.hpp"
 #include "response/BinanceOrderData.hpp"
 #include "response/BinancePriceStatisticsData.hpp"
+#include "response/BinanceKlineData.hpp"
+
+std::string convertChartInterval(ChartInterval interval) {
+    switch (interval) {
+        case ChartInterval::m5: return "5m";
+        case ChartInterval::m15: return "15m";
+        default: return "";
+    }
+}
 
 BinanceController::~BinanceController() {
     if (_thread.joinable())
@@ -99,6 +109,13 @@ bool BinanceController::getAllPrices(Storage::Type_price& container) const {
     return true;
 }
 
+void BinanceController::connectPrices(Storage::Type_price& container) {
+    if (not getAllPrices(container))
+        return;
+
+    _connect_prices = &container;
+}
+
 bool BinanceController::getBalances(Storage::Type_balance& container) const {
     Json::Value json;
     BinaCPP::get_account(BINANCE_RECV_WINDOW, json);
@@ -123,32 +140,10 @@ bool BinanceController::getBalances(Storage::Type_balance& container) const {
     return true;
 }
 
-void BinanceController::connectDailyChange(KlineWrapper& wrapper) {
-    _connect_daily_change = &wrapper;
-    updateDailyChange();
-}
-
-void BinanceController::updateDailyChange() {
-    if (_connect_daily_change == nullptr)
-        return;
-
-    _time_daily_change = STime().getCurrent();
-
-    Json::Value json;
-    BinaCPP::get_24hr(_connect_daily_change->getIdentifier().c_str(), json);
-
-    BinanceErrorData error(json);
-    if (error.has()) {
-        Logger::error(error.msg.c_str());
-        return;
-    }
-
-    BinancePriceStatisticsData data(json);
-    _connect_daily_change->setPrice(data.openPrice, data.highPrice, data.lowPrice, 0.0);
-    _connect_daily_change->setTime(data.openTime, data.closeTime);
-}
-
 void BinanceController::connectBalances(Storage::Type_balance& container) {
+    if (not getBalances(container))
+        return;
+
     _connect_balances = &container;
     startUserDataStream();
 }
@@ -215,3 +210,84 @@ int BinanceController::onUserDataStream(Json::Value &json) {
 
     return 0;
 }
+
+void BinanceController::connectDailyChange(CandlestickWrapper& wrapper) {
+    _connect_daily_change = &wrapper;
+    updateDailyChange();
+}
+
+void BinanceController::updateDailyChange() {
+    if (_connect_daily_change == nullptr)
+        return;
+
+    _time_daily_change = STime().getCurrent();
+
+    Json::Value json;
+    BinaCPP::get_24hr(_connect_daily_change->getIdentifier().c_str(), json);
+
+    BinanceErrorData error(json);
+    if (error.has()) {
+        Logger::error(error.msg.c_str());
+        return;
+    }
+
+    _connect_daily_change->set(BinancePriceStatisticsData(json));
+}
+
+bool BinanceController::getChart(ChartWrapper &wrapper, ChartInterval interval) const {
+    const std::string& interval_converted = convertChartInterval(interval);
+    if (interval_converted.empty()) {
+        Logger::error("unknown chart interval");
+        return false;
+    }
+
+    Json::Value json;
+    BinaCPP::get_klines(wrapper.getIdentifier().c_str(), interval_converted.c_str(), 40, 0, 0, json);
+
+    BinanceErrorData error(json);
+    if (error.has()) {
+        Logger::error(error.msg.c_str());
+        return false;
+    }
+
+    if (not json.isArray()) {
+        trace("%s\n", json.toStyledString().c_str());
+        Logger::error("invalid chart json");
+        return false;
+    }
+
+    for (Json::ArrayIndex i = 0; i < json.size(); ++i) {
+        Json::Value& item = json[i];
+        if (not wrapper.add(BinanceKlineData(item)))
+            trace("skip kline: %s\n", item.toStyledString().c_str());
+    }
+
+    return true;
+}
+
+void BinanceController::connectChart(ChartWrapper& wrapper, ChartInterval interval) {
+    if (not getChart(wrapper, interval))
+        return;
+
+    _connect_chart = &wrapper;
+
+    const std::string& interval_converted = convertChartInterval(interval);
+    const std::string& path = "/ws/" + util::lowercase(wrapper.getIdentifier().c_str()) + "@kline_" + interval_converted;
+    BinaCPP_websocket::connect_endpoint(std::bind(&BinanceController::onKlineDataStream, this, std::placeholders::_1), path.c_str());
+}
+
+int BinanceController::onKlineDataStream(Json::Value& json) {
+    BinanceKlineData data(json);
+
+    if (_connect_prices != nullptr) {
+        _connect_prices->get(data.symbol)->add(data.price_close);
+        _connect_prices->onChanged.emmit(data.symbol);
+    }
+
+    if (_connect_chart != nullptr) {
+        if (not _connect_chart->add(data))
+            trace("skip kline: %s\n", json.toStyledString().c_str());
+    }
+    return 0;
+}
+

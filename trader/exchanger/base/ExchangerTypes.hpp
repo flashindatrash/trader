@@ -24,8 +24,7 @@ protected: // vars
     Change _change;
 };
 
-struct SideEnum
-{
+struct SideEnum {
 public: // static
     enum Side {
         Invalid,
@@ -58,4 +57,9 @@ public: // operators
 
 protected: // vars
     Side _value = Invalid;
+};
+
+enum ChartInterval {
+    m5,
+    m15
 };

@@ -1,5 +1,4 @@
 #include "ExchangerTypes.hpp"
-#include <global.hpp>
 
 PriceRange::PriceRange(Change change)
     : _change(change)

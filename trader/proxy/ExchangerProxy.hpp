@@ -8,7 +8,7 @@ namespace core {
 }
 
 class ExchangerController;
-class KlineWrapper;
+class CandlestickWrapper;
 
 class ExchangerProxy : public core::Proxy<ExchangerProxy>, public Storage {
 public: // methods

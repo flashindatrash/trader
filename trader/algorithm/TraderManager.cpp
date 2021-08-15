@@ -2,8 +2,8 @@
 #include "Logger.hpp"
 #include "exchanger/wrapper/Symbol.hpp"
 #include "exchanger/wrapper/ChartWrapper.hpp"
+#include "exchanger/wrapper/CandlestickPattern.hpp"
 #include "exchanger/wrapper/CandlestickWrapper.hpp"
-#include "exchanger/binance/response/BinanceKlineData.hpp"
 #include "algorithm/OrderManager.hpp"
 #include "algorithm/DecisionMaker.hpp"
 #include "util/PriceUtil.hpp"
@@ -31,37 +31,34 @@ bool TraderManager::init(const Symbol& symbol) {
     return true;
 }
 
-void TraderManager::onCloseCandle(const BinanceKlineData& data) {
-    const std::vector<BinanceKlineData>& candlesticks = _candlesticks->klines();
+void TraderManager::onCloseCandle(const CandlestickWrapper& wrapper) {
+    const std::vector<CandlestickWrapper*>& candlesticks = _candlesticks->klines();
     if (candlesticks.size() < 2)
         return;
 
-    const BinanceKlineData& current_data = *(candlesticks.end() - 1);
-    const BinanceKlineData& previous_data = *(candlesticks.end() - 2);
+    const CandlestickWrapper* current = *(candlesticks.end() - 1);
+    const CandlestickWrapper* previous = *(candlesticks.end() - 2);
 
-    CandlestickWrapper current(current_data.priceOpen, current_data.priceHigh, current_data.priceLow, current_data.priceClose);
-    CandlestickWrapper previous(previous_data.priceOpen, previous_data.priceHigh, previous_data.priceLow, previous_data.priceClose);
-
-    CandlestickWrapper::Pattern pattern = current.getPattern(previous);
+    CandlestickPattern::Pattern pattern = CandlestickPattern::find(*current, *previous);
     trace("candle closed (pattern %d)\n", pattern);
 
     SideEnum side;
 
-    PriceRange range(current.open, current.close);
+    PriceRange range(current->priceOpen(), current->priceClose());
     if (std::abs(range.change()) >= sMinRate)
         side = range.change();
 
     switch (pattern) {
-    case CandlestickWrapper::Hammer:            side = SideEnum::Buy; break;
-    case CandlestickWrapper::InvertedHammer:    side = SideEnum::Buy; break;
-    case CandlestickWrapper::HangingMan:        side = SideEnum::Sell; break;
-    case CandlestickWrapper::ShootingStar:      side = SideEnum::Sell; break;
+    case CandlestickPattern::Hammer:            side = SideEnum::Buy; break;
+    case CandlestickPattern::InvertedHammer:    side = SideEnum::Buy; break;
+    case CandlestickPattern::HangingMan:        side = SideEnum::Sell; break;
+    case CandlestickPattern::ShootingStar:      side = SideEnum::Sell; break;
     //case CandlestickWrapper::BullishEngulfing:  side = SideEnum::Sell; break;
     //case CandlestickWrapper::BearishEngulfing:  side = SideEnum::Buy; break;
-    case CandlestickWrapper::BullishHarami:     side = SideEnum::Buy; break;
-    case CandlestickWrapper::BearishHarami:     side = SideEnum::Sell; break;
-    case CandlestickWrapper::BullishKicker:     side = SideEnum::Buy; break;
-    case CandlestickWrapper::BearishKicker:     side = SideEnum::Sell; break;
+    case CandlestickPattern::BullishHarami:     side = SideEnum::Buy; break;
+    case CandlestickPattern::BearishHarami:     side = SideEnum::Sell; break;
+    case CandlestickPattern::BullishKicker:     side = SideEnum::Buy; break;
+    case CandlestickPattern::BearishKicker:     side = SideEnum::Sell; break;
     default: break;
     }
 
@@ -69,7 +66,7 @@ void TraderManager::onCloseCandle(const BinanceKlineData& data) {
         return;
 
     // проверим можем ли выполонить сделку, сохранив множитель
-    Symbol symbol(data.symbol);
+    Symbol symbol(_candlesticks->getIdentifier());
     DecisionMaker decision(symbol);
     double factor = decision.factor(side, DecisionMaker::ForTrader);
     trace("trader %s factor: %f\n", side.c_str(), factor);

@@ -1,31 +1,37 @@
 #include "ChartWrapper.hpp"
 #include "Logger.hpp"
+#include "CandlestickWrapper.hpp"
 
 ChartWrapper* ChartWrapper::create() {
     ChartWrapper* wrapper = new ChartWrapper();
     return wrapper;
 }
 
-void ChartWrapper::add(const BinanceKlineData& data) {
-    if (_klines.empty() || data.timeStart > _klines.back().timeStart) {
+bool ChartWrapper::add(const Candlestick& data) {
+    CandlestickWrapper* last = _candlesticks.empty() ? nullptr : _candlesticks.back();
+
+    if (last == nullptr || data.time_open > last->timeOpen()) {
         // если предыдущая не закрылась
-        if (not _klines.empty() && not _klines.back().isClosed) {
-            _klines.back().isClosed = true;
-            invoke(_klines.back());
+        if (last && not last->isClosed()) {
+            last->close();
+            onCandleClosed.emmit(*last);
         }
-        _klines.push_back(data);
-    } else if (data.timeStart == _klines.back().timeStart) {
-        _klines.back() = data;
-        if (_klines.back().isClosed)
-            invoke(_klines.back());
-    } else
-        Logger::error("kline back in time");
+        CandlestickWrapper* wrapper = CandlestickWrapper::create();
+        wrapper->set(data);
+        _candlesticks.push_back(wrapper);
+        return true;
+    }
+
+    if (data.time_open == last->timeOpen()) {
+        last->set(data);
+        if (data.closed)
+            onCandleClosed.emmit(*last);
+        return true;
+    }
+
+    return false;
 }
 
-const std::vector<BinanceKlineData>& ChartWrapper::klines() const {
-    return _klines;
-}
-
-const BinanceKlineData& ChartWrapper::back() const {
-    return _klines.back();
+const std::vector<CandlestickWrapper*>& ChartWrapper::klines() const {
+    return _candlesticks;
 }

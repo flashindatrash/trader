@@ -4,7 +4,6 @@
 #include "proxy/BinanceTime.hpp"
 #include "proxy/BinanceAlgorithm.hpp"
 #include "proxy/BinanceOrders.hpp"
-#include "proxy/BinanceKlines.hpp"
 #include "exchanger/wrapper/Symbol.hpp"
 
 core::Version TraderApp::sVersion = core::Version(1, 1);
@@ -23,9 +22,9 @@ void TraderApp::run(const Symbol& symbol) {
     DB().init(_config);
     Exchanger().init(_config);
     STime().init();
-    SKlines().init(symbol);
     SAlgorithm().init(symbol);
 
+    Exchanger().connect(symbol);
     Exchanger().run();
     while (true) {
         sleep_ms(100);

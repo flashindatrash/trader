@@ -2,7 +2,6 @@
 #include "Logger.hpp"
 #include "proxy/BinanceOrders.hpp"
 #include "exchanger/wrapper/Symbol.hpp"
-#include "exchanger/binance/response/BinanceKlineData.hpp"
 #include "algorithm/OrderManager.hpp"
 #include "algorithm/DecisionMaker.hpp"
 
