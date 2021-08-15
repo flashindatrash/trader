@@ -13,22 +13,22 @@ void StatusManager::tick(const Symbol& symbol) {
     double baseBalance = symbol.baseAsset().getBalance();
     double quoteBalance = symbol.quoteAsset().getBalance();
 
-    double chane = getChange();
+    double change = getChange();
     Price current = symbol.getPrice();
     std::string timeline = getTimline(current);
 
     std::string formatBaseBalance = "%." + std::to_string(getZerosAfterDot(baseBalance) + 1) + "f";
     std::string formatQuoteBalance = "%." + std::to_string(getZerosAfterDot(quoteBalance) + 1) + "f";
-    std::string formatPrice = "%." + std::to_string(getZerosAfterDot(current) + 1) + "f";
-    std::string formatChange = chane > 0.0 ? "+%.3f" : "%.3f%%";
-    std::string format = "%s (" + formatBaseBalance + ") - %s (" + formatQuoteBalance + ") " + formatChange + " " + formatPrice + " %s";
+    std::string formatPrice = "%." + std::to_string(getZerosAfterDot(current) + 3) + "f";
+    std::string formatChange = change > 0.0 ? "+%.3f" : "%.3f%%";
+    std::string format = "%s (" + formatBaseBalance + ") - %s (" + formatQuoteBalance + ") " + formatPrice + " (" + formatChange + ")" + " %s";
     Logger::title(format.c_str(),
                   symbol.baseAsset().c_str(),
                   baseBalance,
                   symbol.quoteAsset().c_str(),
                   quoteBalance,
-                  chane,
                   current,
+                  change,
                   timeline.c_str());
 }
 
