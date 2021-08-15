@@ -23,8 +23,6 @@ OrderManager::OrderManager(const Symbol& symbol, bool test_mode)
 
         _positions.push_back(order);
     }
-
-    printPositionsTimeline(symbol.getPrice());
 }
 
 bool OrderManager::create(const Symbol& symbol, const SideEnum& side, double quantity, const BinanceOrderData* transaction) {
@@ -61,7 +59,6 @@ bool OrderManager::create(const Symbol& symbol, const SideEnum& side, double qua
         _positions.erase(std::remove_if(_positions.begin(), _positions.end(), [order_id](BinanceOrderData t) { return t.clientOrderId == order_id; }));
     }
 
-    printPositionsTimeline(symbol.getPrice());
     return true;
 }
 
@@ -90,31 +87,3 @@ void OrderManager::printProfit(const Symbol& symbol, double profit) {
 
     Logger::info("%sprofit update: +%.4f (total +%.4f / loss -%.4f) %s%s", GREEN, profit, profit_total, losses_total, symbol.quoteAsset().c_str(), RESET);
 }
-
-void OrderManager::printPositionsTimeline(double current) {
-    if (_positions.empty())
-        return;
-
-    // отсортируем позиции
-    std::sort(_positions.begin(), _positions.end(), [](const BinanceOrderData& l, const BinanceOrderData& r) {
-        return l.getPrice() < r.getPrice();
-    });
-
-    bool current_embeded = false;
-    for (const BinanceOrderData& position : _positions) {
-        if (not current_embeded && current < position.getPrice()) {
-            std::cout << "|";
-            current_embeded = true;
-        }
-        if (SideEnum(position.side) == SideEnum::Buy)
-            std::cout << "+";
-        else
-            std::cout << "-";
-    }
-
-    if (not current_embeded)
-        std::cout << "|";
-
-    std::cout << std::endl;
-}
-

@@ -21,7 +21,6 @@ public: // methods
 
 protected: // methods
     void printProfit(const Symbol& symbol, double profit);
-    void printPositionsTimeline(double current);
 
 protected: // vars
     const bool _test_mode;

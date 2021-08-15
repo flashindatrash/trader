@@ -5,9 +5,6 @@
 #include "algorithm/OrderManager.hpp"
 #include "algorithm/DecisionMaker.hpp"
 
-#include "exchanger/wrapper/ChartWrapper.hpp"
-#include "exchanger/wrapper/CandlestickWrapper.hpp"
-
 // мин % соотношение, меньше которого не сливать
 static float sMinRate = 0.0035f;
 
@@ -20,14 +17,6 @@ ProfitManager::ProfitManager(OrderManager& orders)
 }
 
 void ProfitManager::tick(const Symbol& symbol) {
-    // обновляем заголовок
-    if (not _candlesticks->klines().empty()) {
-        CandlestickWrapper* last = _candlesticks->klines().back();
-        double change = PriceRange(last->priceOpen(), last->priceClose()).change() * 100.0;
-        std::string plus = change > 0.0 ? "+" : "";
-        Logger::title("%s - %s %s%.3f%%", symbol.baseAsset().c_str(), symbol.quoteAsset().c_str(), plus.c_str(), change);
-    }
-
     // находим ордер для закрытия
     const BinanceOrderData* transaction = findClosableOrder(symbol);
     if (transaction == nullptr)

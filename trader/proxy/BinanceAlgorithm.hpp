@@ -9,7 +9,7 @@ namespace core {
 class Asset;
 class Symbol;
 class OrderManager;
-class BalanceManager;
+class StatusManager;
 class ProfitManager;
 class TraderManager;
 
@@ -29,7 +29,7 @@ protected: // vars
     const Symbol* _symbol;
 
     OrderManager* _pool = nullptr;
-    BalanceManager* _balance_manager = nullptr;
+    StatusManager* _status_manager = nullptr;
     ProfitManager* _profit_manager = nullptr;
     TraderManager* _trader_manager = nullptr;
 };
