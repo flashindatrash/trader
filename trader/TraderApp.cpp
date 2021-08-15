@@ -1,7 +1,7 @@
 #include "TraderApp.hpp"
 #include "proxy/Database.hpp"
 #include "proxy/ExchangerProxy.hpp"
-#include "proxy/BinanceTime.hpp"
+#include "proxy/TraderTime.hpp"
 #include "proxy/BinanceAlgorithm.hpp"
 #include "proxy/BinanceOrders.hpp"
 #include "exchanger/wrapper/Symbol.hpp"
@@ -21,13 +21,12 @@ TraderApp* TraderApp::create(core::Config config) {
 void TraderApp::run(const Symbol& symbol) {
     DB().init(_config);
     Exchanger().init(_config);
-    STime().init();
-    SAlgorithm().init(symbol);
+    SAlgorithm().init(_config, symbol);
 
     Exchanger().connect(symbol);
     Exchanger().run();
     while (true) {
         sleep_ms(100);
-        STime().tick();
+        Time().tick();
     }
 }

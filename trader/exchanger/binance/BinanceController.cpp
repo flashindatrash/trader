@@ -5,7 +5,7 @@
 #include "Config.hpp"
 #include "Logger.hpp"
 #include "util/StringUtil.hpp"
-#include "proxy/BinanceTime.hpp"
+#include "proxy/TraderTime.hpp"
 #include "response/BinanceErrorData.hpp"
 #include "response/BinanceSymbolData.hpp"
 #include "response/BinanceBalanceData.hpp"
@@ -49,10 +49,10 @@ void BinanceController::tick(time_t now) {
     // Keepalive a user data stream to prevent a time out.
     // User data streams will close after 60 minutes.
     // It's recommended to send a ping about every 30 minutes
-    if (now >= _time_userstream + BinanceTime::sMinute * 30)
+    if (now >= _time_userstream + TraderTime::sMinute * 30)
         keepUserDataStream();
 
-    if (now >= _time_daily_change + BinanceTime::sMinute * 15)
+    if (now >= _time_daily_change + TraderTime::sMinute * 15)
         updateDailyChange();
 }
 
@@ -165,7 +165,7 @@ void BinanceController::initUserListenKey() {
     }
 
     _stream_listen_key = json["listenKey"].asString();
-    _time_userstream = STime().getCurrent();
+    _time_userstream = Time().ms();
 }
 
 void BinanceController::startUserDataStream() {
@@ -179,7 +179,7 @@ void BinanceController::keepUserDataStream() {
     if (_stream_listen_key.empty())
         return;
 
-    _time_userstream = STime().getCurrent();
+    _time_userstream = Time().ms();
     BinaCPP::keep_userDataStream(_stream_listen_key.c_str());
 }
 
@@ -220,7 +220,7 @@ void BinanceController::updateDailyChange() {
     if (_connect_daily_change == nullptr)
         return;
 
-    _time_daily_change = STime().getCurrent();
+    _time_daily_change = Time().ms();
 
     Json::Value json;
     BinaCPP::get_24hr(_connect_daily_change->getIdentifier().c_str(), json);

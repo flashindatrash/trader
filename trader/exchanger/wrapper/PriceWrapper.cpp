@@ -1,5 +1,5 @@
 #include "PriceWrapper.hpp"
-#include "proxy/BinanceTime.hpp"
+#include "proxy/TraderTime.hpp"
 
 PriceWrapper* PriceWrapper::create() {
     PriceWrapper* wrapper = new PriceWrapper();
@@ -7,11 +7,11 @@ PriceWrapper* PriceWrapper::create() {
 }
 
 void PriceWrapper::add(Price price) {
-    add(price, STime().getCurrent());
+    add(price, Time().ms());
 }
 
 void PriceWrapper::add(Price price, time_t time) {
-    if (not _per_second.empty() && std::abs(time - _per_second.back().second) < BinanceTime::sSecond)
+    if (not _per_second.empty() && std::abs(time - _per_second.back().second) < TraderTime::sSecond)
         return;
 
     // todo: чистить вектор (и поддержать per_minute, per_hour)
@@ -25,7 +25,7 @@ double PriceWrapper::get() const {
 }
 
 double PriceWrapper::getPriceBack(time_t interval) const {
-    time_t time = STime().getCurrent() - interval;
+    time_t time = Time().ms() - interval;
 
     PriceTimePair d1;
     PriceTimePair d2 = _per_second.back();

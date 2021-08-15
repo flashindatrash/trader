@@ -1,6 +1,6 @@
 #include "ExchangerProxy.hpp"
 #include "Config.hpp"
-#include "proxy/BinanceTime.hpp"
+#include "proxy/TraderTime.hpp"
 #include "exchanger/base/ExchangerController.hpp"
 
 #include "proxy/BinanceExchangeInfo.hpp"
@@ -20,7 +20,7 @@ void ExchangerProxy::init(const core::Config& config) {
     _controller->connectPrices(prices());
     _controller->connectBalances(balances());
 
-    STime().addListener(std::bind(&ExchangerController::tick, _controller, std::placeholders::_1));
+    Time().onTick.connect(std::bind(&ExchangerController::tick, _controller, std::placeholders::_1));
 }
 
 void ExchangerProxy::connect(const Symbol& symbol) {

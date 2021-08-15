@@ -1,4 +1,4 @@
-#include "proxy/BinanceTime.hpp"
+#include "proxy/TraderTime.hpp"
 #include "proxy/ExchangerProxy.hpp"
 #include "exchanger/wrapper/Symbol.hpp"
 #include "exchanger/wrapper/PriceWrapper.hpp"
@@ -12,7 +12,7 @@ double util::get_min_quantity(const Symbol& symbol) {
 
     double price_avg = symbol.getPrice();
     if (const PriceWrapper* history = Exchanger().price(symbol))
-        price_avg = history->getPriceAverage(min_notional.avgPriceMins * BinanceTime::sMinute);
+        price_avg = history->getPriceAverage(min_notional.avgPriceMins * TraderTime::sMinute);
 
     return std::max(lot_size.minQty, min_notional.minNotional / price_avg);
 }

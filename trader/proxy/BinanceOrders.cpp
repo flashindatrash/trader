@@ -2,7 +2,7 @@
 #include "Logger.hpp"
 #include "Config.hpp"
 #include "proxy/BinanceOrders.hpp"
-#include "proxy/BinanceTime.hpp"
+#include "proxy/TraderTime.hpp"
 #include "proxy/ExchangerProxy.hpp"
 #include "exchanger/wrapper/Symbol.hpp"
 #include "exchanger/wrapper/PriceWrapper.hpp"
@@ -47,7 +47,7 @@ const BinanceOrderData BinanceOrders::createOrder(const Symbol& symbol, const Si
     if (info.minNotional.applyToMarket) {
         double avgPrice = symbol.getPrice();
         if (const PriceWrapper* history = Exchanger().price(symbol))
-            avgPrice = history->getPriceAverage(info.minNotional.avgPriceMins * BinanceTime::sMinute);
+            avgPrice = history->getPriceAverage(info.minNotional.avgPriceMins * TraderTime::sMinute);
 
         if (avgPrice * quantity < info.minNotional.minNotional) {
             Logger::info("can't trade %f %s less minNotional", quantity, symbol.c_str());

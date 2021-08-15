@@ -1,13 +1,17 @@
 #include "Logger.hpp"
 #include "proxy/BinanceOrders.hpp"
-#include "proxy/BinanceTime.hpp"
+#include "proxy/TraderTime.hpp"
 #include "exchanger/base/ExchangerTypes.hpp"
 #include "exchanger/wrapper/Symbol.hpp"
 #include "algorithm/OrderManager.hpp"
 #include "algorithm/DataManager.hpp"
 
-OrderManager::OrderManager(const Symbol& symbol)
+OrderManager::OrderManager(const Symbol& symbol, bool test_mode)
+    : _test_mode(test_mode)
 {
+    if (_test_mode)
+        Logger::info("TEST MODE!");
+
     _orders = SOrders().getAllOrders(symbol);
 
     // найдем все открытые позиции
@@ -24,6 +28,9 @@ OrderManager::OrderManager(const Symbol& symbol)
 }
 
 bool OrderManager::create(const Symbol& symbol, const SideEnum& side, double quantity, const BinanceOrderData* transaction) {
+    if (_test_mode)
+        return false;
+
     // проверяем, что достаточно средств
     if (not SOrders().isEnough(symbol, side, quantity))
         return false;

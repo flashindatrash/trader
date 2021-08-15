@@ -1,6 +1,6 @@
 #include "BinanceAlgorithm.hpp"
-#include "Signal.hpp"
-#include "proxy/BinanceTime.hpp"
+#include "Config.hpp"
+#include "proxy/TraderTime.hpp"
 #include "proxy/ExchangerProxy.hpp"
 #include "exchanger/wrapper/Symbol.hpp"
 #include "algorithm/Migrator.hpp"
@@ -16,10 +16,10 @@ BinanceAlgorithm::~BinanceAlgorithm() {
     SAFE_DELETE(_trader_manager);
 }
 
-void BinanceAlgorithm::init(const Symbol& symbol) {
+void BinanceAlgorithm::init(const core::Config& config, const Symbol& symbol) {
     _symbol = &symbol;
 
-    _pool = new OrderManager(symbol);
+    _pool = new OrderManager(symbol, config.getAsInt("TEST_MODE") == 1);
     if (not Migrator::migrate(*_pool))
         return;
 
@@ -33,7 +33,7 @@ void BinanceAlgorithm::init(const Symbol& symbol) {
     _profit_manager->init(symbol);
     _trader_manager->init(symbol);
 
-    STime().addListener(std::bind(&BinanceAlgorithm::tick, this, std::placeholders::_1));
+    Time().onTick.connect(std::bind(&BinanceAlgorithm::tick, this, std::placeholders::_1));
     Exchanger().balances().onChanged.connect(std::bind(&BinanceAlgorithm::onBalanceChanged, this, std::placeholders::_1));
 }
 

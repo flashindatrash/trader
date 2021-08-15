@@ -1,9 +1,9 @@
 #pragma once
 
 #include "Proxy.hpp"
-#include <global.hpp>
+#include "Signal.hpp"
 
-class BinanceTime : public core::Proxy<BinanceTime>, public core::Emitter<time_t>
+class TraderTime : public core::Proxy<TraderTime>
 {
 public: // static
     static const time_t sSecond;
@@ -12,11 +12,13 @@ public: // static
     static const time_t sDay;
 
 public: // methods
-    BinanceTime() = default;
+    TraderTime() = default;
 
-    void init();
     void tick();
-    time_t getCurrent() const;
+    time_t ms() const;
+
+public: // signals
+    Signal<time_t> onTick;
 };
 
-#define STime() BinanceTime::getInstance()
+#define Time() TraderTime::getInstance()
