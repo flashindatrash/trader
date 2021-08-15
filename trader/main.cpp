@@ -50,6 +50,7 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
+    std::cout << "\033]0;" << symbol.baseAsset() << " - " << symbol.quoteAsset() << "\007";
     TraderApp::create(cfg)->run(symbol);
 	return EXIT_SUCCESS;
 }
