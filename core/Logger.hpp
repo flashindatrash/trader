@@ -23,10 +23,14 @@
 #define BOLDMAGENTA "\033[1m\033[35m"      /* Bold Magenta */
 #define BOLDCYAN    "\033[1m\033[36m"      /* Bold Cyan */
 #define BOLDWHITE   "\033[1m\033[37m"      /* Bold White */
+//escape chars
+#define ESCSTART    "\033]0;"
+#define ESCEND      "\007"
+
 
 class Logger {
 public: //
-    static void info(const char *fmt, ...) {
+    static void info(const char* fmt, ...) {
         va_list arg;
 
         char new_fmt[1024];
@@ -41,6 +45,19 @@ public: //
         va_start(arg, fmt);
 
         vfprintf(stdout, new_fmt, arg);
+        fflush(stdout);
+
+        va_end (arg);
+    }
+
+    static void title(const char* fmt, ...) {
+        va_list arg;
+
+        va_start(arg, fmt);
+
+        std::cout << ESCSTART;
+        vfprintf(stdout, fmt, arg);
+        std::cout << ESCEND;
         fflush(stdout);
 
         va_end (arg);
