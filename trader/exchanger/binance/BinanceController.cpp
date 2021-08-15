@@ -26,19 +26,21 @@ BinanceController::~BinanceController() {
         _thread.join();
 }
 
-void BinanceController::init(const core::Config& config) {
+bool BinanceController::init(const core::Config& config) {
     // init binance logger
-    BinaCPP_logger::set_debug_level(2);
-    BinaCPP_logger::enable_logfile(1);
+    BinaCPP_logger::set_debug_level(0);
+    BinaCPP_logger::enable_logfile(0);
 
     // init binance api
     static string api_key       = config.getAsString("BINANCE_API_KEY");
     static string secret_key    = config.getAsString("BINANCE_SECRET_KEY");
+    if (api_key.empty() || secret_key.empty())
+        return false;
 
     BinaCPP::init(api_key, secret_key);
     BinaCPP_websocket::init();
 
-    initUserListenKey();
+    return initUserListenKey();
 }
 
 void BinanceController::run() {
@@ -148,24 +150,25 @@ void BinanceController::connectBalances(Storage::Type_balance& container) {
     startUserDataStream();
 }
 
-void BinanceController::initUserListenKey() {
+bool BinanceController::initUserListenKey() {
     Json::Value json;
 
     BinaCPP::start_userDataStream(json);
     BinanceErrorData error(json, "BinanceController::initUserListenKey");
     if (error.has()) {
         Logger::error(error.msg.c_str());
-        return;
+        return false;
     }
 
     if (!json["listenKey"] || !json["listenKey"].isString()) {
         Logger::info("%s", json.toStyledString().c_str());
         Logger::error("can't get listenKey for stream account");
-        return;
+        return false;
     }
 
     _stream_listen_key = json["listenKey"].asString();
     _time_userstream = Time().ms();
+    return true;
 }
 
 void BinanceController::startUserDataStream() {

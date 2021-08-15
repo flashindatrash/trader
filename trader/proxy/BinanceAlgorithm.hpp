@@ -19,7 +19,7 @@ public: // methods
     BinanceAlgorithm() = default;
     virtual ~BinanceAlgorithm() override;
 
-    void init(const core::Config& config, const Symbol& symbol);
+    bool init(const core::Config& config, const Symbol& symbol);
     void tick(time_t now);
 
 protected: // methods

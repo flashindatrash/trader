@@ -11,13 +11,16 @@ Database::~Database() {
     }
 }
 
-void Database::init(const core::Config& config) {
+bool Database::init(const core::Config& config) {
     _context = redisConnect(config.getAsString("REDIS_HOST").c_str(), config.getAsInt("REDIS_PORT"));
     if (_context == nullptr) {
         Logger::error("can't allocate redis context\n");
+        return false;
     } else if (_context->err) {
         Logger::error(_context->errstr);
+        return false;
     }
+    return true;
 }
 
 redisReply* Database::cmd(const char* format, ...) {

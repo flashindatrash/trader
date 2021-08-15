@@ -17,7 +17,7 @@ public: // methods
     Database() = default;
     virtual ~Database() override;
 
-    void init(const core::Config& config);
+    bool init(const core::Config& config);
 
     void set(const std::string& key, const char* value);
     void set(const std::string& key, int value);

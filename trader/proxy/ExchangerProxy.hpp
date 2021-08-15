@@ -15,7 +15,7 @@ public: // methods
     ExchangerProxy() = default;
     virtual ~ExchangerProxy() override;
 
-    void init(const core::Config& config);
+    bool init(const core::Config& config);
     void connect(const Symbol& symbol);
     void run();
 

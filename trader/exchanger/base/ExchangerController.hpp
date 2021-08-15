@@ -12,7 +12,7 @@ public: // static
 
 public: // virtual
     virtual ~ExchangerController() = default;
-    virtual void init(const core::Config& config) = 0;
+    virtual bool init(const core::Config& config) = 0;
     virtual void run() = 0;
     virtual void tick(time_t now) = 0;
 

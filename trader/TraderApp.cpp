@@ -19,9 +19,9 @@ TraderApp* TraderApp::create(core::Config config) {
 }
 
 void TraderApp::run(const Symbol& symbol) {
-    DB().init(_config);
-    Exchanger().init(_config);
-    SAlgorithm().init(_config, symbol);
+    if (not DB().init(_config)) return;
+    if (not Exchanger().init(_config)) return;
+    if (not SAlgorithm().init(_config, symbol)) return;
 
     Exchanger().connect(symbol);
     Exchanger().run();

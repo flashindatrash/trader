@@ -14,7 +14,7 @@ public: // methods
     ~BinanceController() override;
 
 public: // virtual    
-    void init(const core::Config& config) override;
+    bool init(const core::Config& config) override;
     void run() override;
     void tick(time_t now) override;
 
@@ -29,7 +29,7 @@ public: // virtual
     void connectChart(ChartWrapper& wrapper, ChartInterval interval) override;
 
 protected: // methods
-    void initUserListenKey();
+    bool initUserListenKey();
     void startUserDataStream();
     void keepUserDataStream();
     void updateDailyChange();

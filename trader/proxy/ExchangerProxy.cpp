@@ -9,18 +9,21 @@ ExchangerProxy::~ExchangerProxy() {
     SAFE_DELETE(_controller);
 }
 
-void ExchangerProxy::init(const core::Config& config) {
+bool ExchangerProxy::init(const core::Config& config) {
     _controller = ExchangerController::create();
-    _controller->init(config);
+    if (not _controller->init(config))
+        return false;
 
     SExchangeInfo().init();
 
-    _controller->getSymbolInfo(infos());
+    if (not _controller->getSymbolInfo(infos()))
+        return false;
 
     _controller->connectPrices(prices());
     _controller->connectBalances(balances());
 
     Time().onTick.connect(std::bind(&ExchangerController::tick, _controller, std::placeholders::_1));
+    return true;
 }
 
 void ExchangerProxy::connect(const Symbol& symbol) {

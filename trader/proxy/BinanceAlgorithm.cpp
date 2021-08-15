@@ -15,12 +15,12 @@ BinanceAlgorithm::~BinanceAlgorithm() {
     SAFE_DELETE(_trader_manager);
 }
 
-void BinanceAlgorithm::init(const core::Config& config, const Symbol& symbol) {
+bool BinanceAlgorithm::init(const core::Config& config, const Symbol& symbol) {
     _symbol = &symbol;
 
     _pool = new OrderManager(symbol, config.getAsInt("TEST_MODE") == 1);
     if (not Migrator::migrate(*_pool))
-        return;
+        return false;
 
     _status_manager = new StatusManager(*_pool);
     _profit_manager = new ProfitManager(*_pool);
@@ -31,6 +31,7 @@ void BinanceAlgorithm::init(const core::Config& config, const Symbol& symbol) {
     _trader_manager->init(symbol);
 
     Time().onTick.connect(std::bind(&BinanceAlgorithm::tick, this, std::placeholders::_1));
+    return true;
 }
 
 void BinanceAlgorithm::tick(time_t now) {
