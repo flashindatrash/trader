@@ -40,7 +40,6 @@ void TraderManager::onCloseCandle(const CandlestickWrapper& wrapper) {
     const CandlestickWrapper* previous = *(candlesticks.end() - 2);
 
     CandlestickPattern::Pattern pattern = CandlestickPattern::find(*current, *previous);
-    Logger::info("candle closed (pattern %d)", pattern);
 
     SideEnum side;
 
