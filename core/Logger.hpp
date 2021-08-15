@@ -3,6 +3,7 @@
 #include <iostream>
 #include <sys/time.h>
 #include <csignal>
+#include <cstdarg>
 
 //the following are UBUNTU/LINUX, and MacOS ONLY terminal color codes.
 #define RESET   "\033[0m"
