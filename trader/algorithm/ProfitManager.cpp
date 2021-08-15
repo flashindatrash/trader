@@ -30,7 +30,7 @@ void ProfitManager::tick(const Symbol& symbol) {
 
     // находим ордер для закрытия
     const BinanceOrderData* transaction = findClosableOrder(symbol);
-    if (transaction == nullptr || true)
+    if (transaction == nullptr)
         return;
 
     // пробуем создать новый ордер

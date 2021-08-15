@@ -70,7 +70,7 @@ void TraderManager::onCloseCandle(const CandlestickWrapper& wrapper) {
     DecisionMaker decision(symbol);
     double factor = decision.factor(side, DecisionMaker::ForTrader);
     Logger::info("trader %s factor: %f", side.c_str(), factor);
-    if (factor < 0.3 || true)
+    if (factor < 0.3)
         return;
 
     if (not _orders.create(symbol, side, _min_quantity, nullptr))
