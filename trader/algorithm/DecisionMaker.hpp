@@ -1,7 +1,7 @@
 #pragma once
 
 class Symbol;
-class SideEnum;
+enum OrderSide : unsigned int;
 
 class DecisionMaker
 {
@@ -17,7 +17,7 @@ public: // struct
 public: // methods
     DecisionMaker(const Symbol& symbol);
 
-    double factor(const SideEnum& side, int based_on) const;
+    double factor(const OrderSide& side, int based_on) const;
 
 protected: // methods
     bool has(int mask, BasedOn value) const;

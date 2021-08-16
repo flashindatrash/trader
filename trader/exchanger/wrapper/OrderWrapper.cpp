@@ -16,7 +16,7 @@ const std::string& OrderWrapper::getId() const {
     return _data.id;
 }
 
-const SideEnum& OrderWrapper::side() const {
+const OrderSide& OrderWrapper::side() const {
     return _data.side;
 }
 
@@ -30,9 +30,9 @@ const Price OrderWrapper::getPrice() const {
 
 bool OrderRequest::isEnough() const {
     const Symbol& symbol = Exchanger().book()->getIdentifier();
-    if (side == SideEnum::Buy)
+    if (side == OrderSide::Buy)
         return symbol.quoteAsset().getBalance() >= symbol.getPrice(quantity);
-    else if (side == SideEnum::Sell)
+    else if (side == OrderSide::Sell)
         return symbol.baseAsset().getBalance() > quantity;
     return false;
 }

@@ -6,27 +6,13 @@
 #include "Logger.hpp"
 #include "util/StringUtil.hpp"
 #include "proxy/TraderTime.hpp"
+#include "response/BinanceEnums.hpp"
 #include "response/BinanceErrorData.hpp"
 #include "response/BinanceSymbolData.hpp"
 #include "response/BinanceBalanceData.hpp"
 #include "response/BinanceOrderData.hpp"
 #include "response/BinancePriceStatisticsData.hpp"
 #include "response/BinanceKlineData.hpp"
-
-std::string convertChartInterval(ChartInterval interval) {
-    switch (interval) {
-        case ChartInterval::m5: return "5m";
-        case ChartInterval::m15: return "15m";
-        default: return "";
-    }
-}
-
-std::string convertOrderType(OrderRequest::Type type) {
-    switch (type) {
-        case OrderRequest::Market: return "MARKET";
-        default: return "";
-    }
-}
 
 BinanceController::~BinanceController() {
     if (_thread.joinable())
@@ -246,7 +232,7 @@ void BinanceController::updateDailyChange() {
 }
 
 bool BinanceController::getChart(ChartWrapper &wrapper, ChartInterval interval) const {
-    const std::string& interval_converted = convertChartInterval(interval);
+    const std::string& interval_converted = binance::serialize(interval);
     if (interval_converted.empty()) {
         Logger::error("BinanceController::getChart: unknown chart interval");
         return false;
@@ -281,7 +267,7 @@ const ChartWrapper* BinanceController::connectChart(ChartWrapper& wrapper, Chart
         return nullptr;
 
     _chart_connector = &wrapper;
-    const std::string& path = "/ws/" + util::lowercase(wrapper.getIdentifier().c_str()) + "@kline_" + convertChartInterval(interval);
+    const std::string& path = "/ws/" + util::lowercase(wrapper.getIdentifier().c_str()) + "@kline_" + binance::serialize(interval);
     BinaCPP_websocket::connect_endpoint(std::bind(&BinanceController::onKlineDataStream, this, std::placeholders::_1), path.c_str());
     return _chart_connector;
 }
@@ -386,7 +372,7 @@ const OrderWrapper* BinanceController::createOrder(const OrderRequest& request) 
 
 
     Json::Value json;
-    BinaCPP::send_order(_orders_connector->getIdentifier().c_str(), request.side.c_str(), convertOrderType(request.type).c_str(), "GTC", request.quantity , 0, "", 0, 0, BINANCE_TEST_MODE, BINANCE_RECV_WINDOW, json);
+    BinaCPP::send_order(_orders_connector->getIdentifier().c_str(), binance::serialize(request.side).c_str(), binance::serialize(request.type).c_str(), "GTC", request.quantity , 0, "", 0, 0, BINANCE_TEST_MODE, BINANCE_RECV_WINDOW, json);
 
     BinanceErrorData error(json, "BinanceController::createOrder");
     if (error.has()) {

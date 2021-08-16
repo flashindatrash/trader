@@ -27,14 +27,13 @@ void StatusManager::tick(const Symbol& symbol) {
             timeline += "|";
             current_embeded = true;
         }
-        if (SideEnum(position->side()) == SideEnum::Buy)
+        if (position->side() == OrderSide::Buy)
             timeline += "+";
-        else
+        else if (position->side() == OrderSide::Sell)
             timeline += "-";
 
-
-        bool sell_loss = position->side() == SideEnum::Sell && current > price;
-        bool buy_loss = position->side() == SideEnum::Buy && current < price;
+        bool sell_loss = position->side() == OrderSide::Sell && current > price;
+        bool buy_loss = position->side() == OrderSide::Buy && current < price;
 
         if (sell_loss || buy_loss)
             losses += std::abs(current - price) * position->quantity();

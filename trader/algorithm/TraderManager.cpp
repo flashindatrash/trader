@@ -48,25 +48,25 @@ void TraderManager::onCloseCandle(const CandlestickWrapper& wrapper) {
     OrderRequest request;
     request.quantity = _min_quantity;
 
-    PriceRange range(current->priceOpen(), current->priceClose());
-    if (std::abs(range.change()) >= sMinRate)
-        request.side = range.change();
+    Change change = PriceRange(current->priceOpen(), current->priceClose()).change();
+    if (std::abs(change) >= sMinRate)
+        request.side = change > 0.0 ? OrderSide::Sell : change < 0.0 ? OrderSide::Buy : OrderSide::Invalid;
 
     switch (pattern) {
-    case CandlestickPattern::Hammer:            request.side = SideEnum::Buy; break;
-    case CandlestickPattern::InvertedHammer:    request.side = SideEnum::Buy; break;
-    case CandlestickPattern::HangingMan:        request.side = SideEnum::Sell; break;
-    case CandlestickPattern::ShootingStar:      request.side = SideEnum::Sell; break;
-    //case CandlestickWrapper::BullishEngulfing:  request.side = SideEnum::Sell; break;
-    //case CandlestickWrapper::BearishEngulfing:  request.side = SideEnum::Buy; break;
-    //case CandlestickPattern::BullishHarami:     request.side = SideEnum::Buy; break;
-    //case CandlestickPattern::BearishHarami:     request.side = SideEnum::Sell; break;
-    //case CandlestickPattern::BullishKicker:     request.side = SideEnum::Buy; break;
-    //case CandlestickPattern::BearishKicker:     request.side = SideEnum::Sell; break;
+    case CandlestickPattern::Hammer:            request.side = OrderSide::Buy; break;
+    case CandlestickPattern::InvertedHammer:    request.side = OrderSide::Buy; break;
+    case CandlestickPattern::HangingMan:        request.side = OrderSide::Sell; break;
+    case CandlestickPattern::ShootingStar:      request.side = OrderSide::Sell; break;
+    //case CandlestickWrapper::BullishEngulfing:  request.side = OrderSide::Sell; break;
+    //case CandlestickWrapper::BearishEngulfing:  request.side = OrderSide::Buy; break;
+    //case CandlestickPattern::BullishHarami:     request.side = OrderSide::Buy; break;
+    //case CandlestickPattern::BearishHarami:     request.side = OrderSide::Sell; break;
+    //case CandlestickPattern::BullishKicker:     request.side = OrderSide::Buy; break;
+    //case CandlestickPattern::BearishKicker:     request.side = OrderSide::Sell; break;
     default: break;
     }
 
-    if (request.side == SideEnum::Invalid)
+    if (request.side == OrderSide::Invalid)
         return;
 
     // проверим можем ли выполонить сделку, сохранив множитель

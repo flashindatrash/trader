@@ -3,6 +3,7 @@
 #include "algorithm/BaseManager.hpp"
 
 class OrderWrapper;
+enum OrderSide : unsigned int;
 
 class ProfitManager : public BaseManager
 {
@@ -14,5 +15,7 @@ public: // methods
 protected: // methods
     // найти ордер, который можно закрыть по выгодной ценеы
     const OrderWrapper* findClosableOrder(const Symbol& symbol) const;
+    // развернуть тип сделки
+    OrderSide revertSide(const OrderSide& original) const;
 };
 

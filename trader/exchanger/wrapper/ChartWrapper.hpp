@@ -6,7 +6,7 @@
 struct Candlestick;
 class CandlestickWrapper;
 
-enum ChartInterval {
+enum ChartInterval : unsigned int {
     m5,
     m15
 };

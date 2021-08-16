@@ -3,21 +3,27 @@
 #include <string>
 #include "exchanger/base/ExchangerTypes.hpp"
 
+enum OrderType : unsigned int {
+    Market
+};
+
+enum OrderSide : unsigned int {
+    Invalid,
+    Buy,
+    Sell
+};
+
 struct Order {
     std::string id = "";
-    SideEnum side;
+    OrderSide side = Invalid;
     double quoute_quantity = 0.0;
     double quantity = 0.0;
 };
 
 struct OrderRequest {
-    enum Type {
-        Market
-    };
-
-    SideEnum side;
+    OrderSide side;
     double quantity = 0.0;
-    Type type = Market;
+    OrderType type = Market;
 
     bool isEnough() const;
 };
@@ -30,7 +36,7 @@ public: // methods
     void set(Order data);
 
     const std::string& getId() const;
-    const SideEnum& side() const;
+    const OrderSide& side() const;
     const double& quantity() const;
     const Price getPrice() const;
 

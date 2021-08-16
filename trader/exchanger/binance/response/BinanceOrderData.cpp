@@ -1,4 +1,5 @@
 #include "BinanceOrderData.hpp"
+#include "BinanceEnums.hpp"
 #include <json/json.h>
 
 BinanceOrderData::BinanceOrderData(const Json::Value& json, bool minimized) {
@@ -6,7 +7,7 @@ BinanceOrderData::BinanceOrderData(const Json::Value& json, bool minimized) {
     id                  = json[minimized ? "c" : "clientOrderId"].asString();
     quantity            = atof(json[minimized ? "q" : "origQty"].asString().c_str());
     quoute_quantity     = atof(json[minimized ? "Z" : "cummulativeQuoteQty"].asString().c_str());
-    side                = json[minimized ? "S" : "side"].asString();
+    side                = binance::deserialize_side(json[minimized ? "S" : "side"].asString());
     status              = json[minimized ? "X" : "status"].asString();
     symbol              = json[minimized ? "s" : "symbol"].asString();
 }

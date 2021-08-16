@@ -23,7 +23,7 @@ void ProfitManager::tick(const Symbol& symbol) {
 
     // пробуем создать новый ордер
     OrderRequest request;
-    request.side = transaction->side().reverse();
+    request.side = revertSide(transaction->side());
     request.quantity = transaction->quantity();
     _orders.create(request, transaction);
 }
@@ -38,14 +38,15 @@ const OrderWrapper* ProfitManager::findClosableOrder(const Symbol &symbol) const
         Change change = PriceRange(order->getPrice(), symbol.getPrice()).change();
 
         // открытая позиция соответствует сайду
-        if (SideEnum(change) == order->side())
+        const OrderSide revert = change > 0.0 ? OrderSide::Sell : change < 0.0 ? OrderSide::Buy : OrderSide::Invalid;
+        if (revert == OrderSide::Invalid || revert == order->side())
             continue;
 
         // не продаем меньше, чтобы профит перекрывал комисию
         if (std::abs(change) < sMinRate)
             continue;
 
-        double factor = decision.factor(change, DecisionMaker::ForProfit);
+        double factor = decision.factor(revert, DecisionMaker::ForProfit);
         if (std::abs(change) / sRate * factor < 1.0)
             continue;
 
@@ -54,7 +55,7 @@ const OrderWrapper* ProfitManager::findClosableOrder(const Symbol &symbol) const
 
         // проверим, что достаточн средств для закрытия ордера
         OrderRequest request;
-        request.side = order->side().reverse();
+        request.side = revert;
         request.quantity = order->quantity();
         if (not request.isEnough())
             continue;
@@ -64,4 +65,10 @@ const OrderWrapper* ProfitManager::findClosableOrder(const Symbol &symbol) const
     }
 
     return transaction;
+}
+
+OrderSide ProfitManager::revertSide(const OrderSide& original) const {
+    if (original == OrderSide::Buy) return OrderSide::Sell;
+    if (original == OrderSide::Sell) return OrderSide::Buy;
+    return OrderSide::Invalid;
 }

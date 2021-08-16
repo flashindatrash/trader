@@ -26,9 +26,9 @@ OrderManager::OrderManager(const Symbol& symbol, bool test_mode)
     }
     sortPositions();
 
-    for (const OrderWrapper* order : _positions) {
-        Logger::info("position %s\t%f %f", order->side().c_str(), order->getPrice(), order->quantity());
-    }
+    for (const OrderWrapper* order : _positions)
+        printOrder(order);
+    Logger::info("======");
 }
 
 bool OrderManager::create(const OrderRequest& request, const OrderWrapper* transaction) {
@@ -43,17 +43,14 @@ bool OrderManager::create(const OrderRequest& request, const OrderWrapper* trans
     if (result == nullptr)
         return false;
 
-    const Symbol& symbol = Exchanger().book()->getIdentifier();
+
+    printOrder(result, transaction);
 
     // открыть/закрыть транзакцию
     if (transaction == nullptr) {
-        Logger::info("\a%s\t%f %s for\t%f", request.side.c_str(), request.quantity, symbol.baseAsset().c_str(), symbol.getPrice());
         DataManager::openPosition(result->getId());
         _positions.push_back(result);
     } else {
-        Logger::info("\a%s\t%f %s for %f (%s for %f)", request.side.c_str(), request.quantity, symbol.baseAsset().c_str(), symbol.getPrice(), transaction->side().c_str(), transaction->getPrice());
-        double profit = std::abs(transaction->getPrice() - symbol.getPrice()) * transaction->quantity();
-        printProfit(symbol, profit);
         std::string order_id = transaction->getId();
         DataManager::closePosition(order_id);
         _positions.erase(std::remove_if(_positions.begin(), _positions.end(), [order_id](const OrderWrapper* t) { return t->getId() == order_id; }));
@@ -74,10 +71,25 @@ void OrderManager::sortPositions() {
     });
 }
 
-void OrderManager::printProfit(const Symbol& symbol, double profit) {
-    double total = DataManager::addProfit(symbol.quoteAsset(), profit);
-    std::string formatCurrentProfit = "%." + std::to_string(util::getZerosAfterDot(profit) + 1) + "f";
-    std::string formatTotalProfit = "%." + std::to_string(util::getZerosAfterDot(total) + 1) + "f";
-    std::string format = "%sprofit update: +" + formatCurrentProfit + " (total +" + formatTotalProfit + ") %s%s";
-    Logger::info(format.c_str(), GREEN, profit, total, symbol.quoteAsset().c_str(), RESET);
+void OrderManager::printOrder(const OrderWrapper* order, const OrderWrapper* position/* = nullptr*/) {
+    const Symbol& symbol = Exchanger().book()->getIdentifier();
+
+    auto sideStr = [](const OrderSide& side) {
+        if (side == OrderSide::Buy) return "BUY";
+        if (side == OrderSide::Sell) return "SELL";
+        return "INVALID";
+    };
+
+    if (position == nullptr) {
+        Logger::info("\a%s\t%f %s for\t%f", sideStr(order->side()), order->quantity(), symbol.baseAsset().c_str(), symbol.getPrice());
+    } else {
+        Logger::info("\a%s\t%f %s for %f (%s for %f)", sideStr(order->side()), order->quantity(), symbol.baseAsset().c_str(), symbol.getPrice(), sideStr(position->side()), position->getPrice());
+
+        double profit = std::abs(position->getPrice() - symbol.getPrice()) * position->quantity();
+        double total = DataManager::addProfit(symbol.quoteAsset(), profit);
+        std::string formatCurrentProfit = "%." + std::to_string(util::getZerosAfterDot(profit) + 1) + "f";
+        std::string formatTotalProfit = "%." + std::to_string(util::getZerosAfterDot(total) + 1) + "f";
+        std::string format = "%sprofit update: +" + formatCurrentProfit + " (total +" + formatTotalProfit + ") %s%s";
+        Logger::info(format.c_str(), GREEN, profit, total, symbol.quoteAsset().c_str(), RESET);
+    }
 }
