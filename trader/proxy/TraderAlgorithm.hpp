@@ -13,11 +13,11 @@ class StatusManager;
 class ProfitManager;
 class TraderManager;
 
-class BinanceAlgorithm : public core::Proxy<BinanceAlgorithm>
+class TraderAlgorithm : public core::Proxy<TraderAlgorithm>
 {
 public: // methods
-    BinanceAlgorithm() = default;
-    virtual ~BinanceAlgorithm() override;
+    TraderAlgorithm() = default;
+    virtual ~TraderAlgorithm() override;
 
     bool init(const core::Config& config, const Symbol& symbol);
     void tick(time_t now);

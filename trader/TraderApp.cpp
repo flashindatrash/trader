@@ -2,7 +2,7 @@
 #include "proxy/Database.hpp"
 #include "proxy/ExchangerProxy.hpp"
 #include "proxy/TraderTime.hpp"
-#include "proxy/BinanceAlgorithm.hpp"
+#include "proxy/TraderAlgorithm.hpp"
 #include "exchanger/base/Symbol.hpp"
 
 core::Version TraderApp::sVersion = core::Version(1, 1);

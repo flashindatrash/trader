@@ -342,6 +342,9 @@ const OrderWrapper* BinanceController::createOrder(const OrderRequest& request) 
         return nullptr;
     }
 
+    if (not request.isEnough())
+        return nullptr;
+
     /*
     const BinanceSymbolData& info = symbol.getInfo();
 
