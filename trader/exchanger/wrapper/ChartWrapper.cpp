@@ -8,6 +8,12 @@ ChartWrapper* ChartWrapper::create() {
 
 Signal<const CandlestickWrapper&> ChartWrapper::onCandleClosed;
 
+ChartWrapper::~ChartWrapper() {
+    for (CandlestickWrapper* candlestick : _candlesticks)
+        delete candlestick;
+    _candlesticks.clear();
+}
+
 const CandlestickWrapper* ChartWrapper::add(const Candlestick& data) {
     CandlestickWrapper* last = _candlesticks.empty() ? nullptr : _candlesticks.back();
 

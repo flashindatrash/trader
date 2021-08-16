@@ -14,14 +14,13 @@ enum ChartInterval {
 class ChartWrapper : public MapIdentifier<std::string> {
 public: // static
     static ChartWrapper* create();
+    static Signal<const CandlestickWrapper&> onCandleClosed;
 
 public: // methods
+    virtual ~ChartWrapper();
+
     const CandlestickWrapper* add(const Candlestick& data);
-
     const std::vector<CandlestickWrapper*>& get() const;
-
-public: // signals
-    static Signal<const CandlestickWrapper&> onCandleClosed;
 
 protected: // methods
     ChartWrapper() = default;

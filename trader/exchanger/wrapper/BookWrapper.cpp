@@ -6,6 +6,12 @@ BookWrapper* BookWrapper::create() {
     return wrapper;
 }
 
+BookWrapper::~BookWrapper() {
+    for (const OrderWrapper* order : _orders)
+        delete order;
+    _orders.clear();
+}
+
 const OrderWrapper* BookWrapper::add(const Order& data) {
     OrderWrapper* wrapper = OrderWrapper::create();
     wrapper->set(data);

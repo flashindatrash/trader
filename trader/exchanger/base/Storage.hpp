@@ -25,7 +25,7 @@ public: // methods
     StorageMap() = default;
     virtual ~StorageMap() {
         for (auto& pair : *this)
-            SAFE_DELETE(pair.second);
+            delete pair.second;
         BaseClass::clear();
     }
 

@@ -11,8 +11,9 @@ public: // static
     static BookWrapper* create();
 
 public: // methods
-    const OrderWrapper* add(const Order& data);
+    virtual ~BookWrapper();
 
+    const OrderWrapper* add(const Order& data);
     const std::vector<const OrderWrapper*>& get() const;
 
 protected: // methods
