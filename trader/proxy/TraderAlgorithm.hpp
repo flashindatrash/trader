@@ -22,9 +22,6 @@ public: // methods
     bool init(const core::Config& config, const Symbol& symbol);
     void tick(time_t now);
 
-protected: // methods
-    void onBalanceChanged(const Asset& asset);
-
 protected: // vars
     const Symbol* _symbol;
 
@@ -34,4 +31,4 @@ protected: // vars
     TraderManager* _trader_manager = nullptr;
 };
 
-#define SAlgorithm() BinanceAlgorithm::getInstance()
+#define SAlgorithm() TraderAlgorithm::getInstance()
