@@ -9,6 +9,7 @@ BookWrapper* BookWrapper::create() {
 const OrderWrapper* BookWrapper::add(const Order& data) {
     OrderWrapper* wrapper = OrderWrapper::create();
     wrapper->set(data);
+    _orders.push_back(wrapper);
     return wrapper;
 }
 

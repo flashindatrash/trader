@@ -15,8 +15,7 @@ public: // methods
     ExchangerProxy() = default;
     virtual ~ExchangerProxy() override;
 
-    bool init(const core::Config& config);
-    bool connect(const Symbol& symbol);
+    bool init(const core::Config& config, const Symbol& symbol);
     void run();
 
     const OrderWrapper* createOrder(const OrderRequest& request);

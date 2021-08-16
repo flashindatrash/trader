@@ -10,7 +10,7 @@ ExchangerProxy::~ExchangerProxy() {
     SAFE_DELETE(_controller);
 }
 
-bool ExchangerProxy::init(const core::Config& config) {
+bool ExchangerProxy::init(const core::Config& config, const Symbol& symbol) {
     _controller = ExchangerController::create();
     if (not _controller->init(config))
         return false;
@@ -23,16 +23,15 @@ bool ExchangerProxy::init(const core::Config& config) {
     _controller->connectPrices(_prices);
     _controller->connectBalances(_balances);
 
-    Time().onTick.connect(std::bind(&ExchangerController::tick, _controller, std::placeholders::_1));
-    return true;
-}
-
-bool ExchangerProxy::connect(const Symbol& symbol) {
     _stat_connector = _controller->connectStats(*_stats.get(symbol));
     _chart_connector = _controller->connectChart(*_charts.get(symbol), ChartInterval::m5);
     _book_connector = _controller->connectOrders(*_books.get(symbol));
 
-    return _stat_connector && _chart_connector && _book_connector;
+    if (!_stat_connector || !_chart_connector || !_book_connector)
+        return false;
+
+    Time().onTick.connect(std::bind(&ExchangerController::tick, _controller, std::placeholders::_1));
+    return true;
 }
 
 const OrderWrapper* ExchangerProxy::createOrder(const OrderRequest& request) {
