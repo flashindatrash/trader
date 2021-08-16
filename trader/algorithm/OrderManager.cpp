@@ -25,6 +25,10 @@ OrderManager::OrderManager(const Symbol& symbol, bool test_mode)
         _positions.push_back(order);
     }
     sortPositions();
+
+    for (const OrderWrapper* order : _positions) {
+        Logger::info("position %s\t%f %f", order->side().c_str(), order->getPrice(), order->quantity());
+    }
 }
 
 bool OrderManager::create(const OrderRequest& request, const OrderWrapper* transaction) {
@@ -43,11 +47,11 @@ bool OrderManager::create(const OrderRequest& request, const OrderWrapper* trans
 
     // открыть/закрыть транзакцию
     if (transaction == nullptr) {
-        Logger::info("\a%s %f %s for %f", request.side.c_str(), request.quantity, symbol.baseAsset().c_str(), symbol.getPrice());
+        Logger::info("\a%s\t%f %s for\t%f", request.side.c_str(), request.quantity, symbol.baseAsset().c_str(), symbol.getPrice());
         DataManager::openPosition(result->getId());
         _positions.push_back(result);
     } else {
-        Logger::info("\a%s %f %s for %f (%s for %f)", request.side.c_str(), request.quantity, symbol.baseAsset().c_str(), symbol.getPrice(), transaction->side().c_str(), transaction->getPrice());
+        Logger::info("\a%s\t%f %s for %f (%s for %f)", request.side.c_str(), request.quantity, symbol.baseAsset().c_str(), symbol.getPrice(), transaction->side().c_str(), transaction->getPrice());
         double profit = std::abs(transaction->getPrice() - symbol.getPrice()) * transaction->quantity();
         printProfit(symbol, profit);
         std::string order_id = transaction->getId();
