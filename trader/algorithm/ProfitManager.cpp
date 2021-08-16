@@ -1,7 +1,6 @@
 #include "ProfitManager.hpp"
-#include "Logger.hpp"
-#include "proxy/BinanceOrders.hpp"
-#include "exchanger/wrapper/Symbol.hpp"
+#include "exchanger/base/Symbol.hpp"
+#include "exchanger/wrapper/OrderWrapper.hpp"
 #include "algorithm/OrderManager.hpp"
 #include "algorithm/DecisionMaker.hpp"
 
@@ -18,25 +17,28 @@ ProfitManager::ProfitManager(OrderManager& orders)
 
 void ProfitManager::tick(const Symbol& symbol) {
     // находим ордер для закрытия
-    const BinanceOrderData* transaction = findClosableOrder(symbol);
+    const OrderWrapper* transaction = findClosableOrder(symbol);
     if (transaction == nullptr)
         return;
 
     // пробуем создать новый ордер
-    _orders.create(symbol, SideEnum(transaction->side).reverse(), transaction->quantity, transaction);
+    OrderRequest request;
+    request.side = transaction->side().reverse();
+    request.quantity = transaction->quantity();
+    _orders.create(request, transaction);
 }
 
-const BinanceOrderData* ProfitManager::findClosableOrder(const Symbol &symbol) const {
+const OrderWrapper* ProfitManager::findClosableOrder(const Symbol &symbol) const {
     DecisionMaker decision(symbol);
 
     // найдем ордер, который стоит закрыть по более выгодному курсу
-    const BinanceOrderData* transaction = nullptr;
+    const OrderWrapper* transaction = nullptr;
     double best_change = 0.0;
-    for (const BinanceOrderData& order : _orders.getPositions()) {
-        Change change = PriceRange(order.getPrice(), symbol.getPrice()).change();
+    for (const OrderWrapper* order : _orders.getPositions()) {
+        Change change = PriceRange(order->getPrice(), symbol.getPrice()).change();
 
         // открытая позиция соответствует сайду
-        if (SideEnum(change) == order.side)
+        if (SideEnum(change) == order->side())
             continue;
 
         // не продаем меньше, чтобы профит перекрывал комисию
@@ -51,10 +53,13 @@ const BinanceOrderData* ProfitManager::findClosableOrder(const Symbol &symbol) c
             continue;
 
         // проверим, что достаточн средств для закрытия ордера
-        if (not SOrders().isEnough(symbol, SideEnum(order.side).reverse(), order.quantity))
+        OrderRequest request;
+        request.side = order->side().reverse();
+        request.quantity = order->quantity();
+        if (not request.isEnough())
             continue;
 
-        transaction = &order;
+        transaction = order;
         best_change = std::abs(change);
     }
 

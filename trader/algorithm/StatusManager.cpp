@@ -1,8 +1,8 @@
 #include "StatusManager.hpp"
+#include "OrderManager.hpp"
 #include "Logger.hpp"
 #include "proxy/ExchangerProxy.hpp"
-#include "OrderManager.hpp"
-
+#include "exchanger/wrapper/OrderWrapper.hpp"
 
 StatusManager::StatusManager(OrderManager& orders)
     : BaseManager(orders)
@@ -34,18 +34,18 @@ void StatusManager::tick(const Symbol& symbol) {
 
 std::string StatusManager::getTimline(double current) {
     auto positions = _orders.getPositions();
-    std::sort(positions.begin(), positions.end(), [](const BinanceOrderData& l, const BinanceOrderData& r) {
-        return l.getPrice() < r.getPrice();
+    std::sort(positions.begin(), positions.end(), [](const OrderWrapper* l, const OrderWrapper* r) {
+        return l->getPrice() < r->getPrice();
     });
 
     std::string timeline = "";
     bool current_embeded = false;
-    for (const BinanceOrderData& position : positions) {
-        if (not current_embeded && current < position.getPrice()) {
+    for (const OrderWrapper* position : positions) {
+        if (not current_embeded && current < position->getPrice()) {
             timeline += "|";
             current_embeded = true;
         }
-        if (SideEnum(position.side) == SideEnum::Buy)
+        if (SideEnum(position->side()) == SideEnum::Buy)
             timeline += "+";
         else
             timeline += "-";
@@ -57,8 +57,8 @@ std::string StatusManager::getTimline(double current) {
 }
 
 double StatusManager::getChange() {
-    if (not _candlesticks->klines().empty()) {
-        CandlestickWrapper* last = _candlesticks->klines().back();
+    if (not Exchanger().chart()->get().empty()) {
+        const CandlestickWrapper* last = Exchanger().chart()->get().back();
         return PriceRange(last->priceOpen(), last->priceClose()).change() * 100.0;
     }
     return 0.0;

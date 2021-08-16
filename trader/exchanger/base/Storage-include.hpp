@@ -7,11 +7,13 @@
 #include "exchanger/wrapper/BalanceWrapper.hpp"
 #include "exchanger/wrapper/CandlestickWrapper.hpp"
 #include "exchanger/wrapper/ChartWrapper.hpp"
+#include "exchanger/wrapper/BookWrapper.hpp"
 
 class Storage {
-    MAP(std::string, ExchangeWrapper, info)
-    MAP(std::string, PriceWrapper, price)
-    MAP(std::string, BalanceWrapper, balance)
-    MAP(std::string, CandlestickWrapper, daily_change)
-    MAP(std::string, ChartWrapper, chart)
+    STORAGE_PUBLIC(std::string, ExchangeWrapper, info)
+    STORAGE_PUBLIC(std::string, PriceWrapper, price)
+    STORAGE_PUBLIC(std::string, BalanceWrapper, balance)
+    STORAGE_PRIVATE(std::string, CandlestickWrapper, stat)
+    STORAGE_PRIVATE(std::string, ChartWrapper, chart)
+    STORAGE_PRIVATE(std::string, BookWrapper, book)
 };

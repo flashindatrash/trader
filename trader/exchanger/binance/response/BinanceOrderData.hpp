@@ -1,28 +1,21 @@
 #pragma once
 
 #include <string>
+#include "exchanger/wrapper/OrderWrapper.hpp"
 
 namespace Json {
     class Value;
 }
 
-struct BinanceOrderData
-{
+struct BinanceOrderData : public Order {
 public: // methods
     BinanceOrderData() = default;
     BinanceOrderData(const Json::Value& json, bool minimized);
 
-    double getPrice() const;
-
     bool isRejected() const;
-    bool isEmpty() const;
 
 public: // vars
     long orderId = 0;
-    std::string clientOrderId = "";
-    double cummulativeQuoteQty = 0.0;
-    double quantity = 0.0;
-    std::string side;
     std::string status = "";
     std::string symbol = "";
 };

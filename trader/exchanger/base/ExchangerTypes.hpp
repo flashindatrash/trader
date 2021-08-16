@@ -58,8 +58,3 @@ public: // operators
 protected: // vars
     Side _value = Invalid;
 };
-
-enum ChartInterval {
-    m5,
-    m15
-};

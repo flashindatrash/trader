@@ -2,6 +2,8 @@
 
 #include "BaseManager.hpp"
 
+class CandlestickWrapper;
+
 class TraderManager : public BaseManager
 {
 public: // methods
@@ -11,7 +13,7 @@ public: // methods
 
 protected: // methods
     // свеча закрылась
-    void onCloseCandle(const CandlestickWrapper& wrapper) override;
+    void onCloseCandle(const CandlestickWrapper& wrapper);
 
 protected: // vars
     double _min_quantity = 0.0;

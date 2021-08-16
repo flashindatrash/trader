@@ -1,6 +1,6 @@
 #include "proxy/ExchangerProxy.hpp"
 #include "proxy/BinanceExchangeInfo.hpp"
-#include "exchanger/wrapper/Symbol.hpp"
+#include "exchanger/base/Symbol.hpp"
 #include "exchanger/wrapper/PriceWrapper.hpp"
 #include "util/StringUtil.hpp"
 

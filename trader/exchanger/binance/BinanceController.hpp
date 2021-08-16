@@ -21,12 +21,17 @@ public: // virtual
     bool getSymbolInfo(Storage::Type_info& container) const override;
     bool getAllPrices(Storage::Type_price& container) const override;
     bool getBalances(Storage::Type_balance& container) const override;
+    bool getOrders(BookWrapper& wrapper) const override;
     bool getChart(ChartWrapper& wrapper, ChartInterval interval) const override;
 
     void connectPrices(Storage::Type_price& container) override;
     void connectBalances(Storage::Type_balance& container) override;
-    void connectDailyChange(CandlestickWrapper& wrapper) override;
-    void connectChart(ChartWrapper& wrapper, ChartInterval interval) override;
+
+    const BookWrapper*          connectOrders(BookWrapper& wrapper) override;
+    const CandlestickWrapper*   connectStats(CandlestickWrapper& wrapper) override;
+    const ChartWrapper*         connectChart(ChartWrapper& wrapper, ChartInterval interval) override;
+
+    const OrderWrapper* createOrder(const OrderRequest& request) override;
 
 protected: // methods
     bool initUserListenKey();
@@ -39,19 +44,14 @@ protected: // callbacks
     int onKlineDataStream(Json::Value& json);
 
 protected: // vars
-    // websoket thread
     std::thread _thread;
-    // user data stream
+    Storage::Type_price* _prices_connector = nullptr;
+    Storage::Type_balance* _balances_connector = nullptr;
+    BookWrapper* _orders_connector = nullptr;
+    ChartWrapper* _chart_connector = nullptr;
+    CandlestickWrapper* _stats_connector = nullptr;
     std::string _stream_listen_key = "";
-    // price connector
-    Storage::Type_price* _connect_prices = nullptr;
-    // balance connector
-    Storage::Type_balance* _connect_balances = nullptr;
     time_t _time_userstream = 0;
-    // daily change connector
-    CandlestickWrapper* _connect_daily_change = nullptr;
     time_t _time_daily_change = 0;
-    // chart connector
-    ChartWrapper* _connect_chart = nullptr;
 };
 

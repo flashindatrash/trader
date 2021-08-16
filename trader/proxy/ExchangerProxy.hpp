@@ -8,7 +8,7 @@ namespace core {
 }
 
 class ExchangerController;
-class CandlestickWrapper;
+class OrderRequest;
 
 class ExchangerProxy : public core::Proxy<ExchangerProxy>, public Storage {
 public: // methods
@@ -16,8 +16,10 @@ public: // methods
     virtual ~ExchangerProxy() override;
 
     bool init(const core::Config& config);
-    void connect(const Symbol& symbol);
+    bool connect(const Symbol& symbol);
     void run();
+
+    const OrderWrapper* createOrder(const OrderRequest& request);
 
 protected: // vars
     ExchangerController* _controller = nullptr;

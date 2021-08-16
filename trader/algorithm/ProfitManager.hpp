@@ -2,7 +2,7 @@
 
 #include "algorithm/BaseManager.hpp"
 
-struct BinanceOrderData;
+class OrderWrapper;
 
 class ProfitManager : public BaseManager
 {
@@ -13,6 +13,6 @@ public: // methods
 
 protected: // methods
     // найти ордер, который можно закрыть по выгодной ценеы
-    const BinanceOrderData* findClosableOrder(const Symbol& symbol) const;
+    const OrderWrapper* findClosableOrder(const Symbol& symbol) const;
 };
 

@@ -1,8 +1,9 @@
 #include "Logger.hpp"
-#include "proxy/BinanceOrders.hpp"
 #include "proxy/TraderTime.hpp"
+#include "proxy/ExchangerProxy.hpp"
 #include "exchanger/base/ExchangerTypes.hpp"
-#include "exchanger/wrapper/Symbol.hpp"
+#include "exchanger/base/Symbol.hpp"
+#include "exchanger/wrapper/OrderWrapper.hpp"
 #include "algorithm/OrderManager.hpp"
 #include "algorithm/DataManager.hpp"
 
@@ -12,12 +13,11 @@ OrderManager::OrderManager(const Symbol& symbol, bool test_mode)
     if (_test_mode)
         Logger::info("TEST MODE!");
 
-    _orders = SOrders().getAllOrders(symbol);
-
     // найдем все открытые позиции
+    const std::vector<const OrderWrapper*>& orders = Exchanger().book()->get();
     std::vector<std::string> keys = DataManager::getPositionIds();
-    for (const BinanceOrderData& order : _orders) {
-        std::string id = DataManager::sDbKeyOrder + order.clientOrderId;
+    for (const OrderWrapper* order : orders) {
+        std::string id = DataManager::sDbKeyOrder + order->getId();
         if (std::find(keys.begin(), keys.end(), id) == keys.end())
             continue;
 
@@ -25,48 +25,38 @@ OrderManager::OrderManager(const Symbol& symbol, bool test_mode)
     }
 }
 
-bool OrderManager::create(const Symbol& symbol, const SideEnum& side, double quantity, const BinanceOrderData* transaction) {
+bool OrderManager::create(const OrderRequest& request, const OrderWrapper* transaction) {
     if (_test_mode)
         return false;
 
     // проверяем, что достаточно средств
-    if (not SOrders().isEnough(symbol, side, quantity))
+    if (not request.isEnough())
         return false;
 
-    BinanceOrderData result = SOrders().createOrder(symbol, side, quantity);
-    // неизвестная ошибка
-    if (result.isEmpty())
+    const OrderWrapper* result = Exchanger().createOrder(request);
+    if (result == nullptr)
         return false;
 
-    // не удалось создать
-    if (result.isRejected())
-        return false;
-
-    // сохраним историю
-    _orders.push_back(result);
+    const Symbol& symbol = Exchanger().book()->getIdentifier();
 
     // открыть/закрыть транзакцию
     if (transaction == nullptr) {
-        Logger::info("\a%s %f %s for %f", side.c_str(), quantity, symbol.baseAsset().c_str(), symbol.getPrice());
-        DataManager::openPosition(result.clientOrderId);
+        Logger::info("\a%s %f %s for %f", request.side.c_str(), request.quantity, symbol.baseAsset().c_str(), symbol.getPrice());
+        DataManager::openPosition(result->getId());
         _positions.push_back(result);
     } else {
-        Logger::info("\a%s %f %s for %f (%s for %f)", side.c_str(), quantity, symbol.baseAsset().c_str(), symbol.getPrice(), transaction->side.c_str(), transaction->getPrice());
-        double profit = std::abs(transaction->getPrice() - symbol.getPrice()) * transaction->quantity;
+        Logger::info("\a%s %f %s for %f (%s for %f)", request.side.c_str(), request.quantity, symbol.baseAsset().c_str(), symbol.getPrice(), transaction->side().c_str(), transaction->getPrice());
+        double profit = std::abs(transaction->getPrice() - symbol.getPrice()) * transaction->quantity();
         printProfit(symbol, profit);
-        std::string order_id = transaction->clientOrderId;
+        std::string order_id = transaction->getId();
         DataManager::closePosition(order_id);
-        _positions.erase(std::remove_if(_positions.begin(), _positions.end(), [order_id](BinanceOrderData t) { return t.clientOrderId == order_id; }));
+        _positions.erase(std::remove_if(_positions.begin(), _positions.end(), [order_id](const OrderWrapper* t) { return t->getId() == order_id; }));
     }
 
     return true;
 }
 
-const std::vector<BinanceOrderData>& OrderManager::getOrders() const {
-    return _orders;
-}
-
-const std::vector<BinanceOrderData>& OrderManager::getPositions() const {
+const std::vector<const OrderWrapper*>& OrderManager::getPositions() const {
     return _positions;
 }
 
@@ -75,14 +65,14 @@ void OrderManager::printProfit(const Symbol& symbol, double profit) {
     double losses_total = 0.0;
 
     double current_price = symbol.getPrice();
-    for (const BinanceOrderData& position : _positions) {
-        double order_price = position.getPrice();
+    for (const OrderWrapper* position : _positions) {
+        double order_price = position->getPrice();
 
-        bool sell_loss = SideEnum(position.side) == SideEnum::Sell && current_price > order_price;
-        bool buy_loss = SideEnum(position.side) == SideEnum::Buy && current_price < order_price;
+        bool sell_loss = SideEnum(position->side()) == SideEnum::Sell && current_price > order_price;
+        bool buy_loss = SideEnum(position->side()) == SideEnum::Buy && current_price < order_price;
 
         if (sell_loss || buy_loss)
-            losses_total += std::abs(current_price - order_price) * position.quantity;
+            losses_total += std::abs(current_price - order_price) * position->quantity();
     }
 
     Logger::info("%sprofit update: +%.4f (total +%.4f / loss -%.4f) %s%s", GREEN, profit, profit_total, losses_total, symbol.quoteAsset().c_str(), RESET);

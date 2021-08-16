@@ -1,7 +1,7 @@
 #pragma once
 
 #include "exchanger/base/Storage.hpp"
-#include "exchanger/wrapper/Symbol.hpp"
+#include "exchanger/base/Symbol.hpp"
 
 class ExchangeWrapper : public MapIdentifier<std::string> {
 public: // static

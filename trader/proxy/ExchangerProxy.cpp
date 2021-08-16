@@ -2,6 +2,7 @@
 #include "Config.hpp"
 #include "proxy/TraderTime.hpp"
 #include "exchanger/base/ExchangerController.hpp"
+#include "exchanger/wrapper/OrderWrapper.hpp"
 
 #include "proxy/BinanceExchangeInfo.hpp"
 
@@ -19,16 +20,23 @@ bool ExchangerProxy::init(const core::Config& config) {
     if (not _controller->getSymbolInfo(infos()))
         return false;
 
-    _controller->connectPrices(prices());
-    _controller->connectBalances(balances());
+    _controller->connectPrices(_prices);
+    _controller->connectBalances(_balances);
 
     Time().onTick.connect(std::bind(&ExchangerController::tick, _controller, std::placeholders::_1));
     return true;
 }
 
-void ExchangerProxy::connect(const Symbol& symbol) {
-    _controller->connectDailyChange(*daily_change(symbol));
-    _controller->connectChart(*chart(symbol), ChartInterval::m5);
+bool ExchangerProxy::connect(const Symbol& symbol) {
+    _stat_connector = _controller->connectStats(*_stats.get(symbol));
+    _chart_connector = _controller->connectChart(*_charts.get(symbol), ChartInterval::m5);
+    _book_connector = _controller->connectOrders(*_books.get(symbol));
+
+    return _stat_connector && _chart_connector && _book_connector;
+}
+
+const OrderWrapper* ExchangerProxy::createOrder(const OrderRequest& request) {
+    return _controller->createOrder(request);
 }
 
 void ExchangerProxy::run() {

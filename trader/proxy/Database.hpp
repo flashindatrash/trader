@@ -1,6 +1,6 @@
 #pragma once
 
-#include "global.hpp"
+#include <string>
 #include "Proxy.hpp"
 
 namespace core {

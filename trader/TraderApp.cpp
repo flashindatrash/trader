@@ -3,8 +3,7 @@
 #include "proxy/ExchangerProxy.hpp"
 #include "proxy/TraderTime.hpp"
 #include "proxy/BinanceAlgorithm.hpp"
-#include "proxy/BinanceOrders.hpp"
-#include "exchanger/wrapper/Symbol.hpp"
+#include "exchanger/base/Symbol.hpp"
 
 core::Version TraderApp::sVersion = core::Version(1, 1);
 
@@ -22,8 +21,8 @@ void TraderApp::run(const Symbol& symbol) {
     if (not DB().init(_config)) return;
     if (not Exchanger().init(_config)) return;
     if (not SAlgorithm().init(_config, symbol)) return;
+    if (not Exchanger().connect(symbol)) return;
 
-    Exchanger().connect(symbol);
     Exchanger().run();
     while (true) {
         sleep_ms(100);

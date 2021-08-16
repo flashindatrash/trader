@@ -2,7 +2,7 @@
 #include "DecisionMaker.hpp"
 #include "proxy/ExchangerProxy.hpp"
 #include "exchanger/base/ExchangerTypes.hpp"
-#include "exchanger/wrapper/Symbol.hpp"
+#include "exchanger/base/Symbol.hpp"
 
 DecisionMaker::DecisionMaker(const Symbol& symbol)
     : _symbol(symbol)
@@ -17,9 +17,9 @@ double DecisionMaker::factor(const SideEnum& side, int based_on) const {
 
     if (has(based_on, DayChange)) {
         // увеличиваем/понижаем рейтинг при отрицательном дневном росте/падении
-        const CandlestickWrapper* kline = Exchanger().daily_change(_symbol);
-        if (kline != nullptr && kline->priceOpen() > 0.0) {
-            PriceRange range(kline->priceOpen(), _symbol.getPrice());
+        const CandlestickWrapper* stat = Exchanger().stat();
+        if (stat->priceOpen() > 0.0) {
+            PriceRange range(stat->priceOpen(), _symbol.getPrice());
             result *= 1.0 + range.change() * (side == SideEnum::Buy ? 1 : -1);
         }
     }

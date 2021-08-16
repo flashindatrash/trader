@@ -1,7 +1,7 @@
 #include "BinanceAlgorithm.hpp"
 #include "Config.hpp"
 #include "proxy/TraderTime.hpp"
-#include "exchanger/wrapper/Symbol.hpp"
+#include "exchanger/base/Symbol.hpp"
 #include "algorithm/Migrator.hpp"
 #include "algorithm/OrderManager.hpp"
 #include "algorithm/StatusManager.hpp"

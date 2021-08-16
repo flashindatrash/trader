@@ -1,6 +1,6 @@
 #include "proxy/TraderTime.hpp"
 #include "proxy/ExchangerProxy.hpp"
-#include "exchanger/wrapper/Symbol.hpp"
+#include "exchanger/base/Symbol.hpp"
 #include "exchanger/wrapper/PriceWrapper.hpp"
 #include "exchanger/binance/response/BinanceSymbolData.hpp"
 #include "util/PriceUtil.hpp"

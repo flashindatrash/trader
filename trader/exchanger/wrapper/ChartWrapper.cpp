@@ -1,5 +1,4 @@
 #include "ChartWrapper.hpp"
-#include "Logger.hpp"
 #include "CandlestickWrapper.hpp"
 
 ChartWrapper* ChartWrapper::create() {
@@ -7,7 +6,9 @@ ChartWrapper* ChartWrapper::create() {
     return wrapper;
 }
 
-bool ChartWrapper::add(const Candlestick& data) {
+Signal<const CandlestickWrapper&> ChartWrapper::onCandleClosed;
+
+const CandlestickWrapper* ChartWrapper::add(const Candlestick& data) {
     CandlestickWrapper* last = _candlesticks.empty() ? nullptr : _candlesticks.back();
 
     if (last == nullptr || data.time_open > last->timeOpen()) {
@@ -19,19 +20,19 @@ bool ChartWrapper::add(const Candlestick& data) {
         CandlestickWrapper* wrapper = CandlestickWrapper::create();
         wrapper->set(data);
         _candlesticks.push_back(wrapper);
-        return true;
+        return wrapper;
     }
 
     if (data.time_open == last->timeOpen()) {
         last->set(data);
         if (data.closed)
             onCandleClosed.emmit(*last);
-        return true;
+        return last;
     }
 
-    return false;
+    return nullptr;
 }
 
-const std::vector<CandlestickWrapper*>& ChartWrapper::klines() const {
+const std::vector<CandlestickWrapper*>& ChartWrapper::get() const {
     return _candlesticks;
 }

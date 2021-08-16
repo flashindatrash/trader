@@ -1,9 +1,11 @@
 #include "TraderManager.hpp"
 #include "Logger.hpp"
-#include "exchanger/wrapper/Symbol.hpp"
+#include "proxy/ExchangerProxy.hpp"
+#include "exchanger/base/Symbol.hpp"
 #include "exchanger/wrapper/ChartWrapper.hpp"
 #include "exchanger/wrapper/CandlestickPattern.hpp"
 #include "exchanger/wrapper/CandlestickWrapper.hpp"
+#include "exchanger/wrapper/OrderWrapper.hpp"
 #include "algorithm/OrderManager.hpp"
 #include "algorithm/DecisionMaker.hpp"
 #include "util/PriceUtil.hpp"
@@ -28,11 +30,13 @@ bool TraderManager::init(const Symbol& symbol) {
     _min_quantity = min * sMinQuantity;
     _min_quantity = util::ceil_quantity(symbol, _min_quantity/* * std::max(factor, 1.0)*/);
     Logger::info("lot quantity: %f", _min_quantity);
+
+    ChartWrapper::onCandleClosed.connect(std::bind(&TraderManager::onCloseCandle, this, std::placeholders::_1));
     return true;
 }
 
 void TraderManager::onCloseCandle(const CandlestickWrapper& wrapper) {
-    const std::vector<CandlestickWrapper*>& candlesticks = _candlesticks->klines();
+    const std::vector<CandlestickWrapper*>& candlesticks = Exchanger().chart()->get();
     if (candlesticks.size() < 2)
         return;
 
@@ -41,36 +45,37 @@ void TraderManager::onCloseCandle(const CandlestickWrapper& wrapper) {
 
     CandlestickPattern::Pattern pattern = CandlestickPattern::find(*current, *previous);
 
-    SideEnum side;
+    OrderRequest request;
+    request.quantity = _min_quantity;
 
     PriceRange range(current->priceOpen(), current->priceClose());
     if (std::abs(range.change()) >= sMinRate)
-        side = range.change();
+        request.side = range.change();
 
     switch (pattern) {
-    case CandlestickPattern::Hammer:            side = SideEnum::Buy; break;
-    case CandlestickPattern::InvertedHammer:    side = SideEnum::Buy; break;
-    case CandlestickPattern::HangingMan:        side = SideEnum::Sell; break;
-    case CandlestickPattern::ShootingStar:      side = SideEnum::Sell; break;
-    //case CandlestickWrapper::BullishEngulfing:  side = SideEnum::Sell; break;
-    //case CandlestickWrapper::BearishEngulfing:  side = SideEnum::Buy; break;
-    //case CandlestickPattern::BullishHarami:     side = SideEnum::Buy; break;
-    //case CandlestickPattern::BearishHarami:     side = SideEnum::Sell; break;
-    //case CandlestickPattern::BullishKicker:     side = SideEnum::Buy; break;
-    //case CandlestickPattern::BearishKicker:     side = SideEnum::Sell; break;
+    case CandlestickPattern::Hammer:            request.side = SideEnum::Buy; break;
+    case CandlestickPattern::InvertedHammer:    request.side = SideEnum::Buy; break;
+    case CandlestickPattern::HangingMan:        request.side = SideEnum::Sell; break;
+    case CandlestickPattern::ShootingStar:      request.side = SideEnum::Sell; break;
+    //case CandlestickWrapper::BullishEngulfing:  request.side = SideEnum::Sell; break;
+    //case CandlestickWrapper::BearishEngulfing:  request.side = SideEnum::Buy; break;
+    //case CandlestickPattern::BullishHarami:     request.side = SideEnum::Buy; break;
+    //case CandlestickPattern::BearishHarami:     request.side = SideEnum::Sell; break;
+    //case CandlestickPattern::BullishKicker:     request.side = SideEnum::Buy; break;
+    //case CandlestickPattern::BearishKicker:     request.side = SideEnum::Sell; break;
     default: break;
     }
 
-    if (side == SideEnum::Invalid)
+    if (request.side == SideEnum::Invalid)
         return;
 
     // проверим можем ли выполонить сделку, сохранив множитель
-    Symbol symbol(_candlesticks->getIdentifier());
+    Symbol symbol = Exchanger().chart()->getIdentifier();
     DecisionMaker decision(symbol);
-    double factor = decision.factor(side, DecisionMaker::ForTrader);
+    double factor = decision.factor(request.side, DecisionMaker::ForTrader);
     if (factor < 0.7)
         return;
 
-    if (not _orders.create(symbol, side, _min_quantity, nullptr))
+    if (not _orders.create(request, nullptr))
         Logger::info("failed create order");
 }
