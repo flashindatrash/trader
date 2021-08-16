@@ -81,9 +81,9 @@ void OrderManager::printOrder(const OrderWrapper* order, const OrderWrapper* pos
     };
 
     if (position == nullptr) {
-        Logger::info("\a%s\t%f %s for\t%f", sideStr(order->side()), order->quantity(), symbol.baseAsset().c_str(), symbol.getPrice());
+        Logger::info("\a%s\t%f %s for\t%f", sideStr(order->side()), order->quantity(), symbol.baseAsset().c_str(), order->getPrice());
     } else {
-        Logger::info("\a%s\t%f %s for %f (%s for %f)", sideStr(order->side()), order->quantity(), symbol.baseAsset().c_str(), symbol.getPrice(), sideStr(position->side()), position->getPrice());
+        Logger::info("\a%s\t%f %s for %f (%s for %f)", sideStr(order->side()), order->quantity(), symbol.baseAsset().c_str(), order->getPrice(), sideStr(position->side()), position->getPrice());
 
         double profit = std::abs(position->getPrice() - symbol.getPrice()) * position->quantity();
         double total = DataManager::addProfit(symbol.quoteAsset(), profit);
