@@ -5,10 +5,10 @@
 #include "algorithm/DecisionMaker.hpp"
 
 // мин % соотношение, меньше которого не сливать
-static float sMinRate = 0.0035f;
+static float sMinRate = 0.005f;
 
 // желаемое % соотношение
-static float sRate = 0.006f;
+static float sRate = 0.01f;
 
 ProfitManager::ProfitManager(OrderManager& orders)
     : BaseManager(orders)
