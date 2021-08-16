@@ -20,8 +20,11 @@ public: // methods
     const Price& priceClose() const;
 
     const Price bodyLen() const;
-    const Price wickLen() const;
-    const Price tailLen() const;
+    const Price wickLen() const; // upper tail
+    const Price tailLen() const; // lowest tail
+
+    bool isBullish() const; // green
+    bool isBearish() const; // red
 
     const Price hl2() const;
     const Price hlc3() const;

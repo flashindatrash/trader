@@ -29,6 +29,14 @@ const Price CandlestickWrapper::tailLen() const {
     return std::min(_data.price_open, _data.price_close) - _data.price_low;
 }
 
+bool CandlestickWrapper::isBullish() const {
+    return _data.price_open < _data.price_close;
+}
+
+bool CandlestickWrapper::isBearish() const {
+    return _data.price_open > _data.price_close;
+}
+
 const Price CandlestickWrapper::hl2() const {
     return (_data.price_high + _data.price_low) / 2.0;
 }

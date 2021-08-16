@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stdlib.h>
 #include <iostream>
 #include <sys/time.h>
 #include <csignal>
@@ -51,6 +52,9 @@ public: //
     }
 
     static void title(const char* fmt, ...) {
+        if (getenv("QT_TERMINAL") != nullptr)
+            return;
+
         va_list arg;
 
         va_start(arg, fmt);

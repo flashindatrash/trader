@@ -1,8 +1,10 @@
 #include "ProfitManager.hpp"
+#include "Logger.hpp"
 #include "proxy/ExchangerProxy.hpp"
 #include "exchanger/base/Symbol.hpp"
 #include "exchanger/wrapper/ChartWrapper.hpp"
 #include "exchanger/wrapper/OrderWrapper.hpp"
+#include "exchanger/wrapper/CandlestickWrapper.hpp"
 #include "algorithm/OrderManager.hpp"
 #include "algorithm/DecisionMaker.hpp"
 
@@ -10,7 +12,10 @@
 static Change sMinRate = 0.0035;
 
 // желаемое % соотношение
-static Change sRate = 0.008;
+static Change sRate = 0.006;
+
+// хвостик в % цены, если меньше, то ждем, не закрываем позицию
+static Change sStrongTail = 0.0015;
 
 ProfitManager::ProfitManager(OrderManager& orders)
     : BaseManager(orders)
@@ -18,20 +23,37 @@ ProfitManager::ProfitManager(OrderManager& orders)
 }
 
 void ProfitManager::tick(const Symbol& symbol) {
-    // находим ордер для закрытия
-    const OrderWrapper* transaction = findClosableOrder(symbol);
-    if (transaction == nullptr)
-        return;
-
     const CandlestickWrapper* candlestick = Exchanger().chart()->last();
     if (candlestick == nullptr)
         return;
 
-    // пробуем создать новый ордер
+    // находим ордер для закрытия
+    const OrderWrapper* position = findClosableOrder(symbol);
+    if (position == nullptr)
+        return;
+
+    // создаем реквест
     OrderRequest request;
-    request.side = revertSide(transaction->side());
-    request.quantity = transaction->quantity();
-    _orders.create(request, transaction);
+    request.side = revertSide(position->side());
+    request.quantity = position->quantity();
+
+    // если хвостик слабенький, то ждем
+    if (request.side == OrderSide::Sell && candlestick->isBullish()) {
+        Change tail = candlestick->wickLen() / symbol.getPrice();
+        if (tail < sStrongTail) {
+            Logger::info("wait to sell... %f", symbol.getPrice());
+            return;
+        }
+    } else if (request.side == OrderSide::Buy && candlestick->isBearish()) {
+        Change tail = candlestick->tailLen() / symbol.getPrice();
+        if (tail < sStrongTail) {
+            Logger::info("wait to buy... %f", symbol.getPrice());
+            return;
+        }
+    }
+
+    // пробуем создать новый ордер
+    _orders.create(request, position);
 }
 
 const OrderWrapper* ProfitManager::findClosableOrder(const Symbol &symbol) const {

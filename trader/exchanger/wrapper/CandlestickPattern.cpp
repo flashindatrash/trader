@@ -1,14 +1,6 @@
 #include "CandlestickPattern.hpp"
 #include "CandlestickWrapper.hpp"
 
-bool CandlestickPattern::isBullish(const CandlestickWrapper& candlestick) {
-    return candlestick.priceOpen() < candlestick.priceClose();
-}
-
-bool CandlestickPattern::isBearish(const CandlestickWrapper& candlestick) {
-    return candlestick.priceOpen() > candlestick.priceClose();
-}
-
 bool CandlestickPattern::isHammerLike(const CandlestickWrapper& candlestick) {
     return candlestick.tailLen() > (candlestick.bodyLen() * 2) &&
            candlestick.wickLen() < candlestick.bodyLen();
@@ -36,62 +28,62 @@ bool CandlestickPattern::isGapDown(const CandlestickWrapper& previous, const Can
 }
 
 bool CandlestickPattern::isHammer(const CandlestickWrapper& candlestick) {
-    return isBullish(candlestick) &&
+    return candlestick.isBullish() &&
            isHammerLike(candlestick);
 }
 
 bool CandlestickPattern::isInvertedHammer(const CandlestickWrapper& candlestick) {
-    return isBearish(candlestick) &&
+    return candlestick.isBearish() &&
            isInvertedHammerLike(candlestick);
 }
 
 bool CandlestickPattern::isHangingMan(const CandlestickWrapper& previous, const CandlestickWrapper& current) {
-    return isBullish(previous) &&
-           isBearish(current) &&
+    return previous.isBullish() &&
+           current.isBearish() &&
            isGapUp(previous, current) &&
            isHammerLike(current);
 }
 
 bool CandlestickPattern::isShootingStar(const CandlestickWrapper& previous, const CandlestickWrapper& current) {
-    return isBullish(previous) &&
-           isBearish(current) &&
+    return previous.isBullish() &&
+           current.isBearish() &&
            isGapUp(previous, current) &&
            isInvertedHammerLike(current);
 }
 
 bool CandlestickPattern::isBullishEngulfing(const CandlestickWrapper& previous, const CandlestickWrapper& current) {
-    return isBearish(previous) &&
-           isBullish(current) &&
+    return previous.isBearish() &&
+           current.isBullish() &&
            isEngulfed(previous, current);
 }
 
 bool CandlestickPattern::isBearishEngulfing(const CandlestickWrapper& previous, const CandlestickWrapper& current) {
-    return isBullish(previous) &&
-           isBearish(current) &&
+    return previous.isBullish() &&
+           current.isBearish() &&
            isEngulfed(previous, current);
 }
 
 bool CandlestickPattern::isBullishHarami(const CandlestickWrapper& previous, const CandlestickWrapper& current) {
-    return isBearish(previous) &&
-           isBullish(current) &&
+    return previous.isBearish() &&
+           current.isBullish() &&
            isEngulfed(current, previous);
 }
 
 bool CandlestickPattern::isBearishHarami(const CandlestickWrapper& previous, const CandlestickWrapper& current) {
-    return isBullish(previous) &&
-           isBearish(current) &&
+    return previous.isBullish() &&
+           current.isBearish() &&
            isEngulfed(current, previous);
 }
 
 bool CandlestickPattern::isBullishKicker(const CandlestickWrapper& previous, const CandlestickWrapper& current) {
-    return isBearish(previous) &&
-           isBullish(current) &&
+    return previous.isBearish() &&
+           current.isBullish() &&
            isGapUp(previous, current);
 }
 
 bool CandlestickPattern::isBearishKicker(const CandlestickWrapper& previous, const CandlestickWrapper& current) {
-    return isBullish(previous) &&
-           isBearish(current) &&
+    return previous.isBullish() &&
+           current.isBearish() &&
            isGapDown(previous, current);
 }
 

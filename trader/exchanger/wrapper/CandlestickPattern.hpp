@@ -24,8 +24,6 @@ protected: // helpers
     static bool isGapUp(const CandlestickWrapper& previous, const CandlestickWrapper& current);
     static bool isGapDown(const CandlestickWrapper& previous, const CandlestickWrapper& current);
 
-    static bool isBullish(const CandlestickWrapper& candlestick);
-    static bool isBearish(const CandlestickWrapper& candlestick);
     static bool isHammerLike(const CandlestickWrapper& candlestick);
     static bool isInvertedHammerLike(const CandlestickWrapper& candlestick);
 
