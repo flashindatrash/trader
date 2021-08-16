@@ -1,7 +1,6 @@
 #pragma once
 
-#include <string>
-#include "exchanger/base/Storage.hpp"
+#include "exchanger/base/Identifier.hpp"
 #include "exchanger/base/ExchangerTypes.hpp"
 
 struct Candlestick {
@@ -10,7 +9,7 @@ struct Candlestick {
     bool closed = false;
 };
 
-class CandlestickWrapper : public MapIdentifier<std::string> {
+class CandlestickWrapper : public Identifier {
 public: // static
     static CandlestickWrapper* create();
 

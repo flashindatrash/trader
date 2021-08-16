@@ -1,5 +1,7 @@
 #include "ProfitManager.hpp"
+#include "proxy/ExchangerProxy.hpp"
 #include "exchanger/base/Symbol.hpp"
+#include "exchanger/wrapper/ChartWrapper.hpp"
 #include "exchanger/wrapper/OrderWrapper.hpp"
 #include "algorithm/OrderManager.hpp"
 #include "algorithm/DecisionMaker.hpp"
@@ -19,6 +21,10 @@ void ProfitManager::tick(const Symbol& symbol) {
     // находим ордер для закрытия
     const OrderWrapper* transaction = findClosableOrder(symbol);
     if (transaction == nullptr)
+        return;
+
+    const CandlestickWrapper* candlestick = Exchanger().chart()->last();
+    if (candlestick == nullptr)
         return;
 
     // пробуем создать новый ордер

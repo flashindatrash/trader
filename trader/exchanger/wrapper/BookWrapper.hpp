@@ -1,12 +1,12 @@
 #pragma once
 
-#include <string>
-#include "exchanger/base/Storage.hpp"
+#include <vector>
+#include "exchanger/base/Identifier.hpp"
 
 struct Order;
 class OrderWrapper;
 
-class BookWrapper : public MapIdentifier<std::string> {
+class BookWrapper : public Identifier {
 public: // static
     static BookWrapper* create();
 

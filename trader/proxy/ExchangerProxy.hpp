@@ -1,14 +1,16 @@
 #pragma once
 
 #include "Proxy.hpp"
-#include "exchanger/base/Storage-include.hpp"
+#include "exchanger/base/Storage.hpp"
 
 namespace core {
     class Config;
 }
 
+class Symbol;
 class ExchangerController;
-class OrderRequest;
+class OrderWrapper;
+struct OrderRequest;
 
 class ExchangerProxy : public core::Proxy<ExchangerProxy>, public Storage {
 public: // methods

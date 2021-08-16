@@ -1,9 +1,9 @@
 #pragma once
 
-#include "exchanger/base/Storage.hpp"
+#include "exchanger/base/Identifier.hpp"
 #include "exchanger/base/Symbol.hpp"
 
-class ExchangeWrapper : public MapIdentifier<std::string> {
+class ExchangeWrapper : public Identifier {
 public: // static
     static ExchangeWrapper* create();
 

@@ -1,54 +1,37 @@
 #pragma once
 
 #include <unordered_map>
+#include <string>
+#include "exchanger/base/Storage-macros.hpp"
 #include "Signal.hpp"
 
-template<class K> class MapIdentifier {
-public:
-    typedef K sTypeKey;
-
-    void setIdentifier(K identifier) {
-        _identifier  = identifier;
-    }
-
-    const K& getIdentifier() const {
-        return _identifier;
-    }
-
-protected:
-    K _identifier;
-};
-
-template<class K, class T> class StorageMap : protected std::unordered_map<K, T*> {
-    typedef std::unordered_map<K, T*> BaseClass;
+template<class T> class StorageMap : protected std::unordered_map<std::string, T*> {
+    typedef std::unordered_map<std::string, T*> BaseClass;
 public: // methods
     StorageMap() = default;
-    virtual ~StorageMap() {
-        for (auto& pair : *this)
-            delete pair.second;
-        BaseClass::clear();
-    }
+    virtual ~StorageMap();
 
 public: // methods
-    const T* get(const K& key) const {
-        auto it = BaseClass::find(key);
-        if (it == BaseClass::end())
-            return nullptr;
-        return it->second;
-    }
-
-    T* get(const K& key) {
-        T* wrapper = nullptr;
-        auto it = BaseClass::find(key);
-        if (it == BaseClass::end()) {
-            wrapper = T::create();
-            wrapper->setIdentifier(key);
-            BaseClass::insert(std::make_pair(key, wrapper));
-        } else
-            wrapper = it->second;
-        return wrapper;
-    }
+    const T* get(const std::string& key) const;
+    T* get(const std::string& key);
 
 public: // signals
-    Signal<K&> onChanged;
+    Signal<std::string&> onChanged;
 };
+
+class ExchangeWrapper;
+class PriceWrapper;
+class BalanceWrapper;
+class CandlestickWrapper;
+class ChartWrapper;
+class BookWrapper;
+
+class Storage {
+    STORAGE_PUBLIC(ExchangeWrapper, info)
+    STORAGE_PUBLIC(PriceWrapper, price)
+    STORAGE_PUBLIC(BalanceWrapper, balance)
+    STORAGE_PRIVATE(CandlestickWrapper, stat)
+    STORAGE_PRIVATE(ChartWrapper, chart)
+    STORAGE_PRIVATE(BookWrapper, book)
+};
+

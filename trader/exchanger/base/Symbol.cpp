@@ -2,6 +2,7 @@
 #include "proxy/BinanceExchangeInfo.hpp"
 #include "exchanger/base/Symbol.hpp"
 #include "exchanger/wrapper/PriceWrapper.hpp"
+#include "exchanger/wrapper/BalanceWrapper.hpp"
 #include "util/StringUtil.hpp"
 
 Asset::Asset()

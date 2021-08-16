@@ -3,6 +3,7 @@
 #include "proxy/ExchangerProxy.hpp"
 #include "exchanger/base/ExchangerTypes.hpp"
 #include "exchanger/base/Symbol.hpp"
+#include "exchanger/wrapper/BookWrapper.hpp"
 #include "exchanger/wrapper/OrderWrapper.hpp"
 #include "algorithm/OrderManager.hpp"
 #include "algorithm/DataManager.hpp"

@@ -1,12 +1,14 @@
 #pragma once
 
-#include "exchanger/base/Storage-include.hpp"
+#include "exchanger/base/Storage.hpp"
 
 namespace core {
     class Config;
 }
 
-class OrderRequest;
+class OrderWrapper;
+struct OrderRequest;
+enum ChartInterval : unsigned int;
 
 class ExchangerController {
 public: // static

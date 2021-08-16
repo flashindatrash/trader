@@ -1,9 +1,8 @@
 #pragma once
 
-#include <string>
-#include "exchanger/base/Storage.hpp"
+#include "exchanger/base/Identifier.hpp"
 
-class BalanceWrapper : public MapIdentifier<std::string> {
+class BalanceWrapper : public Identifier {
 public: // static
     static BalanceWrapper* create();
 

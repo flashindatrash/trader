@@ -42,3 +42,9 @@ const CandlestickWrapper* ChartWrapper::add(const Candlestick& data) {
 const std::vector<CandlestickWrapper*>& ChartWrapper::get() const {
     return _candlesticks;
 }
+
+const CandlestickWrapper* ChartWrapper::last() const {
+    if (_candlesticks.empty())
+        return nullptr;
+    return _candlesticks.back();
+}

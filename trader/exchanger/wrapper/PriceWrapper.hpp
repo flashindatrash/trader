@@ -1,10 +1,10 @@
 #pragma once
 
-#include <string>
-#include "exchanger/base/Storage.hpp"
+#include <vector>
+#include "exchanger/base/Identifier.hpp"
 #include "exchanger/base/ExchangerTypes.hpp"
 
-class PriceWrapper : public MapIdentifier<std::string>
+class PriceWrapper : public Identifier
 {
 public: // static
     typedef std::pair<Price, time_t> PriceTimePair;

@@ -3,6 +3,7 @@
 #include "proxy/ExchangerProxy.hpp"
 #include "exchanger/base/Symbol.hpp"
 #include "exchanger/wrapper/OrderWrapper.hpp"
+#include "exchanger/wrapper/CandlestickWrapper.hpp"
 
 DecisionMaker::DecisionMaker(const Symbol& symbol)
     : _symbol(symbol)

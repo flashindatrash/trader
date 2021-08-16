@@ -1,8 +1,10 @@
 #include "ExchangerProxy.hpp"
 #include "Config.hpp"
 #include "proxy/TraderTime.hpp"
+#include "exchanger/base/Symbol.hpp"
 #include "exchanger/base/ExchangerController.hpp"
 #include "exchanger/wrapper/OrderWrapper.hpp"
+#include "exchanger/wrapper/ChartWrapper.hpp"
 
 #include "proxy/BinanceExchangeInfo.hpp"
 

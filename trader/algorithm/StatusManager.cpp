@@ -2,6 +2,9 @@
 #include "OrderManager.hpp"
 #include "Logger.hpp"
 #include "proxy/ExchangerProxy.hpp"
+#include "exchanger/base/Symbol.hpp"
+#include "exchanger/wrapper/ChartWrapper.hpp"
+#include "exchanger/wrapper/CandlestickWrapper.hpp"
 #include "exchanger/wrapper/OrderWrapper.hpp"
 #include "util/NumberUtil.hpp"
 
