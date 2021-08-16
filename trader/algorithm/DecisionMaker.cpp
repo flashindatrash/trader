@@ -1,7 +1,6 @@
 #include "Logger.hpp"
 #include "DecisionMaker.hpp"
 #include "proxy/ExchangerProxy.hpp"
-#include "exchanger/base/ExchangerTypes.hpp"
 #include "exchanger/base/Symbol.hpp"
 #include "exchanger/wrapper/OrderWrapper.hpp"
 
@@ -20,8 +19,8 @@ double DecisionMaker::factor(const OrderSide& side, int based_on) const {
         // увеличиваем/понижаем рейтинг при отрицательном дневном росте/падении
         const CandlestickWrapper* stat = Exchanger().stat();
         if (stat->priceOpen() > 0.0) {
-            PriceRange range(stat->priceOpen(), _symbol.getPrice());
-            result *= 1.0 + range.change() * (side == OrderSide::Buy ? 1 : -1);
+            Change change = util::change(stat->priceOpen(), _symbol.getPrice());
+            result *= 1.0 + change * (side == OrderSide::Buy ? 1 : -1);
         }
     }
 

@@ -14,15 +14,17 @@ enum OrderSide : unsigned int {
 };
 
 struct Order {
-    std::string id = "";
+    typedef std::string Id;
+
+    Id id = "";
     OrderSide side = Invalid;
-    double quoute_quantity = 0.0;
-    double quantity = 0.0;
+    Quantity quoute_quantity = 0.0;
+    Quantity quantity = 0.0;
 };
 
 struct OrderRequest {
     OrderSide side;
-    double quantity = 0.0;
+    Quantity quantity = 0.0;
     OrderType type = Market;
 
     bool isEnough() const;
@@ -35,9 +37,9 @@ public: // static
 public: // methods
     void set(Order data);
 
-    const std::string& getId() const;
+    const Order::Id& getId() const;
     const OrderSide& side() const;
-    const double& quantity() const;
+    const Quantity& quantity() const;
     const Price getPrice() const;
 
 protected: // methods

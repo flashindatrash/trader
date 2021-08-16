@@ -48,7 +48,7 @@ void TraderManager::onCloseCandle(const CandlestickWrapper& wrapper) {
     OrderRequest request;
     request.quantity = _min_quantity;
 
-    Change change = PriceRange(current->priceOpen(), current->priceClose()).change();
+    Change change = util::change(current->priceOpen(), current->priceClose());
     if (std::abs(change) >= sMinRate)
         request.side = change > 0.0 ? OrderSide::Sell : change < 0.0 ? OrderSide::Buy : OrderSide::Invalid;
 

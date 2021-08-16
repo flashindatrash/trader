@@ -18,13 +18,14 @@ void PriceWrapper::add(Price price, time_t time) {
     _per_second.push_back(std::make_pair(price, time));
 }
 
-double PriceWrapper::get() const {
+const Price& PriceWrapper::get() const {
+    static const Price sEmpty = 0.0;
     if (_per_second.empty())
-        return 0.0;
+        return sEmpty;
     return _per_second.back().first;
 }
 
-double PriceWrapper::getPriceBack(time_t interval) const {
+const Price PriceWrapper::getPriceBack(time_t interval) const {
     time_t time = Time().ms() - interval;
 
     PriceTimePair d1;
@@ -41,9 +42,9 @@ double PriceWrapper::getPriceBack(time_t interval) const {
     return t1 < t2 ? d1.first : d2.first;
 }
 
-double PriceWrapper::getPriceAverage(time_t interval) const {
-    double price_back = getPriceBack(interval);
-    double price_current = getPriceBack(0);
+const Price PriceWrapper::getPriceAverage(time_t interval) const {
+    Price price_back = getPriceBack(interval);
+    Price price_current = getPriceBack(0);
 
     // todo: не учитывает цены в интервале, так и должно ли
     return (price_back + price_current) / 2.0;

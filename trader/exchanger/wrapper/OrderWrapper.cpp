@@ -12,7 +12,7 @@ void OrderWrapper::set(Order data) {
     _data = data;
 }
 
-const std::string& OrderWrapper::getId() const {
+const Order::Id& OrderWrapper::getId() const {
     return _data.id;
 }
 
@@ -20,7 +20,7 @@ const OrderSide& OrderWrapper::side() const {
     return _data.side;
 }
 
-const double& OrderWrapper::quantity() const {
+const Quantity& OrderWrapper::quantity() const {
     return _data.quantity;
 }
 

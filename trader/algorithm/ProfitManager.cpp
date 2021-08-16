@@ -35,7 +35,7 @@ const OrderWrapper* ProfitManager::findClosableOrder(const Symbol &symbol) const
     const OrderWrapper* transaction = nullptr;
     double best_change = 0.0;
     for (const OrderWrapper* order : _orders.getPositions()) {
-        Change change = PriceRange(order->getPrice(), symbol.getPrice()).change();
+        Change change = util::change(order->getPrice(), symbol.getPrice());
 
         // открытая позиция соответствует сайду
         const OrderSide revert = change > 0.0 ? OrderSide::Sell : change < 0.0 ? OrderSide::Buy : OrderSide::Invalid;

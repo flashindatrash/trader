@@ -1,13 +1,20 @@
 #include "NumberUtil.hpp"
 
-int util::getZerosAfterDot(double num) {
+unsigned int util::zeros_after_dot(double num) {
     if (num == 0.0)
         return 0;
 
-    int count = 0;
+    unsigned int count = 0;
     while (num < 1.0) {
         ++count;
         num*=10.0;
     }
     return count;
 };
+
+double util::ceil_steps(double value, double step) {
+    double steps = 0.0;
+    while (steps < value)
+        steps += step;
+    return steps;
+}

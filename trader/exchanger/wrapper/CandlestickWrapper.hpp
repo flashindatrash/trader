@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include "exchanger/base/Storage.hpp"
 #include "exchanger/base/ExchangerTypes.hpp"
 

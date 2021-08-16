@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include "exchanger/base/Storage.hpp"
 #include "exchanger/base/ExchangerTypes.hpp"
 
@@ -14,10 +15,10 @@ public: // methods
     void add(Price price);
     void add(Price price, time_t time);
 
-    double get() const;
+    const Price& get() const;
 
-    double getPriceBack(time_t interval) const;
-    double getPriceAverage(time_t interval) const;
+    const Price getPriceBack(time_t interval) const;
+    const Price getPriceAverage(time_t interval) const;
 
 protected: // methods
     PriceWrapper() = default;

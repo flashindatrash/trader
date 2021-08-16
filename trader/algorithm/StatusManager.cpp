@@ -42,10 +42,10 @@ void StatusManager::tick(const Symbol& symbol) {
     if (not current_embeded)
         timeline += "|";
 
-    std::string formatBaseBalance = "%." + std::to_string(util::getZerosAfterDot(baseBalance) + 1) + "f";
-    std::string formatQuoteBalance = "%." + std::to_string(util::getZerosAfterDot(quoteBalance) + 1) + "f";
-    std::string formatLosses = "%." + std::to_string(util::getZerosAfterDot(losses) + 1) + "f";
-    std::string formatPrice = "%." + std::to_string(util::getZerosAfterDot(current) + 3) + "f";
+    std::string formatBaseBalance = "%." + std::to_string(util::zeros_after_dot(baseBalance) + 1) + "f";
+    std::string formatQuoteBalance = "%." + std::to_string(util::zeros_after_dot(quoteBalance) + 1) + "f";
+    std::string formatLosses = "%." + std::to_string(util::zeros_after_dot(losses) + 1) + "f";
+    std::string formatPrice = "%." + std::to_string(util::zeros_after_dot(current) + 3) + "f";
     std::string formatChange = change > 0.0 ? "+%.3f" : "%.3f";
     std::string format = "%s (" + formatBaseBalance + ") - %s (" + formatQuoteBalance + ") " + formatPrice + " (" + formatChange + "%%)" + " losses -" + formatLosses + " %s";
     Logger::title(format.c_str(),
@@ -62,7 +62,7 @@ void StatusManager::tick(const Symbol& symbol) {
 double StatusManager::getChange() {
     if (not Exchanger().chart()->get().empty()) {
         const CandlestickWrapper* last = Exchanger().chart()->get().back();
-        return PriceRange(last->priceOpen(), last->priceClose()).change() * 100.0;
+        return util::change(last->priceOpen(), last->priceClose()) * 100.0;
     }
     return 0.0;
 }
