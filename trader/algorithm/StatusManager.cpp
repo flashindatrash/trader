@@ -47,8 +47,8 @@ void StatusManager::tick(const Symbol& symbol) {
     std::string formatQuoteBalance = "%." + std::to_string(util::getZerosAfterDot(quoteBalance) + 1) + "f";
     std::string formatLosses = "%." + std::to_string(util::getZerosAfterDot(losses) + 1) + "f";
     std::string formatPrice = "%." + std::to_string(util::getZerosAfterDot(current) + 3) + "f";
-    std::string formatChange = change > 0.0 ? "+%.3f" : "%.3f%%";
-    std::string format = "%s (" + formatBaseBalance + ") - %s (" + formatQuoteBalance + ") " + formatPrice + " (" + formatChange + ")" + " losses -" + formatLosses + " %s";
+    std::string formatChange = change > 0.0 ? "+%.3f" : "%.3f";
+    std::string format = "%s (" + formatBaseBalance + ") - %s (" + formatQuoteBalance + ") " + formatPrice + " (" + formatChange + "%%)" + " losses -" + formatLosses + " %s";
     Logger::title(format.c_str(),
                   symbol.baseAsset().c_str(),
                   baseBalance,
