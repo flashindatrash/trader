@@ -26,7 +26,7 @@ bool ExchangerProxy::init(const core::Config& config, const Symbol& symbol) {
     _controller->connectBalances(_balances);
 
     _stat_connector = _controller->connectStats(*_stats.get(symbol));
-    _chart_connector = _controller->connectChart(*_charts.get(symbol), ChartInterval::m5);
+    _chart_connector = _controller->connectChart(*_charts.get(symbol), ChartInterval::m15);
     _book_connector = _controller->connectOrders(*_books.get(symbol));
 
     if (!_stat_connector || !_chart_connector || !_book_connector)

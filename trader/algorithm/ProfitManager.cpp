@@ -1,5 +1,6 @@
 #include "ProfitManager.hpp"
 #include "Logger.hpp"
+#include "proxy/TraderTime.hpp"
 #include "proxy/ExchangerProxy.hpp"
 #include "exchanger/base/Symbol.hpp"
 #include "exchanger/wrapper/ChartWrapper.hpp"
@@ -14,8 +15,10 @@ static Change sMinRate = 0.0035;
 // желаемое % соотношение
 static Change sRate = 0.006;
 
-// хвостик в % цены, если меньше, то ждем, не закрываем позицию
-static Change sStrongTail = 0.0015;
+// макс хвостик в % от цены, если меньше, то ждем, не закрываем позицию
+static Change sMaxTailRate = 0.0015;
+// минимально время свечи, после которого применяем правило выше
+static time_t sMinTimeCandle = TraderTime::sSecond * 5;
 
 ProfitManager::ProfitManager(OrderManager& orders)
     : BaseManager(orders)
@@ -37,19 +40,26 @@ void ProfitManager::tick(const Symbol& symbol) {
     request.side = revertSide(position->side());
     request.quantity = position->quantity();
 
+    // новый хвостик, ждем N времени
+    time_t candle_time = candlestick->timeClose() - candlestick->timeOpen();
+    if (candle_time < sMinTimeCandle)
+        return;
     // если хвостик слабенький, то ждем
-    if (request.side == OrderSide::Sell && candlestick->isBullish()) {
-        Change tail = candlestick->wickLen() / symbol.getPrice();
-        if (tail < sStrongTail) {
-            Logger::info("wait to sell... %f", symbol.getPrice());
-            return;
-        }
-    } else if (request.side == OrderSide::Buy && candlestick->isBearish()) {
-        Change tail = candlestick->tailLen() / symbol.getPrice();
-        if (tail < sStrongTail) {
-            Logger::info("wait to buy... %f", symbol.getPrice());
-            return;
-        }
+    if ((request.side == OrderSide::Sell &&
+         candlestick->isBullish() &&
+         candlestick->wickLen() / symbol.getPrice() < sMaxTailRate) ||
+        (request.side == OrderSide::Buy &&
+         candlestick->isBearish() &&
+         candlestick->tailLen() / symbol.getPrice() < sMaxTailRate))
+    {
+        if (_temp == 0.0)
+            _temp = symbol.getPrice();
+        return;
+    }
+
+    if (_temp != 0.0) {
+        Logger::info("waited for a weak candle started at %f, ended at %f", _temp, symbol.getPrice());
+        _temp = 0.0;
     }
 
     // пробуем создать новый ордер

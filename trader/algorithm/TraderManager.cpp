@@ -10,14 +10,14 @@
 #include "algorithm/DecisionMaker.hpp"
 #include "util/PriceUtil.hpp"
 
-static Change sMinRate = 0.004;
+static Change sMinRate = 0.006;
 
 // мин объем валюты, с которым бот открывает новые заказы
 // данное число умножается на минимальный разрешенный лот
 static Quantity sMinQuantity = 1.3;
 
 // скипать похожие позиции, у которых цена отличается на этот процент
-static Change sEqualPosition = 0.002;
+static Change sEqualPosition = 0.003;
 
 TraderManager::TraderManager(OrderManager& orders)
     : BaseManager(orders)
