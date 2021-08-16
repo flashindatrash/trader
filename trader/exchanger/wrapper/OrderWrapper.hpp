@@ -23,7 +23,7 @@ struct Order {
 };
 
 struct OrderRequest {
-    OrderSide side;
+    OrderSide side = Invalid;
     Quantity quantity = 0.0;
     OrderType type = Market;
 

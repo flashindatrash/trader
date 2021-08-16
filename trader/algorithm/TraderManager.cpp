@@ -10,11 +10,14 @@
 #include "algorithm/DecisionMaker.hpp"
 #include "util/PriceUtil.hpp"
 
-static double sMinRate = 0.004;
+static Change sMinRate = 0.004;
 
 // мин объем валюты, с которым бот открывает новые заказы
 // данное число умножается на минимальный разрешенный лот
-static double sMinQuantity = 1.3;
+static Quantity sMinQuantity = 1.3;
+
+// скипать похожие позиции, у которых цена отличается на этот процент
+static Change sEqualPosition = 0.003;
 
 TraderManager::TraderManager(OrderManager& orders)
     : BaseManager(orders)
@@ -46,6 +49,7 @@ void TraderManager::onCloseCandle(const CandlestickWrapper& wrapper) {
     CandlestickPattern::Pattern pattern = CandlestickPattern::find(*current, *previous);
 
     OrderRequest request;
+    request.side = OrderSide::Invalid;
     request.quantity = _min_quantity;
 
     Change change = util::change(current->priceOpen(), current->priceClose());
@@ -69,11 +73,21 @@ void TraderManager::onCloseCandle(const CandlestickWrapper& wrapper) {
     if (request.side == OrderSide::Invalid)
         return;
 
+    // исключаем повторения похожих позиций
+    for (const OrderWrapper* position : _orders.getPositions()) {
+        if (position->side() == request.side)
+            continue;
+
+        Change change = util::change(position->getPrice(), current->priceClose());
+        if (std::abs(change) < sEqualPosition)
+            return;
+    }
+
     // проверим можем ли выполонить сделку, сохранив множитель
     Symbol symbol = Exchanger().chart()->getIdentifier();
     DecisionMaker decision(symbol);
     double factor = decision.factor(request.side, DecisionMaker::ForTrader);
-    if (factor < 0.7)
+    if (factor < 1.0)
         return;
 
     if (not _orders.create(request, nullptr))
