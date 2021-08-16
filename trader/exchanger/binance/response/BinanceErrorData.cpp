@@ -1,8 +1,9 @@
 #include "exchanger/binance/response/BinanceErrorData.hpp"
 #include <json/json.h>
 
-const int BinanceErrorData::NEW_ORDER_REJECTED = -2010;
+const int BinanceErrorData::DISCONNECTED = -1001;
 const int BinanceErrorData::INVALID_TIMESTAMP = -1021;
+const int BinanceErrorData::NEW_ORDER_REJECTED = -2010;
 
 BinanceErrorData::BinanceErrorData(const Json::Value& json, std::string context)
 {

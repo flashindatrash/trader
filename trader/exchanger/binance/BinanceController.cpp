@@ -41,14 +41,24 @@ void BinanceController::run() {
 }
 
 void BinanceController::tick(time_t now) {
+    auto timesup = [now](time_t time, time_t interval) {
+        return time != 0 && now > time + interval;
+    };
+
     // Keepalive a user data stream to prevent a time out.
     // User data streams will close after 60 minutes.
     // It's recommended to send a ping about every 30 minutes
-    if (now >= _time_userstream + TraderTime::sMinute * 30)
+    if (timesup(_time_keep_userstream, TraderTime::sMinute * 30))
         keepUserDataStream();
 
-    if (now >= _time_daily_change + TraderTime::sMinute * 15)
+    // Update statistics
+    if (timesup(_time_daily_change, TraderTime::sMinute * 15))
         updateDailyChange();
+
+    // A single connection to stream.binance.com is only valid for 24 hours;
+    // Expect to be disconnected at the 24 hour mark
+    if (timesup(_time_start_userstream, TraderTime::sMinute * 3))
+        startUserDataStream();
 }
 
 bool BinanceController::getSymbolInfo(Storage::Type_info& container) const {
@@ -160,7 +170,6 @@ bool BinanceController::initUserListenKey() {
     }
 
     _stream_listen_key = json["listenKey"].asString();
-    _time_userstream = Time().ms();
     return true;
 }
 
@@ -168,6 +177,8 @@ void BinanceController::startUserDataStream() {
     std::string ws_path = std::string("/ws/");
     ws_path.append(_stream_listen_key);
 
+    _time_start_userstream = 0;
+    _time_keep_userstream = Time().ms();
     BinaCPP_websocket::connect_endpoint(std::bind(&BinanceController::onUserDataStream, this, std::placeholders::_1), ws_path.c_str());
 }
 
@@ -175,7 +186,7 @@ void BinanceController::keepUserDataStream() {
     if (_stream_listen_key.empty())
         return;
 
-    _time_userstream = Time().ms();
+    _time_keep_userstream = Time().ms();
     BinaCPP::keep_userDataStream(_stream_listen_key.c_str());
 }
 
@@ -183,6 +194,10 @@ int BinanceController::onUserDataStream(Json::Value &json) {
     BinanceErrorData error(json, "BinanceController::onUserDataStream");
     if (error.has()) {
         Logger::error(error.msg.c_str());
+        if (error.code == BinanceErrorData::DISCONNECTED) {
+            _time_start_userstream = Time().ms();
+            _time_keep_userstream = 0;
+        }
         return 0;
     }
 
@@ -273,6 +288,12 @@ const ChartWrapper* BinanceController::connectChart(ChartWrapper& wrapper, Chart
 }
 
 int BinanceController::onKlineDataStream(Json::Value& json) {
+    BinanceErrorData error(json, "BinanceController::onKlineDataStream");
+    if (error.has()) {
+        Logger::error(error.msg.c_str());
+        return 0;
+    }
+
     BinanceKlineData data(json);
 
     if (_prices_connector != nullptr) {

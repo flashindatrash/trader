@@ -9,8 +9,9 @@ namespace Json {
 struct BinanceErrorData
 {
 public: // static
-    static const int NEW_ORDER_REJECTED;
+    static const int DISCONNECTED;
     static const int INVALID_TIMESTAMP;
+    static const int NEW_ORDER_REJECTED;
 
 public: // methods
     BinanceErrorData(const Json::Value& json, std::string context = "");

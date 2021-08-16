@@ -51,7 +51,8 @@ protected: // vars
     ChartWrapper* _chart_connector = nullptr;
     CandlestickWrapper* _stats_connector = nullptr;
     std::string _stream_listen_key = "";
-    time_t _time_userstream = 0;
+    time_t _time_start_userstream = 0;
+    time_t _time_keep_userstream = 0;
     time_t _time_daily_change = 0;
 };
 
