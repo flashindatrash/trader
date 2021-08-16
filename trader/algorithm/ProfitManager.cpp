@@ -40,9 +40,8 @@ void ProfitManager::tick(const Symbol& symbol) {
     request.side = revertSide(position->side());
     request.quantity = position->quantity();
 
-    // новый хвостик, ждем N времени
-    time_t candle_time = candlestick->timeClose() - candlestick->timeOpen();
-    if (candle_time < sMinTimeCandle)
+    // новый хвостик, ждем N времен
+    if (candlestick->timeOpen() + sMinTimeCandle < Time().ms())
         return;
     // если хвостик слабенький, то ждем
     if ((request.side == OrderSide::Sell &&

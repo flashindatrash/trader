@@ -1,20 +1,22 @@
 #include "ExchangeWrapper.hpp"
 
-ExchangeWrapper* ExchangeWrapper::create()
-{
+ExchangeWrapper* ExchangeWrapper::create() {
     ExchangeWrapper* wrapper = new ExchangeWrapper();
     return wrapper;
 }
 
-void ExchangeWrapper::setAssets(const Asset& base, const Asset& quote) {
-    _baseAsset = base;
-    _quoteAsset = quote;
+void ExchangeWrapper::set(SymbolData data) {
+    _data = data;
 }
 
 const Asset& ExchangeWrapper::baseAsset() const {
-    return _baseAsset;
+    return _data.baseAsset;
 }
 
 const Asset& ExchangeWrapper::quoteAsset() const {
-    return _quoteAsset;
+    return _data.quoteAsset;
+}
+
+bool ExchangeWrapper::hasOrderType(const OrderType& type) const {
+    return _data.hasOrderType(type);
 }

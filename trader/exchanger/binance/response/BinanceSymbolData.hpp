@@ -1,9 +1,10 @@
 #pragma once
 
-#include <global.hpp>
+#include <vector>
+#include <string>
+#include "exchanger/wrapper/ExchangeWrapper.hpp"
 
-struct BinanceSymbolData
-{
+struct BinanceSymbolData : public SymbolData {
 public: // struct
     struct BaseFilter {
         bool has = false;
@@ -25,17 +26,15 @@ public: // methods
     BinanceSymbolData() = default;
     BinanceSymbolData(const Json::Value& json);
 
-    bool hasOrderType(const std::string& type) const;
+    bool hasOrderType(const OrderType& type) const override;
 
 public: // vars
     std::string symbol = "";
     std::string status = "";
 
-    std::string baseAsset = "";
     int baseAssetPrecision = 0;
     int baseCommissionPrecision = 0;
 
-    std::string quoteAsset = "";
     int quoteAssetPrecision = 0;
     int quoteCommissionPrecision = 0;
     bool quoteOrderQtyMarketAllowed = false;

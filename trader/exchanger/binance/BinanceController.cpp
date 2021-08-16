@@ -84,9 +84,7 @@ bool BinanceController::getSymbolInfo(Storage::Type_info& container) const {
 
     for (uint i = 0; i < symbols.size(); ++i) {
         BinanceSymbolData data(symbols[i]);
-
-        ExchangeWrapper* wrapper = container.get(data.symbol);
-        wrapper->setAssets(data.baseAsset, data.quoteAsset);
+        container.get(data.symbol)->set(data);
     }
 
     return true;
@@ -353,48 +351,8 @@ const OrderWrapper* BinanceController::createOrder(const OrderRequest& request) 
         return nullptr;
     }
 
-    if (not request.isEnough())
+    if (not request.canTrade())
         return nullptr;
-
-    /*
-    const BinanceSymbolData& info = symbol.getInfo();
-
-    // check minNotional for market
-    if (info.minNotional.applyToMarket) {
-        double avgPrice = symbol.getPrice();
-        if (const PriceWrapper* history = Exchanger().price(symbol))
-            avgPrice = history->getPriceAverage(info.minNotional.avgPriceMins * TraderTime::sMinute);
-
-        if (avgPrice * quantity < info.minNotional.minNotional) {
-            Logger::info("can't trade %f %s less minNotional", quantity, symbol.c_str());
-            return BinanceOrderData();
-        }
-    }
-
-    // check if symbol can trade on market
-    if (not info.hasOrderType(type)) {
-        Logger::info("can't trade symbol %s on %s", symbol.c_str(), type.c_str());
-        return BinanceOrderData();
-    }
-
-
-    // check lot size
-    if (info.lotSize.has) {
-        if (quantity < info.lotSize.minQty) {
-            Logger::info("can't trade %f quantity (min %f)", quantity, info.lotSize.minQty);
-            return BinanceOrderData();
-        } else if (quantity > info.lotSize.maxQty) {
-            Logger::info("can't trade %f quantity (max %f)", quantity, info.lotSize.maxQty);
-            return BinanceOrderData();
-        }
-        // todo
-        //else if ((quantity - info.lotSize.minQty) % info.lotSize.stepSize != 0) {
-        //    Logger::info("can't trade %f quantity (step size %f)\n", quantity, info.lotSize.stepSize);
-        //    return BinanceOrderData();
-        //}
-    }
-    */
-
 
     Json::Value json;
     BinaCPP::send_order(_orders_connector->getIdentifier().c_str(), binance::serialize(request.side).c_str(), binance::serialize(request.type).c_str(), "GTC", request.quantity , 0, "", 0, 0, BINANCE_TEST_MODE, BINANCE_RECV_WINDOW, json);
