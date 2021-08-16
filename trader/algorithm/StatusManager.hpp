@@ -10,9 +10,6 @@ public: // methods
     void tick(const Symbol& symbol);
 
 protected: // methods
-    std::string getTimline(double current);
     double getChange();
-    int getZerosAfterDot(double num);
-
 };
 

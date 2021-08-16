@@ -20,6 +20,7 @@ public: // methods
     const std::vector<const OrderWrapper*>& getPositions() const;
 
 protected: // methods
+    void sortPositions();
     void printProfit(const Symbol& symbol, double profit);
 
 protected: // vars
