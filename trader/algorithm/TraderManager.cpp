@@ -17,7 +17,7 @@ static Change sMinRate = 0.004;
 static Quantity sMinQuantity = 1.3;
 
 // скипать похожие позиции, у которых цена отличается на этот процент
-static Change sEqualPosition = 0.003;
+static Change sEqualPosition = 0.002;
 
 TraderManager::TraderManager(OrderManager& orders)
     : BaseManager(orders)
