@@ -10,14 +10,14 @@
 #include "algorithm/DecisionMaker.hpp"
 #include "util/PriceUtil.hpp"
 
-static Change sMinRate = 0.006;
+static Change sMinRate = 0.005;
 
 // мин объем валюты, с которым бот открывает новые заказы
 // данное число умножается на минимальный разрешенный лот
 static Quantity sMinQuantity = 1.3;
 
 // скипать похожие позиции, у которых цена отличается на этот процент
-static Change sEqualPosition = 0.003;
+static Change sEqualPosition = 0.004;
 
 TraderManager::TraderManager(OrderManager& orders)
     : BaseManager(orders)
@@ -39,36 +39,17 @@ bool TraderManager::init(const Symbol& symbol) {
 }
 
 void TraderManager::onCloseCandle(const CandlestickWrapper& wrapper) {
-    const std::vector<CandlestickWrapper*>& candlesticks = Exchanger().chart()->get();
-    if (candlesticks.size() < 2)
+    const CandlestickWrapper* candlestick = Exchanger().chart()->last();
+    if (candlestick == nullptr)
         return;
-
-    const CandlestickWrapper* current = *(candlesticks.end() - 1);
-    const CandlestickWrapper* previous = *(candlesticks.end() - 2);
-
-    CandlestickPattern::Pattern pattern = CandlestickPattern::find(*current, *previous);
 
     OrderRequest request;
     request.side = OrderSide::Invalid;
     request.quantity = _min_quantity;
 
-    Change change = util::change(current->priceOpen(), current->priceClose());
+    Change change = util::change(candlestick->priceOpen(), candlestick->priceClose());
     if (std::abs(change) >= sMinRate)
         request.side = change > 0.0 ? OrderSide::Sell : change < 0.0 ? OrderSide::Buy : OrderSide::Invalid;
-
-    switch (pattern) {
-    case CandlestickPattern::Hammer:            request.side = OrderSide::Buy; break;
-    case CandlestickPattern::InvertedHammer:    request.side = OrderSide::Buy; break;
-    case CandlestickPattern::HangingMan:        request.side = OrderSide::Sell; break;
-    case CandlestickPattern::ShootingStar:      request.side = OrderSide::Sell; break;
-    //case CandlestickWrapper::BullishEngulfing:  request.side = OrderSide::Sell; break;
-    //case CandlestickWrapper::BearishEngulfing:  request.side = OrderSide::Buy; break;
-    //case CandlestickPattern::BullishHarami:     request.side = OrderSide::Buy; break;
-    //case CandlestickPattern::BearishHarami:     request.side = OrderSide::Sell; break;
-    //case CandlestickPattern::BullishKicker:     request.side = OrderSide::Buy; break;
-    //case CandlestickPattern::BearishKicker:     request.side = OrderSide::Sell; break;
-    default: break;
-    }
 
     if (request.side == OrderSide::Invalid)
         return;
@@ -78,7 +59,7 @@ void TraderManager::onCloseCandle(const CandlestickWrapper& wrapper) {
         if (position->side() == request.side)
             continue;
 
-        Change change = util::change(position->getPrice(), current->priceClose());
+        Change change = util::change(position->getPrice(), candlestick->priceClose());
         if (std::abs(change) < sEqualPosition)
             return;
     }

@@ -58,7 +58,7 @@ void ProfitManager::tick(const Symbol& symbol) {
     }
 
     if (_temp != 0.0) {
-        Logger::info("waited for a weak candle started at %f, ended at %f", _temp, symbol.getPrice());
+        Logger::info("waited candle started at %f, ended at %f", _temp, symbol.getPrice());
         _temp = 0.0;
     }
 
