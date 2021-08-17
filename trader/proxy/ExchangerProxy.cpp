@@ -6,8 +6,6 @@
 #include "exchanger/wrapper/OrderWrapper.hpp"
 #include "exchanger/wrapper/ChartWrapper.hpp"
 
-#include "proxy/BinanceExchangeInfo.hpp"
-
 ExchangerProxy::~ExchangerProxy() {
     SAFE_DELETE(_controller);
 }
@@ -17,17 +15,15 @@ bool ExchangerProxy::init(const core::Config& config, const Symbol& symbol) {
     if (not _controller->init(config))
         return false;
 
-    SExchangeInfo().init();
-
     if (not _controller->getSymbolInfo(_pairs))
         return false;
 
     _controller->connectPrices(_prices);
     _controller->connectBalances(_balances);
 
-    _stat_connector = _controller->connectStats(*_stats.get(symbol.id()));
-    _chart_connector = _controller->connectChart(*_charts.get(symbol.id()), ChartInterval::m15);
-    _book_connector = _controller->connectOrders(*_books.get(symbol.id()));
+    _stat_connector = _controller->connectStats(*_stats.get(symbol));
+    _chart_connector = _controller->connectChart(*_charts.get(symbol), ChartInterval::m15);
+    _book_connector = _controller->connectOrders(*_books.get(symbol));
 
     if (!_stat_connector || !_chart_connector || !_book_connector)
         return false;

@@ -5,6 +5,7 @@
 #include "Config.hpp"
 #include "Logger.hpp"
 #include "util/StringUtil.hpp"
+#include "util/NumberUtil.hpp"
 #include "proxy/TraderTime.hpp"
 #include "exchanger/wrapper/Symbol.hpp"
 #include "exchanger/wrapper/ChartWrapper.hpp"
@@ -13,7 +14,6 @@
 #include "exchanger/wrapper/PriceWrapper.hpp"
 #include "response/BinanceEnums.hpp"
 #include "response/BinanceErrorData.hpp"
-#include "response/BinanceSymbolData.hpp"
 #include "response/BinanceBalanceData.hpp"
 #include "response/BinanceOrderData.hpp"
 #include "response/BinancePriceStatisticsData.hpp"
@@ -83,11 +83,12 @@ bool BinanceController::getSymbolInfo(Storage::Type_pair& container) const {
         return false;
     }
 
+    _symbols.clear();
     for (uint i = 0; i < symbols.size(); ++i) {
         BinanceSymbolData data(symbols[i]);
-        if (Symbol* symbol = container.get(data.symbol)) {
+        if (Symbol* symbol = container.get(data.symbol))
             symbol->set(data.baseAsset, data.quoteAsset);
-        }
+        _symbols[data.symbol] = data;
     }
 
     return true;
@@ -354,13 +355,38 @@ const OrderWrapper* BinanceController::createOrder(const OrderRequest& request) 
         return nullptr;
     }
 
-//    if (not request.canTrade()) {
-//        Logger::error("BinanceController::createOrder can't trade");
-//	return nullptr;
-//    }
+    std::string symbol = _orders_connector->id();
+    std::string type = binance::serialize(request.type);
+    Quantity quantity = request.quantity;
+
+    auto it = _symbols.find(symbol);
+    if (it == _symbols.end()) {
+        Logger::error("BinanceController::createOrder unknown symbol");
+        return nullptr;
+    }
+
+    const BinanceSymbolData& info = it->second;
+    if (not info.hasOrderType(type)) {
+        Logger::error("BinanceController::createOrder symbol doesn't supported for this type");
+        return nullptr;
+    }
+
+    Quantity min_quantity = getMinQuantity(info);
+    if (min_quantity == 0.0) {
+        Logger::error("BinanceController::createOrder unknown min quantity");
+        return nullptr;
+    } else if (quantity > min_quantity) {
+        const BinanceSymbolData::LotSize& lot_size = info.lotSize;
+        if (info.lotSize.stepSize > 0.0 && quantity != util::ceil_steps(quantity, info.lotSize.stepSize)) {
+            Logger::error("BinanceController::createOrder quantity not equal step size");
+            return nullptr;
+        }
+    } else {
+        quantity = min_quantity;
+    }
 
     Json::Value json;
-    BinaCPP::send_order(_orders_connector->id().c_str(), binance::serialize(request.side).c_str(), binance::serialize(request.type).c_str(), "GTC", request.quantity , 0, "", 0, 0, BINANCE_TEST_MODE, BINANCE_RECV_WINDOW, json);
+    BinaCPP::send_order(symbol.c_str(), type.c_str(), binance::serialize(request.type).c_str(), "GTC", quantity , 0, "", 0, 0, BINANCE_TEST_MODE, BINANCE_RECV_WINDOW, json);
 
     BinanceErrorData error(json, "BinanceController::createOrder");
     if (error.has()) {
@@ -377,3 +403,22 @@ const OrderWrapper* BinanceController::createOrder(const OrderRequest& request) 
     return _orders_connector->add(data);
 }
 
+double BinanceController::getMinQuantity(const BinanceSymbolData& info) const {
+    if (_prices_connector == nullptr)
+        return 0.0;
+
+    const PriceWrapper* wrapper = _prices_connector->get(info.symbol);
+    if (wrapper == nullptr)
+        return 0.0;
+
+    const BinanceSymbolData::MinNotional& min_notional = info.minNotional;
+    const BinanceSymbolData::LotSize& lot_size = info.lotSize;
+
+    Price price_avg = wrapper->getPriceAverage(min_notional.avgPriceMins * TraderTime::sMinute);
+    double quantity = std::max(lot_size.minQty, min_notional.minNotional / price_avg) *  1.2;
+    if (info.lotSize.stepSize > 0.0)
+        quantity = util::ceil_steps(quantity, info.lotSize.stepSize);
+    return quantity;
+}
+
+std::unordered_map<std::string, BinanceSymbolData> BinanceController::_symbols;

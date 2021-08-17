@@ -1,18 +1,19 @@
+#include "Symbol.hpp"
 #include "proxy/ExchangerProxy.hpp"
-#include "proxy/BinanceExchangeInfo.hpp"
-#include "exchanger/wrapper/Symbol.hpp"
 #include "exchanger/wrapper/PriceWrapper.hpp"
 #include "exchanger/wrapper/BalanceWrapper.hpp"
 #include "util/StringUtil.hpp"
 
-Asset::Asset()
-    : std::string("")
-{
+Asset::Asset(const std::string& asset) {
+    setId(util::uppercase(asset.c_str()));
 }
 
-Asset::Asset(const std::string& asset)
-    : std::string(util::uppercase(asset.c_str()))
-{
+const char* Asset::c_str() const {
+    return _identifier.c_str();
+}
+
+Asset::operator std::string() const {
+    return _identifier;
 }
 
 const double& Asset::getBalance() const {
@@ -40,7 +41,7 @@ Symbol::Symbol(Asset base, Asset quote) {
 }
 
 void Symbol::set(Asset base, Asset quote) {
-    setId(base + quote);
+    setId(base.id() + quote.id());
 
     _base = base;
     _quote = quote;
@@ -55,9 +56,17 @@ const Asset& Symbol::quoteAsset() const {
 }
 
 const Price& Symbol::getPrice() const {
-    return Exchanger().price(id())->get();
+    return Exchanger().price(*this)->get();
 }
 
 const Price Symbol::getPrice(double quantity) const {
     return getPrice() * quantity;
+}
+
+const char* Symbol::c_str() const {
+    return _identifier.c_str();
+}
+
+Symbol::operator std::string() const {
+    return _identifier;
 }

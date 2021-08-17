@@ -8,13 +8,8 @@
 #include "exchanger/wrapper/OrderWrapper.hpp"
 #include "algorithm/OrderManager.hpp"
 #include "algorithm/DecisionMaker.hpp"
-#include "util/PriceUtil.hpp"
 
 static Change sMinRate = 0.005;
-
-// мин объем валюты, с которым бот открывает новые заказы
-// данное число умножается на минимальный разрешенный лот
-static Quantity sMinQuantity = 1.3;
 
 // скипать похожие позиции, у которых цена отличается на этот процент
 static Change sEqualPosition = 0.004;
@@ -28,12 +23,6 @@ bool TraderManager::init(const Symbol& symbol) {
     if (not BaseManager::init(symbol))
         return false;
 
-    // устанавливаем стоимость покупки
-    double min = util::get_min_quantity(symbol);
-    _min_quantity = min * sMinQuantity;
-    _min_quantity = util::ceil_quantity(symbol, _min_quantity/* * std::max(factor, 1.0)*/);
-    Logger::info("lot quantity: %f", _min_quantity);
-
     ChartWrapper::onCandleClosed.connect(std::bind(&TraderManager::onCloseCandle, this, std::placeholders::_1));
     return true;
 }
@@ -45,7 +34,6 @@ void TraderManager::onCloseCandle(const CandlestickWrapper& wrapper) {
 
     OrderRequest request;
     request.side = OrderSide::Invalid;
-    request.quantity = _min_quantity;
 
     Change change = util::change(candlestick->priceOpen(), candlestick->priceClose());
     if (std::abs(change) >= sMinRate)

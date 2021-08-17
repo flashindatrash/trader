@@ -3,10 +3,13 @@
 #include <string>
 
 class Identifier {
-public:
-    void setId(std::string identifier);
+public: // methods
+    void setId(std::string id);
     const std::string& id() const;
 
-protected:
+protected: // methods
+    Identifier() = default;
+
+protected: // methods
     std::string _identifier = "";
 };

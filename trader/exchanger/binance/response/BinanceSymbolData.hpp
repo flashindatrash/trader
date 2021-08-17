@@ -29,6 +29,8 @@ public: // methods
     BinanceSymbolData() = default;
     BinanceSymbolData(const Json::Value& json);
 
+    bool hasOrderType(const std::string& type) const;
+
 public: // vars
     std::string symbol = "";
     std::string status = "";

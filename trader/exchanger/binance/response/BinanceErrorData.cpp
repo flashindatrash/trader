@@ -1,4 +1,4 @@
-#include "exchanger/binance/response/BinanceErrorData.hpp"
+#include "BinanceErrorData.hpp"
 #include <json/json.h>
 
 const int BinanceErrorData::DISCONNECTED = -1001;

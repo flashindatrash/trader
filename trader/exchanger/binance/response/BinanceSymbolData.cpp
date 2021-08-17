@@ -1,5 +1,4 @@
 #include "BinanceSymbolData.hpp"
-#include "BinanceEnums.hpp"
 #include <json/json.h>
 
 BinanceSymbolData::BinanceSymbolData(const Json::Value& json)
@@ -43,7 +42,6 @@ BinanceSymbolData::BinanceSymbolData(const Json::Value& json)
     }
 }
 
-//bool BinanceSymbolData::hasOrderType(const OrderType& type) const {
-//    std::string serialized = binance::serialize(type);
-//    return std::find(_orderTypes.begin(), _orderTypes.end(), serialized) != _orderTypes.end();
-//}
+bool BinanceSymbolData::hasOrderType(const std::string& type) const {
+    return std::find(_orderTypes.begin(), _orderTypes.end(), type) != _orderTypes.end();
+}

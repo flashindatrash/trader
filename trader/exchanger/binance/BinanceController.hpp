@@ -2,7 +2,9 @@
 
 #include <thread>
 #include <string>
+#include <unordered_map>
 #include "exchanger/base/ExchangerController.hpp"
+#include "response/BinanceSymbolData.hpp"
 
 namespace Json {
     class Value;
@@ -38,18 +40,24 @@ protected: // methods
     void startUserDataStream();
     void keepUserDataStream();
     void updateDailyChange();
+    double getMinQuantity(const BinanceSymbolData& info) const;
 
 protected: // callbacks
     int onUserDataStream(Json::Value& json);
     int onKlineDataStream(Json::Value& json);
 
-protected: // vars
+private: // static vars
+    static std::unordered_map<std::string, BinanceSymbolData> _symbols;
+
+private: // vars
     std::thread _thread;
+
     Storage::Type_price* _prices_connector = nullptr;
     Storage::Type_balance* _balances_connector = nullptr;
     BookWrapper* _orders_connector = nullptr;
     ChartWrapper* _chart_connector = nullptr;
     CandlestickWrapper* _stats_connector = nullptr;
+
     std::string _stream_listen_key = "";
     time_t _time_start_userstream = 0;
     time_t _time_keep_userstream = 0;

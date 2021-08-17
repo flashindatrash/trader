@@ -5,13 +5,15 @@
 
 struct BinanceSymbolData;
 
-class Asset : public std::string
-{
+class Asset : public Identifier {
 public: // methods
-    Asset();
+    Asset() = default;
     Asset(const std::string& asset);
 
     const double& getBalance() const;
+
+    const char* c_str() const;
+    operator std::string() const;
 };
 
 class Symbol : public Identifier {
@@ -29,6 +31,9 @@ public: // methods
 
     const Price& getPrice() const;
     const Price getPrice(double quantity) const;
+
+    const char* c_str() const;
+    operator std::string() const;
 
 protected: // vars
     Asset _base;

@@ -14,8 +14,5 @@ public: // methods
 protected: // methods
     // свеча закрылась
     void onCloseCandle(const CandlestickWrapper& wrapper);
-
-protected: // vars
-    double _min_quantity = 0.0;
 };
 
