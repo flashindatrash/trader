@@ -5,8 +5,7 @@ const int BinanceErrorData::DISCONNECTED = -1001;
 const int BinanceErrorData::INVALID_TIMESTAMP = -1021;
 const int BinanceErrorData::NEW_ORDER_REJECTED = -2010;
 
-BinanceErrorData::BinanceErrorData(const Json::Value& json, std::string context)
-{
+BinanceErrorData::BinanceErrorData(const Json::Value& json, std::string context) {
     if (not context.empty())
         context = context + ": ";
 

@@ -67,7 +67,7 @@ void ProfitManager::tick(const Symbol& symbol) {
 }
 
 const OrderWrapper* ProfitManager::findClosableOrder(const Symbol &symbol) const {
-    DecisionMaker decision(symbol);
+    DecisionMaker decision(symbol, _orders.getPositions());
 
     // найдем ордер, который стоит закрыть по более выгодному курсу
     const OrderWrapper* transaction = nullptr;

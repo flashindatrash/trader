@@ -54,7 +54,7 @@ void TraderManager::onCloseCandle(const CandlestickWrapper& wrapper) {
 
     // проверим можем ли выполонить сделку, сохранив множитель
     Symbol symbol = Exchanger().chart()->id();
-    DecisionMaker decision(symbol);
+    DecisionMaker decision(symbol, _orders.getPositions());
     double factor = decision.factor(request.side, DecisionMaker::ForTrader);
     if (factor < 1.0)
         return;

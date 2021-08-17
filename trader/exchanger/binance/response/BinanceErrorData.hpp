@@ -6,8 +6,7 @@ namespace Json {
     class Value;
 }
 
-struct BinanceErrorData
-{
+struct BinanceErrorData {
 public: // static
     static const int DISCONNECTED;
     static const int INVALID_TIMESTAMP;

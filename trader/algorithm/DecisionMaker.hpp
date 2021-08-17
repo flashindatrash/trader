@@ -1,5 +1,8 @@
 #pragma once
 
+#include <vector>
+
+class OrderWrapper;
 class Symbol;
 enum OrderSide : unsigned int;
 
@@ -15,7 +18,7 @@ public: // struct
     };
 
 public: // methods
-    DecisionMaker(const Symbol& symbol);
+    DecisionMaker(const Symbol& symbol, const std::vector<const OrderWrapper*>& positions);
 
     double factor(const OrderSide& side, int based_on) const;
 
@@ -24,6 +27,6 @@ protected: // methods
 
 protected: // vars
     const Symbol& _symbol;
-
+    const std::vector<const OrderWrapper*>& _positions;
 };
 

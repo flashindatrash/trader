@@ -5,8 +5,9 @@
 #include "exchanger/wrapper/OrderWrapper.hpp"
 #include "exchanger/wrapper/CandlestickWrapper.hpp"
 
-DecisionMaker::DecisionMaker(const Symbol& symbol)
+DecisionMaker::DecisionMaker(const Symbol& symbol, const std::vector<const OrderWrapper*>& positions)
     : _symbol(symbol)
+    , _positions(positions)
 {
 }
 
@@ -26,11 +27,21 @@ double DecisionMaker::factor(const OrderSide& side, int based_on) const {
     }
 
     if (has(based_on, Balance)) {
-        // понижаем рейтинг на сделки, при балансе ассета < 50%
-        static double sBalanceThreshold = 0.5;
-        double baseQty = _symbol.getPrice(_symbol.baseAsset().getBalance());
-        double quoteQty = _symbol.quoteAsset().getBalance();
-        result *= std::abs((side == OrderSide::Sell ? baseQty : quoteQty) / ((baseQty + quoteQty) * sBalanceThreshold));
+        Quantity baseQty = _symbol.getPrice(_symbol.baseAsset().getBalance());
+        Quantity quoteQty = _symbol.quoteAsset().getBalance();
+        // мы должны иметь валюту для закрытия сделки
+        for (const OrderWrapper* position : _positions) {
+            if (position->side() == OrderSide::Buy)
+                baseQty -= position->quantity();
+            else if (position->side() == OrderSide::Sell)
+                quoteQty -= position->price() * position->quantity();
+        }
+        baseQty = std::max(baseQty, 1.0);
+        quoteQty = std::max(quoteQty, 1.0);
+        if (baseQty > 0.0 || quoteQty > 0.0)
+            result *= std::abs((side == OrderSide::Sell ? baseQty : quoteQty) / (baseQty + quoteQty));
+        else
+            result *= 0;
     }
 
     return result;
