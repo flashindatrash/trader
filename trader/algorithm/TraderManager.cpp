@@ -23,6 +23,11 @@ bool TraderManager::init(const Symbol& symbol) {
     if (not BaseManager::init(symbol))
         return false;
 
+    DecisionMaker test(symbol, _orders.getPositions());
+    double fs = test.factor(OrderSide::Sell, DecisionMaker::ForTrader);
+    double fb = test.factor(OrderSide::Buy, DecisionMaker::ForTrader);
+    Logger::info("factors buy(%f) sell(%f)", fb, fs);
+
     ChartWrapper::onCandleClosed.connect(std::bind(&TraderManager::onCloseCandle, this, std::placeholders::_1));
     return true;
 }
@@ -56,7 +61,7 @@ void TraderManager::onCloseCandle(const CandlestickWrapper& wrapper) {
     Symbol symbol = Exchanger().chart()->id();
     DecisionMaker decision(symbol, _orders.getPositions());
     double factor = decision.factor(request.side, DecisionMaker::ForTrader);
-    if (factor < 1.0)
+    if (factor < 0.45)
         return;
 
     if (not _orders.create(request, nullptr))

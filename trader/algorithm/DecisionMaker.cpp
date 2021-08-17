@@ -29,19 +29,21 @@ double DecisionMaker::factor(const OrderSide& side, int based_on) const {
     if (has(based_on, Balance)) {
         Quantity baseQty = _symbol.getPrice(_symbol.baseAsset().getBalance());
         Quantity quoteQty = _symbol.quoteAsset().getBalance();
+	Quantity sumQty = baseQty + quoteQty;
         // мы должны иметь валюту для закрытия сделки
         for (const OrderWrapper* position : _positions) {
+            Change change = std::abs(util::change(position->price(), _symbol.getPrice()));
+            // коэффициент влияния, если сделка была не так далеко, то держать для нее баланс важнее
+            double k = std::max(0.1 - change, 0.0);
             if (position->side() == OrderSide::Buy)
-                baseQty -= position->quantity();
+                baseQty -= position->quantity() * k;
             else if (position->side() == OrderSide::Sell)
-                quoteQty -= position->price() * position->quantity();
+                quoteQty -= position->price() * position->quantity() * k;
         }
         baseQty = std::max(baseQty, 1.0);
         quoteQty = std::max(quoteQty, 1.0);
-        if (baseQty > 0.0 || quoteQty > 0.0)
-            result *= std::abs((side == OrderSide::Sell ? baseQty : quoteQty) / (baseQty + quoteQty));
-        else
-            result *= 0;
+
+        result *= std::abs((side == OrderSide::Sell ? baseQty : quoteQty) / (sumQty));
     }
 
     return result;
