@@ -376,17 +376,18 @@ const OrderWrapper* BinanceController::createOrder(const OrderRequest& request) 
         Logger::error("BinanceController::createOrder unknown min quantity");
         return nullptr;
     } else if (quantity > min_quantity) {
-        const BinanceSymbolData::LotSize& lot_size = info.lotSize;
-        if (info.lotSize.stepSize > 0.0 && quantity != util::ceil_steps(quantity, info.lotSize.stepSize)) {
-            Logger::error("BinanceController::createOrder quantity not equal step size");
-            return nullptr;
-        }
+//fixme
+//        const BinanceSymbolData::LotSize& lot_size = info.lotSize;
+//        if (info.lotSize.stepSize > 0.0 && quantity != util::ceil_steps(quantity, info.lotSize.stepSize)) {
+//            Logger::error("BinanceController::createOrder quantity not equal step size");
+//            return nullptr;
+//        }
     } else {
         quantity = min_quantity;
     }
 
     Json::Value json;
-    BinaCPP::send_order(symbol.c_str(), type.c_str(), binance::serialize(request.type).c_str(), "GTC", quantity , 0, "", 0, 0, BINANCE_TEST_MODE, BINANCE_RECV_WINDOW, json);
+    BinaCPP::send_order(symbol.c_str(), binance::serialize(request.side).c_str(), binance::serialize(request.type).c_str(), "GTC", quantity , 0, "", 0, 0, BINANCE_TEST_MODE, BINANCE_RECV_WINDOW, json);
 
     BinanceErrorData error(json, "BinanceController::createOrder");
     if (error.has()) {

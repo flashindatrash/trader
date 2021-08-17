@@ -40,10 +40,10 @@ double DecisionMaker::factor(const OrderSide& side, int based_on) const {
             else if (position->side() == OrderSide::Sell)
                 quoteQty -= position->price() * position->quantity() * k;
         }
-        baseQty = std::max(baseQty, 1.0);
-        quoteQty = std::max(quoteQty, 1.0);
+        baseQty = std::max(baseQty, 0.0);
+        quoteQty = std::max(quoteQty, 0.0);
 
-        result *= std::abs((side == OrderSide::Sell ? baseQty : quoteQty) / (sumQty));
+        result *= std::abs((side == OrderSide::Sell ? baseQty : quoteQty) / sumQty);
     }
 
     return result;
