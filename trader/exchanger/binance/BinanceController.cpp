@@ -347,12 +347,14 @@ const BookWrapper* BinanceController::connectOrders(BookWrapper& wrapper) {
 
 const OrderWrapper* BinanceController::createOrder(const OrderRequest& request) {
     if (_orders_connector == nullptr) {
-        Logger::error("BinanceController::createOrder: orders not connected");
+        Logger::error("BinanceController::createOrder orders not connected");
         return nullptr;
     }
 
-    if (not request.canTrade())
-        return nullptr;
+//    if (not request.canTrade()) {
+//        Logger::error("BinanceController::createOrder can't trade");
+//	return nullptr;
+//    }
 
     Json::Value json;
     BinaCPP::send_order(_orders_connector->getIdentifier().c_str(), binance::serialize(request.side).c_str(), binance::serialize(request.type).c_str(), "GTC", request.quantity , 0, "", 0, 0, BINANCE_TEST_MODE, BINANCE_RECV_WINDOW, json);
@@ -364,8 +366,10 @@ const OrderWrapper* BinanceController::createOrder(const OrderRequest& request) 
     }
 
     BinanceOrderData data(json, false);
-    if (data.status.empty())
+    if (data.status.empty()) {
+        Logger::error("BinanceController::createOrder empty response");
         return nullptr;
+    }
 
     return _orders_connector->add(data);
 }

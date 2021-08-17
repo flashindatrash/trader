@@ -41,8 +41,8 @@ void ProfitManager::tick(const Symbol& symbol) {
     request.quantity = position->quantity();
 
     // новый хвостик, ждем N времен
-    if (candlestick->timeOpen() + sMinTimeCandle < Time().ms())
-        return;
+//    if (candlestick->timeOpen() + sMinTimeCandle < Time().ms())
+//        return;
     // если хвостик слабенький, то ждем
     if ((request.side == OrderSide::Sell &&
          candlestick->isBullish() &&
