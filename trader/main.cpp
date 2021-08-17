@@ -7,7 +7,7 @@
 #include "Logger.hpp"
 #include "Config.hpp"
 #include "TraderApp.hpp"
-#include "exchanger/base/Symbol.hpp"
+#include "exchanger/wrapper/Symbol.hpp"
 
 void handler(int sig) {
   void *array[10];

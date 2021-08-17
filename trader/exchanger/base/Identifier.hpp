@@ -4,9 +4,9 @@
 
 class Identifier {
 public:
-    void setIdentifier(std::string identifier);
-    const std::string& getIdentifier() const;
+    void setId(std::string identifier);
+    const std::string& id() const;
 
 protected:
-    std::string _identifier;
+    std::string _identifier = "";
 };

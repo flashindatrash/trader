@@ -1,7 +1,7 @@
 #pragma once
 
-#include <global.hpp>
-#include "exchanger/wrapper/PriceWrapper.hpp"
+#include "exchanger/base/Identifier.hpp"
+#include "exchanger/base/ExchangerTypes.hpp"
 
 struct BinanceSymbolData;
 
@@ -14,19 +14,20 @@ public: // methods
     const double& getBalance() const;
 };
 
-class Symbol : public std::string
-{
+class Symbol : public Identifier {
+public: // static
+    static Symbol* create();
+
 public: // methods
-    Symbol();
+    Symbol() = default;
     Symbol(const std::string& symbol);
     Symbol(Asset base, Asset second);
 
+    void set(Asset base, Asset second);
     const Asset& baseAsset() const;
     const Asset& quoteAsset() const;
 
-    const BinanceSymbolData& getInfo() const;
-
-    const Price getPrice() const;
+    const Price& getPrice() const;
     const Price getPrice(double quantity) const;
 
 protected: // vars

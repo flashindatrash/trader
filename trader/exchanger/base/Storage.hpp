@@ -19,7 +19,7 @@ public: // signals
     Signal<std::string&> onChanged;
 };
 
-class ExchangeWrapper;
+class Symbol;
 class PriceWrapper;
 class BalanceWrapper;
 class CandlestickWrapper;
@@ -27,7 +27,7 @@ class ChartWrapper;
 class BookWrapper;
 
 class Storage {
-    STORAGE_PUBLIC(ExchangeWrapper, info)
+    STORAGE_PUBLIC(Symbol, pair)
     STORAGE_PUBLIC(PriceWrapper, price)
     STORAGE_PUBLIC(BalanceWrapper, balance)
     STORAGE_PRIVATE(CandlestickWrapper, stat)

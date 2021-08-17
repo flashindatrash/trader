@@ -6,10 +6,11 @@
 #include "Logger.hpp"
 #include "util/StringUtil.hpp"
 #include "proxy/TraderTime.hpp"
+#include "exchanger/wrapper/Symbol.hpp"
 #include "exchanger/wrapper/ChartWrapper.hpp"
 #include "exchanger/wrapper/BalanceWrapper.hpp"
 #include "exchanger/wrapper/BookWrapper.hpp"
-#include "exchanger/wrapper/ExchangeWrapper.hpp"
+#include "exchanger/wrapper/PriceWrapper.hpp"
 #include "response/BinanceEnums.hpp"
 #include "response/BinanceErrorData.hpp"
 #include "response/BinanceSymbolData.hpp"
@@ -65,7 +66,7 @@ void BinanceController::tick(time_t now) {
         startUserDataStream();
 }
 
-bool BinanceController::getSymbolInfo(Storage::Type_info& container) const {
+bool BinanceController::getSymbolInfo(Storage::Type_pair& container) const {
     Json::Value json;
     BinaCPP::get_exchangeInfo(json);
 
@@ -84,7 +85,9 @@ bool BinanceController::getSymbolInfo(Storage::Type_info& container) const {
 
     for (uint i = 0; i < symbols.size(); ++i) {
         BinanceSymbolData data(symbols[i]);
-        container.get(data.symbol)->set(data);
+        if (Symbol* symbol = container.get(data.symbol)) {
+            symbol->set(data.baseAsset, data.quoteAsset);
+        }
     }
 
     return true;
@@ -237,7 +240,7 @@ void BinanceController::updateDailyChange() {
     _time_daily_change = Time().ms();
 
     Json::Value json;
-    BinaCPP::get_24hr(_stats_connector->getIdentifier().c_str(), json);
+    BinaCPP::get_24hr(_stats_connector->id().c_str(), json);
 
     BinanceErrorData error(json, "BinanceController::updateDailyChange");
     if (error.has()) {
@@ -256,7 +259,7 @@ bool BinanceController::getChart(ChartWrapper &wrapper, ChartInterval interval) 
     }
 
     Json::Value json;
-    BinaCPP::get_klines(wrapper.getIdentifier().c_str(), interval_converted.c_str(), 40, 0, 0, json);
+    BinaCPP::get_klines(wrapper.id().c_str(), interval_converted.c_str(), 40, 0, 0, json);
 
     BinanceErrorData error(json, "BinanceController::getChart");
     if (error.has()) {
@@ -284,7 +287,7 @@ const ChartWrapper* BinanceController::connectChart(ChartWrapper& wrapper, Chart
         return nullptr;
 
     _chart_connector = &wrapper;
-    const std::string& path = "/ws/" + util::lowercase(wrapper.getIdentifier().c_str()) + "@kline_" + binance::serialize(interval);
+    const std::string& path = "/ws/" + util::lowercase(wrapper.id().c_str()) + "@kline_" + binance::serialize(interval);
     BinaCPP_websocket::connect_endpoint(std::bind(&BinanceController::onKlineDataStream, this, std::placeholders::_1), path.c_str());
     return _chart_connector;
 }
@@ -312,7 +315,7 @@ int BinanceController::onKlineDataStream(Json::Value& json) {
 
 bool BinanceController::getOrders(BookWrapper& wrapper) const {
     Json::Value json;
-    BinaCPP::get_allOrders(wrapper.getIdentifier().c_str(), 0, 0, BINANCE_RECV_WINDOW, json);
+    BinaCPP::get_allOrders(wrapper.id().c_str(), 0, 0, BINANCE_RECV_WINDOW, json);
 
     std::vector<BinanceOrderData> vec;
 
@@ -357,7 +360,7 @@ const OrderWrapper* BinanceController::createOrder(const OrderRequest& request) 
 //    }
 
     Json::Value json;
-    BinaCPP::send_order(_orders_connector->getIdentifier().c_str(), binance::serialize(request.side).c_str(), binance::serialize(request.type).c_str(), "GTC", request.quantity , 0, "", 0, 0, BINANCE_TEST_MODE, BINANCE_RECV_WINDOW, json);
+    BinaCPP::send_order(_orders_connector->id().c_str(), binance::serialize(request.side).c_str(), binance::serialize(request.type).c_str(), "GTC", request.quantity , 0, "", 0, 0, BINANCE_TEST_MODE, BINANCE_RECV_WINDOW, json);
 
     BinanceErrorData error(json, "BinanceController::createOrder");
     if (error.has()) {

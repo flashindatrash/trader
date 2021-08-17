@@ -1,6 +1,6 @@
 #include "proxy/ExchangerProxy.hpp"
 #include "proxy/BinanceExchangeInfo.hpp"
-#include "exchanger/base/Symbol.hpp"
+#include "exchanger/wrapper/Symbol.hpp"
 #include "exchanger/wrapper/PriceWrapper.hpp"
 #include "exchanger/wrapper/BalanceWrapper.hpp"
 #include "util/StringUtil.hpp"
@@ -19,24 +19,31 @@ const double& Asset::getBalance() const {
     return Exchanger().balance(*this)->get();
 }
 
-Symbol::Symbol()
-    : std::string("")
-{
+Symbol* Symbol::create() {
+    Symbol* wrapper = new Symbol();
+    return wrapper;
 }
 
-Symbol::Symbol(const std::string& symbol)
-    : std::string(symbol)
-{
-    const BinanceSymbolData& info = getInfo();
-    _base = info.baseAsset;
-    _quote = info.quoteAsset;
+Symbol::Symbol(const std::string& symbol) {
+    setId(symbol);
+
+    const Symbol* pair = Exchanger().pair(symbol);
+    if (pair == nullptr)
+        return;
+
+    _base = pair->baseAsset();
+    _quote = pair->quoteAsset();
 }
 
-Symbol::Symbol(Asset base, Asset second)
-    : _base(base)
-    , _quote(second)
-    , std::string(base + second)
-{
+Symbol::Symbol(Asset base, Asset quote) {
+    set(base, quote);
+}
+
+void Symbol::set(Asset base, Asset quote) {
+    setId(base + quote);
+
+    _base = base;
+    _quote = quote;
 }
 
 const Asset& Symbol::baseAsset() const {
@@ -47,12 +54,8 @@ const Asset& Symbol::quoteAsset() const {
     return _quote;
 }
 
-const BinanceSymbolData& Symbol::getInfo() const {
-    return SExchangeInfo().getSymbolInfo(*this);
-}
-
-const Price Symbol::getPrice() const {
-    return Exchanger().price(*this)->get();
+const Price& Symbol::getPrice() const {
+    return Exchanger().price(id())->get();
 }
 
 const Price Symbol::getPrice(double quantity) const {

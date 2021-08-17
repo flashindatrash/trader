@@ -18,7 +18,7 @@ public: // virtual
     void run() override;
     void tick(time_t now) override;
 
-    bool getSymbolInfo(Storage::Type_info& container) const override;
+    bool getSymbolInfo(Storage::Type_pair& container) const override;
     bool getAllPrices(Storage::Type_price& container) const override;
     bool getBalances(Storage::Type_balance& container) const override;
     bool getOrders(BookWrapper& wrapper) const override;

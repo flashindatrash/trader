@@ -1,7 +1,7 @@
 #include "TraderManager.hpp"
 #include "Logger.hpp"
 #include "proxy/ExchangerProxy.hpp"
-#include "exchanger/base/Symbol.hpp"
+#include "exchanger/wrapper/Symbol.hpp"
 #include "exchanger/wrapper/ChartWrapper.hpp"
 #include "exchanger/wrapper/CandlestickPattern.hpp"
 #include "exchanger/wrapper/CandlestickWrapper.hpp"
@@ -59,13 +59,13 @@ void TraderManager::onCloseCandle(const CandlestickWrapper& wrapper) {
         if (position->side() == request.side)
             continue;
 
-        Change change = util::change(position->getPrice(), candlestick->priceClose());
+        Change change = util::change(position->price(), candlestick->priceClose());
         if (std::abs(change) < sEqualPosition)
             return;
     }
 
     // проверим можем ли выполонить сделку, сохранив множитель
-    Symbol symbol = Exchanger().chart()->getIdentifier();
+    Symbol symbol = Exchanger().chart()->id();
     DecisionMaker decision(symbol);
     double factor = decision.factor(request.side, DecisionMaker::ForTrader);
     if (factor < 1.0)

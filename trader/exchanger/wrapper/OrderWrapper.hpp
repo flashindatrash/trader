@@ -38,10 +38,10 @@ public: // static
 public: // methods
     void set(Order data);
 
-    const Order::Id& getId() const;
+    const Order::Id& id() const;
     const OrderSide& side() const;
     const Quantity& quantity() const;
-    const Price getPrice() const;
+    const Price price() const;
 
 protected: // methods
     OrderWrapper() = default;

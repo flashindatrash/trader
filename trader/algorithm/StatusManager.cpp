@@ -2,7 +2,7 @@
 #include "OrderManager.hpp"
 #include "Logger.hpp"
 #include "proxy/ExchangerProxy.hpp"
-#include "exchanger/base/Symbol.hpp"
+#include "exchanger/wrapper/Symbol.hpp"
 #include "exchanger/wrapper/ChartWrapper.hpp"
 #include "exchanger/wrapper/CandlestickWrapper.hpp"
 #include "exchanger/wrapper/OrderWrapper.hpp"
@@ -24,7 +24,7 @@ void StatusManager::tick(const Symbol& symbol) {
 
     bool current_embeded = false;
     for (const OrderWrapper* position : _orders.getPositions()) {
-        Price price = position->getPrice();
+        Price price = position->price();
 
         if (not current_embeded && current < price) {
             timeline += "|";

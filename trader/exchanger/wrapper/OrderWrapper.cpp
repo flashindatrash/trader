@@ -1,8 +1,7 @@
 #include "OrderWrapper.hpp"
 #include "proxy/ExchangerProxy.hpp"
-#include "exchanger/base/Symbol.hpp"
+#include "exchanger/wrapper/Symbol.hpp"
 #include "exchanger/wrapper/BookWrapper.hpp"
-#include "exchanger/wrapper/ExchangeWrapper.hpp"
 
 OrderWrapper* OrderWrapper::create()
 {
@@ -14,7 +13,7 @@ void OrderWrapper::set(Order data) {
     _data = data;
 }
 
-const Order::Id& OrderWrapper::getId() const {
+const Order::Id& OrderWrapper::id() const {
     return _data.id;
 }
 
@@ -26,12 +25,12 @@ const Quantity& OrderWrapper::quantity() const {
     return _data.quantity;
 }
 
-const Price OrderWrapper::getPrice() const {
+const Price OrderWrapper::price() const {
     return _data.quoute_quantity / _data.quantity;
 }
 
 bool OrderRequest::isEnough() const {
-    const Symbol& symbol = Exchanger().book()->getIdentifier();
+    const Symbol& symbol = Exchanger().book()->id();
     if (side == OrderSide::Buy)
         return symbol.quoteAsset().getBalance() >= symbol.getPrice(quantity);
     else if (side == OrderSide::Sell)
@@ -43,16 +42,13 @@ bool OrderRequest::canTrade() const {
     if (not isEnough())
         return false;
 
-    const Symbol& symbol = Exchanger().book()->getIdentifier();
+    const Symbol& symbol = Exchanger().book()->id();
 
-    const ExchangeWrapper* info = Exchanger().info(symbol);
-    if (info == nullptr)
-        return false;
-
+    /*
+     *
     if (not info->hasOrderType(type))
         return false;
 
-    /*
     const BinanceSymbolData& info = symbol.getInfo();
 
     // check minNotional for market

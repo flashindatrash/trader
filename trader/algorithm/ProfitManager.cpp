@@ -2,7 +2,7 @@
 #include "Logger.hpp"
 #include "proxy/TraderTime.hpp"
 #include "proxy/ExchangerProxy.hpp"
-#include "exchanger/base/Symbol.hpp"
+#include "exchanger/wrapper/Symbol.hpp"
 #include "exchanger/wrapper/ChartWrapper.hpp"
 #include "exchanger/wrapper/OrderWrapper.hpp"
 #include "exchanger/wrapper/CandlestickWrapper.hpp"
@@ -41,8 +41,9 @@ void ProfitManager::tick(const Symbol& symbol) {
     request.quantity = position->quantity();
 
     // новый хвостик, ждем N времен
-//    if (candlestick->timeOpen() + sMinTimeCandle < Time().ms())
-//        return;
+    if (Time().ms() < candlestick->timeOpen() + sMinTimeCandle)
+        return;
+
     // если хвостик слабенький, то ждем
     if ((request.side == OrderSide::Sell &&
          candlestick->isBullish() &&
@@ -72,7 +73,7 @@ const OrderWrapper* ProfitManager::findClosableOrder(const Symbol &symbol) const
     const OrderWrapper* transaction = nullptr;
     double best_change = 0.0;
     for (const OrderWrapper* order : _orders.getPositions()) {
-        Change change = util::change(order->getPrice(), symbol.getPrice());
+        Change change = util::change(order->price(), symbol.getPrice());
 
         // открытая позиция соответствует сайду
         const OrderSide revert = change > 0.0 ? OrderSide::Sell : change < 0.0 ? OrderSide::Buy : OrderSide::Invalid;

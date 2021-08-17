@@ -2,7 +2,7 @@
 #include "proxy/TraderTime.hpp"
 #include "proxy/ExchangerProxy.hpp"
 #include "exchanger/base/ExchangerTypes.hpp"
-#include "exchanger/base/Symbol.hpp"
+#include "exchanger/wrapper/Symbol.hpp"
 #include "exchanger/wrapper/BookWrapper.hpp"
 #include "exchanger/wrapper/OrderWrapper.hpp"
 #include "algorithm/OrderManager.hpp"
@@ -19,7 +19,7 @@ OrderManager::OrderManager(const Symbol& symbol, bool test_mode)
     const std::vector<const OrderWrapper*>& orders = Exchanger().book()->get();
     std::vector<std::string> keys = DataManager::getPositionIds();
     for (const OrderWrapper* order : orders) {
-        std::string id = DataManager::sDbKeyOrder + order->getId();
+        std::string id = DataManager::sDbKeyOrder + order->id();
         if (std::find(keys.begin(), keys.end(), id) == keys.end())
             continue;
 
@@ -49,12 +49,12 @@ bool OrderManager::create(const OrderRequest& request, const OrderWrapper* trans
 
     // открыть/закрыть транзакцию
     if (transaction == nullptr) {
-        DataManager::openPosition(result->getId());
+        DataManager::openPosition(result->id());
         _positions.push_back(result);
     } else {
-        std::string order_id = transaction->getId();
+        std::string order_id = transaction->id();
         DataManager::closePosition(order_id);
-        _positions.erase(std::remove_if(_positions.begin(), _positions.end(), [order_id](const OrderWrapper* t) { return t->getId() == order_id; }));
+        _positions.erase(std::remove_if(_positions.begin(), _positions.end(), [order_id](const OrderWrapper* t) { return t->id() == order_id; }));
     }
 
     sortPositions();
@@ -68,12 +68,12 @@ const std::vector<const OrderWrapper*>& OrderManager::getPositions() const {
 void OrderManager::sortPositions() {
     // sort by price
     std::sort(_positions.begin(), _positions.end(), [](const OrderWrapper* l, const OrderWrapper* r) {
-        return l->getPrice() < r->getPrice();
+        return l->price() < r->price();
     });
 }
 
 void OrderManager::printOrder(const OrderWrapper* order, const OrderWrapper* position/* = nullptr*/) {
-    const Symbol& symbol = Exchanger().book()->getIdentifier();
+    const Symbol& symbol = Exchanger().book()->id();
 
     auto sideStr = [](const OrderSide& side) {
         if (side == OrderSide::Buy) return "BUY";
@@ -82,11 +82,11 @@ void OrderManager::printOrder(const OrderWrapper* order, const OrderWrapper* pos
     };
 
     if (position == nullptr) {
-        Logger::info("\a%s\t%f %s for\t%f", sideStr(order->side()), order->quantity(), symbol.baseAsset().c_str(), order->getPrice());
+        Logger::info("\a%s\t%f %s for\t%f", sideStr(order->side()), order->quantity(), symbol.baseAsset().c_str(), order->price());
     } else {
-        Logger::info("\a%s\t%f %s for %f (%s for %f)", sideStr(order->side()), order->quantity(), symbol.baseAsset().c_str(), order->getPrice(), sideStr(position->side()), position->getPrice());
+        Logger::info("\a%s\t%f %s for %f (%s for %f)", sideStr(order->side()), order->quantity(), symbol.baseAsset().c_str(), order->price(), sideStr(position->side()), position->price());
 
-        double profit = std::abs(position->getPrice() - symbol.getPrice()) * position->quantity();
+        double profit = std::abs(position->price() - symbol.getPrice()) * position->quantity();
         double total = DataManager::addProfit(symbol.quoteAsset(), profit);
         std::string formatCurrentProfit = "%." + std::to_string(util::zeros_after_dot(profit) + 1) + "f";
         std::string formatTotalProfit = "%." + std::to_string(util::zeros_after_dot(total) + 1) + "f";

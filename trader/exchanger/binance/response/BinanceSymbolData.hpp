@@ -2,9 +2,12 @@
 
 #include <vector>
 #include <string>
-#include "exchanger/wrapper/ExchangeWrapper.hpp"
 
-struct BinanceSymbolData : public SymbolData {
+namespace Json {
+    class Value;
+}
+
+struct BinanceSymbolData {
 public: // struct
     struct BaseFilter {
         bool has = false;
@@ -26,11 +29,12 @@ public: // methods
     BinanceSymbolData() = default;
     BinanceSymbolData(const Json::Value& json);
 
-    bool hasOrderType(const OrderType& type) const override;
-
 public: // vars
     std::string symbol = "";
     std::string status = "";
+
+    std::string baseAsset = "";
+    std::string quoteAsset = "";
 
     int baseAssetPrecision = 0;
     int baseCommissionPrecision = 0;
