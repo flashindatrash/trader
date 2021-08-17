@@ -64,7 +64,7 @@ void StatusManager::tick(const Symbol& symbol) {
 
 double StatusManager::getChange() {
     if (not Exchanger().chart()->get().empty()) {
-        const CandlestickWrapper* last = Exchanger().chart()->get().back();
+        const CandlestickWrapper* last = Exchanger().chart()->last();
         return util::change(last->priceOpen(), last->priceClose()) * 100.0;
     }
     return 0.0;
