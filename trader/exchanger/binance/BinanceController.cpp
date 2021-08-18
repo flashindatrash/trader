@@ -6,7 +6,7 @@
 #include "Logger.hpp"
 #include "util/StringUtil.hpp"
 #include "util/NumberUtil.hpp"
-#include "proxy/TraderTime.hpp"
+#include "proxy/Time.hpp"
 #include "exchanger/wrapper/Symbol.hpp"
 #include "exchanger/wrapper/ChartWrapper.hpp"
 #include "exchanger/wrapper/BalanceWrapper.hpp"
@@ -120,13 +120,6 @@ bool BinanceController::getAllPrices(Storage::Type_price& container) const {
     return true;
 }
 
-void BinanceController::connectPrices(Storage::Type_price& container) {
-    if (not getAllPrices(container))
-        return;
-
-    _prices_connector = &container;
-}
-
 bool BinanceController::getBalances(Storage::Type_balance& container) const {
     Json::Value json;
     BinaCPP::get_account(BINANCE_RECV_WINDOW, json);
@@ -151,12 +144,31 @@ bool BinanceController::getBalances(Storage::Type_balance& container) const {
     return true;
 }
 
+void BinanceController::connectPrices(Storage::Type_price& container) {
+    if (not getAllPrices(container))
+        return;
+
+    _prices_connector = &container;
+}
+
 void BinanceController::connectBalances(Storage::Type_balance& container) {
     if (not getBalances(container))
         return;
 
     _balances_connector = &container;
     startUserDataStream();
+}
+
+void BinanceController::connectOrders(Storage::Type_book& container) {
+    _orders_connector = &container;
+}
+
+void BinanceController::connectChart(Storage::Type_chart& container) {
+    _charts_connector = &container;
+}
+
+void BinanceController::connectStats(Storage::Type_stat& container) {
+    _stats_connector = &container;
 }
 
 bool BinanceController::initUserListenKey() {
@@ -339,14 +351,6 @@ bool BinanceController::getOrders(BookWrapper& wrapper) const {
     }
 
     return true;
-}
-
-const BookWrapper* BinanceController::connectOrders(BookWrapper& wrapper) {
-    if (not getOrders(wrapper))
-        return nullptr;
-
-    _orders_connector = &wrapper;
-    return _orders_connector;
 }
 
 const OrderWrapper* BinanceController::createOrder(const OrderRequest& request) {

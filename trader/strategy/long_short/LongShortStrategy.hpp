@@ -1,29 +1,26 @@
 #pragma once
 
-#include "Proxy.hpp"
+#include "time.h"
+#include "strategy/Strategy.hpp"
+#include "exchanger/wrapper/Symbol.hpp"
 
-namespace core {
-    class Config;
-}
-
-class Asset;
-class Symbol;
 class OrderManager;
 class StatusManager;
 class ProfitManager;
 class TraderManager;
 
-class TraderAlgorithm : public core::Proxy<TraderAlgorithm>
-{
+class TraderAlgorithm : public Strategy {
 public: // methods
+    virtual bool init(const core::Config& config) override;
+
+    void tick(time_t now);
+
+protected: // methods
     TraderAlgorithm() = default;
     virtual ~TraderAlgorithm() override;
 
-    bool init(const core::Config& config, const Symbol& symbol);
-    void tick(time_t now);
-
 protected: // vars
-    const Symbol* _symbol;
+    Symbol _symbol;
 
     OrderManager* _pool = nullptr;
     StatusManager* _status_manager = nullptr;

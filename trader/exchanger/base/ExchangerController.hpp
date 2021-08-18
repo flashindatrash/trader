@@ -28,10 +28,12 @@ public: // virtual
 
     virtual void connectPrices(Storage::Type_price& container) = 0;
     virtual void connectBalances(Storage::Type_balance& container) = 0;
+    virtual void connectOrders(Storage::Type_book& container) = 0;
+    virtual void connectStats(Storage::Type_stat& container) = 0;
+    virtual void connectChart(Storage::Type_chart& container) = 0;
 
-    virtual const BookWrapper*          connectOrders(BookWrapper& wrapper) = 0;
-    virtual const CandlestickWrapper*   connectStats(CandlestickWrapper& wrapper) = 0;
-    virtual const ChartWrapper*         connectChart(ChartWrapper& wrapper, ChartInterval interval) = 0;
+    virtual void listenStats(CandlestickWrapper& wrapper);
+    virtual void listenChart(ChartWrapper& wrapper, ChartInterval interval);
 
     virtual const OrderWrapper* createOrder(const OrderRequest& request) = 0;
 

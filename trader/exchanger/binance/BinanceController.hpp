@@ -28,10 +28,9 @@ public: // virtual
 
     void connectPrices(Storage::Type_price& container) override;
     void connectBalances(Storage::Type_balance& container) override;
-
-    const BookWrapper*          connectOrders(BookWrapper& wrapper) override;
-    const CandlestickWrapper*   connectStats(CandlestickWrapper& wrapper) override;
-    const ChartWrapper*         connectChart(ChartWrapper& wrapper, ChartInterval interval) override;
+    void connectOrders(Storage::Type_book& container) override;
+    void connectStats(Storage::Type_stat& container) override;
+    void connectChart(Storage::Type_chart& container) override;
 
     const OrderWrapper* createOrder(const OrderRequest& request) override;
 
@@ -54,9 +53,9 @@ private: // vars
 
     Storage::Type_price* _prices_connector = nullptr;
     Storage::Type_balance* _balances_connector = nullptr;
-    BookWrapper* _orders_connector = nullptr;
-    ChartWrapper* _chart_connector = nullptr;
-    CandlestickWrapper* _stats_connector = nullptr;
+    Storage::Type_book* _orders_connector = nullptr;
+    Storage::Type_chart* _charts_connector = nullptr;
+    Storage::Type_stat* _stats_connector = nullptr;
 
     std::string _stream_listen_key = "";
     time_t _time_start_userstream = 0;

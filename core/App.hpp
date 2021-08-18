@@ -5,10 +5,10 @@
 namespace core {
 
 class App {
-public: // methods
-    App(Config config);
-
 protected: // methods
+    App(const Config& config);
+    virtual ~App() = default;
+
     void sleep_ms(int ms);
 
 protected: // vars

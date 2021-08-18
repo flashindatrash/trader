@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include "exchanger/base/ExchangerTypes.hpp"
+#include "exchanger/wrapper/Symbol.hpp"
 
 enum OrderType : unsigned int {
     Market
@@ -23,6 +23,7 @@ struct Order {
 };
 
 struct OrderRequest {
+    Symbol symbol;
     OrderSide side = Invalid;
     Quantity quantity = 0.0;
     OrderType type = Market;

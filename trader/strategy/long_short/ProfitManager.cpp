@@ -1,13 +1,13 @@
 #include "ProfitManager.hpp"
+#include "OrderManager.hpp"
+#include "DecisionMaker.hpp"
 #include "Logger.hpp"
-#include "proxy/TraderTime.hpp"
-#include "proxy/ExchangerProxy.hpp"
+#include "proxy/Time.hpp"
+#include "proxy/Exchanger.hpp"
 #include "exchanger/wrapper/Symbol.hpp"
 #include "exchanger/wrapper/ChartWrapper.hpp"
 #include "exchanger/wrapper/OrderWrapper.hpp"
 #include "exchanger/wrapper/CandlestickWrapper.hpp"
-#include "algorithm/OrderManager.hpp"
-#include "algorithm/DecisionMaker.hpp"
 
 // мин % соотношение, меньше которого не сливать
 static Change sMinRate = 0.0035;
@@ -37,6 +37,7 @@ void ProfitManager::tick(const Symbol& symbol) {
 
     // создаем реквест
     OrderRequest request;
+    request.symbol = symbol;
     request.side = revertSide(position->side());
     request.quantity = position->quantity();
 
@@ -93,6 +94,7 @@ const OrderWrapper* ProfitManager::findClosableOrder(const Symbol &symbol) const
 
         // проверим, что достаточн средств для закрытия ордера
         OrderRequest request;
+        request.symbol = symbol;
         request.side = revert;
         request.quantity = order->quantity();
         if (not request.isEnough())

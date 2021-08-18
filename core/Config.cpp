@@ -23,6 +23,10 @@ bool Config::read(const char* path) {
     return true;
 }
 
+bool Config::has(const std::string& key) const {
+    return _values.find(key) != _values.end();
+}
+
 const std::string& Config::getAsString(const std::string& key) const {
     static const std::string& sEmpty = "";
 

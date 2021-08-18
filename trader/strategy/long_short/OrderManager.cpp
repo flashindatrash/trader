@@ -1,12 +1,12 @@
+#include "OrderManager.hpp"
+#include "DataManager.hpp"
 #include "Logger.hpp"
-#include "proxy/TraderTime.hpp"
-#include "proxy/ExchangerProxy.hpp"
+#include "proxy/Time.hpp"
+#include "proxy/Exchanger.hpp"
 #include "exchanger/base/ExchangerTypes.hpp"
 #include "exchanger/wrapper/Symbol.hpp"
 #include "exchanger/wrapper/BookWrapper.hpp"
 #include "exchanger/wrapper/OrderWrapper.hpp"
-#include "algorithm/OrderManager.hpp"
-#include "algorithm/DataManager.hpp"
 #include "util/NumberUtil.hpp"
 
 OrderManager::OrderManager(const Symbol& symbol, bool test_mode)
@@ -16,7 +16,7 @@ OrderManager::OrderManager(const Symbol& symbol, bool test_mode)
         Logger::info("TEST MODE!");
 
     // найдем все открытые позиции
-    const std::vector<const OrderWrapper*>& orders = Exchanger().book()->get();
+    const std::vector<const OrderWrapper*>& orders = Exchanger().book(symbol)->get();
     std::vector<std::string> keys = DataManager::getPositionIds();
     for (const OrderWrapper* order : orders) {
         std::string id = DataManager::sDbKeyOrder + order->id();

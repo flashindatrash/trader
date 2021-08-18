@@ -1,6 +1,6 @@
 #pragma once
 
-#include "algorithm/BaseManager.hpp"
+#include "BaseManager.hpp"
 
 class OrderWrapper;
 enum OrderSide : unsigned int;

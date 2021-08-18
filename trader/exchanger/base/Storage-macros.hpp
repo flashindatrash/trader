@@ -10,9 +10,12 @@
     inline Type_##Name & Name##s() { return _##Name##s; } \
     Type_##Name _##Name##s;
 
-#define STORAGE_PRIVATE(Class, Name) \
+#define STORAGE_CONNECTOR(Class, Name) \
     public: \
-    inline const Class* Name() const { return _##Name##_connector; } \
+    typedef StorageMap<Class> Type_##Name; \
+    inline const Class* Name(const std::string& key) const { return _##Name##s.get(key); } \
+    inline Class* Name(const std::string& key) { return _##Name##s.get(key); } \
     protected: \
-    const Class* _##Name##_connector = nullptr; \
-    StorageMap<Class> _##Name##s;
+    inline const Type_##Name & Name##s() const { return _##Name##s; } \
+    inline Type_##Name & Name##s() { return _##Name##s; } \
+    Type_##Name _##Name##s;

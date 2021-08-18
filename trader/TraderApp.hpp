@@ -3,21 +3,24 @@
 #include "App.hpp"
 #include "Version.hpp"
 
-class Symbol;
+class Strategy;
 
 class TraderApp : public core::App {
 public: // static
     static core::Version sVersion;
 
     // create app
-    static TraderApp* create(core::Config config);
+    static TraderApp* create(const core::Config& config);
 
 public: // methods
     // run app
-    void run(const Symbol& symbol);
+    int run();
 
 protected: // methods
-    TraderApp(core::Config config);
+    TraderApp(const core::Config& config);
+    virtual ~TraderApp();
 
+protected: // vars
+    Strategy* _strategy = nullptr;
 };
 

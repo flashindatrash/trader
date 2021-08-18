@@ -2,7 +2,7 @@
 #include <chrono>
 #include <thread>
 
-core::App::App(Config config)
+core::App::App(const Config& config)
     : _config(config)
 {
 }

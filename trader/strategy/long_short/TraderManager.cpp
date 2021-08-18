@@ -1,13 +1,13 @@
 #include "TraderManager.hpp"
+#include "OrderManager.hpp"
+#include "DecisionMaker.hpp"
 #include "Logger.hpp"
-#include "proxy/ExchangerProxy.hpp"
+#include "proxy/Exchanger.hpp"
 #include "exchanger/wrapper/Symbol.hpp"
 #include "exchanger/wrapper/ChartWrapper.hpp"
 #include "exchanger/wrapper/CandlestickPattern.hpp"
 #include "exchanger/wrapper/CandlestickWrapper.hpp"
 #include "exchanger/wrapper/OrderWrapper.hpp"
-#include "algorithm/OrderManager.hpp"
-#include "algorithm/DecisionMaker.hpp"
 
 static Change sMinRate = 0.005;
 

@@ -30,8 +30,8 @@ class Storage {
     STORAGE_PUBLIC(Symbol, pair)
     STORAGE_PUBLIC(PriceWrapper, price)
     STORAGE_PUBLIC(BalanceWrapper, balance)
-    STORAGE_PRIVATE(CandlestickWrapper, stat)
-    STORAGE_PRIVATE(ChartWrapper, chart)
-    STORAGE_PRIVATE(BookWrapper, book)
+    STORAGE_CONNECTOR(CandlestickWrapper, stat)
+    STORAGE_CONNECTOR(ChartWrapper, chart)
+    STORAGE_CONNECTOR(BookWrapper, book)
 };
 
