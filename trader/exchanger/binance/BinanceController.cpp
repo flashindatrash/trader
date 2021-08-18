@@ -62,8 +62,11 @@ void BinanceController::tick(time_t now) {
 
     // A single connection to stream.binance.com is only valid for 24 hours;
     // Expect to be disconnected at the 24 hour mark
-    if (timesup(_time_start_userstream, TraderTime::sMinute * 3))
+    if (timesup(_time_start_userstream, TraderTime::sMinute * 1))
         startUserDataStream();
+
+    if (timesup(_time_start_chart, TraderTime::sMinute * 1) && _chart_connector != nullptr)
+        connectChart(*_chart_connector, ChartInterval::m15);
 }
 
 bool BinanceController::getSymbolInfo(Storage::Type_pair& container) const {
@@ -297,6 +300,9 @@ int BinanceController::onKlineDataStream(Json::Value& json) {
     BinanceErrorData error(json, "BinanceController::onKlineDataStream");
     if (error.has()) {
         Logger::error(error.msg.c_str());
+	if (error.code == BinanceErrorData::DISCONNECTED) {
+            _time_start_chart = Time().ms();
+        }
         return 0;
     }
 
