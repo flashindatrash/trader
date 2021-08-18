@@ -61,7 +61,7 @@ void TraderManager::onCloseCandle(const CandlestickWrapper& wrapper) {
     Symbol symbol = Exchanger().chart()->id();
     DecisionMaker decision(symbol, _orders.getPositions());
     double factor = decision.factor(request.side, DecisionMaker::ForTrader);
-    if (factor < 0.45)
+    if (factor < 0.5)
         return;
 
     if (not _orders.create(request, nullptr))
