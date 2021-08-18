@@ -15,7 +15,7 @@ public: // methods
     BinanceController() = default;
     ~BinanceController() override;
 
-public: // virtual    
+public: // virtual
     bool init(const core::Config& config) override;
     void run() override;
     void tick(time_t now) override;
@@ -61,5 +61,6 @@ private: // vars
     time_t _time_start_userstream = 0;
     time_t _time_keep_userstream = 0;
     time_t _time_daily_change = 0;
+    time_t _time_start_chart = 0;
 };
 
