@@ -2,8 +2,9 @@
 
 #include <global.hpp>
 
-class DataManager
-{
+namespace longshort {
+
+class DataManager {
 public: // vars
     static const std::string& sDbKeyOrder;
     static const std::string& sDbKeyProfit;
@@ -15,4 +16,6 @@ public: // methods
     static time_t getLastOrderTime(const std::string& symbol);
     static double addProfit(const std::string& asset, double profit);
 };
+
+}
 

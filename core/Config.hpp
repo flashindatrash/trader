@@ -3,10 +3,6 @@
 #include <unordered_map>
 #include <string>
 
-// todo move to config
-#define BINANCE_TEST_MODE   false
-#define BINANCE_RECV_WINDOW 3000
-
 namespace core {
 
 class Config {

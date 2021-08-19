@@ -9,6 +9,8 @@
 #include "exchanger/wrapper/CandlestickWrapper.hpp"
 #include "exchanger/wrapper/OrderWrapper.hpp"
 
+using namespace longshort;
+
 static Change sMinRate = 0.005;
 
 // скипать похожие позиции, у которых цена отличается на этот процент

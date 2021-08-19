@@ -7,9 +7,11 @@ class Symbol;
 class OrderWrapper;
 struct OrderRequest;
 
+namespace longshort {
+
 class OrderManager {
 public: // methods
-    OrderManager(const Symbol& symbol, bool test_mode);
+    OrderManager(const Symbol& symbol);
 
     bool create(const OrderRequest& request, const OrderWrapper* position);
 
@@ -20,7 +22,7 @@ protected: // methods
     void printOrder(const Symbol& symbol, const OrderWrapper* order, const OrderWrapper* position = nullptr);
 
 protected: // vars
-    const bool _test_mode;
     std::vector<const OrderWrapper*> _positions;
 };
 
+}

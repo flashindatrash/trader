@@ -4,8 +4,9 @@
 
 class CandlestickWrapper;
 
-class TraderManager : public BaseManager
-{
+namespace longshort {
+
+class TraderManager : public BaseManager {
 public: // methods
     TraderManager(OrderManager& orders);
 
@@ -16,3 +17,4 @@ protected: // methods
     void onCloseCandle(const CandlestickWrapper& wrapper);
 };
 
+}

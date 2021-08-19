@@ -5,8 +5,9 @@
 class OrderWrapper;
 enum OrderSide : unsigned int;
 
-class ProfitManager : public BaseManager
-{
+namespace longshort {
+
+class ProfitManager : public BaseManager {
 public: // methods
     ProfitManager(OrderManager& orders);
 
@@ -22,3 +23,4 @@ protected: // vars
     double _temp = 0.0;
 };
 
+}

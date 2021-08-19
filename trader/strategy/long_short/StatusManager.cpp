@@ -8,6 +8,8 @@
 #include "exchanger/wrapper/OrderWrapper.hpp"
 #include "util/NumberUtil.hpp"
 
+using namespace longshort;
+
 StatusManager::StatusManager(OrderManager& orders)
     : BaseManager(orders)
 {

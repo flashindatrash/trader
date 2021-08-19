@@ -25,6 +25,6 @@ int BinanceWebsocket::handler(Json::Value& json) {
         return 0;
     }
 
-    onData.emmit(json);
+    callback.emmit(json);
     return 0;
 }

@@ -9,12 +9,10 @@
 #include "exchanger/wrapper/OrderWrapper.hpp"
 #include "util/NumberUtil.hpp"
 
-OrderManager::OrderManager(const Symbol& symbol, bool test_mode)
-    : _test_mode(test_mode)
-{
-    if (_test_mode)
-        Logger::info("TEST MODE!");
+using namespace longshort;
 
+OrderManager::OrderManager(const Symbol& symbol)
+{
     // найдем все открытые позиции
     const std::vector<const OrderWrapper*>& orders = Exchanger().book(symbol)->get();
     std::vector<std::string> keys = DataManager::getPositionIds();
@@ -33,9 +31,6 @@ OrderManager::OrderManager(const Symbol& symbol, bool test_mode)
 }
 
 bool OrderManager::create(const OrderRequest& request, const OrderWrapper* transaction) {
-    if (_test_mode)
-        return false;
-
     // проверяем, что достаточно средств
     if (not request.isEnough())
         return false;
@@ -43,7 +38,6 @@ bool OrderManager::create(const OrderRequest& request, const OrderWrapper* trans
     const OrderWrapper* result = Exchanger().createOrder(request);
     if (result == nullptr)
         return false;
-
 
     printOrder(request.symbol, result, transaction);
 

@@ -5,6 +5,8 @@
 #include "exchanger/wrapper/OrderWrapper.hpp"
 #include "exchanger/wrapper/CandlestickWrapper.hpp"
 
+using namespace longshort;
+
 DecisionMaker::DecisionMaker(const std::vector<const OrderWrapper*>& positions)
     : _positions(positions)
 {

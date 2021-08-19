@@ -52,6 +52,11 @@ private: // static vars
 private: // vars
     std::thread _thread;
 
+    // creates and validates a new order but does not send it into the matching engine
+    bool _config_test_mode = false;
+    // number of milliseconds after timestamp the request is valid
+    unsigned int _config_recv_window = 5000;
+
     Storage::Type_price* _prices_connector = nullptr;
     Storage::Type_balance* _balances_connector = nullptr;
     Storage::Type_chart* _charts_connector = nullptr;

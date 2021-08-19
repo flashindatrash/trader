@@ -1,7 +1,7 @@
 #include "Strategy.hpp"
-#include "long_short/LongShortStrategy.hpp"
+#include "long_short/Strategy.hpp"
 
 Strategy* Strategy::create() {
-    Strategy* strategy = new LongShortStrategy();
+    Strategy* strategy = new longshort::LongShortStrategy();
     return strategy;
 }

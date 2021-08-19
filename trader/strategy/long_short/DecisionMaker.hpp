@@ -5,8 +5,9 @@
 struct OrderRequest;
 class OrderWrapper;
 
-class DecisionMaker
-{
+namespace longshort {
+
+class DecisionMaker {
 public: // struct
     enum BasedOn {
         Balance = 1,
@@ -27,4 +28,6 @@ protected: // methods
 protected: // vars
     const std::vector<const OrderWrapper*>& _positions;
 };
+
+}
 

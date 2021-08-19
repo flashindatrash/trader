@@ -1,6 +1,8 @@
 #include "DataManager.hpp"
 #include "proxy/Database.hpp"
 
+using namespace longshort;
+
 const std::string& DataManager::sDbKeyOrder = "order:";
 const std::string& DataManager::sDbKeyProfit = "stats:profit:";
 

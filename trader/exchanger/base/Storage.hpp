@@ -3,7 +3,6 @@
 #include <unordered_map>
 #include <string>
 #include "exchanger/base/Storage-macros.hpp"
-#include "Signal.hpp"
 
 template<class T> class StorageMap : protected std::unordered_map<std::string, T*> {
     typedef std::unordered_map<std::string, T*> BaseClass;
@@ -15,9 +14,6 @@ public: // methods
 public: // methods
     const T* get(const std::string& key) const;
     T* get(const std::string& key);
-
-public: // signals
-    Signal<std::string&> onChanged;
 };
 
 class Symbol;

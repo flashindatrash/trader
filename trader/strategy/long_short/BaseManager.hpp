@@ -1,10 +1,12 @@
 #pragma once
 
-class OrderManager;
+
 class Symbol;
 
-class BaseManager
-{
+namespace longshort {
+class OrderManager;
+
+class BaseManager {
 public: // methods
     BaseManager(OrderManager& orders);
 
@@ -15,3 +17,4 @@ protected: // vars
     OrderManager& _orders;
 };
 
+}

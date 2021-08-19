@@ -3,6 +3,8 @@
 #include "BaseManager.hpp"
 #include <string>
 
+namespace longshort {
+
 class StatusManager : public BaseManager {
 public: // methods
     StatusManager(OrderManager& orders);
@@ -13,3 +15,4 @@ protected: // methods
     double getChange(const Symbol& symbol);
 };
 
+}

@@ -4,6 +4,8 @@
 #include "strategy/Strategy.hpp"
 #include "exchanger/wrapper/Symbol.hpp"
 
+namespace longshort {
+
 class OrderManager;
 class StatusManager;
 class ProfitManager;
@@ -28,4 +30,4 @@ protected: // vars
     TraderManager* _trader_manager = nullptr;
 };
 
-#define SAlgorithm() TraderAlgorithm::getInstance()
+}

@@ -9,6 +9,8 @@
 #include "exchanger/wrapper/OrderWrapper.hpp"
 #include "exchanger/wrapper/CandlestickWrapper.hpp"
 
+using namespace longshort;
+
 // мин % соотношение, меньше которого не сливать
 static Change sMinRate = 0.0035;
 

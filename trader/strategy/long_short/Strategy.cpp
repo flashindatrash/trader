@@ -1,4 +1,4 @@
-#include "LongShortStrategy.hpp"
+#include "Strategy.hpp"
 #include "OrderManager.hpp"
 #include "StatusManager.hpp"
 #include "ProfitManager.hpp"
@@ -8,9 +8,10 @@
 #include "proxy/Exchanger.hpp"
 #include "exchanger/wrapper/ChartWrapper.hpp"
 
+using namespace longshort;
+
 static const std::string& CONFIG_BASE_KEY = "BASE_ASSET";
 static const std::string& CONFIG_QUOTE_KEY = "QUOTE_ASSET";
-static const std::string& TEST_MODE = "TEST_MODE";
 
 LongShortStrategy::~LongShortStrategy() {
     SAFE_DELETE(_pool);
@@ -30,7 +31,7 @@ bool LongShortStrategy::init(const core::Config& config) {
     Exchanger().loadOrders(_symbol.id());
     Exchanger().listenCharts(_symbol.id(), ChartInterval::m15);
 
-    _pool = new OrderManager(_symbol, config.getAsInt(TEST_MODE) == 1);
+    _pool = new OrderManager(_symbol);
     _status_manager = new StatusManager(*_pool);
     _profit_manager = new ProfitManager(*_pool);
     _trader_manager = new TraderManager(*_pool);

@@ -17,7 +17,7 @@ protected: // methods
     int handler(Json::Value& json);
 
 public: // signals
-    Signal<Json::Value&> onData;
+    Signal<Json::Value&> callback;
 
 public: // vars
     bool connected = false;
