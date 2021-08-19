@@ -30,11 +30,9 @@ int TraderApp::run() {
         return EXIT_FAILURE;
 
     // create strategy
-    _strategy = Strategy::create();
-    if (not _strategy->init(_config)) {
-        SAFE_DELETE(_strategy);
-        return 0;
-    }
+    _strategy = Strategy::create(_config);
+    if (_strategy == nullptr)
+        return EXIT_FAILURE;
 
     // run exchanger thread
     Exchanger().run();

@@ -9,7 +9,7 @@
 #include "exchanger/wrapper/OrderWrapper.hpp"
 #include "util/NumberUtil.hpp"
 
-using namespace longshort;
+using namespace scalping;
 
 OrderManager::OrderManager(const Symbol& symbol)
 {

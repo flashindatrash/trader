@@ -3,7 +3,7 @@
 #include "BaseManager.hpp"
 #include <string>
 
-namespace longshort {
+namespace scalping {
 
 class StatusManager : public BaseManager {
 public: // methods

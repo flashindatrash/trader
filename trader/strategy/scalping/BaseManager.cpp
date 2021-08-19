@@ -1,6 +1,6 @@
 #include "BaseManager.hpp"
 
-using namespace longshort;
+using namespace scalping;
 
 BaseManager::BaseManager(OrderManager& orders)
     : _orders(orders)

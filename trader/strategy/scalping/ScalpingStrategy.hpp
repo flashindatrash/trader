@@ -4,22 +4,22 @@
 #include "strategy/Strategy.hpp"
 #include "exchanger/wrapper/Symbol.hpp"
 
-namespace longshort {
+namespace scalping {
 
 class OrderManager;
 class StatusManager;
 class ProfitManager;
 class TraderManager;
 
-class LongShortStrategy : public Strategy {
+class ScalpingStrategy : public Strategy {
 public: // methods
-    LongShortStrategy() = default;
+    ScalpingStrategy() = default;
     virtual bool init(const core::Config& config) override;
 
     void tick(time_t now);
 
 protected: // methods
-    virtual ~LongShortStrategy() override;
+    virtual ~ScalpingStrategy() override;
 
 protected: // vars
     Symbol _symbol;

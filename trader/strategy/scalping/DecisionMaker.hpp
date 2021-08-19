@@ -5,7 +5,7 @@
 struct OrderRequest;
 class OrderWrapper;
 
-namespace longshort {
+namespace scalping {
 
 class DecisionMaker {
 public: // struct

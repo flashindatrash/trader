@@ -4,7 +4,7 @@
 
 class CandlestickWrapper;
 
-namespace longshort {
+namespace scalping {
 
 class TraderManager : public BaseManager {
 public: // methods

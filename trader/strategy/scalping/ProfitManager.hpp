@@ -5,7 +5,7 @@
 class OrderWrapper;
 enum OrderSide : unsigned int;
 
-namespace longshort {
+namespace scalping {
 
 class ProfitManager : public BaseManager {
 public: // methods

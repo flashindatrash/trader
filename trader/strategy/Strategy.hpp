@@ -6,7 +6,7 @@ namespace core {
 
 class Strategy {
 public: // static
-    static Strategy* create();
+    static Strategy* create(const core::Config& config);
 
 public: // methods
     virtual ~Strategy() = default;

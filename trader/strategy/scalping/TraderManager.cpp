@@ -9,7 +9,7 @@
 #include "exchanger/wrapper/CandlestickWrapper.hpp"
 #include "exchanger/wrapper/OrderWrapper.hpp"
 
-using namespace longshort;
+using namespace scalping;
 
 static Change sMinRate = 0.005;
 

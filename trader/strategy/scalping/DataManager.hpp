@@ -2,7 +2,7 @@
 
 #include <global.hpp>
 
-namespace longshort {
+namespace scalping {
 
 class DataManager {
 public: // vars

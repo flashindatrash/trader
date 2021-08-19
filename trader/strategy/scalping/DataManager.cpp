@@ -1,7 +1,7 @@
 #include "DataManager.hpp"
 #include "proxy/Database.hpp"
 
-using namespace longshort;
+using namespace scalping;
 
 const std::string& DataManager::sDbKeyOrder = "order:";
 const std::string& DataManager::sDbKeyProfit = "stats:profit:";

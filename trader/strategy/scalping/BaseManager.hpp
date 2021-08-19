@@ -3,7 +3,7 @@
 
 class Symbol;
 
-namespace longshort {
+namespace scalping {
 class OrderManager;
 
 class BaseManager {

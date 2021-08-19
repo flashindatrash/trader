@@ -7,7 +7,7 @@ class Symbol;
 class OrderWrapper;
 struct OrderRequest;
 
-namespace longshort {
+namespace scalping {
 
 class OrderManager {
 public: // methods

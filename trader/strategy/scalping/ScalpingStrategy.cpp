@@ -1,4 +1,4 @@
-#include "Strategy.hpp"
+#include "ScalpingStrategy.hpp"
 #include "OrderManager.hpp"
 #include "StatusManager.hpp"
 #include "ProfitManager.hpp"
@@ -8,19 +8,19 @@
 #include "proxy/Exchanger.hpp"
 #include "exchanger/wrapper/ChartWrapper.hpp"
 
-using namespace longshort;
+using namespace scalping;
 
 static const std::string& CONFIG_BASE_KEY = "BASE_ASSET";
 static const std::string& CONFIG_QUOTE_KEY = "QUOTE_ASSET";
 
-LongShortStrategy::~LongShortStrategy() {
+ScalpingStrategy::~ScalpingStrategy() {
     SAFE_DELETE(_pool);
     SAFE_DELETE(_status_manager);
     SAFE_DELETE(_profit_manager);
     SAFE_DELETE(_trader_manager);
 }
 
-bool LongShortStrategy::init(const core::Config& config) {
+bool ScalpingStrategy::init(const core::Config& config) {
     if (not config.has(CONFIG_BASE_KEY) || not config.has(CONFIG_QUOTE_KEY))
         return false;
 
@@ -40,11 +40,11 @@ bool LongShortStrategy::init(const core::Config& config) {
     if (not _profit_manager->init(_symbol)) return false;
     if (not _trader_manager->init(_symbol)) return false;
 
-    Time().onTick.connect(std::bind(&LongShortStrategy::tick, this, std::placeholders::_1));
+    Time().onTick.connect(std::bind(&ScalpingStrategy::tick, this, std::placeholders::_1));
     return true;
 }
 
-void LongShortStrategy::tick(time_t now) {
+void ScalpingStrategy::tick(time_t now) {
     _status_manager->tick(_symbol);
     _profit_manager->tick(_symbol);
     _trader_manager->tick(_symbol);
