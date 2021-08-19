@@ -26,7 +26,7 @@ ProfitManager::ProfitManager(OrderManager& orders)
 }
 
 void ProfitManager::tick(const Symbol& symbol) {
-    const CandlestickWrapper* candlestick = Exchanger().chart()->last();
+    const CandlestickWrapper* candlestick = Exchanger().chart(symbol)->last();
     if (candlestick == nullptr)
         return;
 
@@ -68,7 +68,7 @@ void ProfitManager::tick(const Symbol& symbol) {
 }
 
 const OrderWrapper* ProfitManager::findClosableOrder(const Symbol &symbol) const {
-    DecisionMaker decision(symbol, _orders.getPositions());
+    DecisionMaker decision(_orders.getPositions());
 
     // найдем ордер, который стоит закрыть по более выгодному курсу
     const OrderWrapper* transaction = nullptr;
@@ -85,7 +85,12 @@ const OrderWrapper* ProfitManager::findClosableOrder(const Symbol &symbol) const
         if (std::abs(change) < sMinRate)
             continue;
 
-        double factor = decision.factor(revert, DecisionMaker::ForProfit);
+        OrderRequest request;
+        request.symbol = symbol;
+        request.side = revert;
+        request.quantity = order->quantity();
+
+        double factor = decision.factor(request, DecisionMaker::ForProfit);
         if (std::abs(change) / sRate * factor < 1.0)
             continue;
 
@@ -93,10 +98,6 @@ const OrderWrapper* ProfitManager::findClosableOrder(const Symbol &symbol) const
             continue;
 
         // проверим, что достаточн средств для закрытия ордера
-        OrderRequest request;
-        request.symbol = symbol;
-        request.side = revert;
-        request.quantity = order->quantity();
         if (not request.isEnough())
             continue;
 

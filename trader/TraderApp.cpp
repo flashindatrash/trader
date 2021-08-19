@@ -21,13 +21,25 @@ TraderApp* TraderApp::create(const core::Config& config) {
 }
 
 int TraderApp::run() {
-    if (not DB().init(_config)) return 0;
-    if (not Exchanger().init(_config)) return 0;
+    // init database
+    if (not DB().init(_config))
+        return EXIT_FAILURE;
 
+    // init exchanger
+    if (not Exchanger().init(_config))
+        return EXIT_FAILURE;
+
+    // create strategy
     _strategy = Strategy::create();
-    if (not _strategy->init(_config)) return 0;
+    if (not _strategy->init(_config)) {
+        SAFE_DELETE(_strategy);
+        return 0;
+    }
 
+    // run exchanger thread
     Exchanger().run();
+
+    // run main thread
     while (true) {
         sleep_ms(100);
         Time().tick();

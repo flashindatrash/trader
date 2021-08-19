@@ -28,7 +28,7 @@ OrderManager::OrderManager(const Symbol& symbol, bool test_mode)
     sortPositions();
 
     for (const OrderWrapper* order : _positions)
-        printOrder(order);
+        printOrder(symbol, order);
     Logger::info("======");
 }
 
@@ -45,7 +45,7 @@ bool OrderManager::create(const OrderRequest& request, const OrderWrapper* trans
         return false;
 
 
-    printOrder(result, transaction);
+    printOrder(request.symbol, result, transaction);
 
     // открыть/закрыть транзакцию
     if (transaction == nullptr) {
@@ -72,9 +72,7 @@ void OrderManager::sortPositions() {
     });
 }
 
-void OrderManager::printOrder(const OrderWrapper* order, const OrderWrapper* position/* = nullptr*/) {
-    const Symbol& symbol = Exchanger().book()->id();
-
+void OrderManager::printOrder(const Symbol& symbol, const OrderWrapper* order, const OrderWrapper* position/* = nullptr*/) {
     auto sideStr = [](const OrderSide& side) {
         if (side == OrderSide::Buy) return "BUY";
         if (side == OrderSide::Sell) return "SELL";

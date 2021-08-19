@@ -1,5 +1,5 @@
+#include "DataManager.hpp"
 #include "proxy/Database.hpp"
-#include "algorithm/DataManager.hpp"
 
 const std::string& DataManager::sDbKeyOrder = "order:";
 const std::string& DataManager::sDbKeyProfit = "stats:profit:";

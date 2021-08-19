@@ -7,6 +7,7 @@
 
 template<class T> class StorageMap : protected std::unordered_map<std::string, T*> {
     typedef std::unordered_map<std::string, T*> BaseClass;
+
 public: // methods
     StorageMap() = default;
     virtual ~StorageMap();
@@ -30,8 +31,8 @@ class Storage {
     STORAGE_PUBLIC(Symbol, pair)
     STORAGE_PUBLIC(PriceWrapper, price)
     STORAGE_PUBLIC(BalanceWrapper, balance)
-    STORAGE_CONNECTOR(CandlestickWrapper, stat)
-    STORAGE_CONNECTOR(ChartWrapper, chart)
-    STORAGE_CONNECTOR(BookWrapper, book)
+    STORAGE_PUBLIC(CandlestickWrapper, stat)
+    STORAGE_PUBLIC(ChartWrapper, chart)
+    STORAGE_PUBLIC(BookWrapper, book)
 };
 

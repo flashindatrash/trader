@@ -2,9 +2,8 @@
 
 #include <vector>
 
+struct OrderRequest;
 class OrderWrapper;
-class Symbol;
-enum OrderSide : unsigned int;
 
 class DecisionMaker
 {
@@ -18,15 +17,14 @@ public: // struct
     };
 
 public: // methods
-    DecisionMaker(const Symbol& symbol, const std::vector<const OrderWrapper*>& positions);
+    DecisionMaker(const std::vector<const OrderWrapper*>& positions);
 
-    double factor(const OrderSide& side, int based_on) const;
+    double factor(const OrderRequest& request, int based_on) const;
 
 protected: // methods
     bool has(int mask, BasedOn value) const;
 
 protected: // vars
-    const Symbol& _symbol;
     const std::vector<const OrderWrapper*>& _positions;
 };
 

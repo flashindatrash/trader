@@ -9,15 +9,15 @@ class StatusManager;
 class ProfitManager;
 class TraderManager;
 
-class TraderAlgorithm : public Strategy {
+class LongShortStrategy : public Strategy {
 public: // methods
+    LongShortStrategy() = default;
     virtual bool init(const core::Config& config) override;
 
     void tick(time_t now);
 
 protected: // methods
-    TraderAlgorithm() = default;
-    virtual ~TraderAlgorithm() override;
+    virtual ~LongShortStrategy() override;
 
 protected: // vars
     Symbol _symbol;

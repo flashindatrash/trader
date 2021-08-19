@@ -3,6 +3,8 @@
 #include <thread>
 #include <string>
 #include <unordered_map>
+#include <vector>
+#include "BinanceWebsocket.hpp"
 #include "exchanger/base/ExchangerController.hpp"
 #include "response/BinanceSymbolData.hpp"
 
@@ -20,30 +22,29 @@ public: // virtual
     void run() override;
     void tick(time_t now) override;
 
-    bool getSymbolInfo(Storage::Type_pair& container) const override;
-    bool getAllPrices(Storage::Type_price& container) const override;
-    bool getBalances(Storage::Type_balance& container) const override;
-    bool getOrders(BookWrapper& wrapper) const override;
-    bool getChart(ChartWrapper& wrapper, ChartInterval interval) const override;
-
     void connectPrices(Storage::Type_price& container) override;
     void connectBalances(Storage::Type_balance& container) override;
-    void connectOrders(Storage::Type_book& container) override;
-    void connectStats(Storage::Type_stat& container) override;
-    void connectChart(Storage::Type_chart& container) override;
+    void connectCharts(Storage::Type_chart& container) override;
 
-    const OrderWrapper* createOrder(const OrderRequest& request) override;
+    bool loadPairs(Storage::Type_pair& container) const override;
+    bool loadPrices(Storage::Type_price& container) const override;
+    bool loadBalances(Storage::Type_balance& container) const override;
+    bool loadOrders(BookWrapper& container) const override;
+    bool loadStats(CandlestickWrapper& container) const override;
+    bool loadCharts(ChartWrapper& container, ChartInterval interval) const override;
+
+    void listenCharts(ChartWrapper& container, ChartInterval interval) override;
+
+    const OrderWrapper* createOrder(BookWrapper& container, const OrderRequest& request) override;
 
 protected: // methods
     bool initUserListenKey();
-    void startUserDataStream();
     void keepUserDataStream();
-    void updateDailyChange();
     double getMinQuantity(const BinanceSymbolData& info) const;
 
 protected: // callbacks
-    int onUserDataStream(Json::Value& json);
-    int onKlineDataStream(Json::Value& json);
+    void onUserDataStream(Json::Value& json);
+    void onKlineDataStream(Json::Value& json);
 
 private: // static vars
     static std::unordered_map<std::string, BinanceSymbolData> _symbols;
@@ -53,14 +54,10 @@ private: // vars
 
     Storage::Type_price* _prices_connector = nullptr;
     Storage::Type_balance* _balances_connector = nullptr;
-    Storage::Type_book* _orders_connector = nullptr;
     Storage::Type_chart* _charts_connector = nullptr;
-    Storage::Type_stat* _stats_connector = nullptr;
 
-    std::string _stream_listen_key = "";
-    time_t _time_start_userstream = 0;
+    std::vector<BinanceWebsocket> _websocket_handlers;
+
     time_t _time_keep_userstream = 0;
-    time_t _time_daily_change = 0;
-    time_t _time_start_chart = 0;
 };
 

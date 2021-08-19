@@ -6,6 +6,7 @@ CandlestickWrapper* CandlestickWrapper::create() {
 }
 
 void CandlestickWrapper::set(Candlestick data) {
+    _identifier = data.symbol;
     _data = data;
 }
 

@@ -1,5 +1,5 @@
 #include "Symbol.hpp"
-#include "proxy/ExchangerProxy.hpp"
+#include "proxy/Exchanger.hpp"
 #include "exchanger/wrapper/PriceWrapper.hpp"
 #include "exchanger/wrapper/BalanceWrapper.hpp"
 #include "util/StringUtil.hpp"

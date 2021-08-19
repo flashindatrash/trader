@@ -13,7 +13,6 @@ public: // methods
     BinancePriceStatisticsData(const Json::Value& json);
 
 public: // vars
-    std::string symbol = "";
     double priceChange = 0.0;
     double priceChangePercent = 0.0;
     double weightedAvgPrice = 0.0;

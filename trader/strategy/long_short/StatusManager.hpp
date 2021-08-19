@@ -10,6 +10,6 @@ public: // methods
     void tick(const Symbol& symbol);
 
 protected: // methods
-    double getChange();
+    double getChange(const Symbol& symbol);
 };
 

@@ -1,38 +1,37 @@
-#include "Logger.hpp"
 #include "DecisionMaker.hpp"
-#include "proxy/ExchangerProxy.hpp"
+#include "Logger.hpp"
+#include "proxy/Exchanger.hpp"
 #include "exchanger/wrapper/Symbol.hpp"
 #include "exchanger/wrapper/OrderWrapper.hpp"
 #include "exchanger/wrapper/CandlestickWrapper.hpp"
 
-DecisionMaker::DecisionMaker(const Symbol& symbol, const std::vector<const OrderWrapper*>& positions)
-    : _symbol(symbol)
-    , _positions(positions)
+DecisionMaker::DecisionMaker(const std::vector<const OrderWrapper*>& positions)
+    : _positions(positions)
 {
 }
 
-double DecisionMaker::factor(const OrderSide& side, int based_on) const {
-    if (side == OrderSide::Invalid)
+double DecisionMaker::factor(const OrderRequest& request, int based_on) const {
+    if (request.side == OrderSide::Invalid)
         return 0.0;
 
     double result = 1.0;
 
     if (has(based_on, DayChange)) {
         // увеличиваем/понижаем рейтинг при отрицательном дневном росте/падении
-        const CandlestickWrapper* stat = Exchanger().stat();
-        if (stat->priceOpen() > 0.0) {
-            Change change = util::change(stat->priceOpen(), _symbol.getPrice());
-            result *= 1.0 + change * (side == OrderSide::Buy ? 1 : -1);
+        const CandlestickWrapper* stat = Exchanger().stat(request.symbol);
+        if (stat != nullptr && stat->priceOpen() > 0.0) {
+            Change change = util::change(stat->priceOpen(), request.symbol.getPrice());
+            result *= 1.0 + change * (request.side == OrderSide::Buy ? 1 : -1);
         }
     }
 
     if (has(based_on, Balance)) {
-        Quantity baseQty = _symbol.getPrice(_symbol.baseAsset().getBalance());
-        Quantity quoteQty = _symbol.quoteAsset().getBalance();
-	Quantity sumQty = baseQty + quoteQty;
+        Quantity baseQty = request.symbol.getPrice(request.symbol.baseAsset().getBalance());
+        Quantity quoteQty = request.symbol.quoteAsset().getBalance();
+        Quantity sumQty = baseQty + quoteQty;
         // мы должны иметь валюту для закрытия сделки
         for (const OrderWrapper* position : _positions) {
-            Change change = std::abs(util::change(position->price(), _symbol.getPrice()));
+            Change change = std::abs(util::change(position->price(), request.symbol.getPrice()));
             // коэффициент влияния, если сделка была не так далеко, то держать для нее баланс важнее
             double k = std::max(0.1 - change, 0.0);
             if (position->side() == OrderSide::Buy)
@@ -43,7 +42,7 @@ double DecisionMaker::factor(const OrderSide& side, int based_on) const {
         baseQty = std::max(baseQty, 0.0);
         quoteQty = std::max(quoteQty, 0.0);
 
-        result *= std::abs((side == OrderSide::Sell ? baseQty : quoteQty) / sumQty);
+        result *= std::abs((request.side == OrderSide::Sell ? baseQty : quoteQty) / sumQty);
     }
 
     return result;

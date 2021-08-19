@@ -15,22 +15,35 @@ bool ExchangerProxy::init(const core::Config& config) {
     if (not _controller->init(config))
         return false;
 
-    if (not _controller->getSymbolInfo(_pairs))
+    if (not _controller->loadPairs(_pairs))
         return false;
 
     _controller->connectPrices(_prices);
     _controller->connectBalances(_balances);
-    _controller->connectStats(_stats);
-    _controller->connectChart(_charts);
+    _controller->connectCharts(_charts);
 
-    Time().onTick.connect(std::bind(&ExchangerController::tick, _controller, std::placeholders::_1));
+    Time().onTick.connect(std::bind(&ExchangerProxy::tick, this, std::placeholders::_1));
     return true;
-}
-
-const OrderWrapper* ExchangerProxy::createOrder(const OrderRequest& request) {
-    return _controller->createOrder(request);
 }
 
 void ExchangerProxy::run() {
     _controller->run();
 }
+
+void ExchangerProxy::tick(time_t now) {
+    _controller->tick(now);
+}
+
+bool ExchangerProxy::loadOrders(const std::string& key) {
+    return _controller->loadOrders(*_books.get(key));
+}
+
+void ExchangerProxy::listenCharts(const std::string& key, ChartInterval interval) {
+    _controller->listenCharts(*_charts.get(key), interval);
+}
+
+const OrderWrapper* ExchangerProxy::createOrder(const OrderRequest& request) {
+    return _controller->createOrder(*_books.get(request.symbol), request);
+}
+
+

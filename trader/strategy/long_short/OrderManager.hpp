@@ -17,7 +17,7 @@ public: // methods
 
 protected: // methods
     void sortPositions();
-    void printOrder(const OrderWrapper* order, const OrderWrapper* position = nullptr);
+    void printOrder(const Symbol& symbol, const OrderWrapper* order, const OrderWrapper* position = nullptr);
 
 protected: // vars
     const bool _test_mode;

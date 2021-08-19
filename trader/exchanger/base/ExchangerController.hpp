@@ -20,22 +20,20 @@ public: // virtual
     virtual void run() = 0;
     virtual void tick(time_t now) = 0;
 
-    virtual bool getSymbolInfo(Storage::Type_pair& container) const = 0;
-    virtual bool getAllPrices(Storage::Type_price& container) const = 0;
-    virtual bool getBalances(Storage::Type_balance& container) const = 0;
-    virtual bool getOrders(BookWrapper& wrapper) const = 0;
-    virtual bool getChart(ChartWrapper& wrapper, ChartInterval interval) const = 0;
-
     virtual void connectPrices(Storage::Type_price& container) = 0;
     virtual void connectBalances(Storage::Type_balance& container) = 0;
-    virtual void connectOrders(Storage::Type_book& container) = 0;
-    virtual void connectStats(Storage::Type_stat& container) = 0;
-    virtual void connectChart(Storage::Type_chart& container) = 0;
+    virtual void connectCharts(Storage::Type_chart& container) = 0;
 
-    virtual void listenStats(CandlestickWrapper& wrapper);
-    virtual void listenChart(ChartWrapper& wrapper, ChartInterval interval);
+    virtual bool loadPairs(Storage::Type_pair& container) const = 0;
+    virtual bool loadPrices(Storage::Type_price& container) const = 0;
+    virtual bool loadBalances(Storage::Type_balance& container) const = 0;
+    virtual bool loadOrders(BookWrapper& container) const = 0;
+    virtual bool loadStats(CandlestickWrapper& container) const = 0;
+    virtual bool loadCharts(ChartWrapper& container, ChartInterval interval) const = 0;
 
-    virtual const OrderWrapper* createOrder(const OrderRequest& request) = 0;
+    virtual void listenCharts(ChartWrapper& container, ChartInterval interval) = 0;
+
+    virtual const OrderWrapper* createOrder(BookWrapper& container, const OrderRequest& request) = 0;
 
 protected: // methods
     ExchangerController() = default;

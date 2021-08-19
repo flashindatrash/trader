@@ -1,5 +1,5 @@
 #include "OrderWrapper.hpp"
-#include "proxy/ExchangerProxy.hpp"
+#include "proxy/Exchanger.hpp"
 #include "exchanger/wrapper/Symbol.hpp"
 #include "exchanger/wrapper/BookWrapper.hpp"
 
@@ -30,7 +30,6 @@ const Price OrderWrapper::price() const {
 }
 
 bool OrderRequest::isEnough() const {
-    const Symbol& symbol = Exchanger().book()->id();
     if (side == OrderSide::Buy)
         return symbol.quoteAsset().getBalance() >= symbol.getPrice(quantity);
     else if (side == OrderSide::Sell)
@@ -41,8 +40,6 @@ bool OrderRequest::isEnough() const {
 bool OrderRequest::canTrade() const {
     if (not isEnough())
         return false;
-
-    const Symbol& symbol = Exchanger().book()->id();
 
     /*
      *

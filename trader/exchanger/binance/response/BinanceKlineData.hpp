@@ -15,7 +15,6 @@ public: // methods
     bool isEmpty() const;
 
 public: // vars
-    std::string symbol = "";
     double baseAssetVolume = 0.0;
     double quoteAssetVolume = 0.0;
     double takerBaseAssetVolume = 0.0;

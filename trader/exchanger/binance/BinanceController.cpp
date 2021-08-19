@@ -42,10 +42,16 @@ bool BinanceController::init(const core::Config& config) {
 }
 
 void BinanceController::run() {
+    tick(Time().ms());
     _thread = std::thread(&BinaCPP_websocket::enter_event_loop);
 }
 
 void BinanceController::tick(time_t now) {
+    for (BinanceWebsocket& websocket : _websocket_handlers) {
+        if (not websocket.connected)
+            websocket.connect();
+    }
+
     auto timesup = [now](time_t time, time_t interval) {
         return time != 0 && now > time + interval;
     };
@@ -55,25 +61,13 @@ void BinanceController::tick(time_t now) {
     // It's recommended to send a ping about every 30 minutes
     if (timesup(_time_keep_userstream, TraderTime::sMinute * 30))
         keepUserDataStream();
-
-    // Update statistics
-    if (timesup(_time_daily_change, TraderTime::sMinute * 15))
-        updateDailyChange();
-
-    // A single connection to stream.binance.com is only valid for 24 hours;
-    // Expect to be disconnected at the 24 hour mark
-    if (timesup(_time_start_userstream, TraderTime::sMinute * 1))
-        startUserDataStream();
-
-    if (timesup(_time_start_chart, TraderTime::sMinute * 1) && _chart_connector != nullptr)
-        connectChart(*_chart_connector, ChartInterval::m15);
 }
 
-bool BinanceController::getSymbolInfo(Storage::Type_pair& container) const {
+bool BinanceController::loadPairs(Storage::Type_pair& container) const {
     Json::Value json;
     BinaCPP::get_exchangeInfo(json);
 
-    BinanceErrorData error(json, "BinanceController::getSymbolInfo");
+    BinanceErrorData error(json, "BinanceController::loadPairs");
     if (error.has()) {
         Logger::error(error.msg.c_str());
         return false;
@@ -82,7 +76,7 @@ bool BinanceController::getSymbolInfo(Storage::Type_pair& container) const {
     const Json::Value& symbols = json["symbols"];
     if (not symbols.isArray()) {
         Logger::info("%s", json.toStyledString().c_str());
-        Logger::error("BinanceController::getSymbolInfo: invalid exchange");
+        Logger::error("BinanceController::loadPairs: invalid exchange");
         return false;
     }
 
@@ -97,11 +91,11 @@ bool BinanceController::getSymbolInfo(Storage::Type_pair& container) const {
     return true;
 }
 
-bool BinanceController::getAllPrices(Storage::Type_price& container) const {
+bool BinanceController::loadPrices(Storage::Type_price& container) const {
     Json::Value json;
     BinaCPP::get_allPrices(json);
 
-    BinanceErrorData error(json, "BinanceController::getAllPrices");
+    BinanceErrorData error(json, "BinanceController::loadPrices");
     if (error.has()) {
         Logger::error(error.msg.c_str());
         return false;
@@ -109,7 +103,7 @@ bool BinanceController::getAllPrices(Storage::Type_price& container) const {
 
     if (not json.isArray()) {
         Logger::info("%s\n", json.toStyledString().c_str());
-        Logger::error("BinanceController::getAllPrices: invalid prices");
+        Logger::error("BinanceController::loadPrices: invalid prices");
         return false;
     }
 
@@ -123,11 +117,11 @@ bool BinanceController::getAllPrices(Storage::Type_price& container) const {
     return true;
 }
 
-bool BinanceController::getBalances(Storage::Type_balance& container) const {
+bool BinanceController::loadBalances(Storage::Type_balance& container) const {
     Json::Value json;
     BinaCPP::get_account(BINANCE_RECV_WINDOW, json);
 
-    BinanceErrorData error(json, "BinanceController::getBalances");
+    BinanceErrorData error(json, "BinanceController::loadBalances");
     if (error.has()) {
         Logger::error(error.msg.c_str());
         return false;
@@ -136,7 +130,7 @@ bool BinanceController::getBalances(Storage::Type_balance& container) const {
     const Json::Value& balances = json["balances"];
     if (not balances.isArray()) {
         Logger::info("%s", json.toStyledString().c_str());
-        Logger::error("BinanceController::getBalances: invalid account");
+        Logger::error("BinanceController::loadBalances: invalid account");
         return false;
     }
 
@@ -147,31 +141,98 @@ bool BinanceController::getBalances(Storage::Type_balance& container) const {
     return true;
 }
 
-void BinanceController::connectPrices(Storage::Type_price& container) {
-    if (not getAllPrices(container))
-        return;
+bool BinanceController::loadStats(CandlestickWrapper& container) const {
+    Json::Value json;
+    BinaCPP::get_24hr(container.id().c_str(), json);
 
+    BinanceErrorData error(json, "BinanceController::loadStats");
+    if (error.has()) {
+        Logger::error(error.msg.c_str());
+        return false;
+    }
+
+    container.set(BinancePriceStatisticsData(json));
+    return true;
+}
+
+bool BinanceController::loadCharts(ChartWrapper& container, ChartInterval interval) const {
+    const std::string& interval_converted = binance::serialize(interval);
+    if (interval_converted.empty()) {
+        Logger::error("BinanceController::loadCharts: unknown chart interval");
+        return false;
+    }
+
+    Json::Value json;
+    BinaCPP::get_klines(container.id().c_str(), interval_converted.c_str(), 40, 0, 0, json);
+
+    BinanceErrorData error(json, "BinanceController::loadCharts");
+    if (error.has()) {
+        Logger::error(error.msg.c_str());
+        return false;
+    }
+
+    if (not json.isArray()) {
+        Logger::info("%s", json.toStyledString().c_str());
+        Logger::error("BinanceController::loadCharts: invalid chart json");
+        return false;
+    }
+
+    for (Json::ArrayIndex i = 0; i < json.size(); ++i) {
+        Json::Value& item = json[i];
+        if (container.add(BinanceKlineData(item)) == nullptr)
+            Logger::info("BinanceController::loadCharts: invalid kline %s", item.toStyledString().c_str());
+    }
+
+    return true;
+}
+
+bool BinanceController::loadOrders(BookWrapper& container) const {
+    Json::Value json;
+    BinaCPP::get_allOrders(container.id().c_str(), 0, 0, BINANCE_RECV_WINDOW, json);
+
+    std::vector<BinanceOrderData> vec;
+
+    BinanceErrorData error(json, "BinanceController::loadOrders");
+    if (error.has()) {
+        Logger::error(error.msg.c_str());
+        return false;
+    }
+
+    if (not json.isArray()) {
+        Logger::info("%s", json.toStyledString().c_str());
+        Logger::error("BinanceController::loadOrders: invalid orders");
+        return false;
+    }
+
+    for (uint i = 0; i < json.size(); ++i) {
+        Json::Value item = json[i];
+        if (not container.add(BinanceOrderData(json[i], false)))
+            Logger::info("BinanceController::loadOrders: invalid order: %s", item.toStyledString().c_str());
+    }
+
+    return true;
+}
+
+void BinanceController::connectPrices(Storage::Type_price& container) {
+    loadPrices(container);
     _prices_connector = &container;
 }
 
 void BinanceController::connectBalances(Storage::Type_balance& container) {
-    if (not getBalances(container))
-        return;
-
+    loadBalances(container);
     _balances_connector = &container;
-    startUserDataStream();
 }
 
-void BinanceController::connectOrders(Storage::Type_book& container) {
-    _orders_connector = &container;
-}
-
-void BinanceController::connectChart(Storage::Type_chart& container) {
+void BinanceController::connectCharts(Storage::Type_chart& container) {
     _charts_connector = &container;
 }
 
-void BinanceController::connectStats(Storage::Type_stat& container) {
-    _stats_connector = &container;
+void BinanceController::listenCharts(ChartWrapper& container, ChartInterval interval) {
+    loadCharts(container, interval);
+
+    BinanceWebsocket handler(util::lowercase(container.id().c_str()) + "@kline_" + binance::serialize(interval));
+    handler.onData.connect(std::bind(&BinanceController::onKlineDataStream, this, std::placeholders::_1));
+    _websocket_handlers.push_back(handler);
 }
 
 bool BinanceController::initUserListenKey() {
@@ -190,38 +251,25 @@ bool BinanceController::initUserListenKey() {
         return false;
     }
 
-    _stream_listen_key = json["listenKey"].asString();
+    BinanceWebsocket handler(json["listenKey"].asString());
+    handler.onData.connect(std::bind(&BinanceController::onUserDataStream, this, std::placeholders::_1));
+    _websocket_handlers.push_back(handler);
     return true;
 }
 
-void BinanceController::startUserDataStream() {
-    std::string ws_path = std::string("/ws/");
-    ws_path.append(_stream_listen_key);
-
-    _time_start_userstream = 0;
-    _time_keep_userstream = Time().ms();
-    BinaCPP_websocket::connect_endpoint(std::bind(&BinanceController::onUserDataStream, this, std::placeholders::_1), ws_path.c_str());
-}
-
 void BinanceController::keepUserDataStream() {
-    if (_stream_listen_key.empty())
+    if (_websocket_handlers.empty())
+        return;
+
+    BinanceWebsocket& userstream = _websocket_handlers.front();
+    if (not userstream.connected)
         return;
 
     _time_keep_userstream = Time().ms();
-    BinaCPP::keep_userDataStream(_stream_listen_key.c_str());
+    BinaCPP::keep_userDataStream(userstream.path.c_str());
 }
 
-int BinanceController::onUserDataStream(Json::Value &json) {
-    BinanceErrorData error(json, "BinanceController::onUserDataStream");
-    if (error.has()) {
-        Logger::error(error.msg.c_str());
-        if (error.code == BinanceErrorData::DISCONNECTED) {
-            _time_start_userstream = Time().ms();
-            _time_keep_userstream = 0;
-        }
-        return 0;
-    }
-
+void BinanceController::onUserDataStream(Json::Value& json) {
     std::string action = json["e"].asString();
     if (action  == "executionReport") {
         std::string executionType = json["x"].asString();
@@ -239,85 +287,9 @@ int BinanceController::onUserDataStream(Json::Value &json) {
             }
         }
     }
-
-    return 0;
 }
 
-const CandlestickWrapper* BinanceController::connectStats(CandlestickWrapper& wrapper) {
-    _stats_connector = &wrapper;
-    updateDailyChange();
-    return _stats_connector;
-}
-
-void BinanceController::updateDailyChange() {
-    if (_stats_connector == nullptr)
-        return;
-
-    _time_daily_change = Time().ms();
-
-    Json::Value json;
-    BinaCPP::get_24hr(_stats_connector->id().c_str(), json);
-
-    BinanceErrorData error(json, "BinanceController::updateDailyChange");
-    if (error.has()) {
-        Logger::error(error.msg.c_str());
-        return;
-    }
-
-    _stats_connector->set(BinancePriceStatisticsData(json));
-}
-
-bool BinanceController::getChart(ChartWrapper &wrapper, ChartInterval interval) const {
-    const std::string& interval_converted = binance::serialize(interval);
-    if (interval_converted.empty()) {
-        Logger::error("BinanceController::getChart: unknown chart interval");
-        return false;
-    }
-
-    Json::Value json;
-    BinaCPP::get_klines(wrapper.id().c_str(), interval_converted.c_str(), 40, 0, 0, json);
-
-    BinanceErrorData error(json, "BinanceController::getChart");
-    if (error.has()) {
-        Logger::error(error.msg.c_str());
-        return false;
-    }
-
-    if (not json.isArray()) {
-        Logger::info("%s", json.toStyledString().c_str());
-        Logger::error("BinanceController::getChart: invalid chart json");
-        return false;
-    }
-
-    for (Json::ArrayIndex i = 0; i < json.size(); ++i) {
-        Json::Value& item = json[i];
-        if (wrapper.add(BinanceKlineData(item)) == nullptr)
-            Logger::info("BinanceController::getChart: invalid kline %s", item.toStyledString().c_str());
-    }
-
-    return true;
-}
-
-const ChartWrapper* BinanceController::connectChart(ChartWrapper& wrapper, ChartInterval interval) {
-    if (not getChart(wrapper, interval))
-        return nullptr;
-
-    _chart_connector = &wrapper;
-    const std::string& path = "/ws/" + util::lowercase(wrapper.id().c_str()) + "@kline_" + binance::serialize(interval);
-    BinaCPP_websocket::connect_endpoint(std::bind(&BinanceController::onKlineDataStream, this, std::placeholders::_1), path.c_str());
-    return _chart_connector;
-}
-
-int BinanceController::onKlineDataStream(Json::Value& json) {
-    BinanceErrorData error(json, "BinanceController::onKlineDataStream");
-    if (error.has()) {
-        Logger::error(error.msg.c_str());
-	if (error.code == BinanceErrorData::DISCONNECTED) {
-            _time_start_chart = Time().ms();
-        }
-        return 0;
-    }
-
+void BinanceController::onKlineDataStream(Json::Value& json) {
     BinanceKlineData data(json);
 
     if (_prices_connector != nullptr) {
@@ -325,51 +297,17 @@ int BinanceController::onKlineDataStream(Json::Value& json) {
         _prices_connector->onChanged.emmit(data.symbol);
     }
 
-    if (_chart_connector != nullptr) {
-        if (_chart_connector->add(data) == nullptr)
-            Logger::info("BinanceController::getOrders: skip kline %s", json.toStyledString().c_str());
+    if (_charts_connector != nullptr) {
+        if (_charts_connector->get(data.symbol)->add(data) == nullptr)
+            Logger::info("BinanceController::onKlineDataStream: invalid candle: %s", json.toStyledString().c_str());
     }
-    return 0;
 }
 
-bool BinanceController::getOrders(BookWrapper& wrapper) const {
-    Json::Value json;
-    BinaCPP::get_allOrders(wrapper.id().c_str(), 0, 0, BINANCE_RECV_WINDOW, json);
-
-    std::vector<BinanceOrderData> vec;
-
-    BinanceErrorData error(json, "BinanceController::getOrders");
-    if (error.has()) {
-        Logger::error(error.msg.c_str());
-        return false;
-    }
-
-    if (not json.isArray()) {
-        Logger::info("%s", json.toStyledString().c_str());
-        Logger::error("BinanceController::getOrders: invalid orders");
-        return false;
-    }
-
-    for (uint i = 0; i < json.size(); ++i) {
-        Json::Value item = json[i];
-        if (not wrapper.add(BinanceOrderData(json[i], false)))
-            Logger::info("BinanceController::getOrders: invalid order: %s", item.toStyledString().c_str());
-    }
-
-    return true;
-}
-
-const OrderWrapper* BinanceController::createOrder(const OrderRequest& request) {
-    if (_orders_connector == nullptr) {
-        Logger::error("BinanceController::createOrder orders not connected");
-        return nullptr;
-    }
-
-    std::string symbol = _orders_connector->id();
+const OrderWrapper* BinanceController::createOrder(BookWrapper& container, const OrderRequest& request) {
     std::string type = binance::serialize(request.type);
     Quantity quantity = request.quantity;
 
-    auto it = _symbols.find(symbol);
+    auto it = _symbols.find(request.symbol);
     if (it == _symbols.end()) {
         Logger::error("BinanceController::createOrder unknown symbol");
         return nullptr;
@@ -397,7 +335,7 @@ const OrderWrapper* BinanceController::createOrder(const OrderRequest& request) 
     }
 
     Json::Value json;
-    BinaCPP::send_order(symbol.c_str(), binance::serialize(request.side).c_str(), binance::serialize(request.type).c_str(), "GTC", quantity , 0, "", 0, 0, BINANCE_TEST_MODE, BINANCE_RECV_WINDOW, json);
+    BinaCPP::send_order(request.symbol.c_str(), binance::serialize(request.side).c_str(), binance::serialize(request.type).c_str(), "GTC", quantity , 0, "", 0, 0, BINANCE_TEST_MODE, BINANCE_RECV_WINDOW, json);
 
     BinanceErrorData error(json, "BinanceController::createOrder");
     if (error.has()) {
@@ -411,7 +349,7 @@ const OrderWrapper* BinanceController::createOrder(const OrderRequest& request) 
         return nullptr;
     }
 
-    return _orders_connector->add(data);
+    return container.add(data);
 }
 
 double BinanceController::getMinQuantity(const BinanceSymbolData& info) const {

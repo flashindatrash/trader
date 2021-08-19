@@ -2,6 +2,6 @@
 #include "long_short/LongShortStrategy.hpp"
 
 Strategy* Strategy::create() {
-    Strategy* strategy = new TraderAlgorithm();
+    Strategy* strategy = new LongShortStrategy();
     return strategy;
 }

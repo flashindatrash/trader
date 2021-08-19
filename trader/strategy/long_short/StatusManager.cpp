@@ -1,7 +1,7 @@
 #include "StatusManager.hpp"
 #include "OrderManager.hpp"
 #include "Logger.hpp"
-#include "proxy/ExchangerProxy.hpp"
+#include "proxy/Exchanger.hpp"
 #include "exchanger/wrapper/Symbol.hpp"
 #include "exchanger/wrapper/ChartWrapper.hpp"
 #include "exchanger/wrapper/CandlestickWrapper.hpp"
@@ -17,7 +17,7 @@ void StatusManager::tick(const Symbol& symbol) {
     double baseBalance = symbol.baseAsset().getBalance();
     double quoteBalance = symbol.quoteAsset().getBalance();
 
-    double change = getChange();
+    double change = getChange(symbol);
     Price current = symbol.getPrice();
     std::string timeline = "";
     double losses = 0.0;
@@ -62,9 +62,8 @@ void StatusManager::tick(const Symbol& symbol) {
                   timeline.c_str());
 }
 
-double StatusManager::getChange() {
-    if (not Exchanger().chart()->get().empty()) {
-        const CandlestickWrapper* last = Exchanger().chart()->last();
+double StatusManager::getChange(const Symbol& symbol) {
+    if (const CandlestickWrapper* last = Exchanger().chart(symbol)->last()) {
         return util::change(last->priceOpen(), last->priceClose()) * 100.0;
     }
     return 0.0;
