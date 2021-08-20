@@ -14,7 +14,7 @@ enum ChartInterval : unsigned int {
 class ChartWrapper : public Identifier {
 public: // static
     static ChartWrapper* create();
-    static Signal<const CandlestickWrapper&> onCandleClosed;
+    static Signal<CandlestickWrapper> onCandleClosed;
 
 public: // methods
     virtual ~ChartWrapper();

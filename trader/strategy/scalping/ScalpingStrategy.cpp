@@ -4,8 +4,8 @@
 #include "ProfitManager.hpp"
 #include "TraderManager.hpp"
 #include "Config.hpp"
-#include "proxy/Time.hpp"
-#include "proxy/Exchanger.hpp"
+#include "Time.hpp"
+#include "exchanger/Exchanger.hpp"
 #include "exchanger/wrapper/ChartWrapper.hpp"
 
 using namespace scalping;

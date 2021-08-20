@@ -1,5 +1,5 @@
 #include "DataManager.hpp"
-#include "proxy/Database.hpp"
+#include "database/Database.hpp"
 
 using namespace scalping;
 

@@ -1,30 +1,29 @@
 #include "Runner.hpp"
 #include "Settings.hpp"
-#include "proxy/Exchanger.hpp"
-#include "proxy/Time.hpp"
+#include "Context.hpp"
+#include "exchanger/Exchanger.hpp"
+#include "Time.hpp"
 #include "exchanger/wrapper/ChartWrapper.hpp"
 #include "exchanger/wrapper/CandlestickWrapper.hpp"
 
 NS_USE
 
-Runner* Runner::create(const Settings& settings) {
-    Runner* runner = new Runner(settings.pair, settings.test);
+Runner* Runner::create() {
+    Runner* runner = new Runner();
     return runner;
 }
 
-Runner::Runner(const Symbol& symbol, bool test)
-    : _active(true)
-    , _symbol(symbol)
-    , _test(test)
-{
-}
+bool Runner::init(const Settings& settings) {
+    if (settings.test) {
+        if (not Exchanger().loadCharts(_symbol, ChartInterval::m15))
+            return false;
 
-void Runner::run() {
-    if (_test) {
-        Exchanger().loadCharts(_symbol, ChartInterval::m15);
         if (const ChartWrapper* chart = Exchanger().chart(_symbol)) {
             for (const CandlestickWrapper* candlestick : chart->get()) {
-                tick(candlestick->timeOpen());
+                Context context;
+                context.time = candlestick->timeClose();
+                context.candlestick = candlestick;
+                dispatch(context);
             }
         }
         _active = false;
@@ -32,10 +31,25 @@ void Runner::run() {
         Exchanger().listenCharts(_symbol, ChartInterval::m15);
         Time().onTick.connect(std::bind(&Runner::tick, this, std::placeholders::_1));
     }
+    return true;
+}
+
+void Runner::setCallback(Callback::Fn callback) {
+    _dispatcher.connect(callback);
+}
+
+void Runner::dispatch(const Context& context) {
+    if (not context.isValid())
+        return;
+
+    _dispatcher.emmit(context);
 }
 
 void Runner::tick(time_t ms) {
-    onTick.emmit(ms);
+    Context context;
+    context.time = ms;
+    context.candlestick = Exchanger().chart(_symbol)->last();
+    dispatch(context);
 }
 
 bool Runner::isRunning() const {

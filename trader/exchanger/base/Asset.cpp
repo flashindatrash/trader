@@ -1,5 +1,5 @@
 #include "Asset.hpp"
-#include "proxy/Exchanger.hpp"
+#include "exchanger/Exchanger.hpp"
 #include "exchanger/wrapper/BalanceWrapper.hpp"
 #include "util/StringUtil.hpp"
 

@@ -1,7 +1,7 @@
 #include "TraderApp.hpp"
-#include "proxy/Time.hpp"
-#include "proxy/Database.hpp"
-#include "proxy/Exchanger.hpp"
+#include "Time.hpp"
+#include "database/Database.hpp"
+#include "exchanger/Exchanger.hpp"
 #include "strategy/Strategy.hpp"
 
 core::Version TraderApp::sVersion = core::Version(1, 1);

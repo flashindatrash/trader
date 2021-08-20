@@ -1,6 +1,5 @@
 #include "PairStrategy.hpp"
 #include <global.hpp>
-#include "Logger.hpp"
 #include "Config.hpp"
 #include "Settings.hpp"
 #include "Runner.hpp"
@@ -19,17 +18,14 @@ bool PairStrategy::init(const core::Config& config) {
         return false;
 
     _algorithm = Algorithm::create(settings);
+    if (not _algorithm->init())
+        return false;
 
-    _runner = Runner::create(settings);
-    _runner->onTick.connect(std::bind(&Algorithm::execute, _algorithm, std::placeholders::_1));
-    _runner->run();
-    return true;
+    _runner = Runner::create();
+    _runner->setCallback(std::bind(&Algorithm::execute, _algorithm, std::placeholders::_1));
+    return _runner->init(settings);
 }
 
 bool PairStrategy::isRunning() const {
     return _runner && _runner->isRunning();
-}
-
-void PairStrategy::tick(time_t now) {
-    Logger::info("%d t", now);
 }

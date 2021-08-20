@@ -7,7 +7,7 @@
 #include "Logger.hpp"
 #include "util/StringUtil.hpp"
 #include "util/NumberUtil.hpp"
-#include "proxy/Time.hpp"
+#include "Time.hpp"
 #include "exchanger/base/Symbol.hpp"
 #include "exchanger/wrapper/ChartWrapper.hpp"
 #include "exchanger/wrapper/BalanceWrapper.hpp"

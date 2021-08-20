@@ -1,5 +1,5 @@
 #include "PriceWrapper.hpp"
-#include "proxy/Time.hpp"
+#include "Time.hpp"
 
 PriceWrapper* PriceWrapper::create() {
     PriceWrapper* wrapper = new PriceWrapper();

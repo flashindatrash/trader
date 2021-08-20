@@ -4,8 +4,7 @@
 #include "exchanger/base/Identifier.hpp"
 #include "exchanger/base/BaseTypes.hpp"
 
-class PriceWrapper : public Identifier
-{
+class PriceWrapper : public Identifier {
 public: // static
     typedef std::pair<Price, time_t> PriceTimePair;
 

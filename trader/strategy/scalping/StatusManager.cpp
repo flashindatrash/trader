@@ -1,7 +1,7 @@
 #include "StatusManager.hpp"
 #include "OrderManager.hpp"
 #include "Logger.hpp"
-#include "proxy/Exchanger.hpp"
+#include "exchanger/Exchanger.hpp"
 #include "exchanger/base/Symbol.hpp"
 #include "exchanger/wrapper/ChartWrapper.hpp"
 #include "exchanger/wrapper/CandlestickWrapper.hpp"

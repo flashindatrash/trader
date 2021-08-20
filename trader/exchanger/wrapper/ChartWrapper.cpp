@@ -6,7 +6,7 @@ ChartWrapper* ChartWrapper::create() {
     return wrapper;
 }
 
-Signal<const CandlestickWrapper&> ChartWrapper::onCandleClosed;
+Signal<CandlestickWrapper> ChartWrapper::onCandleClosed;
 
 ChartWrapper::~ChartWrapper() {
     for (CandlestickWrapper* candlestick : _candlesticks)

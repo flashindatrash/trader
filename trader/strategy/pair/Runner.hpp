@@ -6,27 +6,31 @@
 
 NS_BEGIN
 class Settings;
+class Context;
 
 class Runner {
 public: // static
-    static Runner* create(const Settings& settings);
+    typedef Signal<Context> Callback;
+
+    static Runner* create();
 
 public: // methods
-    void run();
+    bool init(const Settings& settings);
     bool isRunning() const;
+    void setCallback(Callback::Fn callback);
 
 protected: // methods
-    Runner(const Symbol& symbol, bool test);
+    Runner() = default;
 
+    void dispatch(const Context& context);
     void tick(time_t ms);
 
-public: // signals
-    Signal<time_t> onTick;
-
 protected: // vars
-    const bool _test;
-    const Symbol _symbol;
+    Callback _dispatcher;
     bool _active;
+
+protected: // settings
+    Symbol _symbol;
 };
 NS_END
 
