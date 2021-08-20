@@ -28,7 +28,7 @@ T* StorageMap<T>::get(const std::string& key) {
     return wrapper;
 }
 
-#include "exchanger/wrapper/Symbol.hpp"
+#include "exchanger/base/Symbol.hpp"
 #include "exchanger/wrapper/PriceWrapper.hpp"
 #include "exchanger/wrapper/BalanceWrapper.hpp"
 #include "exchanger/wrapper/CandlestickWrapper.hpp"

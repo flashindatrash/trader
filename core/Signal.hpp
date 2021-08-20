@@ -4,6 +4,7 @@
 #include <functional>
 
 template<class T>class Signal {
+public:
     typedef std::function<void(const T&)> Fn;
 
 public:

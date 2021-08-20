@@ -3,8 +3,6 @@
 #include "Logger.hpp"
 #include "proxy/Time.hpp"
 #include "proxy/Exchanger.hpp"
-#include "exchanger/base/ExchangerTypes.hpp"
-#include "exchanger/wrapper/Symbol.hpp"
 #include "exchanger/wrapper/BookWrapper.hpp"
 #include "exchanger/wrapper/OrderWrapper.hpp"
 #include "util/NumberUtil.hpp"

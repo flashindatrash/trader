@@ -4,7 +4,7 @@
 #include "Logger.hpp"
 #include "proxy/Time.hpp"
 #include "proxy/Exchanger.hpp"
-#include "exchanger/wrapper/Symbol.hpp"
+#include "exchanger/base/Symbol.hpp"
 #include "exchanger/wrapper/ChartWrapper.hpp"
 #include "exchanger/wrapper/OrderWrapper.hpp"
 #include "exchanger/wrapper/CandlestickWrapper.hpp"

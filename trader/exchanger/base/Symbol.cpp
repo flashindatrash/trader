@@ -1,24 +1,6 @@
 #include "Symbol.hpp"
 #include "proxy/Exchanger.hpp"
 #include "exchanger/wrapper/PriceWrapper.hpp"
-#include "exchanger/wrapper/BalanceWrapper.hpp"
-#include "util/StringUtil.hpp"
-
-Asset::Asset(const std::string& asset) {
-    setId(util::uppercase(asset.c_str()));
-}
-
-const char* Asset::c_str() const {
-    return _identifier.c_str();
-}
-
-Asset::operator std::string() const {
-    return _identifier;
-}
-
-const double& Asset::getBalance() const {
-    return Exchanger().balance(*this)->get();
-}
 
 Symbol* Symbol::create() {
     Symbol* wrapper = new Symbol();
@@ -36,11 +18,11 @@ Symbol::Symbol(const std::string& symbol) {
     _quote = pair->quoteAsset();
 }
 
-Symbol::Symbol(Asset base, Asset quote) {
+Symbol::Symbol(const Asset& base, const Asset& quote) {
     set(base, quote);
 }
 
-void Symbol::set(Asset base, Asset quote) {
+void Symbol::set(const Asset& base, const Asset& quote) {
     setId(base.id() + quote.id());
 
     _base = base;

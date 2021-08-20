@@ -12,7 +12,7 @@ Strategy* Strategy::create(const core::Config& config) {
     if (type == "scalping")
         strategy = new scalping::ScalpingStrategy();
     else if (type == "pair")
-        strategy = new pair::PairStrategy();
+        strategy = new strategy::pair::PairStrategy();
 
     if (strategy == nullptr)
         return nullptr;

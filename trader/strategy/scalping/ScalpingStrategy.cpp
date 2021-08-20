@@ -49,3 +49,7 @@ void ScalpingStrategy::tick(time_t now) {
     _profit_manager->tick(_symbol);
     _trader_manager->tick(_symbol);
 }
+
+bool ScalpingStrategy::isRunning() const {
+    return true;
+}

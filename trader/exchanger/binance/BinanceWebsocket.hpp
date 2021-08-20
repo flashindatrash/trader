@@ -8,19 +8,30 @@ namespace Json {
 }
 
 class BinanceWebsocket {
+public: // static
+
+    typedef Json::Value SignalV;
+    typedef Signal<SignalV> SignalT;
+
+    static BinanceWebsocket* create();
+
 public: // methods
-    BinanceWebsocket(std::string path);
+    void setPath(std::string path);
+    void setCallback(SignalT::Fn callback);
 
     void connect();
 
+    bool isConnected() const;
+    const std::string& path() const;
+
 protected: // methods
-    int handler(Json::Value& json);
+    BinanceWebsocket() = default;
 
-public: // signals
-    Signal<Json::Value&> callback;
+    int handler(SignalV& json);
 
-public: // vars
-    bool connected = false;
-    std::string path = "";
+protected: // vars
+    SignalT _callback;
+    bool _connected = false;
+    std::string _path = "";
 };
 

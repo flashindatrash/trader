@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include "exchanger/wrapper/Symbol.hpp"
+#include "exchanger/base/Symbol.hpp"
 
 enum OrderType : unsigned int {
     Market

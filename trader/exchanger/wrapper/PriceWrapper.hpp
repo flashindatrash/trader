@@ -2,7 +2,7 @@
 
 #include <vector>
 #include "exchanger/base/Identifier.hpp"
-#include "exchanger/base/ExchangerTypes.hpp"
+#include "exchanger/base/BaseTypes.hpp"
 
 class PriceWrapper : public Identifier
 {

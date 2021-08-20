@@ -4,13 +4,14 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include "BinanceWebsocket.hpp"
 #include "exchanger/base/ExchangerController.hpp"
 #include "response/BinanceSymbolData.hpp"
 
 namespace Json {
     class Value;
 }
+
+class BinanceWebsocket;
 
 class BinanceController : public ExchangerController {
 public: // methods
@@ -43,14 +44,15 @@ protected: // methods
     double getMinQuantity(const BinanceSymbolData& info) const;
 
 protected: // callbacks
-    void onUserDataStream(Json::Value& json);
-    void onKlineDataStream(Json::Value& json);
+    void onUserDataStream(const Json::Value& json);
+    void onKlineDataStream(const Json::Value& json);
 
 private: // static vars
     static std::unordered_map<std::string, BinanceSymbolData> _symbols;
 
 private: // vars
     std::thread _thread;
+    std::vector<BinanceWebsocket*> _websockets;
 
     // creates and validates a new order but does not send it into the matching engine
     bool _config_test_mode = false;
@@ -60,8 +62,6 @@ private: // vars
     Storage::Type_price* _prices_connector = nullptr;
     Storage::Type_balance* _balances_connector = nullptr;
     Storage::Type_chart* _charts_connector = nullptr;
-
-    std::vector<BinanceWebsocket> _websocket_handlers;
 
     time_t _time_keep_userstream = 0;
 };

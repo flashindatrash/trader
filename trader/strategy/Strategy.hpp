@@ -12,6 +12,7 @@ public: // methods
     virtual ~Strategy() = default;
 
     virtual bool init(const core::Config& config) = 0;
+    virtual bool isRunning() const = 0;
 
 protected: // methods
     Strategy() = default;

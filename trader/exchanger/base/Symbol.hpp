@@ -1,20 +1,8 @@
 #pragma once
 
-#include "exchanger/base/Identifier.hpp"
-#include "exchanger/base/ExchangerTypes.hpp"
-
-struct BinanceSymbolData;
-
-class Asset : public Identifier {
-public: // methods
-    Asset() = default;
-    Asset(const std::string& asset);
-
-    const double& getBalance() const;
-
-    const char* c_str() const;
-    operator std::string() const;
-};
+#include "Identifier.hpp"
+#include "BaseTypes.hpp"
+#include "Asset.hpp"
 
 class Symbol : public Identifier {
 public: // static
@@ -23,9 +11,9 @@ public: // static
 public: // methods
     Symbol() = default;
     Symbol(const std::string& symbol);
-    Symbol(Asset base, Asset second);
+    Symbol(const Asset& base, const Asset& second);
 
-    void set(Asset base, Asset second);
+    void set(const Asset& base, const Asset& second);
     const Asset& baseAsset() const;
     const Asset& quoteAsset() const;
 

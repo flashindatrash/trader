@@ -1,7 +1,7 @@
 #pragma once
 
 #include "exchanger/base/Identifier.hpp"
-#include "exchanger/base/ExchangerTypes.hpp"
+#include "exchanger/base/BaseTypes.hpp"
 
 struct Candlestick {
     std::string symbol;

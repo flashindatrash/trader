@@ -38,10 +38,13 @@ int TraderApp::run() {
     Exchanger().run();
 
     // run main thread
-    while (true) {
+    while (_strategy->isRunning()) {
         sleep_ms(100);
         Time().tick();
     }
 
-    return 1;
+    // stop exchanger thread
+    Exchanger().stop();
+
+    return EXIT_SUCCESS;
 }

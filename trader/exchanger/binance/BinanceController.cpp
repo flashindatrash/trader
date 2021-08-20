@@ -1,4 +1,5 @@
 #include "BinanceController.hpp"
+#include "BinanceWebsocket.hpp"
 #include "binacpp.h"
 #include "binacpp_websocket.h"
 #include "binacpp_logger.h"
@@ -7,7 +8,7 @@
 #include "util/StringUtil.hpp"
 #include "util/NumberUtil.hpp"
 #include "proxy/Time.hpp"
-#include "exchanger/wrapper/Symbol.hpp"
+#include "exchanger/base/Symbol.hpp"
 #include "exchanger/wrapper/ChartWrapper.hpp"
 #include "exchanger/wrapper/BalanceWrapper.hpp"
 #include "exchanger/wrapper/BookWrapper.hpp"
@@ -25,6 +26,12 @@ static const char* CONFIG_RECV_WINDOW = "BINANCE_RECV_WINDOW";
 static const char* CONFIG_TEST_MODE = "BINANCE_TEST_MODE";
 
 BinanceController::~BinanceController() {
+    for (BinanceWebsocket* websocket : _websockets)
+        SAFE_DELETE(websocket);
+    _websockets.clear();
+
+    BinaCPP_websocket::exit_event_loop();
+
     if (_thread.joinable())
         _thread.join();
 }
@@ -53,14 +60,16 @@ bool BinanceController::init(const core::Config& config) {
 }
 
 void BinanceController::run() {
+    // first tick connecting websockets
     tick(Time().ms());
+    // listen websockets
     _thread = std::thread(&BinaCPP_websocket::enter_event_loop);
 }
 
 void BinanceController::tick(time_t now) {
-    for (BinanceWebsocket& websocket : _websocket_handlers) {
-        if (not websocket.connected)
-            websocket.connect();
+    // keep websockets connctions
+    for (BinanceWebsocket* websocket : _websockets) {
+        websocket->connect();
     }
 
     auto timesup = [now](time_t time, time_t interval) {
@@ -239,11 +248,10 @@ void BinanceController::connectCharts(Storage::Type_chart& container) {
 }
 
 void BinanceController::listenCharts(ChartWrapper& container, ChartInterval interval) {
-    loadCharts(container, interval);
-
-    BinanceWebsocket handler(util::lowercase(container.id().c_str()) + "@kline_" + binance::serialize(interval));
-    handler.callback.connect(std::bind(&BinanceController::onKlineDataStream, this, std::placeholders::_1));
-    _websocket_handlers.push_back(handler);
+    BinanceWebsocket* websocket = BinanceWebsocket::create();
+    websocket->setPath(util::lowercase(container.id().c_str()) + "@kline_" + binance::serialize(interval));
+    websocket->setCallback(std::bind(&BinanceController::onKlineDataStream, this, std::placeholders::_1));
+    _websockets.push_back(websocket);
 }
 
 bool BinanceController::initUserListenKey() {
@@ -262,25 +270,26 @@ bool BinanceController::initUserListenKey() {
         return false;
     }
 
-    BinanceWebsocket handler(json["listenKey"].asString());
-    handler.callback.connect(std::bind(&BinanceController::onUserDataStream, this, std::placeholders::_1));
-    _websocket_handlers.push_back(handler);
+    BinanceWebsocket* websocket = BinanceWebsocket::create();
+    websocket->setPath(json["listenKey"].asString());
+    websocket->setCallback(std::bind(&BinanceController::onUserDataStream, this, std::placeholders::_1));
+    _websockets.push_back(websocket);
     return true;
 }
 
 void BinanceController::keepUserDataStream() {
-    if (_websocket_handlers.empty())
+    if (_websockets.empty())
         return;
 
-    BinanceWebsocket& userstream = _websocket_handlers.front();
-    if (not userstream.connected)
+    BinanceWebsocket* userstream = _websockets.front();
+    if (not userstream->isConnected())
         return;
 
     _time_keep_userstream = Time().ms();
-    BinaCPP::keep_userDataStream(userstream.path.c_str());
+    BinaCPP::keep_userDataStream(userstream->path().c_str());
 }
 
-void BinanceController::onUserDataStream(Json::Value& json) {
+void BinanceController::onUserDataStream(const Json::Value& json) {
     std::string action = json["e"].asString();
     if (action  == "executionReport") {
         std::string executionType = json["x"].asString();
@@ -298,7 +307,7 @@ void BinanceController::onUserDataStream(Json::Value& json) {
     }
 }
 
-void BinanceController::onKlineDataStream(Json::Value& json) {
+void BinanceController::onKlineDataStream(const Json::Value& json) {
     BinanceKlineData data(json);
 
     if (_prices_connector != nullptr)

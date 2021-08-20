@@ -1,6 +1,6 @@
 #include "OrderWrapper.hpp"
 #include "proxy/Exchanger.hpp"
-#include "exchanger/wrapper/Symbol.hpp"
+#include "exchanger/base/Symbol.hpp"
 #include "exchanger/wrapper/BookWrapper.hpp"
 
 OrderWrapper* OrderWrapper::create()

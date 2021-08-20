@@ -23,11 +23,11 @@ bool Config::read(const char* path) {
     return true;
 }
 
-bool Config::has(const std::string& key) const {
+bool Config::has(const Key& key) const {
     return _values.find(key) != _values.end();
 }
 
-const std::string& Config::getAsString(const std::string& key) const {
+const std::string& Config::getAsString(const Key& key) const {
     static const std::string& sEmpty = "";
 
     auto it = _values.find(key);
@@ -37,6 +37,10 @@ const std::string& Config::getAsString(const std::string& key) const {
     return it->second;
 }
 
-int Config::getAsInt(const std::string& key) const {
+int Config::getAsInt(const Key& key) const {
     return atoi(getAsString(key).c_str());
+}
+
+bool Config::getAsBool(const Key& key) const {
+    return getAsInt(key) == 1;
 }

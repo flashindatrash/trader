@@ -19,10 +19,12 @@ public: // methods
 
     bool init(const core::Config& config);
     void run();
+    void stop();
 
     bool loadOrders(const std::string& key);
-    void listenStats(const std::string& key);
+    bool loadCharts(const std::string& key, ChartInterval interval);
     void listenCharts(const std::string& key, ChartInterval interval);
+    void listenStats(const std::string& key);
 
     const OrderWrapper* createOrder(const OrderRequest& request);
 

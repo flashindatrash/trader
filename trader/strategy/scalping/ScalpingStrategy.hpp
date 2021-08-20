@@ -2,7 +2,7 @@
 
 #include "time.h"
 #include "strategy/Strategy.hpp"
-#include "exchanger/wrapper/Symbol.hpp"
+#include "exchanger/base/Symbol.hpp"
 
 namespace scalping {
 
@@ -14,7 +14,9 @@ class TraderManager;
 class ScalpingStrategy : public Strategy {
 public: // methods
     ScalpingStrategy() = default;
+
     virtual bool init(const core::Config& config) override;
+    virtual bool isRunning() const override;
 
     void tick(time_t now);
 

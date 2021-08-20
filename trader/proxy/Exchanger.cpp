@@ -1,13 +1,13 @@
 #include "Exchanger.hpp"
 #include "Config.hpp"
 #include "proxy/Time.hpp"
-#include "exchanger/wrapper/Symbol.hpp"
+#include "exchanger/base/Symbol.hpp"
 #include "exchanger/base/ExchangerController.hpp"
 #include "exchanger/wrapper/OrderWrapper.hpp"
 #include "exchanger/wrapper/ChartWrapper.hpp"
 
 ExchangerProxy::~ExchangerProxy() {
-    SAFE_DELETE(_controller);
+    stop();
 }
 
 bool ExchangerProxy::init(const core::Config& config) {
@@ -30,12 +30,20 @@ void ExchangerProxy::run() {
     _controller->run();
 }
 
+void ExchangerProxy::stop() {
+    SAFE_DELETE(_controller);
+}
+
 void ExchangerProxy::tick(time_t now) {
     _controller->tick(now);
 }
 
 bool ExchangerProxy::loadOrders(const std::string& key) {
     return _controller->loadOrders(*_books.get(key));
+}
+
+bool ExchangerProxy::loadCharts(const std::string& key, ChartInterval interval) {
+    return _controller->loadCharts(*_charts.get(key), interval);
 }
 
 void ExchangerProxy::listenCharts(const std::string& key, ChartInterval interval) {
