@@ -5,6 +5,7 @@
 
 NS_BEGIN
 class Runner;
+class Algorithm;
 
 class PairStrategy : public Strategy {
 public: // methods
@@ -19,6 +20,7 @@ protected: // methods
 
 protected: // methods
     Runner* _runner = nullptr;
+    Algorithm* _algorithm = nullptr;
 };
 NS_END
 

@@ -4,11 +4,13 @@
 #include "Config.hpp"
 #include "Settings.hpp"
 #include "Runner.hpp"
+#include "Algorithm.hpp"
 
 NS_USE
 
 PairStrategy::~PairStrategy() {
     SAFE_DELETE(_runner);
+    SAFE_DELETE(_algorithm);
 }
 
 bool PairStrategy::init(const core::Config& config) {
@@ -16,8 +18,10 @@ bool PairStrategy::init(const core::Config& config) {
     if (not settings.isValid())
         return false;
 
+    _algorithm = Algorithm::create(settings);
+
     _runner = Runner::create(settings);
-    _runner->onTick.connect(std::bind(&PairStrategy::tick, this, std::placeholders::_1));
+    _runner->onTick.connect(std::bind(&Algorithm::execute, _algorithm, std::placeholders::_1));
     _runner->run();
     return true;
 }
