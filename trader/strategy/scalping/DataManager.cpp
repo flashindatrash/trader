@@ -11,7 +11,7 @@ std::vector<std::string> DataManager::getPositionIds() {
 }
 
 void DataManager::openPosition(const std::string& order_id) {
-    DB().set(sDbKeyOrder + order_id, true);
+    DB().set(sDbKeyOrder + order_id, database::Value(true));
 }
 
 void DataManager::closePosition(const std::string& order_id) {
@@ -19,7 +19,7 @@ void DataManager::closePosition(const std::string& order_id) {
 }
 
 double DataManager::addProfit(const std::string& asset, double profit) {
-    profit += DB().getAsDouble(sDbKeyProfit + asset);
-    DB().set(sDbKeyProfit + asset, profit);
+    profit += DB().get(sDbKeyProfit + asset).asDouble();
+    DB().set(sDbKeyProfit + asset, database::Value(profit));
     return profit;
 }

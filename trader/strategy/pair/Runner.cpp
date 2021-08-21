@@ -14,21 +14,23 @@ Runner* Runner::create() {
 }
 
 bool Runner::init(const Settings& settings) {
+    _chart = Exchanger().chart(settings.pair);
+    if (_chart == nullptr)
+        return false;
+
     if (settings.test) {
-        if (not Exchanger().loadCharts(_symbol, ChartInterval::m15))
+        if (not Exchanger().loadCharts(_chart->id(), ChartInterval::m15))
             return false;
 
-        if (const ChartWrapper* chart = Exchanger().chart(_symbol)) {
-            for (const CandlestickWrapper* candlestick : chart->get()) {
-                Context context;
-                context.time = candlestick->timeClose();
-                context.candlestick = candlestick;
-                dispatch(context);
-            }
+        for (const CandlestickWrapper* candlestick : _chart->get()) {
+            Context context;
+            context.time = candlestick->timeClose();
+            context.candlestick = candlestick;
+            dispatch(context);
         }
-        _active = false;
     } else {
-        Exchanger().listenCharts(_symbol, ChartInterval::m15);
+        _active = true;
+        Exchanger().listenCharts(_chart->id(), ChartInterval::m15);
         Time().onTick.connect(std::bind(&Runner::tick, this, std::placeholders::_1));
     }
     return true;
@@ -48,7 +50,7 @@ void Runner::dispatch(const Context& context) {
 void Runner::tick(time_t ms) {
     Context context;
     context.time = ms;
-    context.candlestick = Exchanger().chart(_symbol)->last();
+    context.candlestick = _chart->last();
     dispatch(context);
 }
 

@@ -2,6 +2,7 @@
 
 #include <unordered_map>
 #include <string>
+#include <cassert>
 #include "exchanger/base/Storage-macros.hpp"
 
 template<class T> class StorageMap : protected std::unordered_map<std::string, T*> {

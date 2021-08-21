@@ -2,7 +2,8 @@
 
 #include "Defines.hpp"
 #include "Signal.hpp"
-#include "exchanger/base/Symbol.hpp"
+
+class ChartWrapper;
 
 NS_BEGIN
 class Settings;
@@ -27,10 +28,8 @@ protected: // methods
 
 protected: // vars
     Callback _dispatcher;
-    bool _active;
-
-protected: // settings
-    Symbol _symbol;
+    bool _active = false;
+    ChartWrapper* _chart = nullptr;
 };
 NS_END
 

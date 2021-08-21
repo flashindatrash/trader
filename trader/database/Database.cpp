@@ -4,6 +4,8 @@
 #include "Logger.hpp"
 #include "hiredis/hiredis.h"
 
+using namespace database;
+
 Database::~Database() {
     if (_context != nullptr) {
         redisFree(_context);
@@ -37,27 +39,36 @@ redisReply* Database::cmd(const char* format, ...) {
     return (redisReply*)result;
 }
 
-void Database::set(const std::string& key, const char* value) {
-    cmd("SET %s %s", key.c_str(), value);
+void Database::set(const Key& key, const Value& value) {
+    cmd("SET %s %s", key.c_str(), value.asCString());
 }
 
-void Database::set(const std::string& key, int value) {
-    cmd("SET %s %d", key.c_str(), value);
+const Value Database::get(const std::string& key) {
+    if (redisReply* result = cmd("GET %s", key.c_str())) {
+        if (result->type == REDIS_REPLY_STRING)
+            return result->str;
+    }
+    return Value::Empty;
 }
 
-void Database::set(const std::string& key, double value) {
-    cmd("SET %s %f", key.c_str(), value);
+const Object Database::hgetall(const Key& key) {
+    Object obj;
+    if (redisReply* result = cmd("HGETALL %s", key.c_str())) {
+        if (result->type == REDIS_REPLY_ARRAY) {
+            Key field;
+            for (size_t i = 0; i < result->elements; ++i) {
+                redisReply* item = result->element[i];
+                if (i % 2 == 0)
+                    field = item->str;
+                else
+                    obj.set(field, item->str);
+            }
+        }
+    }
+    return obj;
 }
 
-void Database::set(const std::string& key, long value) {
-    cmd("SET %s %s", key.c_str(), std::to_string(value).c_str());
-}
-
-void Database::set(const std::string& key, bool value) {
-    set(key, value ? 1 : 0);
-}
-
-int Database::incr(const std::string& key) {
+int Database::incr(const Key& key) {
     if (redisReply* result = cmd("INCR %s", key.c_str())) {
         if (result->type == REDIS_REPLY_INTEGER)
             return result->integer;
@@ -65,12 +76,12 @@ int Database::incr(const std::string& key) {
     return 0;
 }
 
-void Database::del(const std::string &key) {
+void Database::del(const Key &key) {
     cmd("DEL %s", key.c_str());
 }
 
-std::vector<std::string> Database::keys(const std::string& pattern) {
-    std::vector<std::string> keys;
+std::vector<database::Key> Database::keys(const std::string& pattern) {
+    std::vector<Key> keys;
     if (redisReply* result = cmd("KEYS %s", pattern.c_str())) {
         if (result->type == REDIS_REPLY_ARRAY) {
             for (size_t i = 0; i < result->elements; ++i) {
@@ -80,28 +91,4 @@ std::vector<std::string> Database::keys(const std::string& pattern) {
         }
     }
     return keys;
-}
-
-const char* Database::getAsString(const std::string& key) {
-    if (redisReply* result = cmd("GET %s", key.c_str())) {
-        if (result->type == REDIS_REPLY_STRING)
-            return result->str;
-    }
-    return "";
-}
-
-int Database::getAsInt(const std::string& key) {
-    return atoi(getAsString(key));
-}
-
-double Database::getAsDouble(const std::string& key) {
-    return atof(getAsString(key));
-}
-
-double Database::getAsLong(const std::string& key) {
-    return atol(getAsString(key));
-}
-
-bool Database::getAsBool(const std::string& key) {
-    return getAsInt(key) == 1;
 }

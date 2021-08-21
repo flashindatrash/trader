@@ -1,7 +1,6 @@
 #include "Algorithm.hpp"
 #include "Settings.hpp"
 #include "Context.hpp"
-#include "BookManager.hpp"
 #include "Logger.hpp"
 #include "exchanger/wrapper/CandlestickWrapper.hpp"
 
@@ -13,14 +12,13 @@ Algorithm* Algorithm::create(const Settings& settings) {
 }
 
 bool Algorithm::init() {
-    _book = BookManager::create();
-    if (not _book->init()) {
-        return false;
-    }
 
-    return true;;
+    return true;
 }
 
 void Algorithm::execute(const Context& context) {
-    Logger::info("candle price: %f", context.candlestick->priceClose());
+    Change change = util::change(context.candlestick->priceOpen(), context.candlestick->priceClose());
+    if (std::abs(change) > 0.001)
+        Logger::info("candle price change: %f", change);
+
 }

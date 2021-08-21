@@ -2,6 +2,9 @@
 
 #include <string>
 #include "Proxy.hpp"
+#include "Types.hpp"
+#include "Value.hpp"
+#include "Object.hpp"
 
 namespace core {
     class Config;
@@ -10,8 +13,8 @@ namespace core {
 struct redisContext;
 struct redisReply;
 
-class Database : public core::Proxy<Database>
-{
+namespace database {
+class Database : public core::Proxy<Database> {
 
 public: // methods
     Database() = default;
@@ -19,28 +22,22 @@ public: // methods
 
     bool init(const core::Config& config);
 
-    void set(const std::string& key, const char* value);
-    void set(const std::string& key, int value);
-    void set(const std::string& key, double value);
-    void set(const std::string& key, long value);
-    void set(const std::string& key, bool value);
+    void set(const Key& key, const Value& value);
+    const Value get(const Key& key);
 
-    std::vector<std::string> keys(const std::string& pattern);
+    const Object hgetall(const Key& key);
 
-    int incr(const std::string& key);
+    void del(const Key& key);
+    int incr(const Key& key);
 
-    void del(const std::string& key);
+    std::vector<Key> keys(const std::string& pattern);
 
-    const char* getAsString(const std::string& key);
-    int getAsInt(const std::string& key);
-    double getAsDouble(const std::string& key);
-    double getAsLong(const std::string& key);
-    bool getAsBool(const std::string& key);
-
+protected: // methods
     redisReply* cmd(const char *format, ...);
 
 protected: // vars
     redisContext* _context = nullptr;
 };
+}
 
-#define DB() Database::getInstance()
+#define DB() database::Database::getInstance()
