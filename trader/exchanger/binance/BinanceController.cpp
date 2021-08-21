@@ -287,9 +287,6 @@ bool BinanceController::getChart(ChartWrapper &wrapper, ChartInterval interval) 
 }
 
 const ChartWrapper* BinanceController::connectChart(ChartWrapper& wrapper, ChartInterval interval) {
-    if (not getChart(wrapper, interval))
-        return nullptr;
-
     _chart_connector = &wrapper;
     const std::string& path = "/ws/" + util::lowercase(wrapper.id().c_str()) + "@kline_" + binance::serialize(interval);
     BinaCPP_websocket::connect_endpoint(std::bind(&BinanceController::onKlineDataStream, this, std::placeholders::_1), path.c_str());
