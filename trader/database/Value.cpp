@@ -2,15 +2,20 @@
 
 using namespace database;
 
-Value Value::Empty = "";
+Value Value::Empty;
 
-Value::Value(const char* value)
+Value::Value(const std::string value)
     : _value(value)
 {
 }
 
-Value::Value(const std::string& value)
-    : Value(value.c_str())
+Value::Value(const Value& value)
+    : Value(value.asString())
+{
+}
+
+Value::Value(const char* value)
+    : Value(std::string(value))
 {
 }
 
@@ -30,11 +35,11 @@ Value::Value(const bool value)
 }
 
 const char* Value::asCString() const {
-    return _value;
+    return _value.c_str();
 }
 
 std::string Value::asString() const {
-    return std::string(_value);
+    return _value;
 }
 
 int Value::asInt() const {
@@ -51,4 +56,8 @@ long Value::asLong() const {
 
 bool Value::asBool() const {
     return asInt() == 1;
+}
+
+size_t Value::size() const {
+    return _value.size();
 }

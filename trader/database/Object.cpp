@@ -1,19 +1,18 @@
 #include "Object.hpp"
+#include "Database.hpp"
 
 using namespace database;
 
-void Object::set(const Key field, const Value value) {
-    _map.insert(std::make_pair(field, value));
+Object::Object(const Key& key)
+    : _key(key)
+{
 }
 
-Value Object::get(const Key field) const {
-    auto it = _map.find(field);
-    if (it == _map.end())
-        return Value::Empty;
-    return it->second;
+void Object::set(const Key& field, const Value& value) {
+    _map[field] = value;
 }
 
-Value& Object::get(const Key field) {
+Value Object::get(const Key& field) const {
     auto it = _map.find(field);
     if (it == _map.end())
         return Value::Empty;
@@ -26,4 +25,19 @@ size_t Object::size() const {
 
 bool Object::empty() const {
     return _map.empty();
+}
+
+void Object::remove() {
+    DB().del(_key);
+}
+
+bool Object::flush() {
+    return DB().hmset(_key, _map);
+}
+
+void Object::load() {
+    if (_key.empty())
+        return;
+
+    _map = DB().hgetall(_key);
 }

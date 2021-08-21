@@ -8,23 +8,24 @@ public: // static
     static Value Empty;
 
 public: // methods
+    Value() = default;
+    Value(const Value& value);
     Value(const char* value);
-    Value(const std::string& value);
+    Value(const std::string value);
     Value(const int value);
     Value(const double value);
     Value(const bool value);
 
-    const char* asCString() const;
-    std::string asString() const;
-    int         asInt() const;
-    double      asDouble() const;
-    long        asLong() const;
-    bool        asBool() const;
+    const char*     asCString() const;
+    std::string     asString() const;
+    int             asInt() const;
+    double          asDouble() const;
+    long            asLong() const;
+    bool            asBool() const;
 
-protected: // methods
-    Value() = default;
+    size_t size() const;
 
 protected: // vars
-    const char* _value;
+    std::string _value = "";
 };
 }

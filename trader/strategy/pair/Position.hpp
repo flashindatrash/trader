@@ -1,18 +1,29 @@
 #pragma once
 
 #include "Defines.hpp"
-#include "database/BaseWrapper.hpp"
+#include "database/Object.hpp"
+#include "exchanger/base/Identifier.hpp"
+
+enum OrderSide : unsigned int;
 
 NS_BEGIN
-class Position : database::BaseWrapper {
-    typedef int Id;
-
+class Position : public database::Object, public Identifier {
 public: // static
-    static Position* get(const Id id);
+    WRAPPER_CREATE(Position)
+    WRAPPER_BYID(Position)
 
 public: // methods
+    Symbol symbol() const;
+    void setSymbol(const Symbol& value);
+
+    OrderSide side() const;
+    void setSide(OrderSide value);
+
     Price price() const;
-    void setPrice(const Price value);
+    void setPrice(const Price& value);
+
+    Quantity quantity() const;
+    void setQuantity(const Quantity& value);
 
 protected: // methods
     Position(const Id id);

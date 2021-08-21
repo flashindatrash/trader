@@ -1,5 +1,4 @@
 #include "Database.hpp"
-
 #include "Config.hpp"
 #include "Logger.hpp"
 #include "hiredis/hiredis.h"
@@ -30,13 +29,26 @@ redisReply* Database::cmd(const char* format, ...) {
     va_start(args, format);
     void* result = redisvCommand(_context, format, args);
     va_end(args);
+    return receive(result);
+}
 
-    if (result == nullptr) {
-        Logger::info("result Database::cmd null");
+redisReply* Database::cmdArgv(int argc, const char **argv, const size_t *argvlen) {
+    return receive(redisCommandArgv(_context, argc, argv, argvlen));
+}
+
+redisReply* Database::receive(void* reply) const {
+    if (reply == nullptr) {
+        Logger::info("redisReply is null");
         return nullptr;
     }
 
-    return (redisReply*)result;
+    redisReply* result = (redisReply*)reply;
+    if (result->type == REDIS_REPLY_ERROR) {
+        Logger::info("redisReply: %s", result->str);
+        return nullptr;
+    }
+
+    return result;
 }
 
 void Database::set(const Key& key, const Value& value) {
@@ -51,7 +63,7 @@ const Value Database::get(const std::string& key) {
     return Value::Empty;
 }
 
-int Database::rpush(const Key& key, const Value& value) {
+size_t Database::rpush(const Key& key, const Value& value) {
     if (redisReply* result = cmd("RPUSH %s %s", key.c_str(), value.asCString())) {
         if (result->type == REDIS_REPLY_INTEGER)
             return result->integer;
@@ -59,21 +71,58 @@ int Database::rpush(const Key& key, const Value& value) {
     return 0;
 }
 
-std::vector<Value> Database::lrange(const Key& key, int start/* = 0*/, int stop/* = -1*/) {
-    std::vector<Value> arr;
+Array::Vector Database::lrange(const Key& key, int start/* = 0*/, int stop/* = -1*/) {
+    Array::Vector vec;
     if (redisReply* result = cmd("LRANGE %s %d %d", key.c_str(), start, stop)) {
         if (result->type == REDIS_REPLY_ARRAY) {
             for (size_t i = 0; i < result->elements; ++i) {
                 redisReply* item = result->element[i];
-                arr.push_back(item->str);
+                vec.push_back(item->str);
             }
         }
     }
-    return arr;
+    return vec;
 }
 
-const Object Database::hgetall(const Key& key) {
-    Object obj;
+size_t Database::lrem(const Key& key, const Value& value, int count/* = 0*/) {
+    if (redisReply* result = cmd("LREM %s %d %s", key.c_str(), count, value.asCString())) {
+        if (result->type == REDIS_REPLY_INTEGER)
+            return result->integer;
+    }
+    return 0;
+}
+
+bool Database::hmset(const Key& key, Object::Map& map) {
+    if (map.empty())
+        return false;
+
+    std::vector<const char *> argv;
+    std::vector<size_t> argvlen;
+
+    static char cmd[] = "HMSET";
+    argv.push_back(cmd);
+    argvlen.push_back(sizeof(cmd)-1);
+
+    argv.push_back( key.c_str() );
+    argvlen.push_back( key.size() );
+
+    for (auto& it : map) {
+        argv.push_back(it.first.c_str());
+        argvlen.push_back(it.first.size());
+        argv.push_back(it.second.asCString());
+        argvlen.push_back(it.second.size());
+    }
+
+    if (redisReply* result = cmdArgv(argv.size(), &(argv[0]), &(argvlen[0]))) {
+        if (result->type == REDIS_REPLY_STATUS)
+            return true;
+    }
+
+    return false;
+}
+
+Object::Map Database::hgetall(const Key& key) {
+    Object::Map map;
     if (redisReply* result = cmd("HGETALL %s", key.c_str())) {
         if (result->type == REDIS_REPLY_ARRAY) {
             Key field;
@@ -82,11 +131,11 @@ const Object Database::hgetall(const Key& key) {
                 if (i % 2 == 0)
                     field = item->str;
                 else
-                    obj.set(field, item->str);
+                    map.insert(std::make_pair(field, item->str));
             }
         }
     }
-    return obj;
+    return map;
 }
 
 int Database::incr(const Key& key) {
@@ -97,8 +146,12 @@ int Database::incr(const Key& key) {
     return 0;
 }
 
-void Database::del(const Key &key) {
-    cmd("DEL %s", key.c_str());
+bool Database::del(const Key &key) {
+    if (redisReply* result = cmd("DEL %s", key.c_str())) {
+        if (result->type == REDIS_REPLY_STATUS)
+            return true;
+    }
+    return false;
 }
 
 std::vector<database::Key> Database::keys(const std::string& pattern) {

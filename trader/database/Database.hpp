@@ -1,9 +1,9 @@
 #pragma once
 
-#include <string>
 #include "Proxy.hpp"
 #include "Types.hpp"
 #include "Value.hpp"
+#include "Array.hpp"
 #include "Object.hpp"
 
 namespace core {
@@ -25,18 +25,23 @@ public: // methods
     void set(const Key& key, const Value& value);
     const Value get(const Key& key);
 
-    int rpush(const Key& key, const Value& value);
-    std::vector<Value> lrange(const Key& key, int start = 0, int stop = -1);
+    size_t rpush(const Key& key, const Value& value);
+    Array::Vector lrange(const Key& key, int start = 0, int stop = -1);
+    size_t lrem(const Key& key, const Value& value, int count = 0);
 
-    const Object hgetall(const Key& key);
+    bool hmset(const Key& key, Object::Map& map);
+    Object::Map hgetall(const Key& key);
 
     int incr(const Key& key);
-    void del(const Key& key);
+    bool del(const Key& key);
 
     std::vector<Key> keys(const std::string& pattern);
 
 protected: // methods
     redisReply* cmd(const char *format, ...);
+    redisReply* cmdArgv(int argc, const char **argv, const size_t *argvlen);
+
+    redisReply* receive(void *reply) const;
 
 protected: // vars
     redisContext* _context = nullptr;

@@ -1,26 +1,48 @@
 #include "Position.hpp"
+#include <global.hpp>
+#include "exchanger/wrapper/OrderWrapper.hpp"
 
-static const char* KEY = "pair";
+static const char* FIELD_SYMBOL = "symbol";
+static const char* FIELD_SIDE = "side";
 static const char* FIELD_PRICE = "price";
+static const char* FIELD_QUANTITY = "quantity";
 
 NS_USE
 
-Position* Position::get(const Id id) {
-    Position* wrapper = new Position(id);
-    if (not wrapper->load())
-        SAFE_DELETE(wrapper);
-    return wrapper;
+Position::Position(Id id)
+    : database::Object("position:" + id)
+{
+    setId(id);
 }
 
-Position::Position(Id id)
-    : database::BaseWrapper(KEY, id)
-{
+Symbol Position::symbol() const {
+    return get(FIELD_SYMBOL).asString();
+}
+
+void Position::setSymbol(const Symbol& value) {
+    set(FIELD_SYMBOL, value.c_str());
+}
+
+OrderSide Position::side() const {
+    return (OrderSide)get(FIELD_SIDE).asInt();
+}
+
+void Position::setSide(OrderSide value) {
+    set(FIELD_SIDE, (int)value);
 }
 
 Price Position::price() const {
-    return _obj.get(FIELD_PRICE).asDouble();
+    return get(FIELD_PRICE).asDouble();
 }
 
-void Position::setPrice(const Price value) {
-    _obj.set(FIELD_PRICE, value);
+void Position::setPrice(const Price& value) {
+    set(FIELD_PRICE, value);
+}
+
+Quantity Position::quantity() const {
+    return get(FIELD_QUANTITY).asDouble();
+}
+
+void Position::setQuantity(const Quantity& value) {
+    set(FIELD_QUANTITY, value);
 }

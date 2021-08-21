@@ -6,17 +6,27 @@
 
 namespace database {
 class Object {
+public: // static
+    typedef std::unordered_map<Key, Value> Map;
+
 public: // methods
+    Object(const Key& key);
     Object() = default;
 
-    void set(const Key field, const Value value);
-    Value get(const Key field) const;
-    Value& get(const Key field);
+    void set(const Key& field, const Value& value);
+    Value get(const Key& field) const;
 
     size_t size() const;
     bool empty() const;
 
-protected: // vars
-    std::unordered_map<Key, Value> _map;
+    bool remove();
+    bool flush();
+
+protected: // methods
+    void load();
+
+private: // vars
+    Key _key;
+    Map _map;
 };
 }
