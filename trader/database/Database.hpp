@@ -25,10 +25,13 @@ public: // methods
     void set(const Key& key, const Value& value);
     const Value get(const Key& key);
 
+    int rpush(const Key& key, const Value& value);
+    std::vector<Value> lrange(const Key& key, int start = 0, int stop = -1);
+
     const Object hgetall(const Key& key);
 
-    void del(const Key& key);
     int incr(const Key& key);
+    void del(const Key& key);
 
     std::vector<Key> keys(const std::string& pattern);
 

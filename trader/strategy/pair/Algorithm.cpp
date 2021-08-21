@@ -12,7 +12,6 @@ Algorithm* Algorithm::create(const Settings& settings) {
 }
 
 bool Algorithm::init() {
-
     return true;
 }
 
