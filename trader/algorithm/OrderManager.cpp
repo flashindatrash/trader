@@ -88,9 +88,11 @@ void OrderManager::printOrder(const OrderWrapper* order, const OrderWrapper* pos
 
         double profit = std::abs(position->price() - symbol.getPrice()) * position->quantity();
         double total = DataManager::addProfit(symbol.quoteAsset(), profit);
-        std::string formatCurrentProfit = "%." + std::to_string(util::zeros_after_dot(profit) + 1) + "f";
-        std::string formatTotalProfit = "%." + std::to_string(util::zeros_after_dot(total) + 1) + "f";
-        std::string format = "%sprofit update: +" + formatCurrentProfit + " (total +" + formatTotalProfit + ") %s%s";
-        Logger::info(format.c_str(), GREEN, profit, total, symbol.quoteAsset().c_str(), RESET);
+	double current = DataManager::addProfit(symbol, profit);
+
+        std::string formatProfit = "%." + std::to_string(util::zeros_after_dot(profit) + 1) + "f";
+        std::string formatSymbolProfit = "%." + std::to_string(util::zeros_after_dot(current) + 1) + "f";
+        std::string format = "%sprofit update: +" + formatProfit + " (total +" + formatSymbolProfit + ") %s%s";
+        Logger::info(format.c_str(), GREEN, profit, current, symbol.quoteAsset().c_str(), RESET);
     }
 }

@@ -52,14 +52,7 @@ void ProfitManager::tick(const Symbol& symbol) {
          candlestick->isBearish() &&
          candlestick->tailLen() / symbol.getPrice() < sMaxTailRate))
     {
-        if (_temp == 0.0)
-            _temp = symbol.getPrice();
         return;
-    }
-
-    if (_temp != 0.0) {
-        Logger::info("waited candle started at %f, ended at %f", _temp, symbol.getPrice());
-        _temp = 0.0;
     }
 
     // пробуем создать новый ордер
