@@ -92,7 +92,7 @@ size_t Database::lrem(const Key& key, const Value& value, int count/* = 0*/) {
     return 0;
 }
 
-bool Database::hmset(const Key& key, Object::Map& map) {
+bool Database::hmset(const Key& key, const Object::Map& map) {
     if (map.empty())
         return false;
 
@@ -148,7 +148,7 @@ int Database::incr(const Key& key) {
 
 bool Database::del(const Key &key) {
     if (redisReply* result = cmd("DEL %s", key.c_str())) {
-        if (result->type == REDIS_REPLY_STATUS)
+        if (result->type == REDIS_REPLY_INTEGER)
             return true;
     }
     return false;

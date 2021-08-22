@@ -16,14 +16,13 @@ Algorithm* Algorithm::create(const Settings& settings) {
 bool Algorithm::init() {
     static const std::string test = "test";
 
-    db::Objects arr("b1");
+    db::ArrayObject arr("b1");
 
-    db::Object obj("o3");
+    db::Object obj("o5");
     obj.set(test, "wtf");
-    if (obj.flush()) {
-        if (not arr.push(obj)) Logger::info("ke1");
-        if (not arr.push(obj)) Logger::info("ke2");
-    }
+
+    arr.push(obj);
+    arr.remove("o4");
 
     for (auto& it : arr) {
         Logger::info("key %s", it.get(test).asCString());

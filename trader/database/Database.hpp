@@ -29,7 +29,7 @@ public: // methods
     std::vector<std::string> lrange(const Key& key, int start = 0, int stop = -1);
     size_t lrem(const Key& key, const Value& value, int count = 0);
 
-    bool hmset(const Key& key, Object::Map& map);
+    bool hmset(const Key& key, const Object::Map& map);
     Object::Map hgetall(const Key& key);
 
     int incr(const Key& key);

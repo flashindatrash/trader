@@ -19,8 +19,8 @@ public: // methods
     size_t size() const;
     bool empty() const;
 
-    bool remove();
-    bool flush();
+    bool remove() const;
+    bool save();
 
 public: // operators
     inline bool operator==(const Object& rhs) const { return _key == rhs._key; }
@@ -33,5 +33,8 @@ protected: // methods
 private: // vars
     Key _key;
     Map _map;
+
+    // have local changes
+    bool _invalidated = false;
 };
 }

@@ -10,7 +10,10 @@ Object::Object(const Key& key)
 }
 
 void Object::set(const Key& field, const Value& value) {
+    // todo: check if there were any changes
     _map[field] = value;
+
+    _invalidated = true;
 }
 
 Value Object::get(const Key& field) const {
@@ -28,17 +31,25 @@ bool Object::empty() const {
     return _map.empty();
 }
 
-bool Object::remove() {
+bool Object::remove() const {
     return DB().del(_key);
 }
 
-bool Object::flush() {
-    return DB().hmset(_key, _map);
+bool Object::save() {
+    if (!_invalidated)
+        return true;
+
+    if (not DB().hmset(_key, _map))
+        return false;
+
+    _invalidated = false;
+    return true;
 }
 
 void Object::load() {
     if (_key.empty())
         return;
 
+    // todo: overwrite only the fields you need
     _map = DB().hgetall(_key);
 }
