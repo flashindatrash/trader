@@ -9,7 +9,7 @@
 #include "algorithm/OrderManager.hpp"
 #include "algorithm/DecisionMaker.hpp"
 
-static Change sMinRate = 0.005;
+static Change sMinRate = 0.004;
 
 // скипать похожие позиции, у которых цена отличается на этот процент
 static Change sEqualPosition = 0.01;
