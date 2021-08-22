@@ -1,6 +1,5 @@
 #pragma once
 
-#include <vector>
 #include "Types.hpp"
 #include "Value.hpp"
 
@@ -8,15 +7,13 @@ namespace db {
 class ArrayHelper {
 public:
     static size_t rpush(const Key& key, const Value& value);
-    static std::vector<std::string> lrange(const Key& key, int start = 0, int stop = -1);
+    static VectorValues lrange(const Key& key, int start = 0, int stop = -1);
     static size_t lrem(const Key& key, const Value& value, int count = 0);
 };
 
 template<class T>
 class ArrayAbstract {
-public:
     typedef std::vector<T> VectorT;
-    typedef std::vector<Value> VectorValues;
 
 public: // methods
     ArrayAbstract(const Key& key) : _key(key) {}
@@ -66,7 +63,7 @@ protected: //
         if (_key.empty())
             return;
 
-        const std::vector<std::string> upd = ArrayHelper::lrange(_key);
+        const VectorValues upd = ArrayHelper::lrange(_key);
 
         // remove
         for (auto it = _values.begin(); it < _values.end(); ++it) {

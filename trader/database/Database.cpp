@@ -71,17 +71,17 @@ size_t Database::rpush(const Key& key, const Value& value) {
     return 0;
 }
 
-std::vector<std::string> Database::lrange(const Key& key, int start/* = 0*/, int stop/* = -1*/) {
-    std::vector<std::string> vec;
+VectorValues Database::lrange(const Key& key, int start/* = 0*/, int stop/* = -1*/) {
+    VectorValues vector;
     if (redisReply* result = cmd("LRANGE %s %d %d", key.c_str(), start, stop)) {
         if (result->type == REDIS_REPLY_ARRAY) {
             for (size_t i = 0; i < result->elements; ++i) {
                 redisReply* item = result->element[i];
-                vec.push_back(item->str);
+                vector.push_back(item->str);
             }
         }
     }
-    return vec;
+    return vector;
 }
 
 size_t Database::lrem(const Key& key, const Value& value, int count/* = 0*/) {

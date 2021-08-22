@@ -2,13 +2,13 @@
 
 using namespace db;
 
-ArrayValue::ArrayValue(const Key& key)
+Array::Array(const Key& key)
     : ArrayAbstract(key)
 {
     load();
 }
 
-Value ArrayValue::interpolate(const Value& value) const {
+Value Array::interpolate(const Value& value) const {
     return value;
 }
 

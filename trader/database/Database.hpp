@@ -26,7 +26,7 @@ public: // methods
     const Value get(const Key& key);
 
     size_t rpush(const Key& key, const Value& value);
-    std::vector<std::string> lrange(const Key& key, int start = 0, int stop = -1);
+    VectorValues lrange(const Key& key, int start = 0, int stop = -1);
     size_t lrem(const Key& key, const Value& value, int count = 0);
 
     bool hmset(const Key& key, const Object::Map& map);

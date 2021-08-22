@@ -4,10 +4,10 @@
 #include "Object.hpp"
 
 namespace db {
-class ArrayValue : public ArrayAbstract<Value> {
+class Array : public ArrayAbstract<Value> {
 public: // methods
-    ArrayValue(const Key& key);
-    ArrayValue() = default;
+    Array(const Key& key);
+    Array() = default;
 
 protected: /// methods
     virtual Value interpolate(const Value& value) const override;

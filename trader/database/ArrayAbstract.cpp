@@ -7,7 +7,7 @@ size_t ArrayHelper::rpush(const Key& key, const Value& value) {
     return DB().rpush(key, value);
 }
 
-std::vector<std::string> ArrayHelper::lrange(const Key& key, int start, int stop) {
+VectorValues ArrayHelper::lrange(const Key& key, int start, int stop) {
     return DB().lrange(key, start, stop);
 }
 
