@@ -3,7 +3,7 @@
 #include "Logger.hpp"
 #include "hiredis/hiredis.h"
 
-using namespace database;
+using namespace db;
 
 Database::~Database() {
     if (_context != nullptr) {
@@ -71,8 +71,8 @@ size_t Database::rpush(const Key& key, const Value& value) {
     return 0;
 }
 
-Array::Vector Database::lrange(const Key& key, int start/* = 0*/, int stop/* = -1*/) {
-    Array::Vector vec;
+std::vector<std::string> Database::lrange(const Key& key, int start/* = 0*/, int stop/* = -1*/) {
+    std::vector<std::string> vec;
     if (redisReply* result = cmd("LRANGE %s %d %d", key.c_str(), start, stop)) {
         if (result->type == REDIS_REPLY_ARRAY) {
             for (size_t i = 0; i < result->elements; ++i) {
@@ -154,7 +154,7 @@ bool Database::del(const Key &key) {
     return false;
 }
 
-std::vector<database::Key> Database::keys(const std::string& pattern) {
+std::vector<Key> Database::keys(const std::string& pattern) {
     std::vector<Key> keys;
     if (redisReply* result = cmd("KEYS %s", pattern.c_str())) {
         if (result->type == REDIS_REPLY_ARRAY) {

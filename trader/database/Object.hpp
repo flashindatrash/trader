@@ -4,7 +4,7 @@
 #include "Types.hpp"
 #include "Value.hpp"
 
-namespace database {
+namespace db {
 class Object {
 public: // static
     typedef std::unordered_map<Key, Value> Map;
@@ -21,6 +21,11 @@ public: // methods
 
     bool remove();
     bool flush();
+
+public: // operators
+    inline bool operator==(const Object& rhs) const { return _key == rhs._key; }
+    inline bool operator!=(const Object& rhs) const { return !(*this == rhs); }
+    inline operator const Value() const { return Value(_key); }
 
 protected: // methods
     void load();

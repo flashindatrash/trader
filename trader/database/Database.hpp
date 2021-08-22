@@ -13,7 +13,7 @@ namespace core {
 struct redisContext;
 struct redisReply;
 
-namespace database {
+namespace db {
 class Database : public core::Proxy<Database> {
 
 public: // methods
@@ -26,7 +26,7 @@ public: // methods
     const Value get(const Key& key);
 
     size_t rpush(const Key& key, const Value& value);
-    Array::Vector lrange(const Key& key, int start = 0, int stop = -1);
+    std::vector<std::string> lrange(const Key& key, int start = 0, int stop = -1);
     size_t lrem(const Key& key, const Value& value, int count = 0);
 
     bool hmset(const Key& key, Object::Map& map);
@@ -48,4 +48,4 @@ protected: // vars
 };
 }
 
-#define DB() database::Database::getInstance()
+#define DB() db::Database::getInstance()

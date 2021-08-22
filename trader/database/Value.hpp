@@ -2,7 +2,7 @@
 
 #include <string>
 
-namespace database {
+namespace db {
 class Value {
 public: // static
     static Value Empty;
@@ -24,6 +24,10 @@ public: // methods
     bool            asBool() const;
 
     size_t size() const;
+
+public: // operators
+    inline bool operator==(const Value& rhs) const { return asString() == rhs.asString(); }
+    inline bool operator!=(const Value& rhs) const { return !(*this == rhs); }
 
 protected: // vars
     std::string _value = "";

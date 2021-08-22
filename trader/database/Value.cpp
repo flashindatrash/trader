@@ -1,6 +1,6 @@
 #include "Value.hpp"
 
-using namespace database;
+using namespace db;
 
 Value Value::Empty;
 

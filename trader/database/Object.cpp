@@ -1,11 +1,12 @@
 #include "Object.hpp"
 #include "Database.hpp"
 
-using namespace database;
+using namespace db;
 
 Object::Object(const Key& key)
     : _key(key)
 {
+    load();
 }
 
 void Object::set(const Key& field, const Value& value) {
@@ -27,8 +28,8 @@ bool Object::empty() const {
     return _map.empty();
 }
 
-void Object::remove() {
-    DB().del(_key);
+bool Object::remove() {
+    return DB().del(_key);
 }
 
 bool Object::flush() {

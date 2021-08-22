@@ -11,23 +11,23 @@ Algorithm* Algorithm::create(const Settings& settings) {
     return algorithm;
 }
 
-#include "Position.hpp"
-#include "Book.hpp"
+#include "database/Array.hpp"
 #include "exchanger/wrapper/OrderWrapper.hpp"
 bool Algorithm::init() {
-    Book* book = Book::byId("b2");
+    static const std::string test = "test";
 
-    for (auto p : book->positions())
-        Logger::info("ss %s %s %f", p->id().c_str(), p->symbol().c_str(), p->price());
+    db::Objects arr("b1");
 
-    book->remove("o2");
+    db::Object obj("o3");
+    obj.set(test, "wtf");
+    if (obj.flush()) {
+        if (not arr.push(obj)) Logger::info("ke1");
+        if (not arr.push(obj)) Logger::info("ke2");
+    }
 
-    Position* pos = Position::create("o5");
-    pos->setPrice(0.3);
-    pos->setSide(OrderSide::Sell);
-    pos->setSymbol(Symbol("BTCUSDT"));
-    if (not book->add(pos))
-        delete pos;
+    for (auto& it : arr) {
+        Logger::info("key %s", it.get(test).asCString());
+    }
 
     return true;
 }

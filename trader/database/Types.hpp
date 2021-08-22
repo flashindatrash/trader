@@ -2,6 +2,6 @@
 
 #include <string>
 
-namespace database {
+namespace db {
     typedef std::string Key;
 }
