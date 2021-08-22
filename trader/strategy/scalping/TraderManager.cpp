@@ -11,10 +11,10 @@
 
 using namespace scalping;
 
-static Change sMinRate = 0.005;
+static Change sMinRate = 0.004;
 
 // скипать похожие позиции, у которых цена отличается на этот процент
-static Change sEqualPosition = 0.004;
+static Change sEqualPosition = 0.01;
 
 TraderManager::TraderManager(OrderManager& orders)
     : BaseManager(orders)
