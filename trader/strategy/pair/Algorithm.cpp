@@ -28,6 +28,15 @@ bool Algorithm::init() {
         Logger::info("key %s", it.get(test).asCString());
     }
 
+    db::Array a("a1");
+
+    db::Value v = db::Value(2);
+    a.push(v);
+
+    for (auto& it : a) {
+        Logger::info("a %s", it.asCString());
+    }
+
     return true;
 }
 

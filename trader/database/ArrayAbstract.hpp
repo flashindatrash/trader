@@ -9,6 +9,7 @@ public:
     static size_t rpush(const Key& key, const Value& value);
     static VectorValues lrange(const Key& key, int start = 0, int stop = -1);
     static size_t lrem(const Key& key, const Value& value, int count = 0);
+    static bool find(const VectorValues& vector, const Value& value);
 };
 
 template<class T>
@@ -51,10 +52,9 @@ public: // methods
     }
 
     bool has(const T& value) const {
-        for (const T& it : _values) {
+        for (const T& it : _values)
             if (it == value)
                 return true;
-        }
         return false;
     }
 
@@ -67,14 +67,7 @@ protected: //
 
         // remove
         for (auto it = _values.begin(); it < _values.end(); ++it) {
-            bool erase = false;
-            for (const Value& n : upd) {
-                if (n == *it) {
-                    erase = true;
-                    break;
-                }
-            }
-            if (erase && proceed_erase(*it))
+            if (not ArrayHelper::find(upd, *it) && proceed_erase(*it))
                 it = _values.erase(it);
         }
 
