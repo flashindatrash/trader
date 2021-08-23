@@ -4,14 +4,9 @@ using namespace db;
 
 Value Value::Empty;
 
-Value::Value(const std::string value)
-    : _value(value)
-{
-}
-
-Value::Value(const Value& value)
-    : Value(value.asString())
-{
+Value::Value(const Value& value) {
+    _type = value._type;
+    _value = value._value;
 }
 
 Value::Value(const char* value)
@@ -19,45 +14,85 @@ Value::Value(const char* value)
 {
 }
 
-Value::Value(const int value)
-    : Value(std::to_string(value))
-{
+Value::Value(const String value) {
+    _type = TypeString;
+    _value.str = value;
 }
 
-Value::Value(const double value)
-    : Value(std::to_string(value))
-{
+Value::Value(const Int value) {
+    _type = TypeInt;
+    _value.numeric = value;
+    _value.str = std::to_string(value);
 }
 
-Value::Value(const bool value)
-    : Value(value ? "1" : "0")
-{
+Value::Value(const Double value) {
+    _type = TypeDouble;
+    _value.numeric = value;
+    _value.str = std::to_string(value);
+}
+
+Value::Value(const Bool value) {
+    _type = TypeInt;
+    _value.numeric = value ? 1 : 0;
+    _value.str = std::to_string(asInt());
 }
 
 const char* Value::asCString() const {
-    return _value.c_str();
+    return _value.str.c_str();
 }
 
-std::string Value::asString() const {
-    return _value;
+Value::String Value::asString() const {
+    return _value.str;
 }
 
-int Value::asInt() const {
-    return atoi(asCString());
+Value::Int Value::asInt() const {
+    if (_type == TypeString)
+        return atoi(asCString());
+    return _value.numeric;
 }
 
-double Value::asDouble() const {
-    return atof(asCString());
+Value::Double Value::asDouble() const {
+    if (_type == TypeString)
+        return atof(asCString());
+    return _value.numeric;
 }
 
-long Value::asLong() const {
-    return atol(asCString());
-}
-
-bool Value::asBool() const {
+Value::Bool Value::asBool() const {
     return asInt() == 1;
 }
 
 size_t Value::size() const {
-    return _value.size();
+    return _value.str.size();
+}
+
+bool Value::operator==(const Value& rhs) const {
+    return _type == rhs._type && asString() == rhs.asString();
+}
+
+Value Value::parse(const char* value, unsigned long len) {
+    bool numeric = true;
+    bool precision = false;
+    for (unsigned long c = 0; c < len; ++c) {
+         if (value[c]=='.') {
+            if (!precision && c != 0 && c != len - 1) {
+                precision = true;
+            } else {
+                numeric = false;
+                break;
+            }
+         }
+         else if (!isdigit(value[c])) {
+              numeric = false;
+              break;
+         }
+    }
+
+    if (numeric) {
+        if (precision)
+            return Value(atof(value));
+        else
+            return Value(atoi(value));
+    }
+
+    return Value(value);
 }

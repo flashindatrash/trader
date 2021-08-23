@@ -18,24 +18,25 @@ bool Algorithm::init() {
 
     db::ArrayObject arr("b1");
 
-    db::Object obj("o5");
-    obj.set(test, "wtf");
-
+    db::Object obj("test_types8");
+    obj.set("bool", true);
+    obj.set("int", 12);
+    obj.set("double", 1.00023);
     arr.push(obj);
-    arr.remove("o4");
+    //arr.remove("o4");
 
-    for (auto& it : arr) {
-        Logger::info("key %s", it.get(test).asCString());
-    }
+    //for (auto& it : arr) {
+    //    Logger::info("key %s", it.get(test).asString().c_str());
+    //}
 
-    db::Array a("a1");
+    //db::Array a("a1");
 
-    db::Value v = db::Value(2);
-    a.push(v);
+    //db::Value v = db::Value(2);
+    //a.push(v);
 
-    for (auto& it : a) {
-        Logger::info("a %s", it.asCString());
-    }
+    //for (auto& it : a) {
+    //    Logger::info("a %s", it.asCString());
+    //}
 
     return true;
 }

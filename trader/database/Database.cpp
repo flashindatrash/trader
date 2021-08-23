@@ -130,8 +130,10 @@ Object::Map Database::hgetall(const Key& key) {
                 redisReply* item = result->element[i];
                 if (i % 2 == 0)
                     field = item->str;
-                else
-                    map.insert(std::make_pair(field, item->str));
+                else {
+                    Value value = Value::parse(item->str, item->len);
+                    map.insert(std::make_pair(field, value));
+                }
             }
         }
     }
