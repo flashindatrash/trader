@@ -16,27 +16,22 @@ Algorithm* Algorithm::create(const Settings& settings) {
 bool Algorithm::init() {
     static const std::string test = "test";
 
-    db::ArrayObject arr("b1");
+    /*db::ArrayObject arr("b1");
 
     db::Object obj("test_types8");
     obj.set("bool", true);
     obj.set("int", 12);
     obj.set("double", 1.00023);
-    arr.push(obj);
-    //arr.remove("o4");
+    arr.push(obj);*/
 
-    //for (auto& it : arr) {
-    //    Logger::info("key %s", it.get(test).asString().c_str());
-    //}
+    db::Array a("a1");
+    a.push(2);
+    a.push(false);
+    a.push(232.44);
 
-    //db::Array a("a1");
-
-    //db::Value v = db::Value(2);
-    //a.push(v);
-
-    //for (auto& it : a) {
-    //    Logger::info("a %s", it.asCString());
-    //}
+    for (auto& it : a) {
+        Logger::info("a %s", it.asCString());
+    }
 
     return true;
 }

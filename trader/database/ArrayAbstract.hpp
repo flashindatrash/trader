@@ -20,7 +20,7 @@ public: // methods
     ArrayAbstract(const Key& key) : _key(key) {}
     ArrayAbstract() = default;
 
-    bool push(T& value) {
+    bool push(T value) {
         if (has(value) || not proceed_push(value))
             return false;
 
