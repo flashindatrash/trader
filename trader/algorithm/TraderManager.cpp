@@ -49,7 +49,7 @@ void TraderManager::onCloseCandle(const CandlestickWrapper& wrapper) {
 
     // исключаем повторения похожих позиций
     for (const OrderWrapper* position : _orders.getPositions()) {
-        if (position->side() == request.side)
+        if (position->side() != request.side)
             continue;
 
         Change change = util::change(position->price(), candlestick->priceClose());
