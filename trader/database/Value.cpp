@@ -12,7 +12,6 @@ Value::Value(const Value& value) {
 Value::Value(const char* value)
     : Value(std::string(value))
 {
-    int i = 0;
 }
 
 Value::Value(const String value) {

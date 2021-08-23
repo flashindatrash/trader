@@ -11,28 +11,7 @@ Algorithm* Algorithm::create(const Settings& settings) {
     return algorithm;
 }
 
-#include "database/Array.hpp"
-#include "exchanger/wrapper/OrderWrapper.hpp"
 bool Algorithm::init() {
-    static const std::string test = "test";
-
-    /*db::ArrayObject arr("b1");
-
-    db::Object obj("test_types8");
-    obj.set("bool", true);
-    obj.set("int", 12);
-    obj.set("double", 1.00023);
-    arr.push(obj);*/
-
-    db::Array a("a1");
-    a.push(2);
-    a.push(false);
-    a.push(232.44);
-
-    for (auto& it : a) {
-        Logger::info("a %s", it.asCString());
-    }
-
     return true;
 }
 

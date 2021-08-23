@@ -12,7 +12,6 @@ Object::Object(const Key& key)
 void Object::set(const Key& field, const Value& value) {
     // todo: check if there were any changes
     _map[field] = value;
-
     _invalidated = true;
 }
 
