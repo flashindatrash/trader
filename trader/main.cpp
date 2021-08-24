@@ -27,15 +27,18 @@ int main(int argc, char** argv) {
     srand(time(NULL));
 
     std::string cfg_file;
+    std::vector<std::string> symbol;
 
     cppargparser::ArgumentParser args;
     try {
         args.addArgument(cppargparser::Argument("-c", "--config", "config", 1, true));
+        args.addArgument(cppargparser::Argument("-s", "--symbol", "symbol", 2, false));
 
         auto parsed = args.parse(argc, argv);
         cfg_file = parsed.getValue("--config");
+        symbol = parsed.getValues("--symbol");
     } catch(...) {
-        args.showHelp("trader -c ./config/default.cfg");
+        args.showHelp("trader -c ./config/default.cfg -s btc usdt");
         return EXIT_FAILURE;
     }
 
@@ -44,6 +47,9 @@ int main(int argc, char** argv) {
         Logger::info("Can't init config %s", cfg_file.c_str());
         return EXIT_FAILURE;
     }
+
+    if (symbol.size() >= 2)
+        cfg.set("SYMBOL", symbol.at(0) + symbol.at(1));
 
     return TraderApp::create(cfg)->run();
 }

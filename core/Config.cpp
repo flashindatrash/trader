@@ -18,9 +18,13 @@ bool Config::read(const char* path) {
         auto delimiterPos = line.find("=");
         auto name = line.substr(0, delimiterPos);
         auto value = line.substr(delimiterPos + 1);
-        _values[name] = value;
+        set(name, value);
     }
     return true;
+}
+
+void Config::set(const Key& key, std::string value) {
+    _values[key] = value;
 }
 
 bool Config::has(const Key& key) const {

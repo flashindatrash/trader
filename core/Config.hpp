@@ -13,7 +13,9 @@ public: // methods
 
     bool read(const char* path);
 
+    void set(const Key& key, std::string value);
     bool has(const Key& key) const;
+
     const std::string& getAsString(const Key& key) const;
     int getAsInt(const Key& key) const;
     bool getAsBool(const Key& key) const;
