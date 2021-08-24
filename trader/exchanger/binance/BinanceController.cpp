@@ -419,7 +419,7 @@ double BinanceController::getMinQuantity(const BinanceSymbolData& info) const {
     const BinanceSymbolData::LotSize& lot_size = info.lotSize;
 
     Price price_avg = wrapper->getPriceAverage(min_notional.avgPriceMins * TraderTime::sMinute);
-    double quantity = std::max(lot_size.minQty, min_notional.minNotional / price_avg) *  1.2;
+    double quantity = std::max(lot_size.minQty, min_notional.minNotional / price_avg) *  1.4;
     if (info.lotSize.stepSize > 0.0)
         quantity = util::ceil_steps(quantity, info.lotSize.stepSize);
     return quantity;
