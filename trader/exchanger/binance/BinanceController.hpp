@@ -41,7 +41,7 @@ public: // virtual
 protected: // methods
     bool initUserListenKey();
     void keepUserDataStream();
-    double getMinQuantity(const BinanceSymbolData& info) const;
+    double getMinQuantity(const BinanceSymbolData& info, double multiplier = 1.2) const;
 
 protected: // callbacks
     void onUserDataStream(const Json::Value& json);

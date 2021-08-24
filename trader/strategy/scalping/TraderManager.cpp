@@ -14,7 +14,7 @@ using namespace scalping;
 static Change sMinRate = 0.004;
 
 // скипать похожие позиции, у которых цена отличается на этот процент
-static Change sEqualPosition = 0.01;
+static Change sEqualPosition = 0.006;
 
 TraderManager::TraderManager(OrderManager& orders)
     : BaseManager(orders)
@@ -25,13 +25,20 @@ bool TraderManager::init(const Symbol& symbol) {
     if (not BaseManager::init(symbol))
         return false;
 
-    ChartWrapper::onCandleClosed.connect(std::bind(&TraderManager::onCloseCandle, this, std::placeholders::_1));
+    DecisionMaker test(symbol, _orders.getPositions());
+    double fs = test.factor(OrderSide::Sell, DecisionMaker::ForTrader);
+    double fb = test.factor(OrderSide::Buy, DecisionMaker::ForTrader);
+    Logger::info("factors buy(%f) sell(%f)", fb, fs);
     return true;
 }
 
-void TraderManager::onCloseCandle(const CandlestickWrapper& wrapper) {
+void TraderManager::tick(const Symbol& symbol) {
+    const CandlestickWrapper* candlestick = Exchanger().chart()->last();
+    if (candlestick == nullptr)
+        return;
+
     OrderRequest request;
-    request.symbol = wrapper.id();
+    request.symbol = symbol;
     request.side = OrderSide::Invalid;
 
     Change change = util::change(wrapper.priceOpen(), wrapper.priceClose());
@@ -43,7 +50,7 @@ void TraderManager::onCloseCandle(const CandlestickWrapper& wrapper) {
 
     // исключаем повторения похожих позиций
     for (const OrderWrapper* position : _orders.getPositions()) {
-        if (position->side() == request.side)
+        if (position->side() != request.side)
             continue;
 
         Change change = util::change(position->price(), wrapper.priceClose());
