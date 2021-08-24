@@ -9,10 +9,10 @@
 #include "algorithm/OrderManager.hpp"
 #include "algorithm/DecisionMaker.hpp"
 
-static Change sMinRate = 0.004;
+static Change sMinRate = 0.003;
 
 // скипать похожие позиции, у которых цена отличается на этот процент
-static Change sEqualPosition = 0.01;
+static Change sEqualPosition = 0.005;
 
 TraderManager::TraderManager(OrderManager& orders)
     : BaseManager(orders)
