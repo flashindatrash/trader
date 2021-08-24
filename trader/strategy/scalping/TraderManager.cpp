@@ -24,24 +24,19 @@ TraderManager::TraderManager(OrderManager& orders)
 bool TraderManager::init(const Symbol& symbol) {
     if (not BaseManager::init(symbol))
         return false;
-
-    DecisionMaker test(symbol, _orders.getPositions());
-    double fs = test.factor(OrderSide::Sell, DecisionMaker::ForTrader);
-    double fb = test.factor(OrderSide::Buy, DecisionMaker::ForTrader);
-    Logger::info("factors buy(%f) sell(%f)", fb, fs);
     return true;
 }
 
 void TraderManager::tick(const Symbol& symbol) {
-    const CandlestickWrapper* candlestick = Exchanger().chart()->last();
-    if (candlestick == nullptr)
+    const CandlestickWrapper* wrapper = Exchanger().chart(symbol)->last();
+    if (wrapper == nullptr)
         return;
 
     OrderRequest request;
     request.symbol = symbol;
     request.side = OrderSide::Invalid;
 
-    Change change = util::change(wrapper.priceOpen(), wrapper.priceClose());
+    Change change = util::change(wrapper->priceOpen(), wrapper->priceClose());
     if (std::abs(change) >= sMinRate)
         request.side = change > 0.0 ? OrderSide::Sell : change < 0.0 ? OrderSide::Buy : OrderSide::Invalid;
 
@@ -53,7 +48,7 @@ void TraderManager::tick(const Symbol& symbol) {
         if (position->side() != request.side)
             continue;
 
-        Change change = util::change(position->price(), wrapper.priceClose());
+        Change change = util::change(position->price(), wrapper->priceClose());
         if (std::abs(change) < sEqualPosition)
             return;
     }

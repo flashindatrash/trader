@@ -2,8 +2,6 @@
 
 #include "BaseManager.hpp"
 
-class CandlestickWrapper;
-
 namespace scalping {
 
 class TraderManager : public BaseManager {
