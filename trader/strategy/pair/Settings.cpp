@@ -7,26 +7,14 @@ NS_USE
 
 Settings::Settings(const core::Config& config)
 {
-    pair = config.getAsString("PAIR");
-    quote = config.getAsString("QUOTE");
+    symbol = config.getAsString("SYMBOL");
     test = config.getAsBool("TEST");
 }
 
 bool Settings::isValid() const {
-    if (Exchanger().pair(pair) == nullptr) {
-        Logger::info("%s pair doesn't exist", pair.c_str());
+    if (Exchanger().pair(symbol) == nullptr) {
+        Logger::info("%s symbol doesn't exist", symbol.c_str());
         return false;
     }
-
-    if (Exchanger().pair(pair.baseAsset() + quote) == nullptr) {
-        Logger::info("%s pair doesn't exist", (pair.baseAsset() + quote) .c_str());
-        return false;
-    }
-
-    if (Exchanger().pair(pair.quoteAsset() + quote) == nullptr) {
-        Logger::info("%s pair doesn't exist", (pair.quoteAsset() + quote).c_str());
-        return false;
-    }
-
     return true;
 }

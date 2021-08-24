@@ -5,7 +5,7 @@
 NS_BEGIN
 class Settings;
 class Context;
-class BookManager;
+class Positions;
 
 class Algorithm {
 public: // static
@@ -16,9 +16,11 @@ public: // methods
     void execute(const Context& context);
 
 protected: // methods
-    Algorithm() = default;
+    Algorithm(const Settings& settings);
 
 protected: // vars
-    BookManager* _book = nullptr;
+    const Settings& _settings;
+
+    Positions* _positions = nullptr;
 };
 NS_END

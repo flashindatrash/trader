@@ -15,12 +15,19 @@ struct redisReply;
 
 namespace db {
 class Database : public core::Proxy<Database> {
+public: // static
+    enum Permission {
+        Read = 1,
+        Write = 2,
+        ReadAndWrite = Read | Write
+    };
 
 public: // methods
     Database() = default;
     virtual ~Database() override;
 
     bool init(const core::Config& config);
+    void permissions(int permissions);
 
     void set(const Key& key, const Value& value);
     const Value get(const Key& key);
@@ -40,11 +47,14 @@ public: // methods
 protected: // methods
     redisReply* cmd(const char *format, ...);
     redisReply* cmdArgv(int argc, const char **argv, const size_t *argvlen);
-
     redisReply* receive(void *reply) const;
+
+    bool canRead() const;
+    bool canWrite() const;
 
 protected: // vars
     redisContext* _context = nullptr;
+    int _permissions = ReadAndWrite;
 };
 }
 

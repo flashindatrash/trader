@@ -1,8 +1,9 @@
 #include "Runner.hpp"
 #include "Settings.hpp"
 #include "Context.hpp"
-#include "exchanger/Exchanger.hpp"
 #include "Time.hpp"
+#include "database/Database.hpp"
+#include "exchanger/Exchanger.hpp"
 #include "exchanger/wrapper/ChartWrapper.hpp"
 #include "exchanger/wrapper/CandlestickWrapper.hpp"
 
@@ -14,11 +15,13 @@ Runner* Runner::create() {
 }
 
 bool Runner::init(const Settings& settings) {
-    _chart = Exchanger().chart(settings.pair);
+    _chart = Exchanger().chart(settings.symbol);
     if (_chart == nullptr)
         return false;
 
     if (settings.test) {
+        DB().permissions(db::Database::Read);
+
         if (not Exchanger().loadCharts(_chart->id(), ChartInterval::m15))
             return false;
 

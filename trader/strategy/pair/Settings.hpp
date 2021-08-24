@@ -17,8 +17,7 @@ protected: // methods
     Settings() = default;
 
 public: // vars
-    Symbol pair;
-    Asset quote;
+    Symbol symbol;
     bool test;
 };
 NS_END
