@@ -9,10 +9,10 @@
 #include "algorithm/OrderManager.hpp"
 #include "algorithm/DecisionMaker.hpp"
 
-static Change sMinRate = 0.003;
+static Change sMinRate = 0.004;
 
 // скипать похожие позиции, у которых цена отличается на этот процент
-static Change sEqualPosition = 0.005;
+static Change sEqualPosition = 0.006;
 
 TraderManager::TraderManager(OrderManager& orders)
     : BaseManager(orders)
@@ -27,12 +27,10 @@ bool TraderManager::init(const Symbol& symbol) {
     double fs = test.factor(OrderSide::Sell, DecisionMaker::ForTrader);
     double fb = test.factor(OrderSide::Buy, DecisionMaker::ForTrader);
     Logger::info("factors buy(%f) sell(%f)", fb, fs);
-
-    ChartWrapper::onCandleClosed.connect(std::bind(&TraderManager::onCloseCandle, this, std::placeholders::_1));
     return true;
 }
 
-void TraderManager::onCloseCandle(const CandlestickWrapper& wrapper) {
+void TraderManager::tick(const Symbol& symbol) {
     const CandlestickWrapper* candlestick = Exchanger().chart()->last();
     if (candlestick == nullptr)
         return;
@@ -58,7 +56,6 @@ void TraderManager::onCloseCandle(const CandlestickWrapper& wrapper) {
     }
 
     // проверим можем ли выполонить сделку, сохранив множитель
-    Symbol symbol = Exchanger().chart()->id();
     DecisionMaker decision(symbol, _orders.getPositions());
     double factor = decision.factor(request.side, DecisionMaker::ForTrader);
     if (factor < 0.5)

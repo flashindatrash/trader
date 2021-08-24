@@ -40,7 +40,7 @@ protected: // methods
     void startUserDataStream();
     void keepUserDataStream();
     void updateDailyChange();
-    double getMinQuantity(const BinanceSymbolData& info) const;
+    double getMinQuantity(const BinanceSymbolData& info, double multiplier = 1.2) const;
 
 protected: // callbacks
     int onUserDataStream(Json::Value& json);
