@@ -1,19 +1,20 @@
 #pragma once
 
 #include "Object.hpp"
+#include "Database.hpp"
 
 namespace db {
-class ArrayHelper {
-public:
-    static size_t rpush(const Key& key, const Value& value);
-    static VectorValues lrange(const Key& key, int start = 0, int stop = -1);
-    static size_t lrem(const Key& key, const Value& value, int count = 0);
-    static bool find(const VectorValues& vector, const Value& value);
-};
-
 template<class T>
 class ArrayAbstract {
+private: // static
     typedef std::vector<T> VectorT;
+
+    static bool find(const VectorValues& vector, const Value& value) {
+        for (const Value& v : vector)
+            if (v == value)
+                return true;
+        return false;
+    }
 
 public: // methods
     ArrayAbstract(const Key& key) : _key(key) {}
@@ -23,7 +24,8 @@ public: // methods
         if (has(value) || not proceed_push(value))
             return false;
 
-        if (not proceed_load() || ArrayHelper::rpush(_key, value) == size() + 1)
+
+        if (not proceed_load() || DB().rpush(_key, value) == size() + 1)
             _values.push_back(value);
         else load();
         return true;
@@ -38,7 +40,7 @@ public: // methods
             }
         }
 
-        if (count != ArrayHelper::lrem(_key, value))
+        if (count != DB().lrem(_key, value))
             load();
 
         return count > 0;
@@ -56,11 +58,11 @@ protected: //
         if (not proceed_load() || _key.empty())
             return;
 
-        const VectorValues upd = ArrayHelper::lrange(_key);
+        const VectorValues upd = DB().lrange(_key);
 
         // remove
         for (auto it = _values.begin(); it < _values.end(); ++it) {
-            if (not ArrayHelper::find(upd, *it) && proceed_erase(*it))
+            if (not find(upd, *it) && proceed_erase(*it))
                 it = _values.erase(it);
         }
 
@@ -114,6 +116,7 @@ protected:
     VectorT _values;
 };
 
+// Primitive array
 typedef ArrayAbstract<Value> Array;
 }
 

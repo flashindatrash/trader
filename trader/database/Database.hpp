@@ -3,7 +3,6 @@
 #include "Proxy.hpp"
 #include "Types.hpp"
 #include "Value.hpp"
-#include "Array.hpp"
 #include "Object.hpp"
 
 namespace core {
