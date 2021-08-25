@@ -11,9 +11,6 @@
 
 static Change sMinRate = 0.004;
 
-// скипать похожие позиции, у которых цена отличается на этот процент
-static Change sEqualPosition = 0.006;
-
 TraderManager::TraderManager(OrderManager& orders)
     : BaseManager(orders)
 {
@@ -51,7 +48,7 @@ void TraderManager::tick(const Symbol& symbol) {
             continue;
 
         Change change = util::change(position->price(), candlestick->priceClose());
-        if (std::abs(change) < sEqualPosition)
+        if (std::abs(change) < sMinRate * 1.5)
             return;
     }
 

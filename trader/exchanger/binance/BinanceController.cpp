@@ -386,7 +386,7 @@ const OrderWrapper* BinanceController::createOrder(const OrderRequest& request) 
 //            return nullptr;
 //        }
     } else {
-        quantity = getMinQuantity(info, 1.4);
+        quantity = getMinQuantity(info, 1.2);
     }
 
     Json::Value json;
