@@ -1,8 +1,11 @@
 #include "Positions.hpp"
+#include "exchanger/wrapper/OrderWrapper.hpp"
 
 NS_USE
 
 static const char* FIELD_PRICE = "price";
+static const char* FIELD_SIDE = "side";
+static const char* FIELD_QUANTITY = "quantity";
 
 Position::Position(const db::Key& key)
     : db::Object(key)
@@ -17,8 +20,24 @@ void Position::setPrice(Price value) {
     set(FIELD_PRICE, value);
 }
 
+const OrderSide Position::side() const {
+    return (OrderSide)get(FIELD_SIDE).asInt();
+}
+
+void Position::setSide(OrderSide value) {
+    set(FIELD_SIDE, (int)value);
+}
+
+const Quantity Position::quantity() const {
+    return get(FIELD_QUANTITY).asDouble();
+}
+
+void Position::setQuantity(Quantity value) {
+    set(FIELD_QUANTITY, value);
+}
+
 Positions* Positions::create(const Symbol& pair, bool sync) {
-    Positions* positions = new Positions("positions:" + pair.id(), sync);
+    Positions* positions = new Positions("test:" + pair.id(), sync);
     return positions;
 }
 
@@ -27,9 +46,6 @@ Positions::Positions(const db::Key& key, bool sync)
     , _sync(sync)
 {
     load();
-    Position pos("test");
-    pos.setPrice(1.3);
-    push(pos);
 }
 
 bool Positions::proceed_push(Position& value) const {
@@ -42,20 +58,4 @@ bool Positions::proceed_erase(Position& value) const {
 
 bool Positions::proceed_load() const {
     return _sync;
-}
-
-const Position* Positions::findProfitableFor(Price price) const {
-
-    return nullptr;
-}
-
-/*static bool abs_compare_price(const db::Object& a, const db::Object& b)
-{
-    return std::abs(a.get(FIELD_PRICE).asDouble()) < std::abs(b.get(FIELD_PRICE).asDouble());
-}*/
-
-void Positions::max_element() {
-    //double p_max = std::max_element(_array.begin(), _array.end(), abs_compare_price)->get(FIELD_PRICE).asDouble();
-    //double p_min = std::min_element(_array.begin(), _array.end(), abs_compare_price)->get(FIELD_PRICE).asDouble();
-    int i = 0;
 }

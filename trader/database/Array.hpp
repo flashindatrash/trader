@@ -24,7 +24,6 @@ public: // methods
         if (has(value) || not proceed_push(value))
             return false;
 
-
         if (not proceed_load() || DB().rpush(_key, value) == size() + 1)
             _values.push_back(value);
         else load();
@@ -105,6 +104,11 @@ public: // iterator
     inline void reserve(size_t size) { return _values.reserve(size); }
 
     inline size_t size() const { return _values.size(); }
+
+public: //
+    const const_iterator find_if(std::function<bool(const T&)> predicate) const {
+        return std::find_if(cbegin(), cend(), predicate);
+    };
 
 protected: // methods
     virtual bool proceed_push(T& value) const { return true; }
