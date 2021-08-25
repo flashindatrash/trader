@@ -15,19 +15,11 @@ struct redisReply;
 
 namespace db {
 class Database : public core::Proxy<Database> {
-public: // static
-    enum Permission {
-        Read = 1,
-        Write = 2,
-        ReadAndWrite = Read | Write
-    };
-
 public: // methods
     Database() = default;
     virtual ~Database() override;
 
     bool init(const core::Config& config);
-    void permissions(int permissions);
 
     void set(const Key& key, const Value& value);
     const Value get(const Key& key);
@@ -35,6 +27,7 @@ public: // methods
     size_t rpush(const Key& key, const Value& value);
     VectorValues lrange(const Key& key, int start = 0, int stop = -1);
     size_t lrem(const Key& key, const Value& value, int count = 0);
+    size_t llen(const Key& key);
 
     bool hmset(const Key& key, const Object::Map& map);
     Object::Map hgetall(const Key& key);
@@ -49,12 +42,8 @@ protected: // methods
     redisReply* cmdArgv(int argc, const char **argv, const size_t *argvlen);
     redisReply* receive(void *reply) const;
 
-    bool canRead() const;
-    bool canWrite() const;
-
 protected: // vars
     redisContext* _context = nullptr;
-    int _permissions = ReadAndWrite;
 };
 }
 

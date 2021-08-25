@@ -18,6 +18,9 @@ public: // methods
 protected: // methods
     Algorithm(const Settings& settings);
 
+    bool tryClosePosition(const Context& context);
+    bool tryOpenPosition(const Context& context);
+
 protected: // vars
     const Settings& _settings;
 

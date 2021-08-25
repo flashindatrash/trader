@@ -4,6 +4,8 @@
 #include "Settings.hpp"
 #include "Runner.hpp"
 #include "Algorithm.hpp"
+#include "exchanger/Exchanger.hpp"
+#include "exchanger/wrapper/ChartWrapper.hpp"
 
 NS_USE
 
@@ -23,7 +25,11 @@ bool PairStrategy::init(const core::Config& config) {
 
     _runner = Runner::create();
     _runner->setCallback(std::bind(&Algorithm::execute, _algorithm, std::placeholders::_1));
-    return _runner->init(settings);
+    if (not _runner->init(settings))
+        return false;
+
+    Exchanger().listenCharts(settings.symbol, ChartInterval::m15);
+    return true;
 }
 
 bool PairStrategy::isRunning() const {

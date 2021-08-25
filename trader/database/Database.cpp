@@ -24,10 +24,6 @@ bool Database::init(const core::Config& config) {
     return true;
 }
 
-void Database::permissions(int mask) {
-    _permissions = mask;
-}
-
 redisReply* Database::cmd(const char* format, ...) {
     va_list args;
     va_start(args, format);
@@ -68,9 +64,6 @@ const Value Database::get(const std::string& key) {
 }
 
 size_t Database::rpush(const Key& key, const Value& value) {
-    if (not canWrite())
-        return 1;
-
     if (redisReply* result = cmd("RPUSH %s %s", key.c_str(), value.asCString())) {
         if (result->type == REDIS_REPLY_INTEGER)
             return result->integer;
@@ -80,9 +73,6 @@ size_t Database::rpush(const Key& key, const Value& value) {
 
 VectorValues Database::lrange(const Key& key, int start/* = 0*/, int stop/* = -1*/) {
     VectorValues vector;
-    if (not canRead())
-        return vector;
-
     if (redisReply* result = cmd("LRANGE %s %d %d", key.c_str(), start, stop)) {
         if (result->type == REDIS_REPLY_ARRAY) {
             for (size_t i = 0; i < result->elements; ++i) {
@@ -95,9 +85,6 @@ VectorValues Database::lrange(const Key& key, int start/* = 0*/, int stop/* = -1
 }
 
 size_t Database::lrem(const Key& key, const Value& value, int count/* = 0*/) {
-    if (not canWrite())
-        return 1;
-
     if (redisReply* result = cmd("LREM %s %d %s", key.c_str(), count, value.asCString())) {
         if (result->type == REDIS_REPLY_INTEGER)
             return result->integer;
@@ -105,10 +92,15 @@ size_t Database::lrem(const Key& key, const Value& value, int count/* = 0*/) {
     return 0;
 }
 
-bool Database::hmset(const Key& key, const Object::Map& map) {
-    if (not canWrite())
-        return true;
+size_t Database::llen(const Key& key) {
+    if (redisReply* result = cmd("LLEN %s", key.c_str())) {
+        if (result->type == REDIS_REPLY_INTEGER)
+            return result->integer;
+    }
+    return 0;
+}
 
+bool Database::hmset(const Key& key, const Object::Map& map) {
     if (map.empty())
         return false;
 
@@ -139,9 +131,6 @@ bool Database::hmset(const Key& key, const Object::Map& map) {
 
 Object::Map Database::hgetall(const Key& key) {
     Object::Map map;
-    if (not canRead())
-        return map;
-
     if (redisReply* result = cmd("HGETALL %s", key.c_str())) {
         if (result->type == REDIS_REPLY_ARRAY) {
             Key field;
@@ -160,9 +149,6 @@ Object::Map Database::hgetall(const Key& key) {
 }
 
 int Database::incr(const Key& key) {
-    if (not canWrite())
-        return get(key).asInt();
-
     if (redisReply* result = cmd("INCR %s", key.c_str())) {
         if (result->type == REDIS_REPLY_INTEGER)
             return result->integer;
@@ -171,9 +157,6 @@ int Database::incr(const Key& key) {
 }
 
 bool Database::del(const Key &key) {
-    if (not canWrite())
-        return true;
-
     if (redisReply* result = cmd("DEL %s", key.c_str())) {
         if (result->type == REDIS_REPLY_INTEGER)
             return true;
@@ -183,9 +166,6 @@ bool Database::del(const Key &key) {
 
 std::vector<Key> Database::keys(const std::string& pattern) {
     std::vector<Key> keys;
-    if (not canRead())
-        return keys;
-
     if (redisReply* result = cmd("KEYS %s", pattern.c_str())) {
         if (result->type == REDIS_REPLY_ARRAY) {
             for (size_t i = 0; i < result->elements; ++i) {
@@ -195,12 +175,4 @@ std::vector<Key> Database::keys(const std::string& pattern) {
         }
     }
     return keys;
-}
-
-bool Database::canRead() const {
-    return 0 != (_permissions & Read);
-}
-
-bool Database::canWrite() const {
-    return 0 != (_permissions & Write);
 }

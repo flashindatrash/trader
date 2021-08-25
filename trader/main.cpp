@@ -36,7 +36,8 @@ int main(int argc, char** argv) {
 
         auto parsed = args.parse(argc, argv);
         cfg_file = parsed.getValue("--config");
-        symbol = parsed.getValues("--symbol");
+        if (parsed.hasArgument("--symbol"))
+            symbol = parsed.getValues("--symbol");
     } catch(...) {
         args.showHelp("trader -c ./config/default.cfg -s btc usdt");
         return EXIT_FAILURE;

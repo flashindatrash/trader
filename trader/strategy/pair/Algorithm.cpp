@@ -18,13 +18,18 @@ Algorithm::Algorithm(const Settings& settings)
 }
 
 bool Algorithm::init() {
-    _positions = Positions::create(_settings.symbol);
+    _positions = Positions::create(_settings.symbol, not _settings.test);
     return true;
 }
 
 void Algorithm::execute(const Context& context) {
-    Change change = util::change(context.candlestick->priceOpen(), context.candlestick->priceClose());
-    if (std::abs(change) > 0.001)
-        Logger::info("candle price change: %f", change);
+    tryClosePosition(context) || tryOpenPosition(context);
+}
 
+bool Algorithm::tryClosePosition(const Context& context) {
+    return true;
+}
+
+bool Algorithm::tryOpenPosition(const Context& context) {
+    return false;
 }
