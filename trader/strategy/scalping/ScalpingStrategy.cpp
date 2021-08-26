@@ -1,4 +1,5 @@
 #include "ScalpingStrategy.hpp"
+#include <global.hpp>
 #include "OrderManager.hpp"
 #include "StatusManager.hpp"
 #include "ProfitManager.hpp"
@@ -24,7 +25,7 @@ bool ScalpingStrategy::init(const core::Config& config) {
     if (not config.has(CONFIG_BASE_KEY) || not config.has(CONFIG_QUOTE_KEY))
         return false;
 
-    _symbol = Symbol(config.getAsString(CONFIG_BASE_KEY), config.getAsString(CONFIG_QUOTE_KEY));
+    _symbol = Symbol(config.asString(CONFIG_BASE_KEY), config.asString(CONFIG_QUOTE_KEY));
     if (Exchanger().pair(_symbol.id()) == nullptr)
         return false;
 

@@ -31,7 +31,10 @@ void ExchangerProxy::run() {
 }
 
 void ExchangerProxy::stop() {
-    SAFE_DELETE(_controller);
+    if (_controller != nullptr) {
+        delete _controller;
+        _controller = nullptr;
+    }
 }
 
 void ExchangerProxy::tick(time_t now) {

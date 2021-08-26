@@ -132,12 +132,21 @@ public: // iterator
         return std::find_if(cbegin(), cend(), predicate);
     };
 
-    const const_iterator compare_if(Predicate predicate, Compare compare) {
+    const const_iterator compare(Compare comparator) const {
+        const_iterator result = cend();
+        for (const_iterator it = cbegin(); it < cend(); ++it) {
+            if (result == cend() || comparator(*result, *it))
+                result = it;
+        }
+        return result;
+    }
+
+    const const_iterator compare_if(Predicate predicate, Compare comparator) const {
         const_iterator result = cend();
         for (const_iterator it = cbegin(); it < cend(); ++it) {
             if (not predicate(*it))
                 continue;
-            if (result == cend() || compare(*result, *it))
+            if (result == cend() || comparator(*result, *it))
                 result = it;
         }
         return result;

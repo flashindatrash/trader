@@ -19,5 +19,7 @@ protected: // methods
 public: // vars
     Symbol symbol;
     bool test;
+    double open_next_price_percent = 0.0;
+    double open_next_lot_multiply = 1.0;
 };
 NS_END

@@ -12,6 +12,8 @@ public: // static
     static Algorithm* create(const Settings& settings);
 
 public: // methods
+    virtual ~Algorithm();
+
     bool init();
     void execute(const Context& context);
 

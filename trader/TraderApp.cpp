@@ -12,7 +12,10 @@ TraderApp::TraderApp(const core::Config& config)
 }
 
 TraderApp::~TraderApp() {
-    SAFE_DELETE(_strategy);
+    if (_strategy != nullptr) {
+        delete _strategy;
+        _strategy = nullptr;
+    }
 }
 
 TraderApp* TraderApp::create(const core::Config& config) {

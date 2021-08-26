@@ -31,7 +31,7 @@ bool Config::has(const Key& key) const {
     return _values.find(key) != _values.end();
 }
 
-const std::string& Config::getAsString(const Key& key) const {
+const std::string& Config::asString(const Key& key) const {
     static const std::string& sEmpty = "";
 
     auto it = _values.find(key);
@@ -41,10 +41,15 @@ const std::string& Config::getAsString(const Key& key) const {
     return it->second;
 }
 
-int Config::getAsInt(const Key& key) const {
-    return atoi(getAsString(key).c_str());
+int Config::asInt(const Key& key) const {
+    return atoi(asString(key).c_str());
 }
 
-bool Config::getAsBool(const Key& key) const {
-    return getAsInt(key) == 1;
+bool Config::asBool(const Key& key) const {
+    return asInt(key) == 1;
 }
+
+double Config::asDouble(const Key& key) const {
+    return atof(asString(key).c_str());
+}
+

@@ -11,7 +11,7 @@ void PriceWrapper::add(Price price) {
 }
 
 void PriceWrapper::add(Price price, time_t time) {
-    if (not _per_second.empty() && std::abs(time - _per_second.back().second) < TraderTime::sSecond)
+    if (not _per_second.empty() && std::abs(time - _per_second.back().second) < Timer::sSecond)
         return;
 
     // todo: чистить вектор (и поддержать per_minute, per_hour)

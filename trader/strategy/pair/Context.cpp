@@ -4,7 +4,7 @@
 NS_USE
 
 bool Context::isValid() const {
-    return time != 0 && candlestick != nullptr;
+    return candlestick != nullptr;
 }
 
 const Price& Context::price() const {

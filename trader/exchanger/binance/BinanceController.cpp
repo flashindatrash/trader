@@ -42,16 +42,16 @@ bool BinanceController::init(const core::Config& config) {
     BinaCPP_logger::enable_logfile(0);
 
     // init binance api
-    static string api_key       = config.getAsString(CONFIG_API_KEY);
-    static string secret_key    = config.getAsString(CONFIG_SECRET_KEY);
+    static string api_key       = config.asString(CONFIG_API_KEY);
+    static string secret_key    = config.asString(CONFIG_SECRET_KEY);
     if (api_key.empty() || secret_key.empty())
         return false;
 
     if (config.has(CONFIG_RECV_WINDOW))
-        _config_recv_window = config.getAsInt(CONFIG_RECV_WINDOW);
+        _config_recv_window = config.asInt(CONFIG_RECV_WINDOW);
 
     if (config.has(CONFIG_TEST_MODE))
-        _config_test_mode = config.getAsInt(CONFIG_TEST_MODE);
+        _config_test_mode = config.asInt(CONFIG_TEST_MODE);
 
     BinaCPP::init(api_key, secret_key);
     BinaCPP_websocket::init();
@@ -79,7 +79,7 @@ void BinanceController::tick(time_t now) {
     // Keepalive a user data stream to prevent a time out.
     // User data streams will close after 60 minutes.
     // It's recommended to send a ping about every 30 minutes
-    if (timesup(_time_keep_userstream, TraderTime::sMinute * 30))
+    if (timesup(_time_keep_userstream, Timer::sMinute * 30))
         keepUserDataStream();
 }
 
@@ -382,7 +382,7 @@ double BinanceController::minQuantity(const std::string& symbol) const {
     const BinanceSymbolData::MinNotional& min_notional = info.minNotional;
     const BinanceSymbolData::LotSize& lot_size = info.lotSize;
 
-    Price price_avg = wrapper->getPriceAverage(min_notional.avgPriceMins * TraderTime::sMinute);
+    Price price_avg = wrapper->getPriceAverage(min_notional.avgPriceMins * Timer::sMinute);
     double quantity = std::max(lot_size.minQty, min_notional.minNotional / price_avg) *  1.2;
     if (info.lotSize.stepSize > 0.0)
         quantity = util::ceil_steps(quantity, info.lotSize.stepSize);

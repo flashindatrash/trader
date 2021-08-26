@@ -3,8 +3,7 @@
 #include "Proxy.hpp"
 #include "Signal.hpp"
 
-class TraderTime : public core::Proxy<TraderTime>
-{
+class Timer : public core::Proxy<Timer> {
 public: // static
     static const time_t sSecond;
     static const time_t sMinute;
@@ -12,13 +11,20 @@ public: // static
     static const time_t sDay;
 
 public: // methods
-    TraderTime() = default;
+    Timer() = default;
 
     void tick();
+
+    void set(time_t ms);
+
     time_t ms() const;
+    time_t sec() const;
 
 public: // signals
     Signal<time_t> onTick;
+
+protected: // vars
+    time_t _local = 0;
 };
 
-#define Time() TraderTime::getInstance()
+#define Time() Timer::getInstance()

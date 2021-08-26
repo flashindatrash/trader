@@ -20,7 +20,7 @@ static Change sRate = 0.006;
 // макс хвостик в % от цены, если меньше, то ждем, не закрываем позицию
 static Change sMaxTailRate = 0.0015;
 // минимально время свечи, после которого применяем правило выше
-static time_t sMinTimeCandle = TraderTime::sSecond * 5;
+static time_t sMinTimeCandle = Timer::sSecond * 5;
 
 ProfitManager::ProfitManager(OrderManager& orders)
     : BaseManager(orders)

@@ -5,7 +5,7 @@
 #include "pair/PairStrategy.hpp"
 
 Strategy* Strategy::create(const core::Config& config) {
-    std::string type = config.getAsString("STRATEGY");
+    std::string type = config.asString("STRATEGY");
 
     Strategy* strategy = nullptr;
 

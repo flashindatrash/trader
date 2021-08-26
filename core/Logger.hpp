@@ -5,6 +5,7 @@
 #include <sys/time.h>
 #include <csignal>
 #include <cstdarg>
+#include "Time.hpp"
 
 //the following are UBUNTU/LINUX, and MacOS ONLY terminal color codes.
 #define RESET   "\033[0m"
@@ -36,9 +37,7 @@ public: //
 
         char new_fmt[1024];
 
-        struct timeval tv;
-        gettimeofday(&tv, NULL);
-        time_t t = tv.tv_sec;
+        time_t t = Time().sec();
         struct tm* now = localtime(&t);
 
         sprintf(new_fmt, "[%04d/%02d/%02d %02d:%02d:%02d] T: %s\n", now->tm_year + 1900, now->tm_mon + 1, now->tm_mday, now->tm_hour, now->tm_min, now->tm_sec, fmt);

@@ -1,5 +1,6 @@
 #include "Positions.hpp"
 #include "exchanger/wrapper/OrderWrapper.hpp"
+#include "exchanger/Exchanger.hpp"
 
 NS_USE
 
@@ -36,8 +37,10 @@ void Position::setQuantity(Quantity value) {
     set(FIELD_QUANTITY, value);
 }
 
-const Quantity Position::profit(Price current) const {
-    return current - price();
+const Change Position::distance(Price current) const {
+    if (side() == OrderSide::Sell) return price() - current;
+    if (side() == OrderSide::Buy) return current - price();
+    return 0.0;
 }
 
 Positions* Positions::create(const Symbol& pair, bool sync) {
@@ -46,7 +49,7 @@ Positions* Positions::create(const Symbol& pair, bool sync) {
 }
 
 Positions::Positions(const db::Key& key, bool sync)
-    : db::ArrayAbstract<Position>(key)
+    : BaseClass(key)
     , _sync(sync)
 {
     load();
@@ -66,6 +69,21 @@ bool Positions::proceed_sync() const {
 
 void Positions::proceed_sort() {
     // todo
+}
+
+bool Positions::create(const OrderRequest& request) {
+    if (not request.isEnough())
+        return false;
+
+    const OrderWrapper* order = Exchanger().createOrder(request);
+    if (order == nullptr)
+        return false;
+
+    Position position(order->id());
+    position.setPrice(order->price());
+    position.setQuantity(order->quantity());
+    position.setSide(order->side());
+    return push(position);
 }
 
 Positions::Predicate Predicates::combine(Positions::Predicate a, Positions::Predicate b) {
@@ -98,6 +116,12 @@ bool Predicates::sell(const Position& position) {
 
 bool Predicates::buy(const Position& position) {
     return position.side() == OrderSide::Buy;
+}
+
+Positions::Compare Compares::distance(Price price) {
+    return [price](const Position& a, const Position& b) {
+        return b.distance(price) > a.distance(price);
+    };
 }
 
 bool Compares::max(const Position& a, const Position& b) {

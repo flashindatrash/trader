@@ -21,7 +21,7 @@ bool Runner::init(const Settings& settings) {
 
         for (const CandlestickWrapper* candlestick : _chart->get()) {
             Context context;
-            context.time = candlestick->timeClose();
+            Time().set(candlestick->timeClose());
             context.candlestick = candlestick;
             dispatch(context);
         }
@@ -46,7 +46,6 @@ void Runner::dispatch(const Context& context) {
 
 void Runner::tick(time_t ms) {
     Context context;
-    context.time = ms;
     context.candlestick = _chart->last();
     if (context.candlestick == nullptr)
         return;
