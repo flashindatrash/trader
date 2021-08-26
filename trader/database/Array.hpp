@@ -24,9 +24,11 @@ public: // methods
         if (has(value) || not proceed_push(value))
             return false;
 
-        if (not proceed_load() || DB().rpush(_key, value) == size() + 1)
+        if (not proceed_sync() || DB().rpush(_key, value) == size() + 1)
             _values.push_back(value);
         else load();
+
+        proceed_sort();
         return true;
     }
 
@@ -39,10 +41,15 @@ public: // methods
             }
         }
 
-        if (count != DB().lrem(_key, value))
+        if (proceed_sync() && count != DB().lrem(_key, value))
             load();
 
-        return count > 0;
+        if (count > 0) {
+            proceed_sync();
+            return true;
+        }
+
+        return false;
     }
 
     bool has(const T& value) const {
@@ -54,15 +61,20 @@ public: // methods
 
 protected: //
     void load() {
-        if (not proceed_load() || _key.empty())
+        if (not proceed_sync() || _key.empty())
             return;
 
         const VectorValues upd = DB().lrange(_key);
 
+        // if added or removed changed
+        bool changed = false;
+
         // remove
         for (auto it = _values.begin(); it < _values.end(); ++it) {
-            if (not find(upd, *it) && proceed_erase(*it))
+            if (not find(upd, *it) && proceed_erase(*it)) {
                 it = _values.erase(it);
+                changed = true;
+            }
         }
 
         // add
@@ -80,7 +92,11 @@ protected: //
 
             T interpolated = T((*it).asString());
             _values.push_back(interpolated);
+            changed = true;
         }
+
+        if (changed)
+            proceed_sort();
     }
 
 public: // iterator
@@ -105,15 +121,33 @@ public: // iterator
 
     inline size_t size() const { return _values.size(); }
 
-public: //
-    const const_iterator find_if(std::function<bool(const T&)> predicate) const {
+    typedef std::function<bool(const T&)> Predicate;
+    typedef std::function<bool(const T&, const T&)> Compare;
+
+    const size_t count_if(Predicate predicate) const {
+        return std::count_if(cbegin(), cend(), predicate);
+    };
+
+    const const_iterator find_if(Predicate predicate) const {
         return std::find_if(cbegin(), cend(), predicate);
     };
 
-protected: // methods
+    const const_iterator compare_if(Predicate predicate, Compare compare) {
+        const_iterator result = cend();
+        for (const_iterator it = cbegin(); it < cend(); ++it) {
+            if (not predicate(*it))
+                continue;
+            if (result == cend() || compare(*result, *it))
+                result = it;
+        }
+        return result;
+    }
+
+protected: // virtual methods (todo: rename)
     virtual bool proceed_push(T& value) const { return true; }
     virtual bool proceed_erase(T& value) const { return true; }
-    virtual bool proceed_load() const { return true; }
+    virtual bool proceed_sync() const { return true; }
+    virtual void proceed_sort() {}
 
 protected:
     Key _key;

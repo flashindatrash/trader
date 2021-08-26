@@ -48,6 +48,9 @@ void Runner::tick(time_t ms) {
     Context context;
     context.time = ms;
     context.candlestick = _chart->last();
+    if (context.candlestick == nullptr)
+        return;
+
     dispatch(context);
 }
 

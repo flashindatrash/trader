@@ -38,10 +38,11 @@ public: // virtual
 
     const OrderWrapper* createOrder(BookWrapper& container, const OrderRequest& request) override;
 
+    double minQuantity(const std::string& symbol) const override;
+
 protected: // methods
     bool initUserListenKey();
     void keepUserDataStream();
-    double getMinQuantity(const BinanceSymbolData& info, double multiplier = 1.2) const;
 
 protected: // callbacks
     void onUserDataStream(const Json::Value& json);

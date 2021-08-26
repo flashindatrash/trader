@@ -28,6 +28,8 @@ public: // methods
 
     const OrderWrapper* createOrder(const OrderRequest& request);
 
+    double minQuantity(const std::string& key) const;
+
 protected: // methods
     void tick(time_t now);
 

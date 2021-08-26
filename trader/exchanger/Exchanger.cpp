@@ -54,4 +54,8 @@ const OrderWrapper* ExchangerProxy::createOrder(const OrderRequest& request) {
     return _controller->createOrder(*_books.get(request.symbol), request);
 }
 
+double ExchangerProxy::minQuantity(const std::string& key) const {
+    return _controller->minQuantity(key);
+}
+
 

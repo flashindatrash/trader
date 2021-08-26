@@ -333,7 +333,7 @@ const OrderWrapper* BinanceController::createOrder(BookWrapper& container, const
         return nullptr;
     }
 
-    Quantity min_quantity = getMinQuantity(info);
+    Quantity min_quantity = minQuantity(request.symbol);
     if (min_quantity == 0.0) {
         Logger::error("BinanceController::createOrder unknown min quantity");
         return nullptr;
@@ -345,7 +345,7 @@ const OrderWrapper* BinanceController::createOrder(BookWrapper& container, const
 //            return nullptr;
 //        }
     } else {
-        quantity = getMinQuantity(info, 1.4);
+        quantity = min_quantity;
     }
 
     Json::Value json;
@@ -366,7 +366,12 @@ const OrderWrapper* BinanceController::createOrder(BookWrapper& container, const
     return container.add(data);
 }
 
-double BinanceController::getMinQuantity(const BinanceSymbolData& info, double multiplier/* = 1.2*/) const {
+double BinanceController::minQuantity(const std::string& symbol) const {
+    auto it = _symbols.find(symbol);
+    if (it == _symbols.end())
+        return 0.0;
+
+    const BinanceSymbolData& info = it->second;
     if (_prices_connector == nullptr)
         return 0.0;
 
@@ -378,7 +383,7 @@ double BinanceController::getMinQuantity(const BinanceSymbolData& info, double m
     const BinanceSymbolData::LotSize& lot_size = info.lotSize;
 
     Price price_avg = wrapper->getPriceAverage(min_notional.avgPriceMins * TraderTime::sMinute);
-    double quantity = std::max(lot_size.minQty, min_notional.minNotional / price_avg) *  multiplier;
+    double quantity = std::max(lot_size.minQty, min_notional.minNotional / price_avg) *  1.2;
     if (info.lotSize.stepSize > 0.0)
         quantity = util::ceil_steps(quantity, info.lotSize.stepSize);
     return quantity;

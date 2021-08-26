@@ -35,6 +35,8 @@ public: // virtual
 
     virtual const OrderWrapper* createOrder(BookWrapper& container, const OrderRequest& request) = 0;
 
+    virtual double minQuantity(const std::string& symbol) const = 0;
+
 protected: // methods
     ExchangerController() = default;
 };
