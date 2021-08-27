@@ -20,12 +20,6 @@ Algorithm::Algorithm(const Settings& settings)
 }
 
 Algorithm::~Algorithm() {
-    double losses = 0.0;
-    for (auto it = _positions->cbegin(); it < _positions->cend(); ++it) {
-        losses += it->distance(_settings.symbol.getPrice()) * it->baseQuantity();
-    }
-    Logger::info("loses %f", losses);
-
     if (_positions != nullptr) {
         delete _positions;
         _positions = nullptr;
@@ -64,8 +58,13 @@ bool Algorithm::tryClosePosition(const Context& context) {
     if (_settings.test) {
         static double sumprofit = 0.0;
         sumprofit += change * profitable->baseQuantity();
-        Logger::info("close %d position, profit summary %f USDT", profitable->side(), sumprofit);
         _positions->remove(*profitable);
+
+        double sumlosses = 0.0;
+        for (auto it = _positions->cbegin(); it < _positions->cend(); ++it)
+            sumlosses += it->distance(_settings.symbol.price()) * it->baseQuantity();
+
+        Logger::info("profit %f, losses %f USDT", sumprofit, sumlosses);
         return true;
     }
 

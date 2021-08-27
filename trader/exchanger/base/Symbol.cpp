@@ -3,7 +3,7 @@
 #include "exchanger/wrapper/PriceWrapper.hpp"
 
 Symbol* Symbol::create() {
-    Symbol* wrapper = new Symbol();
+    auto* wrapper = new Symbol();
     return wrapper;
 }
 
@@ -37,12 +37,12 @@ const Asset& Symbol::quoteAsset() const {
     return _quote;
 }
 
-const Price& Symbol::getPrice() const {
+const Price& Symbol::price() const {
     return Exchanger().price(*this)->get();
 }
 
-const Price Symbol::getPrice(double quantity) const {
-    return getPrice() * quantity;
+Price Symbol::price(double quantity) const {
+    return price() * quantity;
 }
 
 const char* Symbol::c_str() const {

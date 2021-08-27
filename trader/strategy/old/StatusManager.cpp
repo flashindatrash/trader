@@ -20,7 +20,7 @@ void StatusManager::tick(const Symbol& symbol) {
     double quoteBalance = symbol.quoteAsset().getBalance();
 
     double change = getChange(symbol);
-    Price current = symbol.getPrice();
+    Price current = symbol.price();
     std::string timeline = "";
     double losses = 0.0;
 

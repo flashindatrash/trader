@@ -76,7 +76,7 @@ void OrderManager::printOrder(const Symbol& symbol, const OrderWrapper* order, c
     } else {
         Logger::info("\a%s\t%f %s for %f (%s for %f)", sideStr(order->side()), order->baseQuantity(), symbol.baseAsset().c_str(), order->price(), sideStr(position->side()), position->price());
 
-        double profit = std::abs(position->price() - symbol.getPrice()) * position->baseQuantity();
+        double profit = std::abs(position->price() - symbol.price()) * position->baseQuantity();
         double total = DataManager::addProfit(symbol.quoteAsset(), profit);
 	double current = DataManager::addProfit(symbol, profit);
 

@@ -39,7 +39,7 @@ Quantity OrderWrapper::quoteQuantity() const {
 
 bool OrderRequest::isEnough() const {
     if (side == OrderSide::Buy)
-        return symbol.quoteAsset().getBalance() >= symbol.getPrice(quantity);
+        return symbol.quoteAsset().getBalance() >= symbol.price(quantity);
     else if (side == OrderSide::Sell)
         return symbol.baseAsset().getBalance() > quantity;
     return false;
@@ -58,7 +58,7 @@ bool OrderRequest::canTrade() const {
 
     // check minNotional for market
     if (info.minNotional.applyToMarket) {
-        double avgPrice = symbol.getPrice();
+        double avgPrice = symbol.price();
         if (const PriceWrapper* history = Exchanger().price(symbol))
             avgPrice = history->getPriceAverage(info.minNotional.avgPriceMins * TraderTime::sMinute);
 

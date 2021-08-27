@@ -16,8 +16,8 @@ public: // methods
     const Asset& baseAsset() const;
     const Asset& quoteAsset() const;
 
-    const Price& getPrice() const;
-    const Price getPrice(double quantity) const;
+    const Price& price() const;
+    Price price(double quantity) const;
 
     const char* c_str() const;
     operator std::string() const;

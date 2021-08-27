@@ -50,10 +50,10 @@ void ProfitManager::tick(const Symbol& symbol) {
     // если хвостик слабенький, то ждем
     if ((request.side == OrderSide::Sell &&
          candlestick->isBullish() &&
-         candlestick->wickLen() / symbol.getPrice() < sMaxTailRate) ||
+         candlestick->wickLen() / symbol.price() < sMaxTailRate) ||
         (request.side == OrderSide::Buy &&
          candlestick->isBearish() &&
-         candlestick->tailLen() / symbol.getPrice() < sMaxTailRate))
+         candlestick->tailLen() / symbol.price() < sMaxTailRate))
     {
         return;
     }
@@ -69,7 +69,7 @@ const OrderWrapper* ProfitManager::findClosableOrder(const Symbol &symbol) const
     const OrderWrapper* transaction = nullptr;
     double best_change = 0.0;
     for (const OrderWrapper* order : _orders.getPositions()) {
-        Change change = OrderUtil::change(order->price(), symbol.getPrice());
+        Change change = OrderUtil::change(order->price(), symbol.price());
 
         // открытая позиция соответствует сайду
         const OrderSide revert = change > 0.0 ? OrderSide::Sell : change < 0.0 ? OrderSide::Buy : OrderSide::Invalid;
