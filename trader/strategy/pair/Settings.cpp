@@ -11,6 +11,9 @@ Settings::Settings(const core::Config& config)
     test = config.asBool("TEST");
     open_next_price_percent = config.asDouble("OPEN_NEXT_PRICE_PERCENT") / 100.0;
     open_next_lot_multiply = config.asDouble("OPEN_NEXT_LOT_MULTIPLY");
+    close_position_percent = config.asDouble("CLOSE_POSITION_PERCENT") / 100.0;
+    balance_base_limit = config.asDouble("BALANCE_BASE_LIMIT");
+    balance_quote_limit = config.asDouble("BALANCE_QUOTE_LIMIT");
 }
 
 bool Settings::isValid() const {
@@ -19,8 +22,18 @@ bool Settings::isValid() const {
         return false;
     }
 
+    if (open_next_price_percent < 0.0) {
+        Logger::info("Invalid OPEN_NEXT_PRICE_PERCENT settings (%f)", open_next_price_percent);
+        return false;
+    }
+
     if (open_next_lot_multiply < 1.0) {
-        Logger::info("Invalid OPEN_NEXT_LOT_MULTIPLY parameter (%f)", open_next_lot_multiply);
+        Logger::info("Invalid OPEN_NEXT_LOT_MULTIPLY settings (%f)", open_next_lot_multiply);
+        return false;
+    }
+
+    if (close_position_percent < 0.0) {
+        Logger::info("Invalid CLOSE_POSITION_PERCENT settings (%f)", close_position_percent);
         return false;
     }
 

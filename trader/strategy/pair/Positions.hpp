@@ -34,6 +34,9 @@ public: // methods
     // create new order
     bool create(const OrderRequest& request);
 
+    // last position by side
+    const const_iterator last(OrderSide side) const;
+
 protected: // methods
     Positions(const db::Key& key, bool sync);
 
@@ -65,6 +68,11 @@ public: // static
     // without arguments
     static bool max(const Position& a, const Position& b);
     static bool min(const Position& a, const Position& b);
+};
+
+class Summarizes {
+public: // static
+    static Quantity quantity(const Position& position);
 };
 
 NS_END

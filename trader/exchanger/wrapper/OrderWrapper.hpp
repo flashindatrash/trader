@@ -36,6 +36,9 @@ class OrderWrapper {
 public: // static
     static OrderWrapper* create();
 
+    // revert side
+    static OrderSide revert(OrderSide side);
+
 public: // methods
     void set(Order data);
 

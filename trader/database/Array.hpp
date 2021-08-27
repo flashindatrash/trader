@@ -152,6 +152,17 @@ public: // iterator
         return result;
     }
 
+    template<typename V>
+    const V summarize(Predicate predicate, std::function<V(const T&)> summarizator) const {
+        V result;
+        for (const_iterator it = cbegin(); it < cend(); ++it) {
+            if (not predicate(*it))
+                continue;
+            result += summarizator(*it);
+        }
+        return result;
+    }
+
 protected: // virtual methods (todo: rename)
     virtual bool proceed_push(T& value) const { return true; }
     virtual bool proceed_erase(T& value) const { return true; }

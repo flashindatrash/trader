@@ -40,7 +40,7 @@ void ProfitManager::tick(const Symbol& symbol) {
     // создаем реквест
     OrderRequest request;
     request.symbol = symbol;
-    request.side = revertSide(position->side());
+    request.side = OrderWrapper::revert(position->side());
     request.quantity = position->quantity();
 
     // новый хвостик, ждем N времен
@@ -101,10 +101,4 @@ const OrderWrapper* ProfitManager::findClosableOrder(const Symbol &symbol) const
     }
 
     return transaction;
-}
-
-OrderSide ProfitManager::revertSide(const OrderSide& original) const {
-    if (original == OrderSide::Buy) return OrderSide::Sell;
-    if (original == OrderSide::Sell) return OrderSide::Buy;
-    return OrderSide::Invalid;
 }

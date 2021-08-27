@@ -56,6 +56,10 @@ Positions::Positions(const db::Key& key, bool sync)
 }
 
 bool Positions::proceed_push(Position& value) const {
+    // skip invalid Positions
+    if (value.price() <= 0.0 || value.quantity() <= 0.0 || value.side() == OrderSide::Invalid)
+        return false;
+
     return not proceed_sync() || value.save();
 }
 
@@ -72,9 +76,6 @@ void Positions::proceed_sort() {
 }
 
 bool Positions::create(const OrderRequest& request) {
-    if (not request.isEnough())
-        return false;
-
     const OrderWrapper* order = Exchanger().createOrder(request);
     if (order == nullptr)
         return false;
@@ -85,6 +86,16 @@ bool Positions::create(const OrderRequest& request) {
     position.setSide(order->side());
     return push(position);
 }
+
+const Positions::const_iterator Positions::last(OrderSide side) const {
+    switch (side) {
+    case OrderSide::Buy: return compare_if(Predicates::buy, Compares::min);
+    case OrderSide::Sell: return compare_if(Predicates::sell, Compares::max);
+    case OrderSide::Invalid: return cend();
+    }
+}
+
+// ---------- Predicates ----------
 
 Positions::Predicate Predicates::combine(Positions::Predicate a, Positions::Predicate b) {
     return [a, b](const Position& value) {
@@ -118,6 +129,8 @@ bool Predicates::buy(const Position& position) {
     return position.side() == OrderSide::Buy;
 }
 
+// ---------- Compares ----------
+
 Positions::Compare Compares::distance(Price price) {
     return [price](const Position& a, const Position& b) {
         return b.distance(price) > a.distance(price);
@@ -130,4 +143,10 @@ bool Compares::max(const Position& a, const Position& b) {
 
 bool Compares::min(const Position& a, const Position& b) {
     return b.price() < a.price();
+}
+
+// ---------- Summarizes ----------
+
+Quantity Summarizes::quantity(const Position& position) {
+    return position.quantity();
 }
