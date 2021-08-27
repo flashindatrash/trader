@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Identifier.hpp"
-#include "BaseTypes.hpp"
+#include "OrderBase.hpp"
 
 class Asset : public Identifier {
 public: // methods

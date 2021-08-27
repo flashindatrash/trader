@@ -36,7 +36,7 @@ void TraderManager::tick(const Symbol& symbol) {
     request.symbol = symbol;
     request.side = OrderSide::Invalid;
 
-    Change change = util::change(wrapper->priceOpen(), wrapper->priceClose());
+    Change change = OrderUtil::change(wrapper->priceOpen(), wrapper->priceClose());
     if (std::abs(change) >= sMinRate)
         request.side = change > 0.0 ? OrderSide::Sell : change < 0.0 ? OrderSide::Buy : OrderSide::Invalid;
 
@@ -48,7 +48,7 @@ void TraderManager::tick(const Symbol& symbol) {
         if (position->side() != request.side)
             continue;
 
-        Change change = util::change(position->price(), wrapper->priceClose());
+        Change change = OrderUtil::change(position->price(), wrapper->priceClose());
         if (std::abs(change) < sEqualPosition)
             return;
     }

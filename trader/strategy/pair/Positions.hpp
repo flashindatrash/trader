@@ -2,26 +2,23 @@
 
 #include "Defines.hpp"
 #include "database/Array.hpp"
-#include "exchanger/base/BaseTypes.hpp"
+#include "exchanger/base/OrderBase.hpp"
 
 struct OrderRequest;
-enum OrderSide : unsigned int;
 
 NS_BEGIN
-class Position : public db::Object {
+class Position : public db::Object, public OrderBase {
 public: // methods
     Position(const db::Key& key);
 
-    const Price price() const;
-    void setPrice(Price value);
-
-    const OrderSide side() const;
     void setSide(OrderSide value);
+    void setBaseQuantity(Quantity value);
+    void setQuoteQuantity(Quantity value);
 
-    const Quantity quantity() const;
-    void setQuantity(Quantity value);
-
-    const Change distance(Price current) const;
+    Id id() const override;
+    OrderSide side() const override;
+    Quantity baseQuantity() const override;
+    Quantity quoteQuantity() const override;
 };
 
 class Positions : public db::ArrayAbstract<Position> {
@@ -35,15 +32,15 @@ public: // methods
     bool create(const OrderRequest& request);
 
     // last position by side
-    const const_iterator last(OrderSide side) const;
+    const_iterator last(OrderSide side) const;
 
 protected: // methods
     Positions(const db::Key& key, bool sync);
 
-    virtual bool proceed_push(Position& value) const override;
-    virtual bool proceed_erase(Position& value) const override;
-    virtual bool proceed_sync() const override;
-    virtual void proceed_sort() override;
+    bool proceed_push(Position& value) const override;
+    bool proceed_erase(Position& value) const override;
+    bool proceed_sync() const override;
+    void proceed_sort() override;
 
 protected: // vars
     const bool _sync;
@@ -72,7 +69,7 @@ public: // static
 
 class Summarizes {
 public: // static
-    static Quantity quantity(const Position& position);
+    static Quantity expanse(const Position& position);
 };
 
 NS_END

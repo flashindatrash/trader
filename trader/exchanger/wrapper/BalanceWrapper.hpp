@@ -1,7 +1,7 @@
 #pragma once
 
 #include "exchanger/base/Identifier.hpp"
-#include "exchanger/base/BaseTypes.hpp"
+#include "exchanger/base/OrderBase.hpp"
 
 class BalanceWrapper : public Identifier {
 public: // static

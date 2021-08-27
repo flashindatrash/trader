@@ -30,7 +30,7 @@ public: // operators
 protected: // methods
     void load();
 
-private: // vars
+protected: // vars
     Key _key;
     Map _map;
 

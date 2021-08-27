@@ -12,7 +12,7 @@ BookWrapper::~BookWrapper() {
     _orders.clear();
 }
 
-const OrderWrapper* BookWrapper::add(const Order& data) {
+const OrderWrapper* BookWrapper::add(const OrderStructure& data) {
     OrderWrapper* wrapper = OrderWrapper::create();
     wrapper->set(data);
     _orders.push_back(wrapper);

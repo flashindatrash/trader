@@ -22,7 +22,7 @@ double DecisionMaker::factor(const OrderRequest& request, int based_on) const {
         // увеличиваем/понижаем рейтинг при отрицательном дневном росте/падении
         const CandlestickWrapper* stat = Exchanger().stat(request.symbol);
         if (stat != nullptr && stat->priceOpen() > 0.0) {
-            Change change = util::change(stat->priceOpen(), request.symbol.getPrice());
+            Change change = OrderUtil::change(stat->priceOpen(), request.symbol.getPrice());
             result *= 1.0 + change * (request.side == OrderSide::Buy ? 1 : -1);
         }
     }
@@ -33,13 +33,13 @@ double DecisionMaker::factor(const OrderRequest& request, int based_on) const {
         Quantity sumQty = baseQty + quoteQty;
         // мы должны иметь валюту для закрытия сделки
         for (const OrderWrapper* position : _positions) {
-            Change change = std::abs(util::change(position->price(), request.symbol.getPrice()));
+            Change change = std::abs(OrderUtil::change(position->price(), request.symbol.getPrice()));
             // коэффициент влияния, если сделка была не так далеко, то держать для нее баланс важнее
             double k = std::max(0.1 - change, 0.0);
             if (position->side() == OrderSide::Buy)
-                baseQty -= position->quantity() * k;
+                baseQty -= position->baseQuantity() * k;
             else if (position->side() == OrderSide::Sell)
-                quoteQty -= position->price() * position->quantity() * k;
+                quoteQty -= position->price() * position->baseQuantity() * k;
         }
         baseQty = std::max(baseQty, 0.0);
         quoteQty = std::max(quoteQty, 0.0);

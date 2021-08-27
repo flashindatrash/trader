@@ -3,7 +3,7 @@
 #include <vector>
 #include "exchanger/base/Identifier.hpp"
 
-struct Order;
+struct OrderStructure;
 class OrderWrapper;
 
 class BookWrapper : public Identifier {
@@ -13,7 +13,7 @@ public: // static
 public: // methods
     virtual ~BookWrapper();
 
-    const OrderWrapper* add(const Order& data);
+    const OrderWrapper* add(const OrderStructure& data);
     const std::vector<const OrderWrapper*>& get() const;
 
 protected: // methods

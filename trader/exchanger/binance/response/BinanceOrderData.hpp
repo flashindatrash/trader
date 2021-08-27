@@ -7,7 +7,7 @@ namespace Json {
     class Value;
 }
 
-struct BinanceOrderData : public Order {
+struct BinanceOrderData : public OrderStructure {
 public: // methods
     BinanceOrderData() = default;
     BinanceOrderData(const Json::Value& json, bool minimized);
@@ -28,20 +28,20 @@ public: // vars
   "s": "ETHBTC",                 // Symbol
   "c": "mUvoqJxFIILMdfAW5iGSOW", // Client order ID
   "S": "BUY",                    // Side
-  "o": "LIMIT",                  // Order type
+  "o": "LIMIT",                  // OrderStructure type
   "f": "GTC",                    // Time in force
-  "q": "1.00000000",             // Order quantity
-  "p": "0.10264410",             // Order price
+  "q": "1.00000000",             // OrderStructure base_quantity
+  "p": "0.10264410",             // OrderStructure price
   "P": "0.00000000",             // Stop price
-  "F": "0.00000000",             // Iceberg quantity
+  "F": "0.00000000",             // Iceberg base_quantity
   "g": -1,                       // OrderListId
   "C": "",                       // Original client order ID; This is the ID of the order being canceled
   "x": "NEW",                    // Current execution type
   "X": "NEW",                    // Current order status
-  "r": "NONE",                   // Order reject reason; will be an error code.
-  "i": 4293153,                  // Order ID
-  "l": "0.00000000",             // Last executed quantity
-  "z": "0.00000000",             // Cumulative filled quantity
+  "r": "NONE",                   // OrderStructure reject reason; will be an error code.
+  "i": 4293153,                  // OrderStructure ID
+  "l": "0.00000000",             // Last executed base_quantity
+  "z": "0.00000000",             // Cumulative filled baseQuantity
   "L": "0.00000000",             // Last executed price
   "n": "0",                      // Commission amount
   "N": null,                     // Commission asset
@@ -51,10 +51,10 @@ public: // vars
   "w": true,                     // Is the order on the book?
   "m": false,                    // Is this trade the maker side?
   "M": false,                    // Ignore
-  "O": 1499405658657,            // Order creation time
-  "Z": "0.00000000",             // Cumulative quote asset transacted quantity
-  "Y": "0.00000000",             // Last quote asset transacted quantity (i.e. lastPrice * lastQty)
-  "Q": "0.00000000"              // Quote Order Qty
+  "O": 1499405658657,            // OrderStructure creation time
+  "Z": "0.00000000",             // Cumulative quote asset transacted baseQuantity
+  "Y": "0.00000000",             // Last quote asset transacted baseQuantity (i.e. lastPrice * lastQty)
+  "Q": "0.00000000"              // Quote OrderStructure Qty
 }*/
 
 /*

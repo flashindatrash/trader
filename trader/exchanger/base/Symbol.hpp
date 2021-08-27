@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Identifier.hpp"
-#include "BaseTypes.hpp"
 #include "Asset.hpp"
 
 class Symbol : public Identifier {

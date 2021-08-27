@@ -4,24 +4,20 @@
 
 NS_USE
 
-static const char* FIELD_PRICE = "price";
 static const char* FIELD_SIDE = "side";
-static const char* FIELD_QUANTITY = "quantity";
+static const char* FIELD_BASE_QUANTITY = "base_quantity";
+static const char* FIELD_QUOTE_QUANTITY = "quote_quantity";
 
 Position::Position(const db::Key& key)
     : db::Object(key)
 {
 }
 
-const Price Position::price() const {
-    return get(FIELD_PRICE).asDouble();
+OrderBase::Id Position::id() const {
+    return _key;
 }
 
-void Position::setPrice(Price value) {
-    set(FIELD_PRICE, value);
-}
-
-const OrderSide Position::side() const {
+OrderSide Position::side() const {
     return (OrderSide)get(FIELD_SIDE).asInt();
 }
 
@@ -29,22 +25,24 @@ void Position::setSide(OrderSide value) {
     set(FIELD_SIDE, (int)value);
 }
 
-const Quantity Position::quantity() const {
-    return get(FIELD_QUANTITY).asDouble();
+Quantity Position::baseQuantity() const {
+    return get(FIELD_BASE_QUANTITY).asDouble();
 }
 
-void Position::setQuantity(Quantity value) {
-    set(FIELD_QUANTITY, value);
+void Position::setBaseQuantity(Quantity value) {
+    set(FIELD_BASE_QUANTITY, value);
 }
 
-const Change Position::distance(Price current) const {
-    if (side() == OrderSide::Sell) return price() - current;
-    if (side() == OrderSide::Buy) return current - price();
-    return 0.0;
+Quantity Position::quoteQuantity() const {
+    return get(FIELD_QUOTE_QUANTITY).asDouble();
+}
+
+void Position::setQuoteQuantity(Quantity value) {
+    set(FIELD_QUOTE_QUANTITY, value);
 }
 
 Positions* Positions::create(const Symbol& pair, bool sync) {
-    Positions* positions = new Positions("test:" + pair.id(), sync);
+    auto* positions = new Positions("test:" + pair.id(), sync);
     return positions;
 }
 
@@ -57,7 +55,7 @@ Positions::Positions(const db::Key& key, bool sync)
 
 bool Positions::proceed_push(Position& value) const {
     // skip invalid Positions
-    if (value.price() <= 0.0 || value.quantity() <= 0.0 || value.side() == OrderSide::Invalid)
+    if (value.price() <= 0.0 || value.baseQuantity() <= 0.0 || value.side() == OrderSide::Invalid)
         return false;
 
     return not proceed_sync() || value.save();
@@ -81,13 +79,13 @@ bool Positions::create(const OrderRequest& request) {
         return false;
 
     Position position(order->id());
-    position.setPrice(order->price());
-    position.setQuantity(order->quantity());
+    position.setQuoteQuantity(order->quoteQuantity());
+    position.setBaseQuantity(order->baseQuantity());
     position.setSide(order->side());
     return push(position);
 }
 
-const Positions::const_iterator Positions::last(OrderSide side) const {
+Positions::const_iterator Positions::last(OrderSide side) const {
     switch (side) {
     case OrderSide::Buy: return compare_if(Predicates::buy, Compares::min);
     case OrderSide::Sell: return compare_if(Predicates::sell, Compares::max);
@@ -147,6 +145,6 @@ bool Compares::min(const Position& a, const Position& b) {
 
 // ---------- Summarizes ----------
 
-Quantity Summarizes::quantity(const Position& position) {
-    return position.quantity();
+Quantity Summarizes::expanse(const Position& position) {
+    return position.expanse();
 }

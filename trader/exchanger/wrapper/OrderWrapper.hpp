@@ -1,25 +1,17 @@
 #pragma once
 
-#include <string>
 #include "exchanger/base/Symbol.hpp"
+#include "exchanger/base/OrderBase.hpp"
 
 enum OrderType : unsigned int {
     Market
 };
 
-enum OrderSide : unsigned int {
-    Invalid,
-    Buy,
-    Sell
-};
-
-struct Order {
-    typedef std::string Id;
-
-    Id id = "";
+struct OrderStructure {
+    OrderBase::Id id;
     OrderSide side = Invalid;
-    Quantity quoute_quantity = 0.0;
-    Quantity quantity = 0.0;
+    Quantity quote_quantity = 0.0;
+    Quantity base_quantity = 0.0;
 };
 
 struct OrderRequest {
@@ -32,7 +24,7 @@ struct OrderRequest {
     bool canTrade() const;
 };
 
-class OrderWrapper {
+class OrderWrapper : public OrderBase {
 public: // static
     static OrderWrapper* create();
 
@@ -40,17 +32,17 @@ public: // static
     static OrderSide revert(OrderSide side);
 
 public: // methods
-    void set(Order data);
+    void set(OrderStructure data);
 
-    const Order::Id& id() const;
-    const OrderSide& side() const;
-    const Quantity& quantity() const;
-    const Price price() const;
+    Id id() const override;
+    OrderSide side() const override;
+    Quantity baseQuantity() const override;
+    Quantity quoteQuantity() const override;
 
 protected: // methods
     OrderWrapper() = default;
 
 protected: // vars
-    Order _data;
+    OrderStructure _data;
 };
 

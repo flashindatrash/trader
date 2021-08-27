@@ -41,7 +41,7 @@ void ProfitManager::tick(const Symbol& symbol) {
     OrderRequest request;
     request.symbol = symbol;
     request.side = OrderWrapper::revert(position->side());
-    request.quantity = position->quantity();
+    request.quantity = position->baseQuantity();
 
     // новый хвостик, ждем N времен
     if (Time().ms() < candlestick->timeOpen() + sMinTimeCandle)
@@ -69,7 +69,7 @@ const OrderWrapper* ProfitManager::findClosableOrder(const Symbol &symbol) const
     const OrderWrapper* transaction = nullptr;
     double best_change = 0.0;
     for (const OrderWrapper* order : _orders.getPositions()) {
-        Change change = util::change(order->price(), symbol.getPrice());
+        Change change = OrderUtil::change(order->price(), symbol.getPrice());
 
         // открытая позиция соответствует сайду
         const OrderSide revert = change > 0.0 ? OrderSide::Sell : change < 0.0 ? OrderSide::Buy : OrderSide::Invalid;
@@ -83,7 +83,7 @@ const OrderWrapper* ProfitManager::findClosableOrder(const Symbol &symbol) const
         OrderRequest request;
         request.symbol = symbol;
         request.side = revert;
-        request.quantity = order->quantity();
+        request.quantity = order->baseQuantity();
 
         double factor = decision.factor(request, DecisionMaker::ForProfit);
         if (std::abs(change) / sRate * factor < 1.0)

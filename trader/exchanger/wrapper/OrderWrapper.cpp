@@ -1,11 +1,11 @@
 #include "OrderWrapper.hpp"
-#include "exchanger/Exchanger.hpp"
+
+#include <utility>
 #include "exchanger/base/Symbol.hpp"
-#include "exchanger/wrapper/BookWrapper.hpp"
 
 OrderWrapper* OrderWrapper::create()
 {
-    OrderWrapper* wrapper = new OrderWrapper();
+    auto* wrapper = new OrderWrapper();
     return wrapper;
 }
 
@@ -17,24 +17,24 @@ OrderSide OrderWrapper::revert(OrderSide side) {
     }
 }
 
-void OrderWrapper::set(Order data) {
-    _data = data;
+void OrderWrapper::set(OrderStructure data) {
+    _data = std::move(data);
 }
 
-const Order::Id& OrderWrapper::id() const {
+OrderBase::Id OrderWrapper::id() const {
     return _data.id;
 }
 
-const OrderSide& OrderWrapper::side() const {
+OrderSide OrderWrapper::side() const {
     return _data.side;
 }
 
-const Quantity& OrderWrapper::quantity() const {
-    return _data.quantity;
+Quantity OrderWrapper::baseQuantity() const {
+    return _data.base_quantity;
 }
 
-const Price OrderWrapper::price() const {
-    return _data.quoute_quantity / _data.quantity;
+Quantity OrderWrapper::quoteQuantity() const {
+    return _data.quote_quantity;
 }
 
 bool OrderRequest::isEnough() const {
@@ -62,24 +62,24 @@ bool OrderRequest::canTrade() const {
         if (const PriceWrapper* history = Exchanger().price(symbol))
             avgPrice = history->getPriceAverage(info.minNotional.avgPriceMins * TraderTime::sMinute);
 
-        if (avgPrice * quantity < info.minNotional.minNotional) {
-            Logger::info("can't trade %f %s less minNotional", quantity, symbol.c_str());
+        if (avgPrice * base_quantity < info.minNotional.minNotional) {
+            Logger::info("can't trade %f %s less minNotional", base_quantity, symbol.c_str());
             return BinanceOrderData();
         }
     }
 
     // check lot size
     if (info.lotSize.has) {
-        if (quantity < info.lotSize.minQty) {
-            Logger::info("can't trade %f quantity (min %f)", quantity, info.lotSize.minQty);
+        if (base_quantity < info.lotSize.minQty) {
+            Logger::info("can't trade %f base_quantity (min %f)", base_quantity, info.lotSize.minQty);
             return BinanceOrderData();
-        } else if (quantity > info.lotSize.maxQty) {
-            Logger::info("can't trade %f quantity (max %f)", quantity, info.lotSize.maxQty);
+        } else if (base_quantity > info.lotSize.maxQty) {
+            Logger::info("can't trade %f base_quantity (max %f)", base_quantity, info.lotSize.maxQty);
             return BinanceOrderData();
         }
         // todo
-        //else if ((quantity - info.lotSize.minQty) % info.lotSize.stepSize != 0) {
-        //    Logger::info("can't trade %f quantity (step size %f)\n", quantity, info.lotSize.stepSize);
+        //else if ((baseQuantity - info.lotSize.minQty) % info.lotSize.stepSize != 0) {
+        //    Logger::info("can't trade %f baseQuantity (step size %f)\n", baseQuantity, info.lotSize.stepSize);
         //    return BinanceOrderData();
         //}
     }

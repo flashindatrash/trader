@@ -41,7 +41,7 @@ void StatusManager::tick(const Symbol& symbol) {
         bool buy_loss = position->side() == OrderSide::Buy && current < price;
 
         if (sell_loss || buy_loss)
-            losses += std::abs(current - price) * position->quantity();
+            losses += std::abs(current - price) * position->baseQuantity();
     }
 
     if (not current_embeded)
@@ -66,7 +66,7 @@ void StatusManager::tick(const Symbol& symbol) {
 
 double StatusManager::getChange(const Symbol& symbol) {
     if (const CandlestickWrapper* last = Exchanger().chart(symbol)->last()) {
-        return util::change(last->priceOpen(), last->priceClose()) * 100.0;
+        return OrderUtil::change(last->priceOpen(), last->priceClose()) * 100.0;
     }
     return 0.0;
 }
