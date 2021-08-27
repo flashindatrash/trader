@@ -154,7 +154,7 @@ public: // iterator
 
     template<typename V>
     const V summarize(Predicate predicate, std::function<V(const T&)> summarizator) const {
-        V result;
+        V result = V();
         for (const_iterator it = cbegin(); it < cend(); ++it) {
             if (not predicate(*it))
                 continue;

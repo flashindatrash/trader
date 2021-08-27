@@ -104,26 +104,27 @@ bool Algorithm::tryOpenPosition(const Context& context) {
     }
 
     // посчитаем расход данной сделки
-    Quantity spend = OrderUtil::expanse(request.side, request.quantity, request.quantity * context.price());
+    Quantity request_expanses = OrderUtil::usingQuantity(request.side, request.quantity, request.quantity * context.price());
 
     // проверим, что количество открытых сделок не превышает установленный лимит средств
     // нас итересует только конкретная одна валюта, с которой собираемся оперировать
     const Quantity limit = request.side == OrderSide::Sell ? _settings.balance_base_limit : _settings.balance_quote_limit;
     if (limit >= 0.0) {
-        const auto expanse = _positions->summarize<Quantity>(Predicates::side(request.side),
-                                                           Summarizes::expanse);
+        const auto total = _positions->summarize<Quantity>(Predicates::side(request.side),
+                                                           Summarizes::expanses);
         // добавим к общей суммарному вкладу открытых позиций и ту, которую хотим добавить
-        if (expanse + spend > limit)
+        if (limit < total + request_expanses)
             return false;
     }
 
     // проверим, что средств достаточно для закрытия ближайшего противопложного шорта + лонга
     const auto last_opposite = _positions->last(OrderWrapper::revert(request.side));
     if (last_opposite != _positions->cend()) {
-        // возьмем текущий баланс в base ассете - отнимем количество, которое хотим выставить
-        // и оно должно быть выше > или = противоположной ставки
-        Quantity balance = last_opposite->side() == OrderSide::Buy ? request.symbol.baseAsset().getBalance() : request.symbol.quoteAsset().getBalance();
-        if (balance - spend < last_opposite->expanse())
+        // баланс, который используется для закрытия противоположной сделки
+        Quantity balance = OrderUtil::usingQuantity(last_opposite->side(), request.symbol.baseAsset().getBalance(),
+                                                    request.symbol.quoteAsset().getBalance());
+        // баланс должен быть выше суммы сделки на закрытие и оперируемой
+        if (balance < last_opposite->expanses() + request_expanses)
             return false;
     }
 
@@ -132,8 +133,9 @@ bool Algorithm::tryOpenPosition(const Context& context) {
         return false;
 
     if (_settings.test) {
-        Logger::info("add %d position for %f change %f", request.side, context.price(), change);
-        Position test("test" + std::to_string(_positions->size()));
+        static int sTestId = 1;
+        Logger::info("add %d position %f for %f change %f", request.side, request.quantity, context.price(), change);
+        Position test("test" + std::to_string(++sTestId));
         test.setBaseQuantity(request.quantity);
         test.setQuoteQuantity(request.quantity * context.price());
         test.setSide(request.side);

@@ -69,7 +69,7 @@ public: // static
 
 class Summarizes {
 public: // static
-    static Quantity expanse(const Position& position);
+    static Quantity expanses(const Position& position);
 };
 
 NS_END

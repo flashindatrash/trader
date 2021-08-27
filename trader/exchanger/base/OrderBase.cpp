@@ -8,8 +8,8 @@ Price OrderBase::price() const {
     return OrderUtil::price(baseQuantity(), quoteQuantity());
 }
 
-Quantity OrderBase::expanse() const {
-    return OrderUtil::expanse(side(), baseQuantity(), quoteQuantity());
+Quantity OrderBase::expanses() const {
+    return OrderUtil::usingQuantity(side(), baseQuantity(), quoteQuantity());
 }
 
 Change OrderBase::distance(Price current) const {
@@ -28,7 +28,7 @@ Change OrderUtil::distance(OrderSide side, Price price, Price current) {
     }
 }
 
-Quantity OrderUtil::expanse(OrderSide side, Quantity baseQuantity, Quantity quoteQuantity) {
+Quantity OrderUtil::usingQuantity(OrderSide side, Quantity baseQuantity, Quantity quoteQuantity) {
     switch (side) {
         case Buy: return quoteQuantity;
         case Sell: return baseQuantity;

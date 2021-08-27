@@ -145,6 +145,6 @@ bool Compares::min(const Position& a, const Position& b) {
 
 // ---------- Summarizes ----------
 
-Quantity Summarizes::expanse(const Position& position) {
-    return position.expanse();
+Quantity Summarizes::expanses(const Position& position) {
+    return position.expanses();
 }

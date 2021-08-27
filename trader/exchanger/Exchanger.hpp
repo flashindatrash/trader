@@ -24,7 +24,6 @@ public: // methods
     bool loadOrders(const std::string& key);
     bool loadCharts(const std::string& key, ChartInterval interval);
     void listenCharts(const std::string& key, ChartInterval interval);
-    void listenStats(const std::string& key);
 
     const OrderWrapper* createOrder(const OrderRequest& request);
 

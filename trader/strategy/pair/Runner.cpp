@@ -9,7 +9,7 @@
 NS_USE
 
 Runner* Runner::create() {
-    Runner* runner = new Runner();
+    auto* runner = new Runner();
     return runner;
 }
 

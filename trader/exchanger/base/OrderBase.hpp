@@ -27,7 +27,7 @@ public: // signature
 
 public: // methods
     Price price() const;
-    Quantity expanse() const;
+    Quantity expanses() const;
     Change distance(Price current) const;
 };
 
@@ -35,6 +35,6 @@ class OrderUtil {
 public:
     static Change change(const Price& left, const Price& right);
     static Change distance(OrderSide side, Price price, Price current);
-    static Quantity expanse(OrderSide side, Quantity baseQuantity, Quantity quoteQuantity);
+    static Quantity usingQuantity(OrderSide side, Quantity baseQuantity, Quantity quoteQuantity);
     static Price price(Quantity baseQuantity, Quantity quoteQuantity);
 };
