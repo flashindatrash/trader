@@ -1,6 +1,4 @@
 #include "Positions.hpp"
-#include "exchanger/wrapper/OrderWrapper.hpp"
-#include "exchanger/Exchanger.hpp"
 
 NS_USE
 
@@ -73,11 +71,9 @@ void Positions::proceed_sort() {
     // todo
 }
 
-bool Positions::create(const OrderRequest& request) {
-    const OrderWrapper* order = Exchanger().createOrder(request);
+bool Positions::copy(const OrderBase* order) {
     if (order == nullptr)
         return false;
-
     Position position(order->id());
     position.setQuoteQuantity(order->quoteQuantity());
     position.setBaseQuantity(order->baseQuantity());

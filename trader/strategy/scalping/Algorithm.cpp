@@ -2,6 +2,7 @@
 #include "Settings.hpp"
 #include "Context.hpp"
 #include "Positions.hpp"
+#include "Migrator.h"
 #include "Logger.hpp"
 #include "exchanger/wrapper/CandlestickWrapper.hpp"
 #include "exchanger/wrapper/OrderWrapper.hpp"
@@ -28,6 +29,7 @@ Algorithm::~Algorithm() {
 
 bool Algorithm::init() {
     _positions = Positions::create(_settings.symbol, not _settings.test);
+    Migrator::migrate(_positions, _settings.symbol);
     return true;
 }
 
@@ -62,13 +64,13 @@ bool Algorithm::tryClosePosition(const Context& context) {
 
         double sumlosses = 0.0;
         for (auto it = _positions->cbegin(); it < _positions->cend(); ++it)
-            sumlosses += it->distance(_settings.symbol.price()) * it->baseQuantity();
+                sumlosses += it->distance(_settings.symbol.price()) * it->baseQuantity();
 
         Logger::info("profit %f, losses %f USDT", sumprofit, sumlosses);
         return true;
     }
 
-    return _positions->create(request);
+    return Exchanger().createOrder(request) && _positions->remove(*profitable);
 }
 
 bool Algorithm::tryOpenPosition(const Context& context) {
@@ -141,5 +143,5 @@ bool Algorithm::tryOpenPosition(const Context& context) {
         return _positions->push(test);
     }
 
-    return _positions->create(request);
+    return _positions->copy(Exchanger().createOrder(request));
 }
