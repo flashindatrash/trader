@@ -11,10 +11,3 @@ unsigned int util::zeros_after_dot(double num) {
     }
     return count;
 };
-
-double util::ceil_steps(double value, double step) {
-    double steps = 0.0;
-    while (steps < value)
-        steps += step;
-    return steps;
-}

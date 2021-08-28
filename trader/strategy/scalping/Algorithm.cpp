@@ -2,7 +2,8 @@
 #include "Settings.hpp"
 #include "Context.hpp"
 #include "Positions.hpp"
-#include "Migrator.h"
+#include "Statistics.hpp"
+#include "Migrator.hpp"
 #include "Logger.hpp"
 #include "exchanger/wrapper/CandlestickWrapper.hpp"
 #include "exchanger/wrapper/OrderWrapper.hpp"
@@ -27,14 +28,18 @@ Algorithm::~Algorithm() {
     }
 }
 
+#include "util/NumberUtil.hpp"
 bool Algorithm::init() {
     _positions = Positions::create(_settings.symbol, not _settings.test);
-    Migrator::migrate(_positions, _settings.symbol);
+    _statistics = Statistics::create(_settings.symbol, not _settings.test);
+    Migrator::migrate(_positions, _statistics, _settings.symbol, _settings.test);
     return true;
 }
 
 void Algorithm::execute(const Context& context) {
-    tryClosePosition(context) || tryOpenPosition(context);
+    bool changed = false;
+    changed |= tryClosePosition(context);
+    changed |= tryOpenPosition(context);
 }
 
 bool Algorithm::tryClosePosition(const Context& context) {
@@ -47,8 +52,7 @@ bool Algorithm::tryClosePosition(const Context& context) {
         return false;
 
     // интересует только те, у которых изменилась цена выше указанного порога
-    Change change = profitable->distance(context.price());
-    if (change < profitable->price() * _settings.close_position_percent)
+    if (profitable->distance(context.price()) < profitable->price() * _settings.close_position_percent)
         return false;
 
     // проверим достаточно ли средств для сделки
@@ -57,20 +61,26 @@ bool Algorithm::tryClosePosition(const Context& context) {
     if (not request.isEnough())
         return false;
 
-    if (_settings.test) {
-        static double sumprofit = 0.0;
-        sumprofit += change * profitable->baseQuantity();
-        _positions->remove(*profitable);
-
-        double sumlosses = 0.0;
-        for (auto it = _positions->cbegin(); it < _positions->cend(); ++it)
-                sumlosses += it->distance(_settings.symbol.price()) * it->baseQuantity();
-
-        Logger::info("profit %f, losses %f USDT", sumprofit, sumlosses);
-        return true;
+    // создаем заказ (только не в тесте) и запоминаем цену закрытия
+    Price closed_price;
+    if (_settings.test)
+        closed_price = context.price();
+    else {
+        const OrderWrapper* result = Exchanger().createOrder(request);
+        if (result == nullptr)
+            return false;
+        closed_price = result->price();
     }
 
-    return Exchanger().createOrder(request) && _positions->remove(*profitable);
+    // добавим в статистику прибыль, которую получили из закрытой позиции
+    Quantity profit = _statistics->addProfit(profitable->distance(closed_price) * request.quantity);
+    Logger::info("profit: %f", profit);
+
+    // удалим из базы, результат удаления не важен, просто кинем сообщение
+    if (not _positions->remove(*profitable))
+        Logger::info("can't delete order %s");
+
+    return true;
 }
 
 bool Algorithm::tryOpenPosition(const Context& context) {
@@ -83,9 +93,6 @@ bool Algorithm::tryOpenPosition(const Context& context) {
     request.side = change > 0.0 ? OrderSide::Sell : change < 0.0 ? OrderSide::Buy : OrderSide::Invalid;
     if (request.side == OrderSide::Invalid)
         return false;
-
-    if (request.side == OrderSide::Buy)
-        int i =  0;
 
     // найдем последнюю лонг или шорт позицию
     // проверим, можно ли нам войти еще раз в нее же
@@ -135,13 +142,17 @@ bool Algorithm::tryOpenPosition(const Context& context) {
 
     if (_settings.test) {
         static int sTestId = 1;
-        Logger::info("add %d position %f for %f change %f", request.side, request.quantity, context.price(), change);
         Position test("test" + std::to_string(++sTestId));
         test.setBaseQuantity(request.quantity);
         test.setQuoteQuantity(request.quantity * context.price());
         test.setSide(request.side);
-        return _positions->push(test);
+        if (not _positions->push(test))
+            return false;
+    } else {
+        if (not _positions->copy(Exchanger().createOrder(request)))
+            return false;
     }
 
-    return _positions->copy(Exchanger().createOrder(request));
+    Logger::info("open [%d] position %f for %f", request.side, request.quantity, context.price());
+    return true;
 }

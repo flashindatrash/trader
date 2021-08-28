@@ -33,7 +33,7 @@ public: // virtual
 
     virtual void listenCharts(ChartWrapper& container, ChartInterval interval) = 0;
 
-    virtual const OrderWrapper* createOrder(BookWrapper& container, const OrderRequest& request) = 0;
+    virtual const OrderWrapper* createOrder(BookWrapper& container, OrderRequest& request) = 0;
 
     virtual double minQuantity(const std::string& symbol) const = 0;
 

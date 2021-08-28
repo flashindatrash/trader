@@ -2,8 +2,9 @@
 // Created by Вадим Проскурин on 28.08.2021.
 //
 
-#include "Migrator.h"
+#include "Migrator.hpp"
 #include "Positions.hpp"
+#include "Statistics.hpp"
 #include "exchanger/Exchanger.hpp"
 #include "exchanger/wrapper/BookWrapper.hpp"
 #include "exchanger/wrapper/OrderWrapper.hpp"
@@ -11,7 +12,7 @@
 
 NS_USE
 
-void Migrator::migrate(Positions* positions, const Symbol& symbol) {
+void Migrator::migrate(Positions* positions, Statistics* statistics, const Symbol& symbol, bool test) {
     if (Exchanger().loadOrders(symbol)) {
         const std::vector<const OrderWrapper*>& orders = Exchanger().book(symbol)->get();
         std::vector<std::string> keys = DB().keys("order:*");
@@ -20,8 +21,16 @@ void Migrator::migrate(Positions* positions, const Symbol& symbol) {
             if (std::find(keys.begin(), keys.end(), id) == keys.end())
                 continue;
 
-            if (positions->copy(order) && positions->proceed_sync())
+            if (positions->copy(order) && not test)
                 DB().del(id);
         }
+    }
+
+    double profit = DB().get("stats:profit:" + symbol.id()).asDouble();
+    if (profit > 0.0) {
+        if (not test)
+            DB().del("stats:profit:" + symbol.id());
+
+        statistics->addProfit(profit);
     }
 }

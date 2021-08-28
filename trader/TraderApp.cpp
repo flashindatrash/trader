@@ -1,10 +1,11 @@
 #include "TraderApp.hpp"
 #include "Time.hpp"
+#include "Logger.hpp"
 #include "database/Database.hpp"
 #include "exchanger/Exchanger.hpp"
 #include "strategy/Strategy.hpp"
 
-core::Version TraderApp::sVersion = core::Version(1, 1);
+core::Version TraderApp::sVersion = core::Version(1, 2);
 
 TraderApp::TraderApp(const core::Config& config)
     : core::App(config)
@@ -24,6 +25,8 @@ TraderApp* TraderApp::create(const core::Config& config) {
 }
 
 int TraderApp::run() {
+    Logger::info("TraderBot version: %d.%d.%d", sVersion.major, sVersion.minor, sVersion.patch);
+
     // init database
     if (not DB().init(_config))
         return EXIT_FAILURE;

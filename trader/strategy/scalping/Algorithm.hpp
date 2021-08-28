@@ -6,6 +6,7 @@ NS_BEGIN
 class Settings;
 class Context;
 class Positions;
+class Statistics;
 
 class Algorithm {
 public: // static
@@ -27,5 +28,6 @@ protected: // vars
     const Settings& _settings;
 
     Positions* _positions = nullptr;
+    Statistics* _statistics = nullptr;
 };
 NS_END

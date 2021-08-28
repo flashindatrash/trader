@@ -23,7 +23,6 @@
 static const char* CONFIG_API_KEY = "BINANCE_API_KEY";
 static const char* CONFIG_SECRET_KEY = "BINANCE_SECRET_KEY";
 static const char* CONFIG_RECV_WINDOW = "BINANCE_RECV_WINDOW";
-static const char* CONFIG_TEST_MODE = "BINANCE_TEST_MODE";
 
 BinanceController::~BinanceController() {
     for (BinanceWebsocket* websocket : _websockets)
@@ -49,9 +48,6 @@ bool BinanceController::init(const core::Config& config) {
 
     if (config.has(CONFIG_RECV_WINDOW))
         _config_recv_window = config.asInt(CONFIG_RECV_WINDOW);
-
-    if (config.has(CONFIG_TEST_MODE))
-        _config_test_mode = config.asInt(CONFIG_TEST_MODE);
 
     BinaCPP::init(api_key, secret_key);
     BinaCPP_websocket::init();
@@ -317,9 +313,8 @@ void BinanceController::onKlineDataStream(const Json::Value& json) {
         _charts_connector->get(data.symbol)->add(data);
 }
 
-const OrderWrapper* BinanceController::createOrder(BookWrapper& container, const OrderRequest& request) {
+const OrderWrapper* BinanceController::createOrder(BookWrapper& container, OrderRequest& request) {
     std::string type = binance::serialize(request.type);
-    Quantity quantity = request.quantity;
 
     auto it = _symbols.find(request.symbol);
     if (it == _symbols.end()) {
@@ -337,19 +332,15 @@ const OrderWrapper* BinanceController::createOrder(BookWrapper& container, const
     if (min_quantity == 0.0) {
         Logger::error("BinanceController::createOrder unknown min quantity");
         return nullptr;
-    } else if (quantity > min_quantity) {
-//fixme
-//        const BinanceSymbolData::LotSize& lot_size = info.lotSize;
-//        if (info.lotSize.stepSize > 0.0 && quantity != util::ceil_steps(quantity, info.lotSize.stepSize)) {
-//            Logger::error("BinanceController::createOrder quantity not equal step size");
-//            return nullptr;
-//        }
+    } else if (request.quantity > min_quantity) {
+        if (info.lotSize.stepSize > 0.0)
+            request.quantity = std::max(std::round(request.quantity / info.lotSize.stepSize) * info.lotSize.stepSize, min_quantity);
     } else {
-        quantity = min_quantity;
+        request.quantity = min_quantity;
     }
 
     Json::Value json;
-    BinaCPP::send_order(request.symbol.c_str(), binance::serialize(request.side).c_str(), binance::serialize(request.type).c_str(), "GTC", quantity , 0, "", 0, 0, _config_test_mode, _config_recv_window, json);
+    BinaCPP::send_order(request.symbol.c_str(), binance::serialize(request.side).c_str(), type.c_str(), "GTC", request.quantity , 0, "", 0, 0, _config_recv_window, json);
 
     BinanceErrorData error(json, "BinanceController::createOrder");
     if (error.has()) {
@@ -383,9 +374,9 @@ double BinanceController::minQuantity(const std::string& symbol) const {
     const BinanceSymbolData::LotSize& lot_size = info.lotSize;
 
     Price price_avg = wrapper->getPriceAverage(min_notional.avgPriceMins * Timer::sMinute);
-    double quantity = std::max(lot_size.minQty, min_notional.minNotional / price_avg) *  1.2;
+    double quantity = std::max(lot_size.minQty, min_notional.minNotional / price_avg) *  1.3;
     if (info.lotSize.stepSize > 0.0)
-        quantity = util::ceil_steps(quantity, info.lotSize.stepSize);
+        quantity = std::round(quantity / info.lotSize.stepSize) * info.lotSize.stepSize;
     return quantity;
 }
 

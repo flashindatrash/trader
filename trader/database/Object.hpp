@@ -14,6 +14,7 @@ public: // methods
     Object() = default;
 
     void set(const Key& field, const Value& value);
+    Value inc(const Key& field, const Value& value);
     Value get(const Key& field) const;
 
     size_t size() const;

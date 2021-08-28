@@ -28,7 +28,7 @@ OrderManager::OrderManager(const Symbol& symbol)
     Logger::info("======");
 }
 
-bool OrderManager::create(const OrderRequest& request, const OrderWrapper* transaction) {
+bool OrderManager::create(OrderRequest& request, const OrderWrapper* transaction) {
     // проверяем, что достаточно средств
     if (not request.isEnough())
         return false;
@@ -78,7 +78,7 @@ void OrderManager::printOrder(const Symbol& symbol, const OrderWrapper* order, c
 
         double profit = std::abs(position->price() - symbol.price()) * position->baseQuantity();
         double total = DataManager::addProfit(symbol.quoteAsset(), profit);
-	double current = DataManager::addProfit(symbol, profit);
+	    double current = DataManager::addProfit(symbol, profit);
 
         std::string formatProfit = "%." + std::to_string(util::zeros_after_dot(profit) + 1) + "f";
         std::string formatSymbolProfit = "%." + std::to_string(util::zeros_after_dot(current) + 1) + "f";

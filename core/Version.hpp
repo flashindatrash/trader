@@ -1,9 +1,7 @@
 #pragma once
 
 namespace core {
-
-struct Version
-{
+struct Version {
 public: // constructors
     Version() = default;
     Version(int major, int minor, int patch = 0);

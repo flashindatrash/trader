@@ -61,12 +61,25 @@ Value::Bool Value::asBool() const {
     return asInt() == 1;
 }
 
+bool Value::isString() const {
+    return _type == TypeString;
+}
+
+bool Value::isNumeric() const {
+    return _type == TypeInt || _type == TypeDouble;
+}
+
 size_t Value::size() const {
     return _value.str.size();
 }
 
 bool Value::operator==(const Value& rhs) const {
     return _type == rhs._type && asString() == rhs.asString();
+}
+
+Value& Value::operator+=(const Value& rhs) {
+    _value.numeric += rhs._value.numeric;
+    return *this;
 }
 
 Value Value::parse(const char* value, unsigned long len) {

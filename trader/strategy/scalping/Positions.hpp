@@ -12,16 +12,19 @@ public: // methods
     void setSide(OrderSide value);
     void setBaseQuantity(Quantity value);
     void setQuoteQuantity(Quantity value);
+    void setTime(time_t value);
 
     Id id() const override;
     OrderSide side() const override;
     Quantity baseQuantity() const override;
     Quantity quoteQuantity() const override;
+    time_t time() const;
 };
 
 class Positions : public db::ArrayAbstract<Position> {
-public: // static
     typedef db::ArrayAbstract<Position> BaseClass;
+
+public: // static
     static Positions* create(const Symbol& pair, bool sync);
 
 public: // methods
@@ -31,13 +34,12 @@ public: // methods
     // last position by side
     const_iterator last(OrderSide side) const;
 
-    bool proceed_sync() const override;
-
 protected: // methods
     Positions(const db::Key& key, bool sync);
 
     bool proceed_push(Position& value) const override;
     bool proceed_erase(Position& value) const override;
+    bool proceed_sync() const override;
     void proceed_sort() override;
 
 protected: // vars

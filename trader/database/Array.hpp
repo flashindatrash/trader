@@ -10,6 +10,7 @@ private: // static
     typedef std::vector<T> VectorT;
 
     static bool find(const VectorValues& vector, const Value& value) {
+        // todo: refactor to predicate
         for (const Value& v : vector)
             if (v == value)
                 return true;

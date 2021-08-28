@@ -36,7 +36,7 @@ public: // virtual
 
     void listenCharts(ChartWrapper& container, ChartInterval interval) override;
 
-    const OrderWrapper* createOrder(BookWrapper& container, const OrderRequest& request) override;
+    const OrderWrapper* createOrder(BookWrapper& container, OrderRequest& request) override;
 
     double minQuantity(const std::string& symbol) const override;
 
@@ -55,8 +55,6 @@ private: // vars
     std::thread _thread;
     std::vector<BinanceWebsocket*> _websockets;
 
-    // creates and validates a new order but does not send it into the matching engine
-    bool _config_test_mode = false;
     // number of milliseconds after timestamp the request is valid
     unsigned int _config_recv_window = 5000;
 

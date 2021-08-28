@@ -34,10 +34,14 @@ public: // methods
     Double          asDouble() const;
     Bool            asBool() const;
 
+    bool isString() const;
+    bool isNumeric() const;
+
     size_t size() const;
 
 public: // operators
     bool operator==(const Value& rhs) const;
+    Value& operator+=(const Value& rhs);
     inline bool operator!=(const Value& rhs) const { return !(*this == rhs); }
 
 protected: // vars

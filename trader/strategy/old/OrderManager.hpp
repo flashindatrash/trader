@@ -13,7 +13,7 @@ class OrderManager {
 public: // methods
     OrderManager(const Symbol& symbol);
 
-    bool create(const OrderRequest& request, const OrderWrapper* position);
+    bool create(OrderRequest& request, const OrderWrapper* position);
 
     const std::vector<const OrderWrapper*>& getPositions() const;
 

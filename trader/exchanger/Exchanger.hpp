@@ -25,7 +25,7 @@ public: // methods
     bool loadCharts(const std::string& key, ChartInterval interval);
     void listenCharts(const std::string& key, ChartInterval interval);
 
-    const OrderWrapper* createOrder(const OrderRequest& request);
+    const OrderWrapper* createOrder(OrderRequest& request);
 
     double minQuantity(const std::string& key) const;
 

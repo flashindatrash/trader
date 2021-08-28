@@ -53,7 +53,7 @@ void ExchangerProxy::listenCharts(const std::string& key, ChartInterval interval
     _controller->listenCharts(*_charts.get(key), interval);
 }
 
-const OrderWrapper* ExchangerProxy::createOrder(const OrderRequest& request) {
+const OrderWrapper* ExchangerProxy::createOrder(OrderRequest& request) {
     return _controller->createOrder(*_books.get(request.symbol), request);
 }
 

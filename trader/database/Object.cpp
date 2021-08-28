@@ -15,6 +15,19 @@ void Object::set(const Key& field, const Value& value) {
     _invalidated = true;
 }
 
+Value Object::inc(const Key& field, const Value& value) {
+    // todo: check if there were any changes
+    auto it = _map.find(field);
+    if (it == _map.end()) {
+        _map[field] = value;
+        return value;
+    }
+
+    it->second += value;
+    _invalidated = true;
+    return it->second;
+}
+
 Value Object::get(const Key& field) const {
     auto it = _map.find(field);
     if (it == _map.end())

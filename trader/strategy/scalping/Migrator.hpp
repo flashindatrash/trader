@@ -9,9 +9,10 @@
 
 NS_BEGIN
 class Positions;
+class Statistics;
 
 class Migrator {
 public: // static
-    static void migrate(Positions* positions, const Symbol& symbol);
+    static void migrate(Positions* positions, Statistics* statistics, const Symbol& symbol, bool test);
 };
 NS_END

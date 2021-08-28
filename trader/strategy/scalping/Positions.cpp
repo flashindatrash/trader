@@ -1,3 +1,4 @@
+#include <Time.hpp>
 #include "Positions.hpp"
 
 NS_USE
@@ -5,6 +6,7 @@ NS_USE
 static const char* FIELD_SIDE = "side";
 static const char* FIELD_BASE_QUANTITY = "base_quantity";
 static const char* FIELD_QUOTE_QUANTITY = "quote_quantity";
+static const char* FIELD_TIME = "time";
 
 Position::Position(const db::Key& key)
     : db::Object(key)
@@ -39,8 +41,16 @@ void Position::setQuoteQuantity(Quantity value) {
     set(FIELD_QUOTE_QUANTITY, value);
 }
 
+time_t Position::time() const {
+    return get(FIELD_TIME).asInt();
+}
+
+void Position::setTime(time_t value) {
+    set(FIELD_TIME, (int)value);
+}
+
 Positions* Positions::create(const Symbol& pair, bool sync) {
-    auto* positions = new Positions("test:" + pair.id(), sync);
+    auto* positions = new Positions("positions:" + pair.id(), sync);
     return positions;
 }
 
@@ -56,6 +66,7 @@ bool Positions::proceed_push(Position& value) const {
     if (value.price() <= 0.0 || value.baseQuantity() <= 0.0 || value.side() == OrderSide::Invalid)
         return false;
 
+    value.setTime(Time().ms());
     return not proceed_sync() || value.save();
 }
 
