@@ -63,6 +63,22 @@ const Value Database::get(const std::string& key) {
     return Value::Empty;
 }
 
+bool Database::exists(const Key& key) {
+    if (redisReply* result = cmd("EXISTS %s", key.c_str())) {
+        if (result->type == REDIS_REPLY_INTEGER)
+            return result->integer == 1;
+    }
+    return false;
+}
+
+bool Database::rename(const Key& key, const Key& newKey) {
+    if (redisReply* result = cmd("RENAME %s %s", key.c_str(), newKey.c_str())) {
+        if (result->type == REDIS_REPLY_STATUS)
+            return true;
+    }
+    return false;
+}
+
 size_t Database::rpush(const Key& key, const Value& value) {
     if (redisReply* result = cmd("RPUSH %s %s", key.c_str(), value.asCString())) {
         if (result->type == REDIS_REPLY_INTEGER)

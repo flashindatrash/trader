@@ -27,7 +27,6 @@ Algorithm::~Algorithm() {
     }
 }
 
-#include "util/NumberUtil.hpp"
 bool Algorithm::init() {
     _positions = Positions::create(_settings.symbol, not _settings.test);
     _statistics = Statistics::create(_settings.symbol, not _settings.test);

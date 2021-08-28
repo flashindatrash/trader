@@ -9,7 +9,7 @@ NS_USE
 static const char* FIELD_PROFIT = "profit";
 
 Statistics* Statistics::create(const Symbol& pair, bool sync) {
-    auto* statistics = new Statistics("stats:" + pair.id(), sync);
+    auto* statistics = new Statistics(pair.id() + ":stats", sync);
     return statistics;
 }
 
