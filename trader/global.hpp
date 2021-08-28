@@ -5,6 +5,7 @@
 #include <functional>
 #include <algorithm>
 #include <vector>
+#include <math.h>
 
 #define SAFE_DELETE(p)           do { delete (p); (p) = nullptr; } while(0)
 

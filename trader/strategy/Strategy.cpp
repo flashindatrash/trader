@@ -9,7 +9,7 @@ Strategy* Strategy::create(const core::Config& config) {
 
     Strategy* strategy = nullptr;
 
-    if (type == "pair")
+    if (type == "scalping")
         strategy = new strategy::scalping::ScalpingStrategy();
 
     if (strategy == nullptr)

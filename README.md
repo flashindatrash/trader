@@ -46,7 +46,7 @@
 
 ##### устанавливаем бота 
 	cmake -DCMAKE_INSTALL_PREFIX=. -DCMAKE_BUILD_TYPE=Debug ..  
-	make insall  
+	sudo make insall  
 
 #### запускаем бота с аргументами  
 	~/Developer/traderbot/build/bin/trader -c ~/Developer/traderbot/config/test.cfg -s btc usdt  

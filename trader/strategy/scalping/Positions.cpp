@@ -96,8 +96,8 @@ Positions::const_iterator Positions::last(OrderSide side) const {
     switch (side) {
     case OrderSide::Buy: return compare_if(Predicates::buy, Compares::min);
     case OrderSide::Sell: return compare_if(Predicates::sell, Compares::max);
-    case OrderSide::Invalid: return cend();
     }
+    return cend();
 }
 
 // ---------- Predicates ----------
