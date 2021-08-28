@@ -13,8 +13,8 @@ OrderSide OrderWrapper::revert(OrderSide side) {
     switch (side) {
     case OrderSide::Buy: return OrderSide::Sell;
     case OrderSide::Sell: return OrderSide::Buy;
-    case OrderSide::Invalid: return OrderSide::Invalid;
     }
+    return OrderSide::Invalid;
 }
 
 void OrderWrapper::set(OrderStructure data) {

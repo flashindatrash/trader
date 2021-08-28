@@ -2,6 +2,7 @@
 
 #include "Object.hpp"
 #include "Database.hpp"
+#include <algorithm>
 
 namespace db {
 template<class T>
