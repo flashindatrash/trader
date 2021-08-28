@@ -20,6 +20,7 @@ Value Object::inc(const Key& field, const Value& value) {
     auto it = _map.find(field);
     if (it == _map.end()) {
         _map[field] = value;
+        _invalidated = true;
         return value;
     }
 
