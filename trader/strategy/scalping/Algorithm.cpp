@@ -1,5 +1,4 @@
 #include "Algorithm.hpp"
-#include "Settings.hpp"
 #include "Context.hpp"
 #include "Positions.hpp"
 #include "Statistics.hpp"
@@ -11,12 +10,12 @@
 
 NS_USE
 
-Algorithm* Algorithm::create(const Settings& settings) {
+Algorithm* Algorithm::create(const Settings settings) {
     auto* algorithm = new Algorithm(settings);
     return algorithm;
 }
 
-Algorithm::Algorithm(const Settings& settings)
+Algorithm::Algorithm(const Settings settings)
     : _settings(settings)
 {
 }
