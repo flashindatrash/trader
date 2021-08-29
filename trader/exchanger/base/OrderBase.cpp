@@ -20,6 +20,10 @@ Change OrderUtil::change(const Price& left, const Price& right) {
     return (right - left) / left;
 }
 
+Change OrderUtil::changeAbs(const Price& left, const Price& right) {
+    return std::abs(change(left, right));
+}
+
 Change OrderUtil::distance(OrderSide side, Price price, Price current) {
     switch (side) {
         case Buy: return current - price;
