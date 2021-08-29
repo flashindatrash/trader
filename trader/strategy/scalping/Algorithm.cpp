@@ -128,7 +128,7 @@ Algorithm::Result Algorithm::tryOpenPosition(const Context& context) {
     }
 
     // проверим, что средств достаточно для закрытия ближайшего противопложного шорта + лонга
-    const auto last_opposite = _positions->last(OrderWrapper::revert(request.side));
+/*    const auto last_opposite = _positions->last(OrderWrapper::revert(request.side));
     if (last_opposite != _positions->cend()) {
         // баланс, который используется для закрытия противоположной сделки
         Quantity balance = OrderUtil::usingQuantity(last_opposite->side(), request.symbol.baseAsset().getBalance(),
@@ -137,7 +137,7 @@ Algorithm::Result Algorithm::tryOpenPosition(const Context& context) {
         if (balance < last_opposite->expanses() + request_expanses)
             return OPEN_PROFIT_SUPPLY;
     }
-
+*/
     // убедимся, что достаточно средств для сделки
     if (not request.isEnough())
         return NOT_ENOUGH;
