@@ -9,8 +9,8 @@ Settings::Settings(const core::Config& config) {
     username = config.asString("REDIS_USERNAME");
     symbol = config.asString("SYMBOL");
     test = config.asBool("TEST");
-    open_price_percent = config.asDouble("OPEN_NEXT_PRICE_PERCENT") / 100.0;
-    open_lot_multiply = config.asDouble("OPEN_NEXT_LOT_MULTIPLY");
+    open_price_percent = config.asDouble("OPEN_PRICE_PERCENT") / 100.0;
+    open_lot_multiply = config.asDouble("OPEN_LOT_MULTIPLY");
     open_max_multiply = config.asDouble("OPEN_MAX_MULTIPLY");
     close_position_percent = config.asDouble("CLOSE_POSITION_PERCENT") / 100.0;
     balance_base_limit = config.asDouble("BALANCE_BASE_LIMIT");
