@@ -20,16 +20,16 @@ public: // methods
     const Price& priceOpen() const;
     const Price& priceClose() const;
 
-    const Price bodyLen() const;
-    const Price wickLen() const; // upper tail
-    const Price tailLen() const; // lowest tail
+    Price bodyLen() const;
+    Price wickLen() const; // upper tail
+    Price tailLen() const; // lowest tail
 
     bool isBullish() const; // green
     bool isBearish() const; // red
 
-    const Price hl2() const;
-    const Price hlc3() const;
-    const Price ohlc4() const;
+    Price hl2() const;
+    Price hlc3() const;
+    Price ohlc4() const;
 
     const time_t& timeOpen() const;
     const time_t& timeClose() const;

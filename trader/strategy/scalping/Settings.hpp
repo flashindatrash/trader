@@ -9,7 +9,7 @@ namespace core {
 NS_BEGIN
 struct Settings {
 public: // methods
-    Settings(const core::Config& config);
+    explicit Settings(const core::Config& config);
 
     bool isValid() const;
 
@@ -20,7 +20,7 @@ public: // vars
     std::string username;
 
     Symbol symbol;
-    bool test;
+    bool test = false;
     double open_next_price_percent = 0.0;
     double open_next_lot_multiply = 1.0;
     double close_position_percent = 0.0;

@@ -18,15 +18,15 @@ const Price& CandlestickWrapper::priceClose() const {
     return _data.price_close;
 }
 
-const Price CandlestickWrapper::bodyLen() const {
+Price CandlestickWrapper::bodyLen() const {
     return std::abs(_data.price_open - _data.price_close);
 }
 
-const Price CandlestickWrapper::wickLen() const {
+Price CandlestickWrapper::wickLen() const {
     return _data.price_high - std::max(_data.price_open, _data.price_close);
 }
 
-const Price CandlestickWrapper::tailLen() const {
+Price CandlestickWrapper::tailLen() const {
     return std::min(_data.price_open, _data.price_close) - _data.price_low;
 }
 
@@ -38,15 +38,15 @@ bool CandlestickWrapper::isBearish() const {
     return _data.price_open > _data.price_close;
 }
 
-const Price CandlestickWrapper::hl2() const {
+Price CandlestickWrapper::hl2() const {
     return (_data.price_high + _data.price_low) / 2.0;
 }
 
-const Price CandlestickWrapper::hlc3() const {
+Price CandlestickWrapper::hlc3() const {
     return (_data.price_high + _data.price_low + _data.price_close) / 3.0;
 }
 
-const Price CandlestickWrapper::ohlc4() const {
+Price CandlestickWrapper::ohlc4() const {
     return (_data.price_open + _data.price_high + _data.price_low + _data.price_close) / 4.0;
 }
 
