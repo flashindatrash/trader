@@ -110,10 +110,13 @@ Algorithm::Result Algorithm::tryOpenPosition(const Context& context) {
     if (last == _positions->cend()) {
         // это первая позиция в шорте или лонге, откроем ее с минимальным лотом
         request.quantity = Exchanger().minQuantity(request.symbol);
-    } else if (last->distance(context.price()) < -last->price() * _settings.open_next_price_percent) {
+    } else if (last->distance(context.price()) < -last->price() * _settings.open_price_percent) {
         // ближаяшая должна иметь дистанцию больше допустимого шага
         // открываем лот с умножением на коэфициент из конфига
-        request.quantity = last->baseQuantity() * _settings.open_next_lot_multiply;
+        request.quantity = last->baseQuantity() * _settings.open_lot_multiply;
+        // но с ограничением в максимум
+        if (_settings.open_max_multiply > 1.0)
+            request.quantity = std::min(request.quantity, Exchanger().minQuantity(request.symbol) * _settings.open_max_multiply);
     } else {
         // ближашая позиция уже имеет профит, или дистанция меньше допустимого шага
         // дождемся получения прибыли с нее, или изменению в проигрышную сторону
