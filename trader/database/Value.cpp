@@ -79,6 +79,7 @@ bool Value::operator==(const Value& rhs) const {
 
 Value& Value::operator+=(const Value& rhs) {
     _value.numeric += rhs._value.numeric;
+    _value.str = std::to_string(_value.numeric);
     return *this;
 }
 
