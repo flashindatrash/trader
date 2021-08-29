@@ -35,6 +35,9 @@ bool Algorithm::init() {
     _statistics = Statistics::create(_settings.username + ":" + _settings.symbol.id() + ":stats", not _settings.test);
     _status = Status::create(_settings.symbol);
     Migrator::migrate(_positions, _statistics, _settings.symbol, _settings.test);
+    for (auto it = _positions->cbegin(); it < _positions->cend(); ++it)
+        Status::addOrder(*it, "old");
+
     return true;
 }
 
