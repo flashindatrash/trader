@@ -35,5 +35,5 @@ void Status::update() {
 }
 
 void Status::addOrder(const OrderBase& order, std::string type) {
-    Logger::info("%s %s position %f for %f", type.c_str(), order.side() == OrderSide::Buy ? "Buy" : "Sell", order.baseQuantity(), order.price());
+    Logger::info("%s %s %f for %f", type.c_str(), order.side() == OrderSide::Buy ? "buy" : "sell", order.baseQuantity(), order.price());
 }
