@@ -1,10 +1,22 @@
 #include "Config.hpp"
 #include <fstream>
 #include <algorithm>
+#include <utility>
 
 using namespace core;
 
 bool Config::read(const char* path) {
+    // save file name
+    std::string p(path);
+    size_t slash = p.rfind('/', p.length());
+    size_t dot = p.rfind('.', p.length());
+    if (slash != std::string::npos && dot != std::string::npos && dot > slash) {
+        _name = p.substr(slash + 1, p.length() - dot);
+    }
+
+    if (_name.empty())
+        return false;
+
     // std::ifstream is RAII, i.e. no need to call close
     std::ifstream cFile(path);
     if (not cFile.is_open())
@@ -15,7 +27,7 @@ bool Config::read(const char* path) {
         line.erase(std::remove_if(line.begin(), line.end(), isspace), line.end());
         if(line[0] == '#' || line.empty())
             continue;
-        auto delimiterPos = line.find("=");
+        auto delimiterPos = line.find('=');
         auto name = line.substr(0, delimiterPos);
         auto value = line.substr(delimiterPos + 1);
         set(name, value);
@@ -24,7 +36,7 @@ bool Config::read(const char* path) {
 }
 
 void Config::set(const Key& key, std::string value) {
-    _values[key] = value;
+    _values[key] = std::move(value);
 }
 
 bool Config::has(const Key& key) const {
@@ -51,5 +63,9 @@ bool Config::asBool(const Key& key) const {
 
 double Config::asDouble(const Key& key) const {
     return atof(asString(key).c_str());
+}
+
+const std::string &Config::name() const {
+    return _name;
 }
 

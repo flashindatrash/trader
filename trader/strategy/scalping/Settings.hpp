@@ -17,6 +17,8 @@ protected: // methods
     Settings() = default;
 
 public: // vars
+    std::string username;
+
     Symbol symbol;
     bool test;
     double open_next_price_percent = 0.0;

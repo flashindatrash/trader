@@ -25,7 +25,7 @@ class Positions : public db::ArrayAbstract<Position> {
     typedef db::ArrayAbstract<Position> BaseClass;
 
 public: // static
-    static Positions* create(const Symbol& pair, bool sync);
+    static Positions* create(const db::Key& key, bool sync);
 
 public: // methods
     // create new order

@@ -8,8 +8,8 @@ NS_USE
 
 static const char* FIELD_PROFIT = "profit";
 
-Statistics* Statistics::create(const Symbol& pair, bool sync) {
-    auto* statistics = new Statistics(pair.id() + ":stats", sync);
+Statistics* Statistics::create(const db::Key& key, bool sync) {
+    auto* statistics = new Statistics(key, sync);
     return statistics;
 }
 
@@ -20,7 +20,7 @@ Statistics::Statistics(const db::Key& key, bool sync)
 }
 
 Quantity Statistics::addProfit(Quantity profit) {
-    Quantity result = inc("profit", profit).asDouble();
+    Quantity result = inc(FIELD_PROFIT, profit).asDouble();
     if (_sync) save();
     return result;
 }

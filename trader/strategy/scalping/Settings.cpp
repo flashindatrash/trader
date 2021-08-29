@@ -5,8 +5,8 @@
 
 NS_USE
 
-Settings::Settings(const core::Config& config)
-{
+Settings::Settings(const core::Config& config) {
+    username = config.asString("REDIS_USERNAME");
     symbol = config.asString("SYMBOL");
     test = config.asBool("TEST");
     open_next_price_percent = config.asDouble("OPEN_NEXT_PRICE_PERCENT") / 100.0;

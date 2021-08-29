@@ -13,6 +13,8 @@ public: // methods
 
     bool read(const char* path);
 
+    const std::string& name() const;
+
     void set(const Key& key, std::string value);
     bool has(const Key& key) const;
 
@@ -22,6 +24,7 @@ public: // methods
     double              asDouble(const Key& key) const;
 
 protected: // vars
+    std::string _name;
     std::unordered_map<std::string, std::string> _values;
 };
 

@@ -13,12 +13,6 @@
 NS_USE
 
 void Migrator::migrate(Positions* positions, Statistics* statistics, const Symbol& symbol, bool test) {
-    if (DB().exists("positions:" + symbol.id()))
-        DB().rename("positions:" + symbol.id(), symbol.id() + ":positions");
-
-    if (DB().exists("stats:" + symbol.id()))
-        DB().rename("stats:" + symbol.id(), symbol.id() + ":stats");
-
     if (Exchanger().loadOrders(symbol)) {
         const std::vector<const OrderWrapper*>& orders = Exchanger().book(symbol)->get();
         std::vector<std::string> keys = DB().keys("order:*");

@@ -11,7 +11,7 @@
 NS_BEGIN
 class Statistics : public db::Object {
 public: // static
-    static Statistics* create(const Symbol& pair, bool sync);
+    static Statistics* create(const db::Key& key, bool sync);
 
 public: // methods
     Quantity addProfit(Quantity profit);

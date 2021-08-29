@@ -49,8 +49,8 @@ void Position::setTime(time_t value) {
     set(FIELD_TIME, (int)value);
 }
 
-Positions* Positions::create(const Symbol& pair, bool sync) {
-    auto* positions = new Positions(pair.id() + ":positions", sync);
+Positions* Positions::create(const db::Key& key, bool sync) {
+    auto* positions = new Positions(key, sync);
     return positions;
 }
 

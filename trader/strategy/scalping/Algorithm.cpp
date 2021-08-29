@@ -2,6 +2,7 @@
 #include "Context.hpp"
 #include "Positions.hpp"
 #include "Statistics.hpp"
+#include "Status.hpp"
 #include "Migrator.hpp"
 #include "Logger.hpp"
 #include "exchanger/wrapper/CandlestickWrapper.hpp"
@@ -28,8 +29,9 @@ Algorithm::~Algorithm() {
 }
 
 bool Algorithm::init() {
-    _positions = Positions::create(_settings.symbol, not _settings.test);
-    _statistics = Statistics::create(_settings.symbol, not _settings.test);
+    _positions = Positions::create(_settings.username + ":" + _settings.symbol.id() + ":positions", not _settings.test);
+    _statistics = Statistics::create(_settings.username + ":" + _settings.symbol.id() + ":stats", not _settings.test);
+    _status = Status::create(_settings.symbol);
     Migrator::migrate(_positions, _statistics, _settings.symbol, _settings.test);
     return true;
 }
