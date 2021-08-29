@@ -37,6 +37,8 @@ bool Algorithm::init() {
 }
 
 void Algorithm::execute(const Context& context) {
+    _status->update();
+
     bool changed = false;
     changed |= tryClosePosition(context);
     changed |= tryOpenPosition(context);
@@ -63,22 +65,24 @@ bool Algorithm::tryClosePosition(const Context& context) {
 
     // создаем заказ (только не в тесте) и запоминаем цену закрытия
     Price closed_price;
-    if (_settings.test)
+    if (_settings.test) {
         closed_price = context.price();
-    else {
+    } else {
         const OrderWrapper* result = Exchanger().createOrder(request);
         if (result == nullptr)
             return false;
+
+        Status::addOrder(*result, "close");
         closed_price = result->price();
     }
 
     // добавим в статистику прибыль, которую получили из закрытой позиции
     Quantity profit = _statistics->addProfit(profitable->distance(closed_price) * request.quantity);
-    Logger::info("profit: %f", profit);
+    Logger::info("%sprofit: %f %s%s", GREEN, profit, request.symbol.quoteAsset().c_str(), RESET);
 
     // удалим из базы, результат удаления не важен, просто кинем сообщение
     if (not _positions->remove(*profitable))
-        Logger::info("can't delete order %s");
+        Logger::info("can't delete order %s", profitable->id().c_str());
 
     return true;
 }
@@ -149,10 +153,14 @@ bool Algorithm::tryOpenPosition(const Context& context) {
         if (not _positions->push(test))
             return false;
     } else {
-        if (not _positions->copy(Exchanger().createOrder(request)))
+        const OrderWrapper* result = Exchanger().createOrder(request);
+        if (not _positions->copy(result)) {
+            Logger::info("can't add order");
             return false;
+        }
+
+        Status::addOrder(*result, "open");
     }
 
-    Logger::info("open [%d] position %f for %f", request.side, request.quantity, context.price());
     return true;
 }

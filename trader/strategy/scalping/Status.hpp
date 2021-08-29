@@ -7,15 +7,22 @@
 
 #include "Defines.hpp"
 
+class OrderBase;
+
 NS_BEGIN
 class Status {
 public: // static
     static Status* create(const Symbol& symbol);
 
+    static void addOrder(const OrderBase& order, std::string type);
+
 public: // methods
-    void setSymbol(const Symbol& symbol);
+    void update();
 
 protected: // methods
-    Status() = default;
+    Status(const Symbol& symbol);
+
+protected: // vars
+    Symbol _symbol;
 };
 NS_END
