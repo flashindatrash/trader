@@ -42,11 +42,11 @@ void Position::setQuoteQuantity(Quantity value) {
 }
 
 time_t Position::time() const {
-    return get(FIELD_TIME).asInt();
+    return stol(get(FIELD_TIME).asString().substr(2));
 }
 
 void Position::setTime(time_t value) {
-    set(FIELD_TIME, (int)value);
+    set(FIELD_TIME, "t:" + std::to_string(value));
 }
 
 Positions* Positions::create(const db::Key& key, bool sync) {

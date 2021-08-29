@@ -6,7 +6,6 @@
 #include "Statistics.hpp"
 #include "Status.hpp"
 #include "Migrator.hpp"
-#include "Logger.hpp"
 #include "exchanger/wrapper/CandlestickWrapper.hpp"
 #include "exchanger/wrapper/OrderWrapper.hpp"
 #include "exchanger/Exchanger.hpp"
@@ -28,18 +27,24 @@ Algorithm::~Algorithm() {
         delete _positions;
         _positions = nullptr;
     }
+
+    if (_statistics != nullptr) {
+        delete _statistics;
+        _statistics = nullptr;
+    }
 }
 
 bool Algorithm::init() {
+    Status::setTitle(_settings.symbol);
     _positions = Positions::create(_settings.username + ":" + _settings.symbol.id() + ":positions", not _settings.test);
     _statistics = Statistics::create(_settings.username + ":" + _settings.symbol.id() + ":stats", not _settings.test);
-    _status = Status::create(_settings.symbol);
     Migrator::migrate(_positions, _statistics, _settings.symbol, _settings.test);
     return true;
 }
 
 void Algorithm::execute(const Context& context) {
-    _status->update(context, tryClosePosition(context), tryOpenPosition(context));
+    Result close = tryClosePosition(context);
+    Result open = tryOpenPosition(context);
 }
 
 Algorithm::Result Algorithm::tryClosePosition(const Context& context) {
@@ -70,7 +75,7 @@ Algorithm::Result Algorithm::tryClosePosition(const Context& context) {
         if (result == nullptr)
             return FAILED;
 
-        Status::addOrder(*result, "close");
+        Status::printOrder(*result, "close");
         closed_price = result->price();
     }
 
@@ -78,9 +83,8 @@ Algorithm::Result Algorithm::tryClosePosition(const Context& context) {
     Quantity profit = _statistics->addProfit(profitable->distance(closed_price) * request.quantity);
     Status::addProfit(profit);
 
-    // удалим из базы, результат удаления не важен, просто кинем сообщение
-    if (not _positions->remove(*profitable))
-        Logger::info("can't delete order %s", profitable->id().c_str());
+    // удалим из базы, результат удаления не важен
+    _positions->remove(*profitable);
 
     return OK;
 }
@@ -153,12 +157,10 @@ Algorithm::Result Algorithm::tryOpenPosition(const Context& context) {
             return FAILED;
     } else {
         const OrderWrapper* result = Exchanger().createOrder(request);
-        if (not _positions->copy(result)) {
-            Logger::info("can't add order");
+        if (not _positions->copy(result))
             return FAILED;
-        }
 
-        Status::addOrder(*result, "open");
+        Status::printOrder(*result, "open");
     }
 
     return OK;

@@ -28,6 +28,7 @@ Change OrderUtil::distance(OrderSide side, Price price, Price current) {
     switch (side) {
         case Buy: return current - price;
         case Sell: return price - current;
+        case Invalid: return 0.0;
     }
     return 0.0;
 }
@@ -36,6 +37,7 @@ Quantity OrderUtil::usingQuantity(OrderSide side, Quantity baseQuantity, Quantit
     switch (side) {
         case Buy: return quoteQuantity;
         case Sell: return baseQuantity;
+        case Invalid: return 0.0;
     }
     return 0.0;
 }
