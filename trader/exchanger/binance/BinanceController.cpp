@@ -339,6 +339,9 @@ const OrderWrapper* BinanceController::createOrder(BookWrapper& container, Order
         request.quantity = min_quantity;
     }
 
+    if (not request.isEnough())
+        return nullptr;
+
     Json::Value json;
     BinaCPP::send_order(request.symbol.c_str(), binance::serialize(request.side).c_str(), type.c_str(), "GTC", request.quantity , 0, "", 0, 0, _config_recv_window, json);
 

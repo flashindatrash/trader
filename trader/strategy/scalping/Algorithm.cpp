@@ -66,12 +66,13 @@ Algorithm::Result Algorithm::tryClosePosition(const Context& context) {
     // проверим достаточно ли средств для сделки
     request.side = OrderWrapper::revert(profitable->side());
     request.quantity = profitable->baseQuantity();
-    if (not request.isEnough())
-        return NOT_ENOUGH;
 
     // создаем заказ (только не в тесте) и запоминаем цену закрытия
     Price closed_price;
     if (_settings.test) {
+        if (not request.isEnough())
+            return NOT_ENOUGH;
+
         closed_price = context.price();
     } else {
         const OrderWrapper* result = Exchanger().createOrder(request);
@@ -149,11 +150,11 @@ Algorithm::Result Algorithm::tryOpenPosition(const Context& context) {
             return OPEN_PROFIT_SUPPLY;
     }
 
-    // убедимся, что достаточно средств для сделки
-    if (not request.isEnough())
-        return NOT_ENOUGH;
-
     if (_settings.test) {
+        // убедимся, что достаточно средств для сделки
+        if (not request.isEnough())
+            return NOT_ENOUGH;
+
         static int sTestId = 1;
         Position test("test" + std::to_string(++sTestId));
         test.setBaseQuantity(request.quantity);
