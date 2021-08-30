@@ -130,7 +130,7 @@ bool Algorithm::tryOpenPosition(const Context& context) {
     } else {
         // ближашая позиция уже имеет профит, или дистанция меньше допустимого шага
         // дождемся получения прибыли с нее, или изменению в проигрышную сторону
-        Logger::trace("open: waiting profit");
+        Logger::trace("open: waiting profit side(%d) price(%f) current(%f)", request.side, last->price(), context.price());
         return false;
     }
 
