@@ -28,7 +28,7 @@ bool ScalpingStrategy::init(const core::Config& config) {
     if (not _runner->init(settings))
         return false;
 
-    Exchanger().listenCharts(settings.symbol, ChartInterval::m15);
+    Exchanger().listenCharts(settings.symbol, ChartInterval::m5);
     return true;
 }
 
