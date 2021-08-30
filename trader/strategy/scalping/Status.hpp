@@ -13,6 +13,6 @@ class Status {
 public: // static
     static void setTitle(const Symbol& symbol);
     static void printOrder(const OrderBase& order, const std::string& type);
-    static void addProfit(Quantity profit);
+    static void addProfit(Quantity profit, const Symbol& symbol);
 };
 NS_END
