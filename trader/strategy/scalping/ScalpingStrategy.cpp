@@ -1,6 +1,7 @@
 #include "ScalpingStrategy.hpp"
 #include <global.hpp>
 #include "Config.hpp"
+#include "Logger.hpp"
 #include "Settings.hpp"
 #include "Runner.hpp"
 #include "Algorithm.hpp"
@@ -18,6 +19,8 @@ bool ScalpingStrategy::init(const core::Config& config) {
     Settings settings(config);
     if (not settings.isValid())
         return false;
+
+    Logger::setLogfile(std::string("/tmp/" + settings.uniqId() + ".log").c_str());
 
     _algorithm = Algorithm::create(settings);
     if (not _algorithm->init())

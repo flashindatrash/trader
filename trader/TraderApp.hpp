@@ -17,8 +17,8 @@ public: // methods
     int run();
 
 protected: // methods
-    TraderApp(const core::Config& config);
-    virtual ~TraderApp();
+    explicit TraderApp(const core::Config& config);
+    ~TraderApp() override;
 
 protected: // vars
     Strategy* _strategy = nullptr;

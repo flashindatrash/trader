@@ -5,7 +5,7 @@
 #include "exchanger/Exchanger.hpp"
 #include "strategy/Strategy.hpp"
 
-core::Version TraderApp::sVersion = core::Version(1, 2, 1);
+core::Version TraderApp::sVersion = core::Version(1, 2, 2);
 
 TraderApp::TraderApp(const core::Config& config)
     : core::App(config)
@@ -20,7 +20,7 @@ TraderApp::~TraderApp() {
 }
 
 TraderApp* TraderApp::create(const core::Config& config) {
-    TraderApp* app = new TraderApp(config);
+    auto* app = new TraderApp(config);
     return app;
 }
 

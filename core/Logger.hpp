@@ -1,12 +1,5 @@
 #pragma once
 
-#include <stdlib.h>
-#include <iostream>
-#include <sys/time.h>
-#include <csignal>
-#include <cstdarg>
-#include "Time.hpp"
-
 //the following are UBUNTU/LINUX, and MacOS ONLY terminal color codes.
 #define RESET   "\033[0m"
 #define BLACK   "\033[30m"      /* Black */
@@ -29,45 +22,16 @@
 #define ESCSTART    "\033]0;"
 #define ESCEND      "\007"
 
-
 class Logger {
 public: //
-    static void info(const char* fmt, ...) {
-        va_list arg;
+    static void title(const char* fmt, ...);
+    static void info(const char* fmt, ...);
+    static void trace(const char* fmt, ...);
+    static void error(const char* msg);
 
-        char new_fmt[1024];
+    static void setLogfile(const char* filename);
+private: // static
+    static const char* _log_file;
 
-        time_t t = Time().sec();
-        struct tm* now = localtime(&t);
-
-        sprintf(new_fmt, "[%04d/%02d/%02d %02d:%02d:%02d] T: %s\n", now->tm_year + 1900, now->tm_mon + 1, now->tm_mday, now->tm_hour, now->tm_min, now->tm_sec, fmt);
-
-        va_start(arg, fmt);
-
-        vfprintf(stdout, new_fmt, arg);
-        fflush(stdout);
-
-        va_end (arg);
-    }
-
-    static void title(const char* fmt, ...) {
-        if (getenv("QT_TERMINAL") != nullptr)
-            return;
-
-        va_list arg;
-
-        va_start(arg, fmt);
-
-        std::cout << ESCSTART;
-        vfprintf(stdout, fmt, arg);
-        std::cout << ESCEND;
-        fflush(stdout);
-
-        va_end (arg);
-    }
-
-    static void error(const char* msg) {
-        info("Error! %s", msg);
-        // std::raise(SIGSEGV);
-    }
+    static const char* format(const char* fmt);
 };

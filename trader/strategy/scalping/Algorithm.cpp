@@ -1,6 +1,7 @@
 #include "Algorithm.hpp"
 
 #include <utility>
+#include "Logger.hpp"
 #include "Context.hpp"
 #include "Positions.hpp"
 #include "Statistics.hpp"
@@ -35,9 +36,10 @@ Algorithm::~Algorithm() {
 }
 
 bool Algorithm::init() {
+    Logger::trace("init");
     Status::setTitle(_settings.symbol);
-    _positions = Positions::create(_settings.username + ":" + _settings.symbol.id() + ":positions", not _settings.test);
-    _statistics = Statistics::create(_settings.username + ":" + _settings.symbol.id() + ":stats", not _settings.test);
+    _positions = Positions::create(_settings.uniqId() + ":positions", not _settings.test);
+    _statistics = Statistics::create(_settings.uniqId() + ":stats", not _settings.test);
     Migrator::migrate(_positions, _statistics, _settings.symbol, _settings.test);
     for (auto it = _positions->cbegin(); it < _positions->cend(); ++it)
         Status::printOrder(*it, "old");
@@ -46,22 +48,28 @@ bool Algorithm::init() {
 }
 
 void Algorithm::execute(const Context& context) {
-    Result close = tryClosePosition(context);
-    Result open = tryOpenPosition(context);
+    bool close = tryClosePosition(context);
+    bool open = tryOpenPosition(context);
 }
 
-Algorithm::Result Algorithm::tryClosePosition(const Context& context) {
+bool Algorithm::tryClosePosition(const Context& context) {
     OrderRequest request;
     request.symbol = _settings.symbol;
 
     // самая выгодная лонг или шорт позиция
     const auto profitable = _positions->compare(Compares::distance(context.price()));
-    if (profitable == _positions->cend())
-        return CLOSE_NOT_EXISTS;
+    if (profitable == _positions->cend()) {
+        Logger::trace("close: hasn't profit for price %f", context.price());
+        return false;
+    }
 
     // интересует только те, у которых изменилась цена выше указанного порога
-    if (profitable->distance(context.price()) < profitable->price() * _settings.close_position_percent)
-        return CLOSE_NON_PROFITABLE;
+    Change distance_current = profitable->distance(context.price());
+    Change distance_waited = profitable->price() * _settings.close_position_percent;
+    if (distance_current < distance_waited) {
+        Logger::trace("close: distance current (%f) < waited(%f)", distance_current, distance_waited);
+        return false;
+    }
 
     // проверим достаточно ли средств для сделки
     request.side = OrderWrapper::revert(profitable->side());
@@ -73,8 +81,10 @@ Algorithm::Result Algorithm::tryClosePosition(const Context& context) {
         closed_price = context.price();
     } else {
         const OrderWrapper* result = Exchanger().createOrder(request);
-        if (result == nullptr)
-            return FAILED;
+        if (result == nullptr) {
+            Logger::trace("close: failed create %d position with %f quantity", request.side, request.quantity);
+            return false;
+        }
 
         Status::printOrder(*result, "close");
         closed_price = result->price();
@@ -87,10 +97,10 @@ Algorithm::Result Algorithm::tryClosePosition(const Context& context) {
     // удалим из базы, результат удаления не важен
     _positions->remove(*profitable);
 
-    return OK;
+    return true;
 }
 
-Algorithm::Result Algorithm::tryOpenPosition(const Context& context) {
+bool Algorithm::tryOpenPosition(const Context& context) {
     OrderRequest request;
     request.symbol = _settings.symbol;
 
@@ -98,8 +108,10 @@ Algorithm::Result Algorithm::tryOpenPosition(const Context& context) {
     // пока довольно примитивно по направлению свечи
     Change change = OrderUtil::change(context.candlestick->priceOpen(), context.candlestick->priceClose());
     request.side = change > 0.0 ? OrderSide::Sell : change < 0.0 ? OrderSide::Buy : OrderSide::Invalid;
-    if (request.side == OrderSide::Invalid)
-        return INVALID;
+    if (request.side == OrderSide::Invalid) {
+        Logger::trace("open: neutral candlestick");
+        return false;
+    }
 
     // найдем последнюю лонг или шорт позицию
     // проверим, можно ли нам войти еще раз в нее же
@@ -118,7 +130,8 @@ Algorithm::Result Algorithm::tryOpenPosition(const Context& context) {
     } else {
         // ближашая позиция уже имеет профит, или дистанция меньше допустимого шага
         // дождемся получения прибыли с нее, или изменению в проигрышную сторону
-        return OPEN_WAIT_PROFIT;
+        Logger::trace("open: waiting profit");
+        return false;
     }
 
     // посчитаем расход данной сделки
@@ -131,8 +144,10 @@ Algorithm::Result Algorithm::tryOpenPosition(const Context& context) {
         const auto total = _positions->summarize<Quantity>(Predicates::side(request.side),
                                                            Summarizes::expanses);
         // добавим к общей суммарному вкладу открытых позиций и ту, которую хотим добавить
-        if (limit < total + request_expanses)
-            return OPEN_LIMIT;
+        if (limit < total + request_expanses) {
+            Logger::trace("open: reach limit %d orders", request.side);
+            return false;
+        }
     }
 
     // проверим, что средств достаточно для закрытия ближайшего противопложного шорта + лонга
@@ -143,8 +158,11 @@ Algorithm::Result Algorithm::tryOpenPosition(const Context& context) {
         Quantity balance = OrderUtil::usingQuantity(last_opposite->side(), request.symbol.baseAsset().getBalance(),
                                                     request.symbol.quoteAsset().getBalance());
         // баланс должен быть выше суммы сделки на закрытие и оперируемой
-        if (balance < last_opposite->expanses() + request_expanses)
-            return OPEN_PROFIT_SUPPLY;
+        Quantity frozen = last_opposite->expanses() + request_expanses;
+        if (balance < frozen) {
+            Logger::trace("open: balance (%f) < frozen (%f)", balance, frozen);
+            return false;
+        }
     }
 
     if (_settings.test) {
@@ -153,15 +171,19 @@ Algorithm::Result Algorithm::tryOpenPosition(const Context& context) {
         test.setBaseQuantity(request.quantity);
         test.setQuoteQuantity(request.quantity * context.price());
         test.setSide(request.side);
-        if (not _positions->push(test))
-            return FAILED;
+        if (not _positions->push(test)) {
+            Logger::trace("open: failed to push");
+            return false;
+        }
     } else {
         const OrderWrapper* result = Exchanger().createOrder(request);
-        if (not _positions->copy(result))
-            return FAILED;
+        if (not _positions->copy(result)) {
+            Logger::trace("open: failed create %d position with %f quantity", request.side, request.quantity);
+            return false;
+        }
 
         Status::printOrder(*result, "open");
     }
 
-    return OK;
+    return true;
 }

@@ -11,6 +11,7 @@ struct Settings {
 public: // methods
     explicit Settings(const core::Config& config);
 
+    std::string uniqId() const;
     bool isValid() const;
 
 protected: // methods

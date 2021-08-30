@@ -24,12 +24,12 @@ bool Settings::isValid() const {
     }
 
     if (open_price_percent < 0.0) {
-        Logger::info("Invalid OPEN_NEXT_PRICE_PERCENT settings (%f)", open_price_percent);
+        Logger::info("Invalid OPEN_PRICE_PERCENT settings (%f)", open_price_percent);
         return false;
     }
 
     if (open_lot_multiply < 1.0) {
-        Logger::info("Invalid OPEN_NEXT_LOT_MULTIPLY settings (%f)", open_lot_multiply);
+        Logger::info("Invalid OPEN_LOT_MULTIPLY settings (%f)", open_lot_multiply);
         return false;
     }
 
@@ -39,4 +39,8 @@ bool Settings::isValid() const {
     }
 
     return true;
+}
+
+std::string Settings::uniqId() const {
+    return username + ":" + symbol.id();
 }

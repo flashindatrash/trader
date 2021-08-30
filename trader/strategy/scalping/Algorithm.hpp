@@ -12,18 +12,6 @@ class Algorithm {
 public: // static
     static Algorithm* create(const Settings& settings);
 
-    enum Result {
-        OK,
-        INVALID,
-        FAILED,
-        NOT_ENOUGH,
-        CLOSE_NOT_EXISTS,
-        CLOSE_NON_PROFITABLE,
-        OPEN_WAIT_PROFIT,
-        OPEN_LIMIT,
-        OPEN_PROFIT_SUPPLY
-    };
-
 public: // methods
     virtual ~Algorithm();
 
@@ -33,8 +21,8 @@ public: // methods
 protected: // methods
     explicit Algorithm(Settings settings);
 
-    Result tryClosePosition(const Context& context);
-    Result tryOpenPosition(const Context& context);
+    bool tryClosePosition(const Context& context);
+    bool tryOpenPosition(const Context& context);
 
 protected: // vars
     const Settings _settings;
