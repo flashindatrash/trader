@@ -18,5 +18,5 @@ void Status::printOrder(const OrderBase& order, const std::string& type) {
 }
 
 void Status::addProfit(Quantity profit, const Symbol& symbol) {
-    Logger::info("%sprofit: %f (%f %s, %f %s)%s", GREEN, profit, symbol.baseAsset().getBalance(), symbol.baseAsset().c_str(), symbol.quoteAsset().getBalance(), symbol.quoteAsset().c_str() RESET);
+    Logger::info("%sprofit: %f (%f %s, %f %s)%s", GREEN, profit, symbol.baseAsset().getBalance(), symbol.baseAsset().c_str(), symbol.quoteAsset().getBalance(), symbol.quoteAsset().c_str(), RESET);
 }
