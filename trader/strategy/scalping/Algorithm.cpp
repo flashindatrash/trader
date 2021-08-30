@@ -70,9 +70,6 @@ Algorithm::Result Algorithm::tryClosePosition(const Context& context) {
     // создаем заказ (только не в тесте) и запоминаем цену закрытия
     Price closed_price;
     if (_settings.test) {
-        if (not request.isEnough())
-            return NOT_ENOUGH;
-
         closed_price = context.price();
     } else {
         const OrderWrapper* result = Exchanger().createOrder(request);
@@ -151,10 +148,6 @@ Algorithm::Result Algorithm::tryOpenPosition(const Context& context) {
     }
 
     if (_settings.test) {
-        // убедимся, что достаточно средств для сделки
-        if (not request.isEnough())
-            return NOT_ENOUGH;
-
         static int sTestId = 1;
         Position test("test" + std::to_string(++sTestId));
         test.setBaseQuantity(request.quantity);
