@@ -11,7 +11,7 @@
 #include <cstdarg>
 #include "Time.hpp"
 
-const char* Logger::_log_file = "traderbot";
+const char* Logger::_log_file = "/tmp/traderbot.log";
 
 void Logger::title(const char* fmt, ...) {
     if (getenv("QT_TERMINAL") != nullptr)
@@ -39,12 +39,9 @@ void Logger::info(const char* fmt, ...) {
 void Logger::trace(const char* fmt, ...) {
     static FILE* file = nullptr;
     if (file == nullptr) {
-        std::string path = "/tmp/";
-        path.append(_log_file);
-        path.append(".log");
-        file = fopen(path.c_str(), "wa");
+        file = fopen(_log_file, "wa");
         if (file) {
-            info("log file in %s", path.c_str());
+            info("log file in %s", _log_file);
         } else {
             info("failed to open log file");
         }
@@ -65,8 +62,8 @@ void Logger::error(const char* msg) {
     // std::raise(SIGSEGV);
 }
 
-void Logger::setLogfile(const char* filename) {
-    _log_file = filename;
+void Logger::setLogfile(std::string filename) {
+    _log_file = filename.c_str();
 }
 
 const char* Logger::format(const char* fmt) {

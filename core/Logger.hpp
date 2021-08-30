@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 //the following are UBUNTU/LINUX, and MacOS ONLY terminal color codes.
 #define RESET   "\033[0m"
 #define BLACK   "\033[30m"      /* Black */
@@ -29,7 +31,7 @@ public: //
     static void trace(const char* fmt, ...);
     static void error(const char* msg);
 
-    static void setLogfile(const char* filename);
+    static void setLogfile(std::string filename);
 private: // static
     static const char* _log_file;
 
