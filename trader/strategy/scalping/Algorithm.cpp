@@ -36,9 +36,8 @@ Algorithm::~Algorithm() {
 }
 
 bool Algorithm::init() {
-    Logger::trace("init");
     Status::setTitle(_settings.symbol);
-    Logger::setLogfile("/tmp/test.log");
+    Logger::setLogfile(_settings.uniqId().c_str());
     _positions = Positions::create(_settings.uniqId() + ":positions", not _settings.test);
     _statistics = Statistics::create(_settings.uniqId() + ":stats", not _settings.test);
     Migrator::migrate(_positions, _statistics, _settings.symbol, _settings.test);
