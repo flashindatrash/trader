@@ -37,7 +37,7 @@ Algorithm::~Algorithm() {
 
 bool Algorithm::init() {
     Status::setTitle(_settings.symbol);
-    Logger::setLogfile(std::string("/tmp/" + _settings.uniqId() + ".log").c_str());
+    Logger::setLogfile("/tmp/" + _settings.uniqId() + ".log");
     _positions = Positions::create(_settings.uniqId() + ":positions", not _settings.test);
     _statistics = Statistics::create(_settings.uniqId() + ":stats", not _settings.test);
     Migrator::migrate(_positions, _statistics, _settings.symbol, _settings.test);
