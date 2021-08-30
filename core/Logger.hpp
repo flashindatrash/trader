@@ -33,7 +33,7 @@ public: //
 
     static void setLogfile(std::string filename);
 private: // static
-    static const char* _log_file;
+    static std::string _log_file;
 
     static const char* format(const char* fmt);
 };
