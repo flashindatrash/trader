@@ -40,6 +40,7 @@ bool Algorithm::init() {
     _positions = Positions::create(_settings.uniqId() + ":positions", not _settings.test);
     _statistics = Statistics::create(_settings.uniqId() + ":stats", not _settings.test);
     Migrator::migrate(_positions, _statistics, _settings.symbol, _settings.test);
+    Status::printTimeline(*_positions, _settings.symbol.price());
     return true;
 }
 
