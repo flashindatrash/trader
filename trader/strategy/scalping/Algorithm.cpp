@@ -128,19 +128,16 @@ bool Algorithm::tryOpenPosition(const Context& context) {
         // но с ограничением в максимум
         if (_settings.open_max_multiply > 1.0)
             request.quantity = std::min(request.quantity, Exchanger().minQuantity(request.symbol) * _settings.open_max_multiply);
+    } if (not OrderRequest::isEnough(_settings.symbol, OrderWrapper::revert(request.side), last->baseQuantity())) {
+        // произошла беда, мы потратили все деньги, и не можем закрыть сделку
+        // в рамках экстренной ситуации выполняем сделку с минимальным лотом (даже не смотря на то, что какая-то в профите)
+        Logger::trace("open: emergency");
+        request.quantity = Exchanger().minQuantity(request.symbol);
     } else {
-        request.quantity = last->baseQuantity();
-        if (not request.isEnough()) {
-            // произошла беда, мы потратили все деньги, и не можем закрыть сделку
-            // в рамках экстренной ситуации выполняем сделку с минимальным лотом
-            Logger::trace("open: emergency");
-            request.quantity = Exchanger().minQuantity(request.symbol);
-        } else {
-            // ближашая позиция уже имеет профит, или дистанция меньше допустимого шага
-            // дождемся получения прибыли с нее, или изменению в проигрышную сторону
-            Logger::trace("open: waiting profit [%d]", last->side());
-            return false;
-        }
+        // ближашая позиция уже имеет профит, или дистанция меньше допустимого шага
+        // дождемся получения прибыли с нее, или изменению в проигрышную сторону
+        Logger::trace("open: waiting profit [%d]", last->side());
+        return false;
     }
 
     // посчитаем расход данной сделки

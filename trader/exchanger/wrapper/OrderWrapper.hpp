@@ -21,6 +21,7 @@ struct OrderRequest {
     OrderType type = Market;
 
     bool isEnough() const;
+    static bool isEnough(const Symbol& symbol, OrderSide side, Quantity quantity);
 };
 
 class OrderWrapper : public OrderBase {

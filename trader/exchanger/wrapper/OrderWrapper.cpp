@@ -38,6 +38,10 @@ Quantity OrderWrapper::quoteQuantity() const {
 }
 
 bool OrderRequest::isEnough() const {
+    return isEnough(symbol, side, quantity);
+}
+
+bool OrderRequest::isEnough(const Symbol& symbol, OrderSide side, Quantity quantity) {
     // допускаем погрешность
     static const double error = 1.3;
 
