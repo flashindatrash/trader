@@ -128,7 +128,7 @@ bool Algorithm::tryOpenPosition(const Context& context) {
         // но с ограничением в максимум
         if (_settings.open_max_multiply > 1.0)
             request.quantity = std::min(request.quantity, Exchanger().minQuantity(request.symbol) * _settings.open_max_multiply);
-    } if (not OrderRequest::isEnough(_settings.symbol, OrderWrapper::revert(request.side), last->baseQuantity())) {
+    } else if (not OrderRequest::isEnough(_settings.symbol, OrderWrapper::revert(request.side), last->baseQuantity())) {
         // произошла беда, мы потратили все деньги, и не можем закрыть сделку
         // в рамках экстренной ситуации выполняем сделку с минимальным лотом (даже не смотря на то, что какая-то в профите)
         Logger::trace("open: emergency");
