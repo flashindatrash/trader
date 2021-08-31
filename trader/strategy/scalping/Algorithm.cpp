@@ -132,7 +132,8 @@ bool Algorithm::tryOpenPosition(const Context& context) {
         // произошла беда, мы потратили все деньги, и не можем закрыть сделку
         // в рамках экстренной ситуации выполняем сделку с минимальным лотом (даже не смотря на то, что какая-то в профите)
         Logger::trace("open: emergency");
-        request.quantity = Exchanger().minQuantity(request.symbol);
+        // request.quantity = Exchanger().minQuantity(request.symbol);
+        return false;
     } else {
         // ближашая позиция уже имеет профит, или дистанция меньше допустимого шага
         // дождемся получения прибыли с нее, или изменению в проигрышную сторону
