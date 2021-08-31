@@ -38,9 +38,10 @@ Quantity OrderWrapper::quoteQuantity() const {
 }
 
 bool OrderRequest::isEnough() const {
-    if (side == OrderSide::Buy)
-        return symbol.quoteAsset().getBalance() > symbol.price(quantity);
-    else if (side == OrderSide::Sell)
-        return symbol.baseAsset().getBalance() > quantity;
-    return false;
+    // допускаем погрешность
+    static const double error = 1.1;
+
+    Quantity balance = OrderUtil::usingQuantity(side, symbol.baseAsset().getBalance(), symbol.quoteAsset().getBalance());
+    Quantity cost = OrderUtil::usingQuantity(side, quantity, symbol.price(quantity));
+    return balance > cost * error;
 }

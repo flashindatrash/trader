@@ -84,7 +84,7 @@ bool BinanceController::loadPairs(Storage::Type_pair& container) const {
 
     BinanceErrorData error(json, "BinanceController::loadPairs");
     if (error.has()) {
-        Logger::error(error.msg.c_str());
+        Logger::info("%s [%d]", error.msg.c_str(), error.code);
         return false;
     }
 
@@ -96,8 +96,8 @@ bool BinanceController::loadPairs(Storage::Type_pair& container) const {
     }
 
     _symbols.clear();
-    for (uint i = 0; i < symbols.size(); ++i) {
-        BinanceSymbolData data(symbols[i]);
+    for (const auto & it : symbols) {
+        BinanceSymbolData data(it);
         if (Symbol* symbol = container.get(data.symbol))
             symbol->set(data.baseAsset, data.quoteAsset);
         _symbols[data.symbol] = data;
@@ -112,7 +112,7 @@ bool BinanceController::loadPrices(Storage::Type_price& container) const {
 
     BinanceErrorData error(json, "BinanceController::loadPrices");
     if (error.has()) {
-        Logger::error(error.msg.c_str());
+        Logger::info("%s [%d]", error.msg.c_str(), error.code);
         return false;
     }
 
@@ -122,8 +122,7 @@ bool BinanceController::loadPrices(Storage::Type_price& container) const {
         return false;
     }
 
-    for (uint i = 0; i < json.size(); ++i) {
-        const Json::Value& data = json[i];
+    for (auto & data : json) {
         std::string symbol = data["symbol"].asString();
         Price price = atof(data["price"].asString().c_str());
         container.get(symbol)->add(price);
@@ -138,7 +137,7 @@ bool BinanceController::loadBalances(Storage::Type_balance& container) const {
 
     BinanceErrorData error(json, "BinanceController::loadBalances");
     if (error.has()) {
-        Logger::error(error.msg.c_str());
+        Logger::info("%s [%d]", error.msg.c_str(), error.code);
         return false;
     }
 
@@ -149,8 +148,8 @@ bool BinanceController::loadBalances(Storage::Type_balance& container) const {
         return false;
     }
 
-    for (uint i = 0; i < balances.size(); ++i) {
-        BinanceBalanceData data(balances[i], false);
+    for (const auto & balance : balances) {
+        BinanceBalanceData data(balance, false);
         container.get(data.asset)->set(data.free, data.locked);
     }
     return true;
@@ -162,7 +161,7 @@ bool BinanceController::loadStats(CandlestickWrapper& container) const {
 
     BinanceErrorData error(json, "BinanceController::loadStats");
     if (error.has()) {
-        Logger::error(error.msg.c_str());
+        Logger::info("%s [%d]", error.msg.c_str(), error.code);
         return false;
     }
 
@@ -182,7 +181,7 @@ bool BinanceController::loadCharts(ChartWrapper& container, ChartInterval interv
 
     BinanceErrorData error(json, "BinanceController::loadCharts");
     if (error.has()) {
-        Logger::error(error.msg.c_str());
+        Logger::info("%s [%d]", error.msg.c_str(), error.code);
         return false;
     }
 
@@ -192,8 +191,7 @@ bool BinanceController::loadCharts(ChartWrapper& container, ChartInterval interv
         return false;
     }
 
-    for (Json::ArrayIndex i = 0; i < json.size(); ++i) {
-        Json::Value& item = json[i];
+    for (auto & item : json) {
         if (container.add(BinanceKlineData(item)) == nullptr)
             Logger::info("BinanceController::loadCharts: invalid kline %s", item.toStyledString().c_str());
     }
@@ -209,7 +207,7 @@ bool BinanceController::loadOrders(BookWrapper& container) const {
 
     BinanceErrorData error(json, "BinanceController::loadOrders");
     if (error.has()) {
-        Logger::error(error.msg.c_str());
+        Logger::info("%s [%d]", error.msg.c_str(), error.code);
         return false;
     }
 
@@ -219,9 +217,8 @@ bool BinanceController::loadOrders(BookWrapper& container) const {
         return false;
     }
 
-    for (uint i = 0; i < json.size(); ++i) {
-        Json::Value item = json[i];
-        if (not container.add(BinanceOrderData(json[i], false)))
+    for (const auto& item : json) {
+        if (not container.add(BinanceOrderData(item, false)))
             Logger::info("BinanceController::loadOrders: invalid order: %s", item.toStyledString().c_str());
     }
 
@@ -255,7 +252,7 @@ bool BinanceController::initUserListenKey() {
     BinaCPP::start_userDataStream(json);
     BinanceErrorData error(json, "BinanceController::initUserListenKey");
     if (error.has()) {
-        Logger::error(error.msg.c_str());
+        Logger::info("%s [%d]", error.msg.c_str(), error.code);
         return false;
     }
 
@@ -346,7 +343,7 @@ const OrderWrapper* BinanceController::createOrder(BookWrapper& container, Order
 
     BinanceErrorData error(json, "BinanceController::createOrder");
     if (error.has()) {
-        Logger::info("%s", error.msg.c_str());
+        Logger::info("%s [%d]", error.msg.c_str(), error.code);
         return nullptr;
     }
 
