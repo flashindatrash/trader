@@ -69,7 +69,7 @@ public: // static
 
 class Summarizes {
 public: // static
-    static Quantity expanses(const Position& position);
+    static std::function<Quantity(const Position&)> expanses(OrderSide side);
 };
 
 NS_END

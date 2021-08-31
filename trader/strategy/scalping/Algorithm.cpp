@@ -141,8 +141,7 @@ bool Algorithm::tryOpenPosition(const Context& context) {
     // нас итересует только конкретная одна валюта, с которой собираемся оперировать
     const Quantity limit = request.side == OrderSide::Sell ? _settings.balance_base_limit : _settings.balance_quote_limit;
     if (limit >= 0.0) {
-        const auto total = _positions->summarize<Quantity>(Predicates::side(request.side),
-                                                           Summarizes::expanses);
+        const auto total = _positions->summarize<Quantity>(Summarizes::expanses(request.side));
         // добавим к общей суммарному вкладу открытых позиций и ту, которую хотим добавить
         if (limit < total + request_expanses) {
             Logger::trace("open: reach limit %d orders", request.side);

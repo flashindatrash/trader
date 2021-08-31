@@ -39,7 +39,7 @@ Quantity OrderWrapper::quoteQuantity() const {
 
 bool OrderRequest::isEnough() const {
     // допускаем погрешность
-    static const double error = 1.1;
+    static const double error = 1.3;
 
     Quantity balance = OrderUtil::usingQuantity(side, symbol.baseAsset().getBalance(), symbol.quoteAsset().getBalance());
     Quantity cost = OrderUtil::usingQuantity(side, quantity, symbol.price(quantity));
