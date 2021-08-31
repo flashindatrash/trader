@@ -145,7 +145,7 @@ bool Algorithm::tryOpenPosition(const Context& context) {
         const auto total = _positions->summarize<Quantity>(Summarizes::expanses(request.side));
         // добавим к общей суммарному вкладу открытых позиций и ту, которую хотим добавить
         if (limit < total + request_expanses) {
-            Logger::trace("open: reach limit %d orders", request.side);
+            Logger::trace("open: reach limit %d orders, total %f", request.side, total);
             return false;
         }
     }
