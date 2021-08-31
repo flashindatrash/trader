@@ -36,20 +36,20 @@ Algorithm::~Algorithm() {
 }
 
 bool Algorithm::init() {
-    Status::setTitle(_settings.symbol);
     Logger::setLogfile("/tmp/" + _settings.uniqId() + ".log");
     _positions = Positions::create(_settings.uniqId() + ":positions", not _settings.test);
     _statistics = Statistics::create(_settings.uniqId() + ":stats", not _settings.test);
     Migrator::migrate(_positions, _statistics, _settings.symbol, _settings.test);
-    for (auto it = _positions->cbegin(); it < _positions->cend(); ++it)
-        Status::printOrder(*it, "old");
-
     return true;
 }
 
 void Algorithm::execute(const Context& context) {
     bool close = tryClosePosition(context);
     bool open = tryOpenPosition(context);
+
+    Status::setTitle(_settings.symbol, context.price());
+    if (close || open)
+        Status::printTimeline(*_positions, context.price());
 }
 
 bool Algorithm::tryClosePosition(const Context& context) {
