@@ -15,6 +15,7 @@ Settings::Settings(const core::Config& config) {
     close_position_percent = config.asDouble("CLOSE_POSITION_PERCENT") / 100.0;
     balance_base_limit = config.asDouble("BALANCE_BASE_LIMIT");
     balance_quote_limit = config.asDouble("BALANCE_QUOTE_LIMIT");
+    strong_tail_percent = config.asDouble("STRONG_TAIL_PERCENT") / 100.0;
 }
 
 bool Settings::isValid() const {

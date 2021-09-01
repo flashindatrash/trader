@@ -1,6 +1,7 @@
 #include "Algorithm.hpp"
 
 #include <utility>
+#include <Time.hpp>
 #include "Logger.hpp"
 #include "Context.hpp"
 #include "Positions.hpp"
@@ -75,6 +76,23 @@ bool Algorithm::tryClosePosition(const Context& context) {
     // проверим достаточно ли средств для сделки
     request.side = OrderWrapper::revert(profitable->side());
     request.quantity = profitable->baseQuantity();
+
+    // настройка ожидания слабого хвостика
+    if (_settings.strong_tail_percent > 0.0) {
+        // новый хвостик, ждем N времен
+        if (Time().ms() < context.candlestick->timeOpen() + Timer::sSecond * 5)
+            return false;
+
+        // если хвостик слабенький, то ждем
+        if ((request.side == OrderSide::Sell &&
+             context.candlestick->isBullish() &&
+             context.candlestick->wickLen() / context.price() < _settings.strong_tail_percent) ||
+            (request.side == OrderSide::Buy &&
+             context.candlestick->isBearish() &&
+             context.candlestick->tailLen() / context.price() < _settings.strong_tail_percent)) {
+            return false;
+        }
+    }
 
     // создаем заказ (только не в тесте) и запоминаем цену закрытия
     Price closed_price;

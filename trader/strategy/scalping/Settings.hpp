@@ -29,5 +29,7 @@ public: // vars
 
     double balance_base_limit = 0.0;
     double balance_quote_limit = 0.0;
+
+    double strong_tail_percent = 0.0;
 };
 NS_END
