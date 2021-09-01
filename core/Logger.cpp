@@ -9,6 +9,7 @@
 #include <ctime>
 #include <csignal>
 #include <cstdarg>
+#include <utility>
 #include "Time.hpp"
 
 std::string Logger::_log_file = "/tmp/traderbot.log";
@@ -58,12 +59,11 @@ void Logger::trace(const char* fmt, ...) {
 }
 
 void Logger::error(const char* msg) {
-    info("Error! %s", msg);
-    // std::raise(SIGSEGV);
+    std::raise(SIGSEGV);
 }
 
 void Logger::setLogfile(std::string filename) {
-    _log_file = filename;
+    _log_file = std::move(filename);
 }
 
 const char* Logger::format(const char* fmt) {

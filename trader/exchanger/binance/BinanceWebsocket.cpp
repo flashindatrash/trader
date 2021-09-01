@@ -38,7 +38,7 @@ void BinanceWebsocket::connect() {
 int BinanceWebsocket::handler(Json::Value& json) {
     BinanceErrorData error(json, "BinanceWebsocket::handler(" + _path + ")");
     if (error.has()) {
-        Logger::error(error.msg.c_str());
+        Logger::info(error.msg.c_str());
         if (error.code == BinanceErrorData::DISCONNECTED)
             _connected = false;
         return 0;

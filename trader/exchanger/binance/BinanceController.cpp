@@ -90,8 +90,7 @@ bool BinanceController::loadPairs(Storage::Type_pair& container) const {
 
     const Json::Value& symbols = json["symbols"];
     if (not symbols.isArray()) {
-        Logger::info("%s", json.toStyledString().c_str());
-        Logger::error("BinanceController::loadPairs: invalid exchange");
+        Logger::info("BinanceController::loadPairs: invalid json %s", json.toStyledString().c_str());
         return false;
     }
 
@@ -117,8 +116,7 @@ bool BinanceController::loadPrices(Storage::Type_price& container) const {
     }
 
     if (not json.isArray()) {
-        Logger::info("%s\n", json.toStyledString().c_str());
-        Logger::error("BinanceController::loadPrices: invalid prices");
+        Logger::info("BinanceController::loadPrices: invalid json %s", json.toStyledString().c_str());
         return false;
     }
 
@@ -143,8 +141,7 @@ bool BinanceController::loadBalances(Storage::Type_balance& container) const {
 
     const Json::Value& balances = json["balances"];
     if (not balances.isArray()) {
-        Logger::info("%s", json.toStyledString().c_str());
-        Logger::error("BinanceController::loadBalances: invalid account");
+        Logger::info("BinanceController::loadBalances: invalid json %s", json.toStyledString().c_str());
         return false;
     }
 
@@ -172,7 +169,7 @@ bool BinanceController::loadStats(CandlestickWrapper& container) const {
 bool BinanceController::loadCharts(ChartWrapper& container, ChartInterval interval) const {
     const std::string& interval_converted = binance::serialize(interval);
     if (interval_converted.empty()) {
-        Logger::error("BinanceController::loadCharts: unknown chart interval");
+        Logger::info("BinanceController::loadCharts: unknown chart interval");
         return false;
     }
 
@@ -186,8 +183,7 @@ bool BinanceController::loadCharts(ChartWrapper& container, ChartInterval interv
     }
 
     if (not json.isArray()) {
-        Logger::info("%s", json.toStyledString().c_str());
-        Logger::error("BinanceController::loadCharts: invalid chart json");
+        Logger::info("BinanceController::loadCharts: invalid json %s", json.toStyledString().c_str());
         return false;
     }
 
@@ -212,8 +208,7 @@ bool BinanceController::loadOrders(BookWrapper& container) const {
     }
 
     if (not json.isArray()) {
-        Logger::info("%s", json.toStyledString().c_str());
-        Logger::error("BinanceController::loadOrders: invalid orders");
+        Logger::info("BinanceController::loadOrders: invalid json %s", json.toStyledString().c_str());
         return false;
     }
 
@@ -258,7 +253,7 @@ bool BinanceController::initUserListenKey() {
 
     if (!json["listenKey"] || !json["listenKey"].isString()) {
         Logger::info("%s", json.toStyledString().c_str());
-        Logger::error("BinanceController::initUserListenKey: can't get listenKey for stream account");
+        Logger::info("BinanceController::initUserListenKey: can't get listenKey for stream account");
         return false;
     }
 
@@ -288,7 +283,7 @@ void BinanceController::onUserDataStream(const Json::Value& json) {
         if (executionType == "NEW") {
             BinanceOrderData order(json, true);
             if (order.isRejected())
-                Logger::error(json["r"].asString().c_str());
+                Logger::info("Order rejected %s", json["r"].asString().c_str());
         }
     } else if (action == "outboundAccountPosition") {
         for (uint i = 0; i < json["B"].size(); ++i) {
@@ -314,19 +309,19 @@ const OrderWrapper* BinanceController::createOrder(BookWrapper& container, Order
 
     auto it = _symbols.find(request.symbol);
     if (it == _symbols.end()) {
-        Logger::error("BinanceController::createOrder unknown symbol");
+        Logger::info("BinanceController::createOrder unknown symbol");
         return nullptr;
     }
 
     const BinanceSymbolData& info = it->second;
     if (not info.hasOrderType(type)) {
-        Logger::error("BinanceController::createOrder symbol doesn't supported for this type");
+        Logger::info("BinanceController::createOrder symbol doesn't supported for this type");
         return nullptr;
     }
 
     Quantity min_quantity = minQuantity(request.symbol);
     if (min_quantity == 0.0) {
-        Logger::error("BinanceController::createOrder unknown min quantity");
+        Logger::info("BinanceController::createOrder unknown min quantity");
         return nullptr;
     } else if (request.quantity > min_quantity) {
         if (info.lotSize.stepSize > 0.0)
@@ -344,12 +339,21 @@ const OrderWrapper* BinanceController::createOrder(BookWrapper& container, Order
     BinanceErrorData error(json, "BinanceController::createOrder");
     if (error.has()) {
         Logger::info("%s [%d]", error.msg.c_str(), error.code);
+        if (error.code == BinanceErrorData::NEW_ORDER_REJECTED) {
+            Logger::info("BinanceController::create order: not enough to %s %f %s with balance %f",
+                         binance::serialize(request.side).c_str(),
+                         request.quantity,
+                         request.symbol.baseAsset().c_str(),
+                         OrderUtil::usingQuantity(request.side, request.symbol.baseAsset().getBalance(), request.symbol.quoteAsset().getBalance()));
+
+            Logger::error("");
+        }
         return nullptr;
     }
 
     BinanceOrderData data(json, false);
     if (data.status.empty()) {
-        Logger::error("BinanceController::createOrder empty response");
+        Logger::info("BinanceController::createOrder empty response");
         return nullptr;
     }
 
