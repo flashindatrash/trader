@@ -51,10 +51,12 @@ void Status::update(Positions &positions, const Settings& settings, const Contex
 
     if (context.candlestick->isBullish()) {
         line.append(GREEN);
-        line.append("↑");
+        line.append(" ↑");
+        line.append(RESET);
     } else if (context.candlestick->isBearish()) {
         line.append(RED);
-        line.append("↓");
+        line.append(" ↓");
+        line.append(RESET);
     }
 
     Logger::status(line.c_str());
