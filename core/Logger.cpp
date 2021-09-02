@@ -12,7 +12,8 @@
 #include <utility>
 #include "Time.hpp"
 
-std::string Logger::_log_file = "/tmp/traderbot.log";
+std::string Logger::sLogFile = "/tmp/traderbot.log";
+bool Logger::sEndl = false;
 
 void Logger::title(const char* fmt, ...) {
     if (getenv("QT_TERMINAL") != nullptr)
@@ -30,6 +31,11 @@ void Logger::title(const char* fmt, ...) {
 }
 
 void Logger::info(const char* fmt, ...) {
+    if (sEndl) {
+        std::cout << std::endl;
+        sEndl = false;
+    }
+
     va_list arg;
     va_start(arg, fmt);
     vfprintf(stdout, format(fmt), arg);
@@ -37,12 +43,26 @@ void Logger::info(const char* fmt, ...) {
     va_end (arg);
 }
 
+void Logger::status(const char* fmt, ...) {
+    sEndl = true;
+
+    va_list arg;
+    va_start(arg, fmt);
+
+    static char new_fmt[1024];
+    sprintf(new_fmt, "\r%s     ", fmt);
+
+    vfprintf(stdout, new_fmt, arg);
+    fflush(stdout);
+    va_end (arg);
+}
+
 void Logger::trace(const char* fmt, ...) {
     static FILE* file = nullptr;
     if (file == nullptr) {
-        file = fopen(_log_file.c_str(), "wa");
+        file = fopen(sLogFile.c_str(), "wa");
         if (file) {
-            info("log file in %s", _log_file.c_str());
+            info("log file in %s", sLogFile.c_str());
         } else {
             info("failed to open log file");
         }
@@ -63,7 +83,7 @@ void Logger::error(const char* msg) {
 }
 
 void Logger::setLogfile(std::string filename) {
-    _log_file = std::move(filename);
+    sLogFile = std::move(filename);
 }
 
 const char* Logger::format(const char* fmt) {

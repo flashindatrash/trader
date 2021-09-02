@@ -41,7 +41,6 @@ bool Algorithm::init() {
     _positions = Positions::create(_settings.uniqId() + ":positions", not _settings.test);
     _statistics = Statistics::create(_settings.uniqId() + ":stats", not _settings.test);
     Migrator::migrate(_positions, _statistics, _settings.symbol, _settings.test);
-    Status::printTimeline(*_positions, _settings.symbol.price());
     return true;
 }
 
@@ -50,8 +49,7 @@ void Algorithm::execute(const Context& context) {
     bool open = tryOpenPosition(context);
 
     Status::setTitle(_settings.symbol, context.price());
-    if (close || open)
-        Status::printTimeline(*_positions, context.price());
+    Status::printTimeline(*_positions, context.price());
 }
 
 bool Algorithm::tryClosePosition(const Context& context) {

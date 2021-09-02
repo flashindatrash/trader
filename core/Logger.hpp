@@ -28,12 +28,14 @@ class Logger {
 public: //
     static void title(const char* fmt, ...);
     static void info(const char* fmt, ...);
+    static void status(const char* fmt, ...);
     static void trace(const char* fmt, ...);
     static void error(const char* msg);
 
     static void setLogfile(std::string filename);
 private: // static
-    static std::string _log_file;
+    static std::string sLogFile;
+    static bool sEndl;
 
     static const char* format(const char* fmt);
 };

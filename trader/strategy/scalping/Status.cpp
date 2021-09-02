@@ -8,7 +8,6 @@
 #include "exchanger/base/OrderBase.hpp"
 #include <utility>
 #include <vector>
-#include <iostream>
 
 NS_USE
 
@@ -17,6 +16,9 @@ void Status::setTitle(const Symbol& symbol, Price current) {
 }
 
 void Status::printTimeline(Positions &positions, Price current) {
+    if (positions.size() == 0)
+        return;
+
     std::sort(positions.begin(), positions.end(), Compares::max);
 
     std::string timeline;
@@ -38,7 +40,7 @@ void Status::printTimeline(Positions &positions, Price current) {
     if (not current_embeded)
         timeline.append("|");
 
-    Logger::info(timeline.c_str());
+    Logger::status(timeline.c_str());
 }
 
 void Status::printOrder(const OrderBase& order, const std::string& type) {
