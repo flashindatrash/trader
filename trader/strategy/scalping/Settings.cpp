@@ -13,8 +13,7 @@ Settings::Settings(const core::Config& config) {
     open_lot_multiply = config.asDouble("OPEN_LOT_MULTIPLY");
     open_max_multiply = config.asDouble("OPEN_MAX_MULTIPLY");
     close_position_percent = config.asDouble("CLOSE_POSITION_PERCENT") / 100.0;
-    balance_base_limit = config.asDouble("BALANCE_BASE_LIMIT");
-    balance_quote_limit = config.asDouble("BALANCE_QUOTE_LIMIT");
+    volume_limit = config.asDouble("VOLUME_LIMIT");
     strong_tail_percent = config.asDouble("STRONG_TAIL_PERCENT") / 100.0;
 }
 

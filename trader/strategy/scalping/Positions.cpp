@@ -153,8 +153,6 @@ bool Compares::min(const Position& a, const Position& b) {
 
 // ---------- Summarizes ----------
 
-std::function<Quantity(const Position&)> Summarizes::expanses(OrderSide side) {
-    return [side](const Position& position) {
-        return (side == position.side() ? 1.0 : -1.0) * OrderUtil::usingQuantity(side, position.baseQuantity(), position.quoteQuantity());
-    };
+Quantity Summarizes::expanses(const Position& position) {
+    return (position.side() == OrderSide::Buy ? 1.0 : -1.0) * position.quoteQuantity();
 }
