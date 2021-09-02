@@ -164,9 +164,10 @@ bool Algorithm::tryOpenPosition(const Context& context) {
 
     // проверим, что количество объем сделок не превышает установленный лимит средств
     if (_settings.volume_limit >= 0.0) {
-        const auto total = std::abs(_positions->summarize<Quantity>(Summarizes::expanses));
+        auto total = std::abs(_positions->summarize<Quantity>(Summarizes::expanses));
+        total += request_expanses;
         // добавим к общей суммарному вкладу открытых позиций и ту, которую хотим добавить
-        if (_settings.volume_limit < total + request_expanses) {
+        if (_settings.volume_limit < total) {
             Logger::trace("open: reach limit %d orders, total %f", request.side, total);
             return false;
         }
