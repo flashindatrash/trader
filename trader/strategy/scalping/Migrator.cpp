@@ -14,7 +14,10 @@
 NS_USE
 
 void Migrator::migrate(Positions* positions, Statistics* statistics, const Symbol& symbol, bool test) {
-    if (statistics->version().empty()) {
+    const std::string& current_version = TraderApp::sVersion.toString();
+    const std::string& migrate_version = statistics->version();
+
+    if (migrate_version.empty()) {
         if (Exchanger().loadOrders(symbol)) {
             const std::vector<const OrderWrapper *> &orders = Exchanger().book(symbol)->get();
             std::vector<std::string> keys = DB().keys("order:*");
@@ -37,5 +40,8 @@ void Migrator::migrate(Positions* positions, Statistics* statistics, const Symbo
         }
     }
 
-    statistics->setVersion(TraderApp::sVersion.toString());
+    if (migrate_version != current_version) {
+        statistics->setVersion(current_version);
+        statistics->save();
+    }
 }
