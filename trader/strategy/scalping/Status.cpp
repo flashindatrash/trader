@@ -9,13 +9,14 @@
 #include "Context.hpp"
 #include "exchanger/base/OrderBase.hpp"
 #include "exchanger/wrapper/CandlestickWrapper.hpp"
+#include "util/NumberUtil.hpp"
 #include <utility>
 #include <vector>
 
 NS_USE
 
 void Status::setTitle(const Symbol& symbol) {
-    Logger::title("%s - %s %f", symbol.baseAsset().c_str(), symbol.quoteAsset().c_str());
+    Logger::title("%s - %s", symbol.baseAsset().c_str(), symbol.quoteAsset().c_str());
 }
 
 void Status::update(Positions &positions, const Settings& settings, const Context& context) {
@@ -24,42 +25,46 @@ void Status::update(Positions &positions, const Settings& settings, const Contex
 
     std::sort(positions.begin(), positions.end(), Compares::max);
 
-    std::string line;
+    std::string timeline;
     bool current_embeded = false;
     for (const Position& position : positions) {
         Price price = position.price();
         OrderSide side = position.side();
 
         if (not current_embeded && context.price() < price) {
-            line.append("|");
+            timeline.append("|");
             current_embeded = true;
         }
         if (side == OrderSide::Buy)
-            line.append("+");
+            timeline.append("+");
         else if (side == OrderSide::Sell)
-            line.append("-");
+            timeline.append("-");
     }
 
     if (not current_embeded)
-        line.append("|");
+        timeline.append("|");
 
+    std::string close;
     const auto profitable = positions.compare_if(Predicates::closable(settings.symbol), Compares::distance(context.price()));
     if (profitable != positions.cend()) {
         double percent = profitable->distance(context.price()) / (context.price() * settings.close_position_percent);
-        line.append(" [" + std::to_string((int)(percent * 100.0)) + "%]");
+        close = "[" + std::to_string((int)(percent * 100.0)) + "%]";
     }
 
+    std::string formatPrice = "%." + std::to_string(util::zeros_after_dot(context.price()) + 3) + "f";
+    std::string price = formatPrice;
     if (context.candlestick->isBullish()) {
-        line.append(GREEN);
-        line.append(" ↑");
-        line.append(RESET);
+        price.append(GREEN);
+        price.append("↑" + formatPrice);
+        price.append(RESET);
     } else if (context.candlestick->isBearish()) {
-        line.append(RED);
-        line.append(" ↓");
-        line.append(RESET);
+        price.append(RED);
+        price.append("↓" + formatPrice);
+        price.append(RESET);
     }
 
-    Logger::status(line.c_str());
+    std::string format = "%s %s " + price;
+    Logger::status(format.c_str(), timeline.c_str(), close.c_str(), context.price());
 }
 
 void Status::printOrder(const OrderBase& order, const std::string& type) {
