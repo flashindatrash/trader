@@ -37,9 +37,14 @@ Algorithm::~Algorithm() {
 }
 
 bool Algorithm::init() {
+    Status::setTitle(_settings.symbol);
     Logger::setLogfile("/tmp/" + _settings.uniqId() + ".log");
+
+    // создадим структуры для хранения данных
     _positions = Positions::create(_settings.uniqId() + ":positions", not _settings.test);
     _statistics = Statistics::create(_settings.uniqId() + ":stats", not _settings.test);
+
+    // промигрируем данные
     Migrator::migrate(_positions, _statistics, _settings.symbol, _settings.test);
     return true;
 }
@@ -48,8 +53,7 @@ void Algorithm::execute(const Context& context) {
     bool close = tryClosePosition(context);
     bool open = tryOpenPosition(context);
 
-    Status::setTitle(_settings.symbol, context.price());
-    Status::printTimeline(*_positions, context.price(), _settings);
+    Status::update(*_positions, _settings, context);
 }
 
 bool Algorithm::tryClosePosition(const Context& context) {
@@ -103,7 +107,7 @@ bool Algorithm::tryClosePosition(const Context& context) {
             return false;
         }
 
-        Status::printOrder(*result, "close");
+        Status::printOrder(*result, "<");
         closed_price = result->price();
     }
 
@@ -113,7 +117,6 @@ bool Algorithm::tryClosePosition(const Context& context) {
 
     // удалим из базы, результат удаления не важен
     _positions->remove(*profitable);
-
     return true;
 }
 
@@ -144,16 +147,16 @@ bool Algorithm::tryOpenPosition(const Context& context) {
         // но с ограничением в максимум
         if (_settings.open_max_multiply > 1.0)
             request.quantity = std::min(request.quantity, Exchanger().minQuantity(request.symbol) * _settings.open_max_multiply);
-    } else if (not OrderRequest::isEnough(_settings.symbol, OrderWrapper::revert(request.side), last->baseQuantity())) {
-        // произошла беда, мы потратили все деньги, и не можем закрыть сделку
-        // в рамках экстренной ситуации выполняем сделку с минимальным лотом (даже не смотря на то, что какая-то в профите)
-        Logger::trace("open: emergency");
-        // request.quantity = Exchanger().minQuantity(request.symbol);
-        return false;
     } else {
-        // ближашая позиция уже имеет профит, или дистанция меньше допустимого шага
-        // дождемся получения прибыли с нее, или изменению в проигрышную сторону
-        Logger::trace("open: waiting distance [%d]", last->side());
+        if (not OrderRequest::isEnough(_settings.symbol, OrderWrapper::revert(request.side), last->baseQuantity())) {
+            // произошла беда, мы потратили все деньги, и не можем закрыть сделку
+            Logger::trace("open: emergency");
+        } else {
+            // ближашая позиция уже имеет профит, или дистанция меньше допустимого шага
+            // дождемся получения прибыли с нее, или изменению в проигрышную сторону
+            Logger::trace("open: waiting distance [%d]", last->side());
+        }
+
         return false;
     }
 
@@ -203,7 +206,7 @@ bool Algorithm::tryOpenPosition(const Context& context) {
             return false;
         }
 
-        Status::printOrder(*result, "open");
+        Status::printOrder(*result, ">");
     }
 
     return true;

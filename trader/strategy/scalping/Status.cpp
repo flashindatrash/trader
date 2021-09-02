@@ -6,54 +6,64 @@
 #include "Logger.hpp"
 #include "Positions.hpp"
 #include "Settings.hpp"
+#include "Context.hpp"
 #include "exchanger/base/OrderBase.hpp"
+#include "exchanger/wrapper/CandlestickWrapper.hpp"
 #include <utility>
 #include <vector>
 
 NS_USE
 
-void Status::setTitle(const Symbol& symbol, Price current) {
-    Logger::title("%s - %s %f", symbol.baseAsset().c_str(), symbol.quoteAsset().c_str(), current);
+void Status::setTitle(const Symbol& symbol) {
+    Logger::title("%s - %s %f", symbol.baseAsset().c_str(), symbol.quoteAsset().c_str());
 }
 
-void Status::printTimeline(Positions &positions, Price current, const Settings& settings) {
+void Status::update(Positions &positions, const Settings& settings, const Context& context) {
     if (positions.size() == 0)
         return;
 
     std::sort(positions.begin(), positions.end(), Compares::max);
 
-    std::string timeline;
+    std::string line;
     bool current_embeded = false;
     for (const Position& position : positions) {
         Price price = position.price();
         OrderSide side = position.side();
 
-        if (not current_embeded && current < price) {
-            timeline.append("|");
+        if (not current_embeded && context.price() < price) {
+            line.append("|");
             current_embeded = true;
         }
         if (side == OrderSide::Buy)
-            timeline.append("+");
+            line.append("+");
         else if (side == OrderSide::Sell)
-            timeline.append("-");
+            line.append("-");
     }
 
     if (not current_embeded)
-        timeline.append("|");
+        line.append("|");
 
-    const auto profitable = positions.compare_if(Predicates::closable(settings.symbol), Compares::distance(current));
+    const auto profitable = positions.compare_if(Predicates::closable(settings.symbol), Compares::distance(context.price()));
     if (profitable != positions.cend()) {
-        double percent = profitable->distance(current) / (current * settings.close_position_percent);
-        timeline.append(" [" + std::to_string((int)(percent * 100.0)) + "%]");
+        double percent = profitable->distance(context.price()) / (context.price() * settings.close_position_percent);
+        line.append(" [" + std::to_string((int)(percent * 100.0)) + "%]");
     }
 
-    Logger::status(timeline.c_str());
+    if (context.candlestick->isBullish()) {
+        line.append(GREEN);
+        line.append("↑");
+    } else if (context.candlestick->isBearish()) {
+        line.append(RED);
+        line.append("↓");
+    }
+
+    Logger::status(line.c_str());
 }
 
 void Status::printOrder(const OrderBase& order, const std::string& type) {
-    Logger::info("%s %s %f for %f", type.c_str(), order.side() == OrderSide::Buy ? "buy" : "sell", order.baseQuantity(), order.price());
+    Logger::info("%s %s\t%f for %f", type.c_str(), order.side() == OrderSide::Buy ? "buy" : "sell", order.baseQuantity(), order.price());
 }
 
 void Status::addProfit(Quantity profit, const Symbol& symbol) {
-    Logger::info("%sprofit: %f (%f %s, %f %s)%s", GREEN, profit, symbol.baseAsset().getBalance(), symbol.baseAsset().c_str(), symbol.quoteAsset().getBalance(), symbol.quoteAsset().c_str(), RESET);
+    Logger::info("%= %f (%f %s, %f %s)%s", GREEN, profit, symbol.baseAsset().getBalance(), symbol.baseAsset().c_str(), symbol.quoteAsset().getBalance(), symbol.quoteAsset().c_str(), RESET);
 }
