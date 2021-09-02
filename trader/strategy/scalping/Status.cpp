@@ -43,8 +43,8 @@ void Status::printTimeline(Positions &positions, Price current, const Settings& 
 
     const auto profitable = positions.compare_if(Predicates::closable(settings.symbol), Compares::distance(current));
     if (profitable != positions.cend()) {
-        double percent = profitable->distance(current) / (current * settings.close_position_percent) * 100.0;
-        timeline.append(" [" + std::to_string((int)std::round(percent)) + "%]");
+        double percent = profitable->distance(current) / (current * settings.close_position_percent * 100.0);
+        timeline.append(" [" + std::to_string((int)percent) + "%]");
     }
 
     Logger::status(timeline.c_str());
