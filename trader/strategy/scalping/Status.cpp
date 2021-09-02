@@ -51,15 +51,15 @@ void Status::update(Positions &positions, const Settings& settings, const Contex
         close = "[" + std::to_string((int)(percent * 100.0)) + "%]";
     }
 
+    std::string price;
     std::string formatPrice = "%." + std::to_string(util::zeros_after_dot(context.price()) + 3) + "f";
-    std::string price = formatPrice;
-    if (context.candlestick->isBullish()) {
-        price.append(GREEN);
-        price.append("↑" + formatPrice);
-        price.append(RESET);
-    } else if (context.candlestick->isBearish()) {
+    if (context.candlestick->isBearish()) {
         price.append(RED);
         price.append("↓" + formatPrice);
+        price.append(RESET);
+    } else {
+        price.append(GREEN);
+        price.append("↑" + formatPrice);
         price.append(RESET);
     }
 
