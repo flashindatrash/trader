@@ -13,7 +13,7 @@
 #include "Time.hpp"
 
 std::string Logger::sLogFile = "/tmp/traderbot.log";
-bool Logger::sEndl = false;
+bool Logger::sStatus = false;
 
 void Logger::title(const char* fmt, ...) {
     if (getenv("QT_TERMINAL") != nullptr)
@@ -31,11 +31,7 @@ void Logger::title(const char* fmt, ...) {
 }
 
 void Logger::info(const char* fmt, ...) {
-    if (sEndl) {
-        std::cout << std::endl;
-        sEndl = false;
-    }
-
+    sStatus = false;
     va_list arg;
     va_start(arg, fmt);
     vfprintf(stdout, format(fmt), arg);
@@ -44,13 +40,19 @@ void Logger::info(const char* fmt, ...) {
 }
 
 void Logger::status(const char* fmt, ...) {
-    sEndl = true;
+    if (getenv("QT_TERMINAL") != nullptr)
+        return;
 
     va_list arg;
     va_start(arg, fmt);
 
     static char new_fmt[1024];
-    sprintf(new_fmt, "\r%s     ", fmt);
+    if (sStatus) {
+        sprintf(new_fmt, "%s%s%s%s\n", CURSOR_START, CURSOR_UP, CURSOR_ERASE, fmt);
+    } else {
+        sprintf(new_fmt, "%s\n", fmt);
+        sStatus = true;
+    }
 
     vfprintf(stdout, new_fmt, arg);
     fflush(stdout);

@@ -23,6 +23,10 @@
 //escape chars
 #define ESCSTART    "\033]0;"
 #define ESCEND      "\007"
+#define CURSOR_START    "\r"
+#define CURSOR_UP       "\033[1A"
+#define CURSOR_ERASE    "\033[0K"
+
 
 class Logger {
 public: //
@@ -35,7 +39,7 @@ public: //
     static void setLogfile(std::string filename);
 private: // static
     static std::string sLogFile;
-    static bool sEndl;
+    static bool sStatus;
 
     static const char* format(const char* fmt);
 };
