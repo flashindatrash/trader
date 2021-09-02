@@ -3,12 +3,12 @@
 using namespace core;
 
 Version::Version(int major, int minor, int patch)
-    : major(major)
-    , minor(minor)
-    , patch(patch)
+    : _major(major)
+    , _minor(minor)
+    , _patch(patch)
 {
 }
 
 std::string Version::toString() const {
-    return std::to_string(major) + "." + std::to_string(minor) + "." + std::to_string(patch);
+    return std::to_string(_major) + "." + std::to_string(_minor) + "." + std::to_string(_patch);
 }

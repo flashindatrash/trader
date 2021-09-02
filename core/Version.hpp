@@ -11,7 +11,7 @@ public: // constructors
     std::string toString() const;
 
 public: // vars
-    int major = 0, minor = 0, patch = 0;
+    int _major = 0, _minor = 0, _patch = 0;
 };
 
 }
