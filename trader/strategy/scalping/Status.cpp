@@ -5,6 +5,7 @@
 #include "Status.hpp"
 #include "Logger.hpp"
 #include "Positions.hpp"
+#include "Settings.hpp"
 #include "exchanger/base/OrderBase.hpp"
 #include <utility>
 #include <vector>
@@ -15,7 +16,7 @@ void Status::setTitle(const Symbol& symbol, Price current) {
     Logger::title("%s - %s %f", symbol.baseAsset().c_str(), symbol.quoteAsset().c_str(), current);
 }
 
-void Status::printTimeline(Positions &positions, Price current) {
+void Status::printTimeline(Positions &positions, Price current, const Settings& settings) {
     if (positions.size() == 0)
         return;
 
@@ -39,6 +40,12 @@ void Status::printTimeline(Positions &positions, Price current) {
 
     if (not current_embeded)
         timeline.append("|");
+
+    const auto profitable = positions.compare_if(Predicates::closable(settings.symbol), Compares::distance(current));
+    if (profitable != positions.cend()) {
+        int percent = int(profitable->distance(current) / (current * settings.close_position_percent) * 100.0);
+        timeline.append(" [" + std::to_string(percent) + "%]");
+    }
 
     Logger::status(timeline.c_str());
 }

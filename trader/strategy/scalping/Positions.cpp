@@ -1,5 +1,6 @@
 #include <Time.hpp>
 #include "Positions.hpp"
+#include "exchanger/wrapper/OrderWrapper.hpp"
 
 NS_USE
 
@@ -124,6 +125,12 @@ Positions::Predicate Predicates::less(Price price) {
 Positions::Predicate Predicates::side(OrderSide side) {
     return [side](const Position& position) {
         return position.side() == side;
+    };
+}
+
+Positions::Predicate Predicates::closable(const Symbol& symbol) {
+    return [symbol](const Position& position) {
+        return OrderRequest::isEnough(symbol, OrderWrapper::revert(position.side()), position.baseQuantity());
     };
 }
 

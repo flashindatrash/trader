@@ -10,11 +10,12 @@ class OrderBase;
 
 NS_BEGIN
 class Positions;
+class Settings;
 
 class Status {
 public: // static
     static void setTitle(const Symbol& symbol, Price current);
-    static void printTimeline(Positions& positions, Price current);
+    static void printTimeline(Positions& positions, Price current, const Settings& settings);
     static void printOrder(const OrderBase& order, const std::string& type);
     static void addProfit(Quantity profit, const Symbol& symbol);
 };

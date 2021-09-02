@@ -53,6 +53,7 @@ public: // static
     static Positions::Predicate greater(Price price);
     static Positions::Predicate less(Price price);
     static Positions::Predicate side(OrderSide side);
+    static Positions::Predicate closable(const Symbol& symbol);
     // without arguments
     static bool sell(const Position& position);
     static bool buy(const Position& position);

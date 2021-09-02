@@ -49,7 +49,7 @@ void Algorithm::execute(const Context& context) {
     bool open = tryOpenPosition(context);
 
     Status::setTitle(_settings.symbol, context.price());
-    Status::printTimeline(*_positions, context.price());
+    Status::printTimeline(*_positions, context.price(), _settings);
 }
 
 bool Algorithm::tryClosePosition(const Context& context) {
@@ -57,7 +57,7 @@ bool Algorithm::tryClosePosition(const Context& context) {
     request.symbol = _settings.symbol;
 
     // самая выгодная лонг или шорт позиция
-    const auto profitable = _positions->compare(Compares::distance(context.price()));
+    const auto profitable = _positions->compare_if(Predicates::closable(request.symbol), Compares::distance(context.price()));
     if (profitable == _positions->cend()) {
         Logger::trace("close: hasn't profit for price %f", context.price());
         return false;
@@ -153,7 +153,7 @@ bool Algorithm::tryOpenPosition(const Context& context) {
     } else {
         // ближашая позиция уже имеет профит, или дистанция меньше допустимого шага
         // дождемся получения прибыли с нее, или изменению в проигрышную сторону
-        Logger::trace("open: waiting profit [%d]", last->side());
+        Logger::trace("open: waiting distance [%d]", last->side());
         return false;
     }
 
