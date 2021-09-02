@@ -52,7 +52,7 @@ void Status::update(Positions &positions, const Settings& settings, const Contex
     }
 
     std::string price;
-    std::string formatPrice = "%." + std::to_string(util::zeros_after_dot(context.price()) + 3) + "f";
+    std::string formatPrice = "%." + std::to_string(util::zeros_after_dot(context.price()) + 2) + "f";
     if (context.candlestick->isBearish()) {
         price.append(RED);
         price.append("↓" + formatPrice);
@@ -72,5 +72,5 @@ void Status::printOrder(const OrderBase& order, const std::string& type) {
 }
 
 void Status::addProfit(Quantity profit, const Symbol& symbol) {
-    Logger::info("%= %f (%f %s, %f %s)%s", GREEN, profit, symbol.baseAsset().getBalance(), symbol.baseAsset().c_str(), symbol.quoteAsset().getBalance(), symbol.quoteAsset().c_str(), RESET);
+    Logger::info("%s+ %f (%f %s, %f %s)%s", GREEN, profit, symbol.baseAsset().getBalance(), symbol.baseAsset().c_str(), symbol.quoteAsset().getBalance(), symbol.quoteAsset().c_str(), RESET);
 }
