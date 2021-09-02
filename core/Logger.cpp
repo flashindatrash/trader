@@ -31,7 +31,11 @@ void Logger::title(const char* fmt, ...) {
 }
 
 void Logger::info(const char* fmt, ...) {
-    sStatus = false;
+    if (sStatus) {
+        erase();
+        sStatus = false;
+    }
+
     va_list arg;
     va_start(arg, fmt);
     vfprintf(stdout, format(fmt), arg);
@@ -40,23 +44,25 @@ void Logger::info(const char* fmt, ...) {
 }
 
 void Logger::status(const char* fmt, ...) {
-    if (getenv("QT_TERMINAL") != nullptr)
-        return;
+    if (sStatus)
+        erase();
+    sStatus = true;
 
     va_list arg;
     va_start(arg, fmt);
 
     static char new_fmt[1024];
-    if (sStatus) {
-        sprintf(new_fmt, "%s%s%s%s\n", CURSOR_START, CURSOR_UP, CURSOR_ERASE, fmt);
-    } else {
-        sprintf(new_fmt, "%s\n", fmt);
-        sStatus = true;
-    }
-
+    sprintf(new_fmt, "%s\n", fmt);
     vfprintf(stdout, new_fmt, arg);
     fflush(stdout);
     va_end (arg);
+}
+
+void Logger::erase() {
+    if (getenv("QT_TERMINAL") != nullptr)
+        return;
+
+    std::cout << CURSOR_START << CURSOR_UP << CURSOR_ERASE;
 }
 
 void Logger::trace(const char* fmt, ...) {

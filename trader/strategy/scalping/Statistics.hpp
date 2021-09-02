@@ -16,6 +16,9 @@ public: // static
 public: // methods
     Quantity addProfit(Quantity profit);
 
+    std::string version();
+    void setVersion(std::string value);
+
 protected: // methods
     Statistics(const db::Key& key, bool sync);
 

@@ -35,6 +35,7 @@ public: //
     static void status(const char* fmt, ...);
     static void trace(const char* fmt, ...);
     static void error(const char* msg);
+    static void erase();
 
     static void setLogfile(std::string filename);
 private: // static

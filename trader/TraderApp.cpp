@@ -25,7 +25,7 @@ TraderApp* TraderApp::create(const core::Config& config) {
 }
 
 int TraderApp::run() {
-    Logger::info("TraderBot version: %d.%d.%d", sVersion.major, sVersion.minor, sVersion.patch);
+    Logger::info("TraderBot version: %s", sVersion.toString().c_str());
 
     // init database
     if (not DB().init(_config))

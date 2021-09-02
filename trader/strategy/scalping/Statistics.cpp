@@ -4,8 +4,11 @@
 
 #include "Statistics.hpp"
 
+#include <utility>
+
 NS_USE
 
+static const char* FIELD_VERSION = "version";
 static const char* FIELD_PROFIT = "profit";
 
 Statistics* Statistics::create(const db::Key& key, bool sync) {
@@ -23,4 +26,12 @@ Quantity Statistics::addProfit(Quantity profit) {
     Quantity result = inc(FIELD_PROFIT, profit).asDouble();
     if (_sync) save();
     return result;
+}
+
+std::string Statistics::version() {
+    return get(FIELD_VERSION).asString();
+}
+
+void Statistics::setVersion(std::string value) {
+    set(FIELD_VERSION, std::move(value));
 }
