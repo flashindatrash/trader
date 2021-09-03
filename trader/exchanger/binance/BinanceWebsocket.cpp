@@ -2,20 +2,21 @@
 #include "binacpp_websocket.h"
 #include <json/json.h>
 #include <functional>
+#include <utility>
 #include "Logger.hpp"
 #include "response/BinanceErrorData.hpp"
 
 BinanceWebsocket* BinanceWebsocket::create() {
-    BinanceWebsocket* websocket = new BinanceWebsocket();
+    auto* websocket = new BinanceWebsocket();
     return websocket;
 }
 
 void BinanceWebsocket::setPath(std::string path) {
-    _path = path;
+    _path = std::move(path);
 }
 
 void BinanceWebsocket::setCallback(SignalT::Fn callback) {
-    _callback.connect(callback);
+    _callback.connect(std::move(callback));
 }
 
 bool BinanceWebsocket::isConnected() const {
@@ -45,5 +46,5 @@ int BinanceWebsocket::handler(Json::Value& json) {
     }
 
     _callback.emmit(json);
-    return 0;
+    return 1;
 }

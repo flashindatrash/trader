@@ -32,6 +32,6 @@ protected: // methods
 protected: // vars
     SignalT _callback;
     bool _connected = false;
-    std::string _path = "";
+    std::string _path;
 };
 

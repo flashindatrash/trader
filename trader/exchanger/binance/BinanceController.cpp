@@ -67,15 +67,16 @@ void BinanceController::tick(time_t now) {
         websocket->connect();
     }
 
-    auto timesup = [now](time_t time, time_t interval) {
-        return time != 0 && now > time + interval;
-    };
-
     // Keepalive a user data stream to prevent a time out.
     // User data streams will close after 60 minutes.
     // It's recommended to send a ping about every 30 minutes
-    if (timesup(_time_keep_userstream, Timer::sMinute * 30))
+    if (_time_keep_userstream == 0)
+        _time_keep_userstream = Time().ms();
+
+    if (now > _time_keep_userstream + Timer::sMinute * 30) {
         keepUserDataStream();
+        _time_keep_userstream = Time().ms();
+    }
 }
 
 bool BinanceController::loadPairs(Storage::Type_pair& container) const {
@@ -272,7 +273,6 @@ void BinanceController::keepUserDataStream() {
     if (not userstream->isConnected())
         return;
 
-    _time_keep_userstream = Time().ms();
     BinaCPP::keep_userDataStream(userstream->path().c_str());
 }
 
