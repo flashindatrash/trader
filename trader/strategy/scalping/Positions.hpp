@@ -70,6 +70,9 @@ public: // static
 
 class Summarizes {
 public: // static
+    // with arguments
+    static std::function<Quantity (const Position&)> losses(Price price);
+    // without arguments
     static Quantity expanses(const Position& position);
 };
 

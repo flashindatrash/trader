@@ -113,7 +113,8 @@ bool Algorithm::tryClosePosition(const Context& context) {
 
     // добавим в статистику прибыль, которую получили из закрытой позиции
     Quantity profit = _statistics->addProfit(profitable->distance(closed_price) * request.quantity);
-    Status::addProfit(profit, _settings.symbol);
+    Quantity loss = _positions->summarize<Quantity>(Summarizes::losses(context.price()));
+    Status::addProfit(profit, loss, _settings.symbol);
 
     // удалим из базы, результат удаления не важен
     _positions->remove(*profitable);

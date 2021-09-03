@@ -102,6 +102,14 @@ Positions::const_iterator Positions::last(OrderSide side) const {
     return cend();
 }
 
+Quantity Positions::loss() const {
+    Quantity quantity = 0.0;
+    for (auto it = cbegin(); it < cend(); ++it) {
+        quantity.
+    }
+    return quantity
+}
+
 // ---------- Predicates ----------
 
 Positions::Predicate Predicates::combine(Positions::Predicate a, Positions::Predicate b) {
@@ -159,6 +167,12 @@ bool Compares::min(const Position& a, const Position& b) {
 }
 
 // ---------- Summarizes ----------
+
+std::function<Quantity(const Position&)> Summarizes::losses(Price price) {
+    return [price](const Position& position) {
+        return position.distance(price) * position.baseQuantity();
+    };
+}
 
 Quantity Summarizes::expanses(const Position& position) {
     return (position.side() == OrderSide::Buy ? 1.0 : -1.0) * position.quoteQuantity();
