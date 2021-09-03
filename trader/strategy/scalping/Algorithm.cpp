@@ -96,10 +96,10 @@ bool Algorithm::tryClosePosition(const Context& context) {
         }
     }
 
-    // создаем заказ (только не в тесте) и запоминаем цену закрытия
-    Price closed_price;
+    // создаем заказ (только не в тесте) и запоминаем дистанцию закрытия
+    Quantity distance;
     if (_settings.test) {
-        closed_price = context.price();
+        distance = profitable->distance(context.price());
     } else {
         const OrderWrapper* result = Exchanger().createOrder(request);
         if (result == nullptr) {
@@ -108,16 +108,17 @@ bool Algorithm::tryClosePosition(const Context& context) {
         }
 
         Status::printOrder(*result, "<");
-        closed_price = result->price();
+        distance = profitable->distance(context.price());
     }
-
-    // добавим в статистику прибыль, которую получили из закрытой позиции
-    auto profit = _statistics->addProfit(profitable->distance(closed_price) * request.quantity);
-    auto loss = _positions->summarize<Quantity>(Summarizes::losses(context.price()));
-    Status::addProfit(profit, loss, _settings.symbol);
 
     // удалим из базы, результат удаления не важен
     _positions->remove(*profitable);
+
+    // сохраняем профит, высчитываем и показываем PNL
+    auto profit = _statistics->addProfit(distance * request.quantity);
+    auto loss = _positions->summarize<Quantity>(Summarizes::losses(context.price()));
+    Status::addProfit(profit, loss, _settings.symbol);
+
     return true;
 }
 
