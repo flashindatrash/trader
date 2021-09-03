@@ -78,9 +78,9 @@ void Status::printOrder(const OrderBase& order, const std::string& type) {
 void Status::addProfit(Quantity profit, Quantity loss, const Symbol& symbol) {
     Quantity PNL = profit + loss;
 
-    std::string formatPNL = "PNL: %." + std::to_string(util::zeros_after_dot(PNL)) + "f";
-    std::string baseAsset = "%." + std::to_string(util::zeros_after_dot(symbol.baseAsset().getBalance())) + "f ";
-    std::string quoteAsset = "%." + std::to_string(util::zeros_after_dot(symbol.quoteAsset().getBalance())) + "f";
+    std::string formatPNL = "PNL: %." + std::to_string(util::zeros_after_dot(PNL) + 2) + "f";
+    std::string baseAsset = "%." + std::to_string(util::zeros_after_dot(symbol.baseAsset().getBalance()) + 2) + "f ";
+    std::string quoteAsset = "%." + std::to_string(util::zeros_after_dot(symbol.quoteAsset().getBalance()) + 2) + "f";
 
     std::string format = "%s" + formatPNL + " (" + baseAsset + " %s, " + quoteAsset + " %s)%s";
     Logger::info(format.c_str(), GREEN, PNL, symbol.baseAsset().getBalance(), symbol.baseAsset().c_str(), symbol.quoteAsset().getBalance(), symbol.quoteAsset().c_str(), RESET);
