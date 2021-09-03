@@ -102,14 +102,6 @@ Positions::const_iterator Positions::last(OrderSide side) const {
     return cend();
 }
 
-Quantity Positions::loss() const {
-    Quantity quantity = 0.0;
-    for (auto it = cbegin(); it < cend(); ++it) {
-        quantity.
-    }
-    return quantity
-}
-
 // ---------- Predicates ----------
 
 Positions::Predicate Predicates::combine(Positions::Predicate a, Positions::Predicate b) {
