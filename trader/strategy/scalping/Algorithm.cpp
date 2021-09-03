@@ -160,15 +160,14 @@ bool Algorithm::tryOpenPosition(const Context& context) {
         return false;
     }
 
-    // посчитаем расход данной сделки
-    Quantity request_expanses = OrderUtil::usingQuantity(request.side, request.quantity, request.quantity * context.price());
 
     // проверим, что количество объем сделок не превышает установленный лимит средств
     if (_settings.volume_limit >= 0.0) {
-        auto total = std::abs(_positions->summarize<Quantity>(Summarizes::expanses));
-        total += request_expanses;
+        auto total = _positions->summarize<Quantity>(Summarizes::expanses);
+
         // добавим к общей суммарному вкладу открытых позиций и ту, которую хотим добавить
-        if (_settings.volume_limit < total) {
+        if ((request.side == OrderSide::Buy && total > _settings.volume_limit) ||
+            (request.side == OrderSide::Sell && total < -_settings.volume_limit)) {
             Logger::trace("open: reach limit %d orders, total %f", request.side, total);
             return false;
         }
@@ -181,6 +180,9 @@ bool Algorithm::tryOpenPosition(const Context& context) {
         // баланс, который используется для закрытия противоположной сделки
         Quantity balance = OrderUtil::usingQuantity(last_opposite->side(), request.symbol.baseAsset().getBalance(),
                                                     request.symbol.quoteAsset().getBalance());
+        // посчитаем расход данной сделки
+        Quantity request_expanses = OrderUtil::usingQuantity(request.side, request.quantity, request.quantity * context.price());
+
         // баланс должен быть выше суммы сделки на закрытие и оперируемой
         Quantity frozen = last_opposite->expanses() + request_expanses;
         if (balance < frozen) {
