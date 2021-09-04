@@ -14,8 +14,8 @@ Price OrderBase::fee() const {
     return quoteQuantity() * Exchanger().fee();
 }
 
-Quantity OrderBase::usingQuantity() const {
-    return OrderUtil::usingQuantity(side(), baseQuantity(), quoteQuantity());
+Quantity OrderBase::spentQuantity() const {
+    return OrderUtil::spentQuantity(side(), baseQuantity(), quoteQuantity());
 }
 
 Change OrderBase::distance(Price current) const {
@@ -39,7 +39,7 @@ Change OrderUtil::distance(OrderSide side, Price price, Price current) {
     return 0.0;
 }
 
-Quantity OrderUtil::usingQuantity(OrderSide side, Quantity baseQuantity, Quantity quoteQuantity) {
+Quantity OrderUtil::spentQuantity(OrderSide side, Quantity baseQuantity, Quantity quoteQuantity) {
     switch (side) {
         case Buy: return quoteQuantity;
         case Sell: return baseQuantity;
@@ -65,7 +65,7 @@ bool OrderUtil::isEnough(const Symbol& symbol, OrderSide side, Quantity quantity
     // допускаем погрешность
     static const double error = 1.3;
 
-    Quantity balance = usingQuantity(side, symbol.baseAsset().getBalance(), symbol.quoteAsset().getBalance());
-    Quantity cost = usingQuantity(side, quantity, symbol.price(quantity));
+    Quantity balance = spentQuantity(side, symbol.baseAsset().getBalance(), symbol.quoteAsset().getBalance());
+    Quantity cost = spentQuantity(side, quantity, symbol.price(quantity));
     return balance > cost * error;
 }

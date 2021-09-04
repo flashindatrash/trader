@@ -11,6 +11,9 @@ public: // methods
     void set(Quantity free, Quantity locked);
     const Quantity& get() const;
 
+    void spend(Quantity count);
+    void gain(Quantity count);
+
 protected: // methods
     BalanceWrapper() = default;
 

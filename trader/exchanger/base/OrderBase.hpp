@@ -30,7 +30,7 @@ public: // signature
 public: // methods
     Price price() const;
     Quantity fee() const;
-    Quantity usingQuantity() const;
+    Quantity spentQuantity() const;
     Change distance(Price current) const;
 };
 
@@ -39,7 +39,7 @@ public:
     static Change change(const Price& left, const Price& right);
     static Change changeAbs(const Price& left, const Price& right);
     static Change distance(OrderSide side, Price price, Price current);
-    static Quantity usingQuantity(OrderSide side, Quantity baseQuantity, Quantity quoteQuantity);
+    static Quantity spentQuantity(OrderSide side, Quantity baseQuantity, Quantity quoteQuantity);
     static Price price(Quantity baseQuantity, Quantity quoteQuantity);
     static OrderSide revert(OrderSide side);
     static bool isEnough(const Symbol& symbol, OrderSide side, Quantity quantity);

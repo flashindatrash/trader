@@ -195,13 +195,14 @@ bool Algorithm::tryOpenPosition(const Context& context) {
     const auto last_opposite = _positions->last(OrderUtil::revert(request.side));
     if (last_opposite != _positions->cend() && OrderUtil::changeAbs(context.price(), last_opposite->price()) < _settings.close_position_percent) {
         // баланс, который используется для закрытия противоположной сделки
-        Quantity balance = OrderUtil::usingQuantity(last_opposite->side(), request.symbol.baseAsset().getBalance(),
+        Quantity balance = OrderUtil::spentQuantity(last_opposite->side(), request.symbol.baseAsset().getBalance(),
                                                     request.symbol.quoteAsset().getBalance());
         // посчитаем расход данной сделки
-        Quantity request_quantity = OrderUtil::usingQuantity(request.side, request.quantity, request.quantity * context.price());
+        Quantity request_quantity = OrderUtil::spentQuantity(request.side, request.quantity,
+                                                             request.quantity * context.price());
 
         // баланс должен быть выше суммы сделки на закрытие и оперируемой
-        Quantity frozen = last_opposite->usingQuantity() + request_quantity;
+        Quantity frozen = last_opposite->spentQuantity() + request_quantity;
         if (balance < frozen) {
             Logger::trace("open: balance (%f) < frozen (%f)", balance, frozen);
             return false;

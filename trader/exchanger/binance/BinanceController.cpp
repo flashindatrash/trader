@@ -290,8 +290,8 @@ void BinanceController::onUserDataStream(const Json::Value& json) {
                 Logger::info("Order rejected %s", json["r"].asString().c_str());
         }
     } else if (action == "outboundAccountPosition") {
-        for (uint i = 0; i < json["B"].size(); ++i) {
-            BinanceBalanceData data(json["B"][i], true);
+        for (const auto &i : json["B"]) {
+            BinanceBalanceData data(i, true);
             if (_balances_connector != nullptr)
                 _balances_connector->get(data.asset)->set(data.free, data.locked);
         }
@@ -334,12 +334,14 @@ const OrderWrapper* BinanceController::createOrder(BookWrapper& container, Order
         request.quantity = min_quantity;
     }
 
+    // enough to create order
     if (not request.isEnough())
         return nullptr;
 
     Json::Value json;
     BinaCPP::send_order(request.symbol.c_str(), binance::serialize(request.side).c_str(), type.c_str(), "GTC", request.quantity , 0, "", 0, 0, _config_recv_window, json);
 
+    // check errors
     BinanceErrorData error(json, "BinanceController::createOrder");
     if (error.has()) {
         Logger::info("%s [%d]", error.msg.c_str(), error.code);
@@ -348,20 +350,47 @@ const OrderWrapper* BinanceController::createOrder(BookWrapper& container, Order
                          binance::serialize(request.side).c_str(),
                          request.quantity,
                          request.symbol.baseAsset().c_str(),
-                         OrderUtil::usingQuantity(request.side, request.symbol.baseAsset().getBalance(), request.symbol.quoteAsset().getBalance()));
+                         OrderUtil::spentQuantity(request.side, request.symbol.baseAsset().getBalance(),
+                                                  request.symbol.quoteAsset().getBalance()));
 
             Logger::error("");
         }
         return nullptr;
     }
 
+    // parse binance structure
     BinanceOrderData data(json, false);
     if (data.status.empty()) {
         Logger::info("BinanceController::createOrder empty response");
         return nullptr;
     }
 
-    return container.add(data);
+    // create & add to container
+    const OrderWrapper* wrapper = container.add(data);
+    if (wrapper == nullptr)
+        return nullptr;
+
+    // update balances
+    if (_balances_connector != nullptr) {
+        BalanceWrapper* baseBalance = _balances_connector->get(request.symbol.baseAsset());
+        BalanceWrapper* quoteBalance = _balances_connector->get(request.symbol.quoteAsset());
+
+        switch (wrapper->side()) {
+            case OrderSide::Buy: {
+                baseBalance->gain(wrapper->baseQuantity());
+                quoteBalance->spend(wrapper->quoteQuantity());
+                break;
+            }
+            case OrderSide::Sell: {
+                baseBalance->spend(wrapper->baseQuantity());
+                quoteBalance->gain(wrapper->quoteQuantity());
+                break;
+            }
+            case OrderSide::Invalid: break;
+        }
+    }
+
+    return wrapper;
 }
 
 double BinanceController::minQuantity(const std::string& symbol) const {
