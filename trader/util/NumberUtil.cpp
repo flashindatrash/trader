@@ -1,6 +1,8 @@
+#include <cmath>
 #include "NumberUtil.hpp"
 
 unsigned int util::zeros_after_dot(double num) {
+    num = std::abs(num);
     if (num == 0.0)
         return 0;
 

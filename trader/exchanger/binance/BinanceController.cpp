@@ -62,12 +62,12 @@ void BinanceController::run() {
 }
 
 void BinanceController::tick(time_t now) {
-    // keep websockets connctions
+    // keep websockets connections
     for (BinanceWebsocket* websocket : _websockets) {
         websocket->connect();
     }
 
-    // Keepalive a user data stream to prevent a time out.
+    // Keepalive a user data stream to prevent a timeout.
     // User data streams will close after 60 minutes.
     // It's recommended to send a ping about every 30 minutes
     if (_time_keep_userstream == 0)
