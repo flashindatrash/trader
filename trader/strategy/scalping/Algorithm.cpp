@@ -137,8 +137,9 @@ bool Algorithm::tryClosePosition(const Context& context) {
     // сохраняем профит, высчитываем и показываем PNL
     auto profits = _statistics->addProfit(profit);
     auto losses = _positions->summarize<Quantity>(Summarizes::profit(context.price()));
-    Status::addProfit(profits, losses, _settings.symbol);
 
+    Status::printProfit(profit, profits, losses);
+    Status::printBalance(_settings.symbol);
     return true;
 }
 
@@ -229,5 +230,6 @@ bool Algorithm::tryOpenPosition(const Context& context) {
         Status::printOrder(*result, ">");
     }
 
+    Status::printBalance(_settings.symbol);
     return true;
 }

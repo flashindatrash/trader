@@ -76,13 +76,20 @@ void Status::printOrder(const OrderBase& order, const std::string& type) {
     Logger::info(format.c_str(), type.c_str(), order.side() == OrderSide::Buy ? "buy" : "sell", order.baseQuantity(), order.price());
 }
 
-void Status::addProfit(Quantity profits, Quantity losses, const Symbol& symbol) {
+void Status::printProfit(Quantity profit, Quantity profits, Quantity losses) {
     Quantity PNL = profits + losses;
 
+    std::string formatProfit = "+%." + std::to_string(util::zeros_after_dot(profit) + 2) + "f";
     std::string formatPNL = "PNL: %." + std::to_string(util::zeros_after_dot(PNL) + 2) + "f";
+
+    std::string format = "%s" + formatProfit + " " + formatPNL + "%s";
+    Logger::info(format.c_str(), GREEN, profit, PNL, RESET);
+}
+
+void Status::printBalance(const Symbol &symbol) {
     std::string baseAsset = "%." + std::to_string(util::zeros_after_dot(symbol.baseAsset().getBalance()) + 2) + "f";
     std::string quoteAsset = "%." + std::to_string(util::zeros_after_dot(symbol.quoteAsset().getBalance()) + 2) + "f";
 
-    std::string format = "%s" + formatPNL + " (" + baseAsset + " %s, " + quoteAsset + " %s)%s";
-    Logger::info(format.c_str(), GREEN, PNL, symbol.baseAsset().getBalance(), symbol.baseAsset().c_str(), symbol.quoteAsset().getBalance(), symbol.quoteAsset().c_str(), RESET);
+    std::string format = baseAsset + " %s / " + quoteAsset + " %s";
+    Logger::info(format.c_str(), symbol.baseAsset().getBalance(), symbol.baseAsset().c_str(), symbol.quoteAsset().getBalance(), symbol.quoteAsset().c_str());
 }
