@@ -80,7 +80,7 @@ void Status::printProfit(Quantity profit, Quantity profits, Quantity losses) {
     Quantity PNL = profits + losses;
 
     std::string formatProfit = "+%." + std::to_string(util::zeros_after_dot(profit) + 2) + "f";
-    std::string formatPNL = "PNL: %." + std::to_string(util::zeros_after_dot(PNL) + 2) + "f";
+    std::string formatPNL = "(PNL %." + std::to_string(util::zeros_after_dot(PNL) + 2) + "f)";
 
     std::string format = "%s" + formatProfit + " " + formatPNL + "%s";
     Logger::info(format.c_str(), GREEN, profit, PNL, RESET);
