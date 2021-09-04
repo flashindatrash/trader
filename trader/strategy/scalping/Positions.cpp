@@ -1,6 +1,5 @@
-#include <Time.hpp>
 #include "Positions.hpp"
-#include "exchanger/wrapper/OrderWrapper.hpp"
+#include <Time.hpp>
 
 NS_USE
 
@@ -48,6 +47,10 @@ time_t Position::time() const {
 
 void Position::setTime(time_t value) {
     set(FIELD_TIME, "t:" + std::to_string(value));
+}
+
+Quantity Position::profit(Price price) const {
+    return distance(price) * baseQuantity() - fee();
 }
 
 Positions* Positions::create(const db::Key& key, bool sync) {
@@ -110,15 +113,21 @@ Positions::Predicate Predicates::combine(Positions::Predicate a, Positions::Pred
     };
 }
 
-Positions::Predicate Predicates::greater(Price price) {
+Positions::Predicate Predicates::priceGreater(Price price) {
     return [price](const Position& position) {
         return position.price() > price;
     };
 }
 
-Positions::Predicate Predicates::less(Price price) {
+Positions::Predicate Predicates::priceLess(Price price) {
     return [price](const Position& position) {
         return position.price() < price;
+    };
+}
+
+Positions::Predicate Predicates::profitGreater(Price price, Quantity quantity) {
+    return [price, quantity](const Position& position) {
+        return position.profit(price) > quantity;
     };
 }
 
@@ -130,7 +139,7 @@ Positions::Predicate Predicates::side(OrderSide side) {
 
 Positions::Predicate Predicates::closable(const Symbol& symbol) {
     return [symbol](const Position& position) {
-        return OrderRequest::isEnough(symbol, OrderWrapper::revert(position.side()), position.baseQuantity());
+        return OrderUtil::isEnough(symbol, OrderUtil::revert(position.side()), position.baseQuantity());
     };
 }
 
@@ -144,9 +153,15 @@ bool Predicates::buy(const Position& position) {
 
 // ---------- Compares ----------
 
-Positions::Compare Compares::distance(Price price) {
+Positions::Compare Compares::profitable(Price price) {
     return [price](const Position& a, const Position& b) {
         return b.distance(price) > a.distance(price);
+    };
+}
+
+Positions::Compare Compares::losable(Price price) {
+    return [price](const Position& a, const Position& b) {
+        return b.distance(price) < a.distance(price);
     };
 }
 
@@ -160,12 +175,12 @@ bool Compares::min(const Position& a, const Position& b) {
 
 // ---------- Summarizes ----------
 
-std::function<Quantity(const Position&)> Summarizes::losses(Price price) {
+std::function<Quantity(const Position&)> Summarizes::profit(Price price) {
     return [price](const Position& position) {
-        return position.distance(price) * position.baseQuantity();
+        return position.profit(price);
     };
 }
 
-Quantity Summarizes::expanses(const Position& position) {
+Quantity Summarizes::volume(const Position& position) {
     return (position.side() == OrderSide::Buy ? 1.0 : -1.0) * position.quoteQuantity();
 }

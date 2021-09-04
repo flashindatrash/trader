@@ -40,7 +40,7 @@ void ProfitManager::tick(const Symbol& symbol) {
     // создаем реквест
     OrderRequest request;
     request.symbol = symbol;
-    request.side = OrderWrapper::revert(position->side());
+    request.side = OrderUtil::revert(position->side());
     request.quantity = position->baseQuantity();
 
     // новый хвостик, ждем N времен

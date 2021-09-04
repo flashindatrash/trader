@@ -1,20 +1,9 @@
 #include "OrderWrapper.hpp"
-#include "exchanger/base/Symbol.hpp"
 #include <utility>
 
-OrderWrapper* OrderWrapper::create()
-{
+OrderWrapper* OrderWrapper::create() {
     auto* wrapper = new OrderWrapper();
     return wrapper;
-}
-
-OrderSide OrderWrapper::revert(OrderSide side) {
-    switch (side) {
-    case OrderSide::Buy: return OrderSide::Sell;
-    case OrderSide::Sell: return OrderSide::Buy;
-    case OrderSide::Invalid: return OrderSide::Invalid;
-    }
-    return OrderSide::Invalid;
 }
 
 void OrderWrapper::set(OrderStructure data) {
@@ -38,14 +27,5 @@ Quantity OrderWrapper::quoteQuantity() const {
 }
 
 bool OrderRequest::isEnough() const {
-    return isEnough(symbol, side, quantity);
-}
-
-bool OrderRequest::isEnough(const Symbol& symbol, OrderSide side, Quantity quantity) {
-    // допускаем погрешность
-    static const double error = 1.3;
-
-    Quantity balance = OrderUtil::usingQuantity(side, symbol.baseAsset().getBalance(), symbol.quoteAsset().getBalance());
-    Quantity cost = OrderUtil::usingQuantity(side, quantity, symbol.price(quantity));
-    return balance > cost * error;
+    return OrderUtil::isEnough(symbol, side, quantity);
 }

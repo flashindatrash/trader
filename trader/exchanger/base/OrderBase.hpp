@@ -10,6 +10,8 @@ typedef double Price;
 typedef double Change;
 typedef double Quantity;
 
+class Symbol;
+
 enum OrderSide : unsigned int {
     Invalid,
     Buy,
@@ -27,7 +29,8 @@ public: // signature
 
 public: // methods
     Price price() const;
-    Quantity expanses() const;
+    Quantity fee() const;
+    Quantity usingQuantity() const;
     Change distance(Price current) const;
 };
 
@@ -38,4 +41,6 @@ public:
     static Change distance(OrderSide side, Price price, Price current);
     static Quantity usingQuantity(OrderSide side, Quantity baseQuantity, Quantity quoteQuantity);
     static Price price(Quantity baseQuantity, Quantity quoteQuantity);
+    static OrderSide revert(OrderSide side);
+    static bool isEnough(const Symbol& symbol, OrderSide side, Quantity quantity);
 };

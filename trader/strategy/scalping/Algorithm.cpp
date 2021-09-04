@@ -61,7 +61,8 @@ bool Algorithm::tryClosePosition(const Context& context) {
     request.symbol = _settings.symbol;
 
     // самая выгодная лонг или шорт позиция
-    const auto profitable = _positions->compare_if(Predicates::closable(request.symbol), Compares::distance(context.price()));
+    const auto profitable = _positions->compare_if(Predicates::closable(request.symbol),
+                                                   Compares::profitable(context.price()));
     if (profitable == _positions->cend()) {
         Logger::trace("close: hasn't profit for price %f", context.price());
         return false;
@@ -71,12 +72,12 @@ bool Algorithm::tryClosePosition(const Context& context) {
     Change distance_current = profitable->distance(context.price());
     Change distance_waited = profitable->price() * _settings.close_position_percent;
     if (distance_current < distance_waited) {
-        Logger::trace("close: distance current (%f) < waited(%f)", distance_current, distance_waited);
+        Logger::trace("close: profitable current (%f) < waited(%f)", distance_current, distance_waited);
         return false;
     }
 
     // проверим достаточно ли средств для сделки
-    request.side = OrderWrapper::revert(profitable->side());
+    request.side = OrderUtil::revert(profitable->side());
     request.quantity = profitable->baseQuantity();
 
     // настройка ожидания слабого хвостика
@@ -96,10 +97,10 @@ bool Algorithm::tryClosePosition(const Context& context) {
         }
     }
 
-    // создаем заказ (только не в тесте) и запоминаем дистанцию закрытия
-    Quantity distance;
+    // создание заказа
+    Quantity profit;
     if (_settings.test) {
-        distance = profitable->distance(context.price());
+        profit = profitable->profit(context.price());
     } else {
         const OrderWrapper* result = Exchanger().createOrder(request);
         if (result == nullptr) {
@@ -108,16 +109,35 @@ bool Algorithm::tryClosePosition(const Context& context) {
         }
 
         Status::printOrder(*result, "<");
-        distance = profitable->distance(context.price());
+
+        // профит = дистанция между 2мя ценами * лот - коммисия 1й и 2й сделки
+        profit = profitable->profit(result->price()) - result->fee();
     }
 
     // удалим из базы, результат удаления не важен
     _positions->remove(*profitable);
 
+    // пытаемся закрыть другие позиции
+    while(true) {
+        // найдем позицию с максимальным отставанием, которую можем закрыть
+        // её убыток (отрицательный профит) должен быть больше полученного данной сделкой
+        const auto losable = _positions->compare_if(Predicates::profitGreater(context.price(), -profit),
+                                                       Compares::losable(context.price()));
+        if (losable == _positions->cend())
+            break;
+
+        if (not _settings.test)
+            Status::printOrder(*losable, "*");
+
+        // вычитаем профит (будет отрицательный) и удаляем позицию
+        profit += losable->profit(context.price());
+        _positions->remove(*losable);
+    }
+
     // сохраняем профит, высчитываем и показываем PNL
-    auto profit = _statistics->addProfit(distance * request.quantity);
-    auto loss = _positions->summarize<Quantity>(Summarizes::losses(context.price()));
-    Status::addProfit(profit, loss, _settings.symbol);
+    auto profits = _statistics->addProfit(profit);
+    auto losses = _positions->summarize<Quantity>(Summarizes::profit(context.price()));
+    Status::addProfit(profits, losses, _settings.symbol);
 
     return true;
 }
@@ -142,30 +162,27 @@ bool Algorithm::tryOpenPosition(const Context& context) {
     if (last == _positions->cend()) {
         // это первая позиция в шорте или лонге, откроем ее с минимальным лотом
         request.quantity = Exchanger().minQuantity(request.symbol);
-    } else if (last->distance(context.price()) < -last->price() * _settings.open_price_percent) {
+    } else if (last->distance(context.price()) < -last->price() * _settings.price_distance) {
         // ближаяшая должна иметь дистанцию больше допустимого шага
         // открываем лот с умножением на коэфициент из конфига
         request.quantity = last->baseQuantity() * _settings.open_lot_multiply;
         // но с ограничением в максимум
         if (_settings.open_max_multiply > 1.0)
             request.quantity = std::min(request.quantity, Exchanger().minQuantity(request.symbol) * _settings.open_max_multiply);
-    } else if (not OrderRequest::isEnough(request.symbol, OrderWrapper::revert(request.side), last->baseQuantity())) {
+    } else if (not OrderUtil::isEnough(request.symbol, OrderUtil::revert(request.side), last->baseQuantity())) {
         // произошла беда, мы потратили все деньги, и не можем закрыть сделку
-        Logger::trace("open: emergency");
         request.quantity = last->baseQuantity();
     } else {
         // ближашая позиция уже имеет профит, или дистанция меньше допустимого шага
         // дождемся получения прибыли с нее, или изменению в проигрышную сторону
-        Logger::trace("open: waiting distance [%d]", last->side());
+        Logger::trace("open: waiting profitable [%d]", last->side());
         return false;
     }
 
 
     // проверим, что количество объем сделок не превышает установленный лимит средств
     if (_settings.volume_limit >= 0.0) {
-        auto total = _positions->summarize<Quantity>(Summarizes::expanses);
-
-        // добавим к общей суммарному вкладу открытых позиций и ту, которую хотим добавить
+        auto total = _positions->summarize<Quantity>(Summarizes::volume);
         if ((request.side == OrderSide::Buy && total > _settings.volume_limit) ||
             (request.side == OrderSide::Sell && total < -_settings.volume_limit)) {
             Logger::trace("open: reach limit %d orders, total %f", request.side, total);
@@ -175,16 +192,16 @@ bool Algorithm::tryOpenPosition(const Context& context) {
 
     // проверим, что средств достаточно для закрытия ближайшего противопложного шорта + лонга
     // еще обязательным условием, что он находится в достигаемом диапазоне, иначе бот блокируется при 0 балансе
-    const auto last_opposite = _positions->last(OrderWrapper::revert(request.side));
+    const auto last_opposite = _positions->last(OrderUtil::revert(request.side));
     if (last_opposite != _positions->cend() && OrderUtil::changeAbs(context.price(), last_opposite->price()) < _settings.close_position_percent) {
         // баланс, который используется для закрытия противоположной сделки
         Quantity balance = OrderUtil::usingQuantity(last_opposite->side(), request.symbol.baseAsset().getBalance(),
                                                     request.symbol.quoteAsset().getBalance());
         // посчитаем расход данной сделки
-        Quantity request_expanses = OrderUtil::usingQuantity(request.side, request.quantity, request.quantity * context.price());
+        Quantity request_quantity = OrderUtil::usingQuantity(request.side, request.quantity, request.quantity * context.price());
 
         // баланс должен быть выше суммы сделки на закрытие и оперируемой
-        Quantity frozen = last_opposite->expanses() + request_expanses;
+        Quantity frozen = last_opposite->usingQuantity() + request_quantity;
         if (balance < frozen) {
             Logger::trace("open: balance (%f) < frozen (%f)", balance, frozen);
             return false;

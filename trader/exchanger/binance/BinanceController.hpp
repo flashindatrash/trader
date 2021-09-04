@@ -39,6 +39,7 @@ public: // virtual
     const OrderWrapper* createOrder(BookWrapper& container, OrderRequest& request) override;
 
     double minQuantity(const std::string& symbol) const override;
+    double fee() const override;
 
 protected: // methods
     bool initUserListenKey();
@@ -57,6 +58,8 @@ private: // vars
 
     // number of milliseconds after timestamp the request is valid
     unsigned int _config_recv_window = 5000;
+    // order fee
+    double _config_fee = 0.0;
 
     Storage::Type_price* _prices_connector = nullptr;
     Storage::Type_balance* _balances_connector = nullptr;

@@ -19,6 +19,8 @@ public: // methods
     Quantity baseQuantity() const override;
     Quantity quoteQuantity() const override;
     time_t time() const;
+
+    Quantity profit(Price price) const;
 };
 
 class Positions : public db::ArrayAbstract<Position> {
@@ -50,8 +52,9 @@ class Predicates {
 public: // static
     // with arguments
     static Positions::Predicate combine(Positions::Predicate a, Positions::Predicate b);
-    static Positions::Predicate greater(Price price);
-    static Positions::Predicate less(Price price);
+    static Positions::Predicate priceGreater(Price price);
+    static Positions::Predicate priceLess(Price price);
+    static Positions::Predicate profitGreater(Price price, Quantity quantity);
     static Positions::Predicate side(OrderSide side);
     static Positions::Predicate closable(const Symbol& symbol);
     // without arguments
@@ -62,7 +65,8 @@ public: // static
 class Compares {
 public: // static
     // with arguments
-    static Positions::Compare distance(Price price);
+    static Positions::Compare profitable(Price price);
+    static Positions::Compare losable(Price price);
     // without arguments
     static bool max(const Position& a, const Position& b);
     static bool min(const Position& a, const Position& b);
@@ -71,9 +75,9 @@ public: // static
 class Summarizes {
 public: // static
     // with arguments
-    static std::function<Quantity (const Position&)> losses(Price price);
+    static std::function<Quantity (const Position&)> profit(Price price);
     // without arguments
-    static Quantity expanses(const Position& position);
+    static Quantity volume(const Position& position);
 };
 
 NS_END

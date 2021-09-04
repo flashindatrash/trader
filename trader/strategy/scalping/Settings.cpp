@@ -9,7 +9,7 @@ Settings::Settings(const core::Config& config) {
     username = config.asString("REDIS_USERNAME");
     symbol = config.asString("SYMBOL");
     test = config.asBool("TEST");
-    open_price_percent = config.asDouble("OPEN_PRICE_PERCENT") / 100.0;
+    price_distance = config.asDouble("OPEN_PRICE_PERCENT") / 100.0;
     open_lot_multiply = config.asDouble("OPEN_LOT_MULTIPLY");
     open_max_multiply = config.asDouble("OPEN_MAX_MULTIPLY");
     close_position_percent = config.asDouble("CLOSE_POSITION_PERCENT") / 100.0;
@@ -23,8 +23,8 @@ bool Settings::isValid() const {
         return false;
     }
 
-    if (open_price_percent < 0.0) {
-        Logger::info("Invalid OPEN_PRICE_PERCENT settings (%f)", open_price_percent);
+    if (price_distance < 0.0) {
+        Logger::info("Invalid OPEN_PRICE_PERCENT settings (%f)", price_distance);
         return false;
     }
 

@@ -45,7 +45,8 @@ void Status::update(Positions &positions, const Settings& settings, const Contex
         timeline.append("|");
 
     std::string close;
-    const auto profitable = positions.compare_if(Predicates::closable(settings.symbol), Compares::distance(context.price()));
+    const auto profitable = positions.compare_if(Predicates::closable(settings.symbol),
+                                                 Compares::profitable(context.price()));
     if (profitable != positions.cend()) {
         double percent = profitable->distance(context.price()) / (context.price() * settings.close_position_percent);
         close = "[" + std::to_string((int)(percent * 100.0)) + "%]";
@@ -75,8 +76,8 @@ void Status::printOrder(const OrderBase& order, const std::string& type) {
     Logger::info(format.c_str(), type.c_str(), order.side() == OrderSide::Buy ? "buy" : "sell", order.baseQuantity(), order.price());
 }
 
-void Status::addProfit(Quantity profit, Quantity loss, const Symbol& symbol) {
-    Quantity PNL = profit + loss;
+void Status::addProfit(Quantity profits, Quantity losses, const Symbol& symbol) {
+    Quantity PNL = profits + losses;
 
     std::string formatPNL = "PNL: %." + std::to_string(util::zeros_after_dot(PNL) + 2) + "f";
     std::string baseAsset = "%." + std::to_string(util::zeros_after_dot(symbol.baseAsset().getBalance()) + 2) + "f";

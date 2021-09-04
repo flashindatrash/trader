@@ -60,4 +60,7 @@ double ExchangerProxy::minQuantity(const std::string& key) const {
     return _controller->minQuantity(key);
 }
 
+double ExchangerProxy::fee() const {
+    return _controller->fee();
+}
 

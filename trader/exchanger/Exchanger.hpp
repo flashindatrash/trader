@@ -15,7 +15,7 @@ enum ChartInterval : unsigned int;
 class ExchangerProxy : public core::Proxy<ExchangerProxy>, public Storage {
 public: // methods
     ExchangerProxy() = default;
-    virtual ~ExchangerProxy() override;
+    ~ExchangerProxy() override;
 
     bool init(const core::Config& config);
     void run();
@@ -28,6 +28,7 @@ public: // methods
     const OrderWrapper* createOrder(OrderRequest& request);
 
     double minQuantity(const std::string& key) const;
+    double fee() const;
 
 protected: // methods
     void tick(time_t now);

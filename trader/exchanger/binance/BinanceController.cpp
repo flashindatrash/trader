@@ -22,6 +22,7 @@
 static const char* CONFIG_API_KEY = "BINANCE_API_KEY";
 static const char* CONFIG_SECRET_KEY = "BINANCE_SECRET_KEY";
 static const char* CONFIG_RECV_WINDOW = "BINANCE_RECV_WINDOW";
+static const char* CONFIG_FEE = "BINANCE_FEE";
 
 BinanceController::~BinanceController() {
     for (BinanceWebsocket* websocket : _websockets)
@@ -47,6 +48,9 @@ bool BinanceController::init(const core::Config& config) {
 
     if (config.has(CONFIG_RECV_WINDOW))
         _config_recv_window = config.asInt(CONFIG_RECV_WINDOW);
+
+    if (config.has(CONFIG_FEE))
+        _config_fee = config.asDouble(CONFIG_FEE) / 100.0;
 
     BinaCPP::init(api_key, secret_key);
     BinaCPP_websocket::init();
@@ -381,6 +385,10 @@ double BinanceController::minQuantity(const std::string& symbol) const {
     if (info.lotSize.stepSize > 0.0)
         quantity = std::round(quantity / info.lotSize.stepSize) * info.lotSize.stepSize;
     return quantity;
+}
+
+double BinanceController::fee() const {
+    return _config_fee;
 }
 
 std::unordered_map<std::string, BinanceSymbolData> BinanceController::_symbols;

@@ -21,15 +21,11 @@ struct OrderRequest {
     OrderType type = Market;
 
     bool isEnough() const;
-    static bool isEnough(const Symbol& symbol, OrderSide side, Quantity quantity);
 };
 
 class OrderWrapper : public OrderBase {
 public: // static
     static OrderWrapper* create();
-
-    // revert side
-    static OrderSide revert(OrderSide side);
 
 public: // methods
     void set(OrderStructure data);
