@@ -48,24 +48,17 @@ void Status::update(Positions &positions, const Settings& settings, const Contex
     const auto profitable = positions.compare_if(Predicates::closable(settings.symbol),
                                                  Compares::profitable(context.price()));
     if (profitable != positions.cend()) {
-        double percent = profitable->distance(context.price()) / (context.price() * settings.close_position_percent);
-        close = "[" + std::to_string((int)(percent * 100.0)) + "%]";
+        double percent = profitable->distance(context.price()) / (profitable->price() * settings.close_position_percent);
+        int percent_int = (int)(percent * 100.0);
+        close.append("[");
+        close.append(percent_int < 0 ? RED : GREEN);
+        close.append(std::to_string(percent_int) + "%");
+        close.append(RESET);
+        close.append("]");
     }
 
-    std::string price;
-    std::string formatPrice = "%." + std::to_string(util::zeros_after_dot(context.price()) + 2) + "f";
-    if (context.candlestick->isBearish()) {
-        price.append(RED);
-        price.append("↓" + formatPrice);
-        price.append(RESET);
-    } else {
-        price.append(GREEN);
-        price.append("↑" + formatPrice);
-        price.append(RESET);
-    }
-
-    std::string format = "%s %s " + price;
-    Logger::status(format.c_str(), timeline.c_str(), close.c_str(), context.price());
+    std::string format = "%s %s";
+    Logger::status(format.c_str(), timeline.c_str(), close.c_str());
 }
 
 void Status::printOrder(const OrderBase& order, const std::string& type) {
