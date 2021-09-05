@@ -62,7 +62,7 @@ void Logger::erase() {
     if (getenv("QT_TERMINAL") != nullptr)
         return;
 
-    std::cout << CURSOR_SAVE << CURSOR_START << CURSOR_UP << ERASE_LINE << CURSOR_RESTORE;
+    std::cout << CURSOR_START << CURSOR_UP << ERASE_LINE;
 }
 
 void Logger::trace(const char* fmt, ...) {
