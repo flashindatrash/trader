@@ -180,17 +180,6 @@ bool Algorithm::tryOpenPosition(const Context& context) {
         return false;
     }
 
-
-    // проверим, что количество объем сделок не превышает установленный лимит средств
-    if (_settings.volume_limit >= 0.0) {
-        auto total = _positions->summarize<Quantity>(Summarizes::volume);
-        if ((request.side == OrderSide::Buy && total > _settings.volume_limit) ||
-            (request.side == OrderSide::Sell && total < -_settings.volume_limit)) {
-            Logger::trace("open: reach limit %d orders, total %f", request.side, total);
-            return false;
-        }
-    }
-
     // проверим, что средств достаточно для закрытия ближайшего противопложного шорта + лонга
     // еще обязательным условием, что он находится в достигаемом диапазоне, иначе бот блокируется при 0 балансе
     const auto last_opposite = _positions->last(OrderUtil::revert(request.side));

@@ -26,7 +26,6 @@ public: // vars
     double open_lot_multiply = 1.0;
     double open_max_multiply = 1.0;
     double close_position_percent = 0.0;
-    double volume_limit = 0.0;
     double strong_tail_percent = 0.0;
 };
 NS_END
