@@ -152,19 +152,21 @@ bool Algorithm::tryOpenPosition(const Context& context) {
         // это первая позиция в шорте или лонге, откроем ее с минимальным лотом
         request.quantity = Exchanger().minQuantity(request.symbol);
     } else if (last->distance(context.price()) < -last->price() * _settings.price_distance) {
-        // ближаяшая должна иметь дистанцию больше допустимого шага
-        // открываем лот с умножением на коэфициент из конфига
+        // вход, если ближаяшая сделка имеет дистанцию больше допустимого шага
+        // и открываем лот с умножением на коэфициент из конфига
         request.quantity = last->baseQuantity() * _settings.open_lot_multiply;
         // но с ограничением в максимум
         if (_settings.open_max_multiply > 1.0)
             request.quantity = std::min(request.quantity, Exchanger().minQuantity(request.symbol) * _settings.open_max_multiply);
     } else if (not OrderUtil::isEnough(request.symbol, OrderUtil::revert(request.side), last->baseQuantity())) {
-        // произошла беда, мы потратили все деньги, и не можем закрыть сделку
+        // вход, если на противоположную сделку не хватает средств для закрытия
+        // todo: здесь никак не проверяется сколько нам не хватает, возможно baseQuantity не достаточно
+        // todo: и вообще, нужны ли они нам сейчас? может стоит проверять, что по last(OrderUtil::revert(request.side)).profit() > 0?
+        // todo: открывается с темже baseQuantity, не с увеличением ли?
         request.quantity = last->baseQuantity();
     } else {
         // ближашая позиция уже имеет профит, или дистанция меньше допустимого шага
         // дождемся получения прибыли с нее, или изменению в проигрышную сторону
-        Logger::trace("open: waiting profitable [%d]", last->side());
         return false;
     }
 
@@ -175,16 +177,14 @@ bool Algorithm::tryOpenPosition(const Context& context) {
         // баланс, который используется для закрытия противоположной сделки
         Quantity balance = OrderUtil::spentQuantity(last_opposite->side(), request.symbol.baseAsset().balance(),
                                                     request.symbol.quoteAsset().balance());
-        // посчитаем расход данной сделки
-        Quantity request_quantity = OrderUtil::spentQuantity(request.side, request.quantity,
+        // сколько требуется для данной сделки
+        Quantity required = OrderUtil::spentQuantity(request.side, request.quantity,
                                                              request.quantity * context.price());
 
         // баланс должен быть выше суммы сделки на закрытие и оперируемой
-        Quantity frozen = last_opposite->spentQuantity() + request_quantity;
-        if (balance < frozen) {
-            Logger::trace("open: balance (%f) < frozen (%f)", balance, frozen);
+        Quantity frozen = last_opposite->spentQuantity() + required;
+        if (balance < frozen)
             return false;
-        }
     }
 
     if (_settings.test) {
@@ -193,16 +193,13 @@ bool Algorithm::tryOpenPosition(const Context& context) {
         test.setBaseQuantity(request.quantity);
         test.setQuoteQuantity(request.quantity * context.price());
         test.setSide(request.side);
-        if (not _positions->push(test)) {
-            Logger::trace("open: failed to push");
+        if (not _positions->push(test))
             return false;
-        }
+
     } else {
         const OrderWrapper* result = Exchanger().createOrder(request);
-        if (not _positions->copy(result)) {
-            Logger::trace("open: failed create %d position with %f quantity", request.side, request.quantity);
+        if (not _positions->copy(result))
             return false;
-        }
 
         Status::printOrder(*result, result->id(), ">");
     }
