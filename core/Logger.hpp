@@ -26,7 +26,7 @@
 #define CURSOR_START    "\r"
 #define CURSOR_UP       "\033[1A"
 #define CURSOR_SAVE     "\033[s"
-#define CURSOR_RESTORE  "\033[s"
+#define CURSOR_RESTORE  "\033[u"
 #define ERASE_LINE      "\033[0K"
 
 
