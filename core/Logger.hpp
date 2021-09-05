@@ -21,11 +21,13 @@
 #define BOLDCYAN    "\033[1m\033[36m"      /* Bold Cyan */
 #define BOLDWHITE   "\033[1m\033[37m"      /* Bold White */
 //escape chars
-#define ESCSTART    "\033]0;"
-#define ESCEND      "\007"
+#define ESCSTART        "\033]0;"
+#define ESCEND          "\007"
 #define CURSOR_START    "\r"
 #define CURSOR_UP       "\033[1A"
-#define CURSOR_ERASE    "\033[0K"
+#define CURSOR_SAVE     "\033[s"
+#define CURSOR_RESTORE  "\033[s"
+#define ERASE_LINE      "\033[0K"
 
 
 class Logger {
