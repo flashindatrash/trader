@@ -180,7 +180,3 @@ std::function<Quantity(const Position&)> Summarizes::profit(Price price) {
         return position.profit(price);
     };
 }
-
-Quantity Summarizes::volume(const Position& position) {
-    return (position.side() == OrderSide::Buy ? 1.0 : -1.0) * position.quoteQuantity();
-}

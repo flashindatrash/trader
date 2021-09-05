@@ -28,8 +28,8 @@ double DecisionMaker::factor(const OrderRequest& request, int based_on) const {
     }
 
     if (has(based_on, Balance)) {
-        Quantity baseQty = request.symbol.price(request.symbol.baseAsset().getBalance());
-        Quantity quoteQty = request.symbol.quoteAsset().getBalance();
+        Quantity baseQty = request.symbol.price() * request.symbol.baseAsset().balance();
+        Quantity quoteQty = request.symbol.quoteAsset().balance();
         Quantity sumQty = baseQty + quoteQty;
         // мы должны иметь валюту для закрытия сделки
         for (const OrderWrapper* position : _positions) {

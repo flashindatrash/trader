@@ -63,18 +63,12 @@ bool Algorithm::tryClosePosition(const Context& context) {
     // самая выгодная лонг или шорт позиция
     const auto profitable = _positions->compare_if(Predicates::closable(request.symbol),
                                                    Compares::profitable(context.price()));
-    if (profitable == _positions->cend()) {
-        Logger::trace("close: hasn't profit for price %f", context.price());
+    if (profitable == _positions->cend())
         return false;
-    }
 
     // интересует только те, у которых изменилась цена выше указанного порога
-    Change distance_current = profitable->distance(context.price());
-    Change distance_waited = profitable->price() * _settings.close_position_percent;
-    if (distance_current < distance_waited) {
-        Logger::trace("close: profitable current (%f) < waited(%f)", distance_current, distance_waited);
+    if (profitable->distance(context.price()) < profitable->price() * _settings.close_position_percent)
         return false;
-    }
 
     // проверим достаточно ли средств для сделки
     request.side = OrderUtil::revert(profitable->side());
@@ -103,10 +97,8 @@ bool Algorithm::tryClosePosition(const Context& context) {
         profit = profitable->profit(context.price());
     } else {
         const OrderWrapper* result = Exchanger().createOrder(request);
-        if (result == nullptr) {
-            Logger::trace("close: failed create %d position with %f quantity", request.side, request.quantity);
+        if (result == nullptr)
             return false;
-        }
 
         Status::printOrder(*result, profitable->id(), "<");
 
@@ -149,10 +141,8 @@ bool Algorithm::tryOpenPosition(const Context& context) {
     // пока довольно примитивно по направлению свечи
     Change change = OrderUtil::change(context.candlestick->priceOpen(), context.candlestick->priceClose());
     request.side = change > 0.0 ? OrderSide::Sell : change < 0.0 ? OrderSide::Buy : OrderSide::Invalid;
-    if (request.side == OrderSide::Invalid) {
-        Logger::trace("open: neutral candlestick");
+    if (request.side == OrderSide::Invalid)
         return false;
-    }
 
     // найдем последнюю лонг или шорт позицию
     // проверим, можно ли нам войти еще раз в нее же
@@ -183,8 +173,8 @@ bool Algorithm::tryOpenPosition(const Context& context) {
     const auto last_opposite = _positions->last(OrderUtil::revert(request.side));
     if (last_opposite != _positions->cend() && OrderUtil::changeAbs(context.price(), last_opposite->price()) < _settings.close_position_percent) {
         // баланс, который используется для закрытия противоположной сделки
-        Quantity balance = OrderUtil::spentQuantity(last_opposite->side(), request.symbol.baseAsset().getBalance(),
-                                                    request.symbol.quoteAsset().getBalance());
+        Quantity balance = OrderUtil::spentQuantity(last_opposite->side(), request.symbol.baseAsset().balance(),
+                                                    request.symbol.quoteAsset().balance());
         // посчитаем расход данной сделки
         Quantity request_quantity = OrderUtil::spentQuantity(request.side, request.quantity,
                                                              request.quantity * context.price());

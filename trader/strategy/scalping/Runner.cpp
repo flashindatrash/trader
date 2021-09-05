@@ -13,12 +13,9 @@ Runner* Runner::create() {
     return runner;
 }
 
-bool Runner::init(const Settings& settings) {
+bool Runner::start(const Settings& settings) {
     _chart = Exchanger().chart(settings.symbol);
     if (settings.test) {
-        if (not Exchanger().loadCharts(_chart->id(), ChartInterval::m15))
-            return false;
-
         for (const CandlestickWrapper* candlestick : _chart->get()) {
             Context context;
             Time().set(candlestick->timeClose());

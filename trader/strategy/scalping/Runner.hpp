@@ -16,7 +16,7 @@ public: // static
     static Runner* create();
 
 public: // methods
-    bool init(const Settings& settings);
+    bool start(const Settings& settings);
     bool isRunning() const;
     void setCallback(Callback::Fn callback);
 

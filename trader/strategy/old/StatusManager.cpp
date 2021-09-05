@@ -16,8 +16,8 @@ StatusManager::StatusManager(OrderManager& orders)
 }
 
 void StatusManager::tick(const Symbol& symbol) {
-    double baseBalance = symbol.baseAsset().getBalance();
-    double quoteBalance = symbol.quoteAsset().getBalance();
+    double baseBalance = symbol.baseAsset().balance();
+    double quoteBalance = symbol.quoteAsset().balance();
 
     double change = getChange(symbol);
     Price current = symbol.price();

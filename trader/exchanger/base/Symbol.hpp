@@ -17,7 +17,7 @@ public: // methods
     const Asset& quoteAsset() const;
 
     const Price& price() const;
-    Price price(double quantity) const;
+    Quantity balance(const Asset& asset = Asset::USDT) const;
 
     const char* c_str() const;
     operator std::string() const;

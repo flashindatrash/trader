@@ -65,7 +65,7 @@ bool OrderUtil::isEnough(const Symbol& symbol, OrderSide side, Quantity quantity
     // допускаем погрешность
     static const double error = 1.3;
 
-    Quantity balance = spentQuantity(side, symbol.baseAsset().getBalance(), symbol.quoteAsset().getBalance());
-    Quantity cost = spentQuantity(side, quantity, symbol.price(quantity));
+    Quantity balance = spentQuantity(side, symbol.baseAsset().balance(), symbol.quoteAsset().balance());
+    Quantity cost = spentQuantity(side, quantity, symbol.price() * quantity);
     return balance > cost * error;
 }

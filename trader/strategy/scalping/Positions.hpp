@@ -76,8 +76,6 @@ class Summarizes {
 public: // static
     // with arguments
     static std::function<Quantity (const Position&)> profit(Price price);
-    // without arguments
-    static Quantity volume(const Position& position);
 };
 
 NS_END
