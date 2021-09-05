@@ -1,10 +1,12 @@
 #include "Object.hpp"
+
+#include <utility>
 #include "Database.hpp"
 
 using namespace db;
 
-Object::Object(const Key& key)
-    : _key(key)
+Object::Object(Key  key)
+    : _key(std::move(key))
 {
     load();
 }
