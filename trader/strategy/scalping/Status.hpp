@@ -17,8 +17,7 @@ class Status {
 public: // static
     static void setTitle(const Symbol& symbol);
     static void update(Positions& positions, const Settings& settings, const Context& context);
-    static void printOrder(const OrderBase& order, const std::string& type);
+    static void printOrder(const OrderBase& order, const std::string& id, const std::string& type);
     static void printProfit(Quantity profit, Quantity profits, Quantity losses);
-    static void printBalance(const Symbol& symbol);
 };
 NS_END

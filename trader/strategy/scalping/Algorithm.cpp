@@ -108,7 +108,7 @@ bool Algorithm::tryClosePosition(const Context& context) {
             return false;
         }
 
-        Status::printOrder(*result, "<");
+        Status::printOrder(*result, profitable->id(), "<");
 
         // профит = дистанция между 2мя ценами * лот - коммисия 1й и 2й сделки
         profit = profitable->profit(result->price()) - result->fee();
@@ -126,8 +126,7 @@ bool Algorithm::tryClosePosition(const Context& context) {
         if (losable == _positions->cend())
             break;
 
-        if (not _settings.test)
-            Status::printOrder(*losable, "*");
+        Status::printOrder(*losable, losable->id(), "*");
 
         // вычитаем профит (будет отрицательный) и удаляем позицию
         profit += losable->profit(context.price());
@@ -139,7 +138,6 @@ bool Algorithm::tryClosePosition(const Context& context) {
     auto losses = _positions->summarize<Quantity>(Summarizes::profit(context.price()));
 
     Status::printProfit(profit, profits, losses);
-    Status::printBalance(_settings.symbol);
     return true;
 }
 
@@ -216,9 +214,8 @@ bool Algorithm::tryOpenPosition(const Context& context) {
             return false;
         }
 
-        Status::printOrder(*result, ">");
+        Status::printOrder(*result, result->id(), ">");
     }
 
-    Status::printBalance(_settings.symbol);
     return true;
 }
