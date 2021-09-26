@@ -9,6 +9,7 @@ enum OrderType : unsigned int {
 
 struct OrderStructure {
     OrderBase::Id id;
+    Symbol symbol;
     OrderSide side = Invalid;
     Quantity quote_quantity = 0.0;
     Quantity base_quantity = 0.0;
@@ -31,6 +32,7 @@ public: // methods
     void set(OrderStructure data);
 
     Id id() const override;
+    Symbol symbol() const override;
     OrderSide side() const override;
     Quantity baseQuantity() const override;
     Quantity quoteQuantity() const override;

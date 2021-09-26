@@ -16,14 +16,13 @@ public: // static
     static Runner* create();
 
 public: // methods
-    bool start(const Settings& settings);
-    bool isRunning() const;
+    void start(const Settings& settings);
+    bool isActive() const;
     void setCallback(Callback::Fn callback);
 
 protected: // methods
     Runner() = default;
 
-    void dispatch(const Context& context);
     void tick(time_t ms);
 
 protected: // vars

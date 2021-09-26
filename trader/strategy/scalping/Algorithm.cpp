@@ -1,15 +1,18 @@
 #include "Algorithm.hpp"
 
 #include <utility>
-#include <Time.hpp>
+#include "Time.hpp"
 #include "Logger.hpp"
 #include "Context.hpp"
 #include "Positions.hpp"
 #include "Statistics.hpp"
-#include "Status.hpp"
+#include "Terminal.hpp"
 #include "Migrator.hpp"
 #include "exchanger/wrapper/CandlestickWrapper.hpp"
 #include "exchanger/wrapper/OrderWrapper.hpp"
+#include "exchanger/wrapper/PriceWrapper.hpp"
+#include "exchanger/wrapper/BalanceWrapper.hpp"
+#include "exchanger/wrapper/ChartWrapper.hpp"
 #include "exchanger/Exchanger.hpp"
 
 NS_USE
@@ -37,7 +40,7 @@ Algorithm::~Algorithm() {
 }
 
 bool Algorithm::init() {
-    Status::setTitle(_settings.symbol);
+    Terminal::setTitle(_settings.symbol);
     Logger::setLogfile("/tmp/" + _settings.uniqId() + ".log");
 
     // создадим структуры для хранения данных
@@ -45,164 +48,187 @@ bool Algorithm::init() {
     _statistics = Statistics::create(_settings.uniqId() + ":stats", not _settings.test);
 
     // промигрируем данные
-    Migrator::migrate(_positions, _statistics, _settings.symbol, _settings.test);
+    if (not Migrator::migrate(_positions, _statistics, _settings.symbol, _settings.test))
+        return false;
+
     return true;
 }
 
 void Algorithm::execute(const Context& context) {
-    bool close = tryClosePosition(context);
-    bool open = tryOpenPosition(context);
-
-    Status::update(*_positions, _settings, context);
+    bool status = tryTakeProfit(context) || tryStopLoss(context) || tryOpen(context);
+    Terminal::update(*_positions, _settings, context);
 }
 
-bool Algorithm::tryClosePosition(const Context& context) {
+bool Algorithm::tryTakeProfit(const Context& context) {
+    // самая выгодная позиция
+    const auto position = _positions->compare_if(Predicates::closable, Compares::profitable);
+    if (position == _positions->cend())
+        return false;
+
+    // интересует выход за TAKE PROFIT
+    if (position->distance() < position->price() * _settings.take_profit)
+        return false;
+
+    return tryClose(*position);
+}
+
+bool Algorithm::tryStopLoss(const Context& context) {
+    // самая проигранная позиция
+    const auto position = _positions->compare_if(Predicates::closable, Compares::losable);
+    if (position == _positions->cend())
+        return false;
+
+    // интересует выход за STOP LOSS
+    if (position->distance() > position->price() * _settings.stop_loss)
+        return false;
+
+    return tryClose(*position);
+}
+
+bool Algorithm::tryClose(const Position& closable) {
+    // создадим реквест
     OrderRequest request;
     request.symbol = _settings.symbol;
+    request.side = closable.revert();
+    request.quantity = closable.baseQuantity();
 
-    // самая выгодная лонг или шорт позиция
-    const auto profitable = _positions->compare_if(Predicates::closable(request.symbol),
-                                                   Compares::profitable(context.price()));
-    if (profitable == _positions->cend())
+    // создадим заказ
+    Position position;
+    if (not createOrder(request, position))
         return false;
 
-    // интересует только те, у которых изменилась цена выше указанного порога
-    if (profitable->distance(context.price()) < profitable->price() * _settings.close_position_percent)
-        return false;
+    Quantity profit = closable.profit(position.price()) - position.fee();
 
-    // проверим достаточно ли средств для сделки
-    request.side = OrderUtil::revert(profitable->side());
-    request.quantity = profitable->baseQuantity();
-
-    // настройка ожидания слабого хвостика
-    if (_settings.strong_tail_percent > 0.0) {
-        // новый хвостик, ждем N времен
-        if (Time().ms() < context.candlestick->timeOpen() + Timer::sSecond * 5)
-            return false;
-
-        // если хвостик слабенький, то ждем
-        if ((request.side == OrderSide::Sell &&
-             context.candlestick->isBullish() &&
-             context.candlestick->wickLen() / context.price() < _settings.strong_tail_percent) ||
-            (request.side == OrderSide::Buy &&
-             context.candlestick->isBearish() &&
-             context.candlestick->tailLen() / context.price() < _settings.strong_tail_percent)) {
-            return false;
-        }
-    }
-
-    // создание заказа
-    Quantity profit;
-    if (_settings.test) {
-        profit = profitable->profit(context.price());
-    } else {
-        const OrderWrapper* result = Exchanger().createOrder(request);
-        if (result == nullptr)
-            return false;
-
-        Status::printOrder(*result, profitable->id(), "<");
-
-        // профит = дистанция между 2мя ценами * лот - коммисия 1й и 2й сделки
-        profit = profitable->profit(result->price()) - result->fee();
-    }
+    // распечатаем созданную позицию с id закрытой
+    Terminal::printOrder(position, "<");
 
     // удалим из базы, результат удаления не важен
-    _positions->remove(*profitable);
-
-    // пытаемся закрыть другие позиции
-    while(true) {
-        // найдем позицию с максимальным отставанием, которую можем закрыть
-        // её убыток (отрицательный профит) должен быть больше полученного данной сделкой
-        const auto losable = _positions->compare_if(Predicates::profitGreater(context.price(), -profit),
-                                                       Compares::losable(context.price()));
-        if (losable == _positions->cend())
-            break;
-
-        Status::printOrder(*losable, losable->id(), "*");
-
-        // вычитаем профит (будет отрицательный) и удаляем позицию
-        profit += losable->profit(context.price());
-        _positions->remove(*losable);
-    }
+    _positions->remove(closable);
 
     // сохраняем профит, высчитываем и показываем PNL
     auto profits = _statistics->addProfit(profit);
-    auto losses = _positions->summarize<Quantity>(Summarizes::profit(context.price()));
-
-    Status::printProfit(profit, profits, losses);
+    Terminal::printProfit(profit, profits);
     return true;
 }
 
-bool Algorithm::tryOpenPosition(const Context& context) {
-    OrderRequest request;
-    request.symbol = _settings.symbol;
+bool Algorithm::tryOpen(const Context& context) {
+    if (_positions->size() > 0)
+        return false;
 
     // выбираем куда идем в шорт или лонг
-    // пока довольно примитивно по направлению свечи
-    Change change = OrderUtil::change(context.candlestick->priceOpen(), context.candlestick->priceClose());
-    request.side = change > 0.0 ? OrderSide::Sell : change < 0.0 ? OrderSide::Buy : OrderSide::Invalid;
-    if (request.side == OrderSide::Invalid)
+    std::pair<OrderSide, double> analyze = risk();
+    if (analyze.first == OrderSide::Invalid)
         return false;
 
-    // найдем последнюю лонг или шорт позицию
-    // проверим, можно ли нам войти еще раз в нее же
-    // и определим сумму лота новой позиции
-    const auto last = _positions->last(request.side);
-    if (last == _positions->cend()) {
-        // это первая позиция в шорте или лонге, откроем ее с минимальным лотом
-        request.quantity = Exchanger().minQuantity(request.symbol);
-    } else if (last->distance(context.price()) < -last->price() * _settings.price_distance) {
-        // вход, если ближаяшая сделка имеет дистанцию больше допустимого шага
-        // и открываем лот с умножением на коэфициент из конфига
-        request.quantity = last->baseQuantity() * _settings.open_lot_multiply;
-        // но с ограничением в максимум
-        if (_settings.open_max_multiply > 1.0)
-            request.quantity = std::min(request.quantity, Exchanger().minQuantity(request.symbol) * _settings.open_max_multiply);
-    } else if (not OrderUtil::isEnough(request.symbol, OrderUtil::revert(request.side), last->baseQuantity())) {
-        // вход, если на противоположную сделку не хватает средств для закрытия
-        // todo: здесь никак не проверяется сколько нам не хватает, возможно baseQuantity не достаточно
-        // todo: и вообще, нужны ли они нам сейчас? может стоит проверять, что по last(OrderUtil::revert(request.side)).profit() > 0?
-        // todo: открывается с темже baseQuantity, не с увеличением ли?
-        request.quantity = last->baseQuantity();
-    } else {
-        // ближашая позиция уже имеет профит, или дистанция меньше допустимого шага
-        // дождемся получения прибыли с нее, или изменению в проигрышную сторону
+    // создадим реквест
+    OrderRequest request;
+    request.symbol = _settings.symbol;
+    request.side = analyze.first;
+    request.quantity = Exchanger().minQuantity(request.symbol);
+
+    // чем меньше риск, тем выше ставка
+    double lot_k = (_settings.risk - analyze.second) / _settings.risk;
+    double lot_diff = _settings.lot_max - _settings.lot_min;
+    request.quantity *= _settings.lot_min + lot_diff * lot_k;
+
+    // создание заказа
+    Position position;
+    if (not createOrder(request, position))
         return false;
-    }
 
-    // проверим, что средств достаточно для закрытия ближайшего противопложного шорта + лонга
-    // еще обязательным условием, что он находится в достигаемом диапазоне, иначе бот блокируется при 0 балансе
-    const auto last_opposite = _positions->last(OrderUtil::revert(request.side));
-    if (last_opposite != _positions->cend() && OrderUtil::changeAbs(context.price(), last_opposite->price()) < _settings.close_position_percent) {
-        // баланс, который используется для закрытия противоположной сделки
-        Quantity balance = OrderUtil::spentQuantity(last_opposite->side(), request.symbol.baseAsset().balance(),
-                                                    request.symbol.quoteAsset().balance());
-        // сколько требуется для данной сделки
-        Quantity required = OrderUtil::spentQuantity(request.side, request.quantity,
-                                                             request.quantity * context.price());
+    if (not _positions->push(position))
+        return false;
 
-        // баланс должен быть выше суммы сделки на закрытие и оперируемой
-        Quantity frozen = last_opposite->spentQuantity() + required;
-        if (balance < frozen)
-            return false;
-    }
+    Terminal::printOrder(position, ">");
+    return true;
+}
+
+bool Algorithm::createOrder(OrderRequest& request, Position& result) const {
+    if (not request.isEnough())
+        return false;
 
     if (_settings.test) {
         static int sTestId = 1;
-        Position test("test" + std::to_string(++sTestId));
-        test.setBaseQuantity(request.quantity);
-        test.setQuoteQuantity(request.quantity * context.price());
-        test.setSide(request.side);
-        if (not _positions->push(test))
+
+        PriceWrapper* price = Exchanger().price(request.symbol.id());
+        if (price == nullptr)
             return false;
 
-    } else {
-        const OrderWrapper* result = Exchanger().createOrder(request);
-        if (not _positions->copy(result))
-            return false;
+        result = Position("test" + std::to_string(++sTestId));
+        result.setBaseQuantity(request.quantity);
+        result.setQuoteQuantity(request.quantity * price->get(request.side));
+        result.setSide(request.side);
+        result.setSymbol(request.symbol);
 
-        Status::printOrder(*result, result->id(), ">");
+        BalanceWrapper* baseBalance = Exchanger().balance(request.symbol.baseAsset());
+        BalanceWrapper* quoteBalance = Exchanger().balance(request.symbol.quoteAsset());
+
+        if (baseBalance && quoteBalance) {
+            switch (request.side) {
+                case OrderSide::Buy: {
+                    baseBalance->gain(result.baseQuantity());
+                    quoteBalance->spend(result.quoteQuantity());
+                    break;
+                }
+                case OrderSide::Sell: {
+                    baseBalance->spend(result.baseQuantity());
+                    quoteBalance->gain(result.quoteQuantity());
+                    break;
+                }
+                case OrderSide::Invalid:
+                    break;
+            }
+        }
+        return true;
     }
 
+    // создание заказа
+    const OrderWrapper* order = Exchanger().createOrder(request);
+    if (order == nullptr)
+        return false;
+
+    result = Position(*order);
     return true;
+}
+
+std::pair<OrderSide, double> Algorithm::risk() const {
+    double buy = risk(OrderSide::Buy);
+    double sell = risk(OrderSide::Sell);
+
+    if (buy > _settings.risk && sell > _settings.risk)
+        return std::make_pair(OrderSide::Invalid, std::numeric_limits<double>::infinity());
+
+    if (sell < buy)
+        return std::make_pair(OrderSide::Sell, sell);
+    else
+        return std::make_pair(OrderSide::Buy, buy);
+}
+
+double Algorithm::risk(OrderSide side) const {
+    const ChartWrapper* chart = Exchanger().chart(_settings.symbol);
+    if (chart == nullptr)
+        return std::numeric_limits<double>::infinity();
+
+    const PriceWrapper* price = Exchanger().price(_settings.symbol);
+    if (price == nullptr)
+        return std::numeric_limits<double>::infinity();
+
+    Price current = price->get(side);
+    Price change;
+
+    switch (side) {
+        case OrderSide::Buy: change = current + current * _settings.take_profit; break;
+        case OrderSide::Sell: change = current - current * _settings.take_profit; break;
+        case OrderSide::Invalid: return std::numeric_limits<double>::infinity();
+    }
+
+    const ChartWrapper::Range range = chart->last(current, change);
+    if (not range.isValid())
+        return std::numeric_limits<double>::infinity();
+
+    time_t now = Time().ms();
+    time_t diffs = (now - range.end->timeClose()) + (now - range.begin->timeClose());
+
+    // эталонное время 1 час
+    return (double)diffs / (double)Timer::sHour;
 }

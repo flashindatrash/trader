@@ -13,11 +13,11 @@ class Positions;
 class Settings;
 class Context;
 
-class Status {
+class Terminal {
 public: // static
     static void setTitle(const Symbol& symbol);
     static void update(Positions& positions, const Settings& settings, const Context& context);
-    static void printOrder(const OrderBase& order, const std::string& id, const std::string& type);
-    static void printProfit(Quantity profit, Quantity profits, Quantity losses);
+    static void printOrder(const OrderBase& order, const std::string& type);
+    static void printProfit(Quantity profit, Quantity sum);
 };
 NS_END

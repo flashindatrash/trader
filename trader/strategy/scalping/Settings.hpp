@@ -18,14 +18,18 @@ protected: // methods
     Settings() = default;
 
 public: // vars
+    bool test = false;
+
     std::string username;
 
     Symbol symbol;
-    bool test = false;
-    double price_distance = 0.0;
-    double open_lot_multiply = 1.0;
-    double open_max_multiply = 1.0;
-    double close_position_percent = 0.0;
-    double strong_tail_percent = 0.0;
+
+    double take_profit = 0.0;
+    double stop_loss = 0.0;
+
+    double lot_min = 1.0;
+    double lot_max = 1.0;
+
+    double risk = 0.5;
 };
 NS_END

@@ -5,6 +5,7 @@
 #include "exchanger/Exchanger.hpp"
 #include "exchanger/wrapper/BookWrapper.hpp"
 #include "exchanger/wrapper/OrderWrapper.hpp"
+#include "exchanger/wrapper/PriceWrapper.hpp"
 #include "util/NumberUtil.hpp"
 
 using namespace scalping;

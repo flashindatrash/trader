@@ -44,6 +44,9 @@ void Logger::info(const char* fmt, ...) {
 }
 
 void Logger::status(const char* fmt, ...) {
+    if (getenv("QT_TERMINAL") != nullptr)
+        return;
+
     if (sStatus)
         erase();
     sStatus = true;
@@ -67,14 +70,8 @@ void Logger::erase() {
 
 void Logger::trace(const char* fmt, ...) {
     static FILE* file = nullptr;
-    if (file == nullptr) {
+    if (file == nullptr)
         file = fopen(sLogFile.c_str(), "wa");
-        if (file) {
-            info("log file in %s", sLogFile.c_str());
-        } else {
-            info("failed to open log file");
-        }
-    }
 
     if (file == nullptr)
         return;

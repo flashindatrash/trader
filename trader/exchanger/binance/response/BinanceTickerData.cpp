@@ -1,8 +1,7 @@
-#include "BinanceBookData.hpp"
+#include "BinanceTickerData.hpp"
 #include <json/json.h>
 
-BinanceBookData::BinanceBookData(const Json::Value& json)
-{
+BinanceTickerData::BinanceTickerData(const Json::Value& json) {
     updateId = atol(json["u"].asString().c_str());
     symbol = json["s"].asString();
     bestBidPrice = atof(json["b"].asString().c_str());

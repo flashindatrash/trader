@@ -3,6 +3,8 @@
 #include "Identifier.hpp"
 #include "Asset.hpp"
 
+class PriceWrapper;
+
 class Symbol : public Identifier {
 public: // static
     static Symbol* create();

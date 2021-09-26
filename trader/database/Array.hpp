@@ -61,6 +61,14 @@ public: // methods
         return false;
     }
 
+    bool clear() {
+        if (DB().del(_key)) {
+            _values.clear();
+            return true;
+        }
+        return false;
+    }
+
 protected: //
     void load() {
         if (not proceed_sync() || _key.empty())

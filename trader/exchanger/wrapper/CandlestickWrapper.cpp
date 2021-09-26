@@ -1,11 +1,11 @@
 #include "CandlestickWrapper.hpp"
 
 CandlestickWrapper* CandlestickWrapper::create() {
-    CandlestickWrapper* wrapper = new CandlestickWrapper();
+    auto* wrapper = new CandlestickWrapper();
     return wrapper;
 }
 
-void CandlestickWrapper::set(Candlestick data) {
+void CandlestickWrapper::set(const Candlestick& data) {
     _identifier = data.symbol;
     _data = data;
 }
@@ -18,16 +18,24 @@ const Price& CandlestickWrapper::priceClose() const {
     return _data.price_close;
 }
 
+Price CandlestickWrapper::priceMin() const {
+    return std::min(_data.price_open, _data.price_close);
+}
+
+Price CandlestickWrapper::priceMax() const {
+    return std::max(_data.price_open, _data.price_close);
+}
+
 Price CandlestickWrapper::bodyLen() const {
     return std::abs(_data.price_open - _data.price_close);
 }
 
 Price CandlestickWrapper::wickLen() const {
-    return _data.price_high - std::max(_data.price_open, _data.price_close);
+    return _data.price_high - priceMax();
 }
 
 Price CandlestickWrapper::tailLen() const {
-    return std::min(_data.price_open, _data.price_close) - _data.price_low;
+    return priceMin() - _data.price_low;
 }
 
 bool CandlestickWrapper::isBullish() const {

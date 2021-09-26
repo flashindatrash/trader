@@ -5,35 +5,54 @@
 
 NS_USE
 
+static const char* TEST = "TEST";
+static const char* USERNAME = "REDIS_USERNAME";
+static const char* SYMBOL = "SYMBOL";
+static const char* RISK = "RISK";
+static const char* LOT_MIN = "LOT_MIN";
+static const char* LOT_MAX = "LOT_MAX";
+static const char* TAKE_PROFIT = "TAKE_PROFIT";
+static const char* STOP_LOSS = "STOP_LOSS";
+
 Settings::Settings(const core::Config& config) {
-    username = config.asString("REDIS_USERNAME");
-    symbol = config.asString("SYMBOL");
-    test = config.asBool("TEST");
-    price_distance = config.asDouble("OPEN_PRICE_PERCENT") / 100.0;
-    open_lot_multiply = config.asDouble("OPEN_LOT_MULTIPLY");
-    open_max_multiply = config.asDouble("OPEN_MAX_MULTIPLY");
-    close_position_percent = config.asDouble("CLOSE_POSITION_PERCENT") / 100.0;
-    strong_tail_percent = config.asDouble("STRONG_TAIL_PERCENT") / 100.0;
+    test = config.asBool(TEST);
+    username = config.asString(USERNAME);
+    symbol = config.asString(SYMBOL);
+    risk = config.asDouble(RISK);
+    lot_min = config.asDouble(LOT_MIN);
+    lot_max = config.asDouble(LOT_MAX);
+    take_profit = config.asDouble(TAKE_PROFIT) / 100.0;
+    stop_loss = config.asDouble(STOP_LOSS) / -100.0;
 }
 
 bool Settings::isValid() const {
     if (Exchanger().pair(symbol) == nullptr) {
-        Logger::info("%s symbol doesn't exist", symbol.c_str());
+        Logger::info("Settings: %s symbol doesn't exist", symbol.c_str());
         return false;
     }
 
-    if (price_distance < 0.0) {
-        Logger::info("Invalid OPEN_PRICE_PERCENT settings (%f)", price_distance);
+    if (take_profit <= 0.0) {
+        Logger::info("Settings: %s <= 0.0", TAKE_PROFIT);
         return false;
     }
 
-    if (open_lot_multiply < 1.0) {
-        Logger::info("Invalid OPEN_LOT_MULTIPLY settings (%f)", open_lot_multiply);
+    if (stop_loss >= 0.0) {
+        Logger::info("Settings: %s <= 0.0", STOP_LOSS);
         return false;
     }
 
-    if (close_position_percent < 0.0) {
-        Logger::info("Invalid CLOSE_POSITION_PERCENT settings (%f)", close_position_percent);
+    if (lot_min < 1.0) {
+        Logger::info("Settings: %s < 1.0", LOT_MIN);
+        return false;
+    }
+
+    if (lot_max < 1.0) {
+        Logger::info("Settings: %s < 1.0", LOT_MAX);
+        return false;
+    }
+
+    if (lot_max < lot_min) {
+        Logger::info("Settings: %s < %s", LOT_MAX, LOT_MIN);
         return false;
     }
 

@@ -17,7 +17,6 @@ public: // methods
 public: // vars
     long orderId = 0;
     std::string status = "";
-    std::string symbol = "";
 };
 
 

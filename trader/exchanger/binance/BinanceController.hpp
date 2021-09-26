@@ -32,9 +32,10 @@ public: // virtual
     bool loadBalances(Storage::Type_balance& container) const override;
     bool loadOrders(BookWrapper& container) const override;
     bool loadStats(CandlestickWrapper& container) const override;
-    bool loadCharts(ChartWrapper& container, ChartInterval interval) const override;
+    bool loadCharts(ChartWrapper& container) const override;
 
-    void listenCharts(ChartWrapper& container, ChartInterval interval) override;
+    void listenCharts(ChartWrapper& container) override;
+    void listenTicker(PriceWrapper& container) override;
 
     const OrderWrapper* createOrder(BookWrapper& container, OrderRequest& request) override;
 
@@ -48,6 +49,7 @@ protected: // methods
 protected: // callbacks
     void onUserDataStream(const Json::Value& json);
     void onKlineDataStream(const Json::Value& json);
+    void onTickerDataStream(const Json::Value& json);
 
 private: // static vars
     static std::unordered_map<std::string, BinanceSymbolData> _symbols;
@@ -58,7 +60,7 @@ private: // vars
 
     // number of milliseconds after timestamp the request is valid
     unsigned int _config_recv_window = 5000;
-    // order fee
+    // order fee percentage
     double _config_fee = 0.0;
 
     Storage::Type_price* _prices_connector = nullptr;

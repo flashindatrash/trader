@@ -22,8 +22,10 @@ public: // methods
     void stop();
 
     bool loadOrders(const std::string& key);
-    bool loadCharts(const std::string& key, ChartInterval interval);
-    void listenCharts(const std::string& key, ChartInterval interval);
+    bool loadStats(const std::string& key);
+    bool loadCharts(const std::string& key);
+    void listenCharts(const std::string& key);
+    void listenTickers(const std::string& key);
 
     const OrderWrapper* createOrder(OrderRequest& request);
 

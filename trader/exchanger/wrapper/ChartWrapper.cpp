@@ -2,7 +2,7 @@
 #include "CandlestickWrapper.hpp"
 
 ChartWrapper* ChartWrapper::create() {
-    ChartWrapper* wrapper = new ChartWrapper();
+    auto* wrapper = new ChartWrapper();
     return wrapper;
 }
 
@@ -46,5 +46,44 @@ const std::vector<CandlestickWrapper*>& ChartWrapper::get() const {
 const CandlestickWrapper* ChartWrapper::last() const {
     if (_candlesticks.empty())
         return nullptr;
+
     return _candlesticks.back();
+}
+
+ChartWrapper::Range ChartWrapper::last(Price current, Price change) const {
+    Range range;
+
+    if (current == change || _candlesticks.size() < 3)
+        return range;
+
+    for (auto it = _candlesticks.crbegin() + 1; it < _candlesticks.crend(); ++it) {
+        const CandlestickWrapper* candlestick = *it;
+
+        // find end
+        if (range.end == nullptr) {
+            if ((change > current && candlestick->priceMin() > change) || (change < current && candlestick->priceMax() < change))
+                range.end = candlestick;
+            continue;
+        }
+
+        // find begin
+        if (range.begin == nullptr) {
+            if ((change > current && candlestick->priceMax() < current) || (change < current && candlestick->priceMin() > current))
+                range.begin = candlestick;
+            continue;
+        }
+    }
+    return range;
+}
+
+void ChartWrapper::setInterval(ChartInterval interval) {
+    _interval = interval;
+}
+
+const ChartInterval& ChartWrapper::interval() const {
+    return _interval;
+}
+
+bool ChartWrapper::Range::isValid() const {
+    return begin != nullptr && end != nullptr;
 }

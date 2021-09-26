@@ -20,7 +20,7 @@ public: // methods
     size_t size() const;
     bool empty() const;
 
-    bool remove() const;
+    bool remove();
     bool save();
 
 public: // operators

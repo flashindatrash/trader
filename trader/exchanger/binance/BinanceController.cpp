@@ -18,6 +18,7 @@
 #include "response/BinanceOrderData.hpp"
 #include "response/BinancePriceStatisticsData.hpp"
 #include "response/BinanceKlineData.hpp"
+#include "response/BinanceTickerData.hpp"
 
 static const char* CONFIG_API_KEY = "BINANCE_API_KEY";
 static const char* CONFIG_SECRET_KEY = "BINANCE_SECRET_KEY";
@@ -128,7 +129,7 @@ bool BinanceController::loadPrices(Storage::Type_price& container) const {
     for (auto & data : json) {
         std::string symbol = data["symbol"].asString();
         Price price = atof(data["price"].asString().c_str());
-        container.get(symbol)->add(price);
+        container.get(symbol)->set(price);
     }
 
     return true;
@@ -171,8 +172,8 @@ bool BinanceController::loadStats(CandlestickWrapper& container) const {
     return true;
 }
 
-bool BinanceController::loadCharts(ChartWrapper& container, ChartInterval interval) const {
-    const std::string& interval_converted = binance::serialize(interval);
+bool BinanceController::loadCharts(ChartWrapper& container) const {
+    const std::string& interval_converted = binance::serialize(container.interval());
     if (interval_converted.empty()) {
         Logger::info("BinanceController::loadCharts: unknown chart interval");
         return false;
@@ -193,7 +194,10 @@ bool BinanceController::loadCharts(ChartWrapper& container, ChartInterval interv
     }
 
     for (auto & item : json) {
-        if (container.add(BinanceKlineData(item)) == nullptr)
+        BinanceKlineData data(item);
+        data.symbol = container.id();
+
+        if (container.add(data) == nullptr)
             Logger::info("BinanceController::loadCharts: invalid kline %s", item.toStyledString().c_str());
     }
 
@@ -239,10 +243,17 @@ void BinanceController::connectCharts(Storage::Type_chart& container) {
     _charts_connector = &container;
 }
 
-void BinanceController::listenCharts(ChartWrapper& container, ChartInterval interval) {
+void BinanceController::listenCharts(ChartWrapper& container) {
     BinanceWebsocket* websocket = BinanceWebsocket::create();
-    websocket->setPath(util::lowercase(container.id().c_str()) + "@kline_" + binance::serialize(interval));
+    websocket->setPath(util::lowercase(container.id().c_str()) + "@kline_" + binance::serialize(container.interval()));
     websocket->setCallback(std::bind(&BinanceController::onKlineDataStream, this, std::placeholders::_1));
+    _websockets.push_back(websocket);
+}
+
+void BinanceController::listenTicker(PriceWrapper& container) {
+    BinanceWebsocket* websocket = BinanceWebsocket::create();
+    websocket->setPath(util::lowercase(container.id().c_str()) + "@bookTicker");
+    websocket->setCallback(std::bind(&BinanceController::onTickerDataStream, this, std::placeholders::_1));
     _websockets.push_back(websocket);
 }
 
@@ -302,13 +313,23 @@ void BinanceController::onKlineDataStream(const Json::Value& json) {
     BinanceKlineData data(json);
 
     if (_prices_connector != nullptr)
-        _prices_connector->get(data.symbol)->add(data.price_close);
+        _prices_connector->get(data.symbol)->set(data.price_close);
 
     if (_charts_connector != nullptr)
         _charts_connector->get(data.symbol)->add(data);
 }
 
+void BinanceController::onTickerDataStream(const Json::Value& json) {
+    BinanceTickerData data(json);
+
+    if (_prices_connector != nullptr)
+        _prices_connector->get(data.symbol)->set(data);
+}
+
 const OrderWrapper* BinanceController::createOrder(BookWrapper& container, OrderRequest& request) {
+    if (request.side == OrderSide::Invalid)
+        return nullptr;
+
     std::string type = binance::serialize(request.type);
 
     auto it = _symbols.find(request.symbol);
@@ -325,7 +346,7 @@ const OrderWrapper* BinanceController::createOrder(BookWrapper& container, Order
 
     Quantity min_quantity = minQuantity(request.symbol);
     if (min_quantity == 0.0) {
-        Logger::info("BinanceController::createOrder unknown min quantity");
+        Logger::info("BinanceController::createOrder unknown priceMin quantity");
         return nullptr;
     } else if (request.quantity > min_quantity) {
         if (info.lotSize.stepSize > 0.0)
@@ -409,7 +430,9 @@ double BinanceController::minQuantity(const std::string& symbol) const {
     const BinanceSymbolData::MinNotional& min_notional = info.minNotional;
     const BinanceSymbolData::LotSize& lot_size = info.lotSize;
 
-    Price price_avg = wrapper->getPriceAverage(min_notional.avgPriceMins * Timer::sMinute);
+    // todo: price average
+    // Price price_avg = wrapper->getPriceAverage(min_notional.avgPriceMins * Timer::sMinute);
+    Price price_avg = wrapper->get();
     double quantity = std::max(lot_size.minQty, min_notional.minNotional / price_avg) *  1.3;
     if (info.lotSize.stepSize > 0.0)
         quantity = std::round(quantity / info.lotSize.stepSize) * info.lotSize.stepSize;

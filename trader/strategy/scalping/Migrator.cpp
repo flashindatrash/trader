@@ -13,35 +13,20 @@
 
 NS_USE
 
-void Migrator::migrate(Positions* positions, Statistics* statistics, const Symbol& symbol, bool test) {
+bool Migrator::migrate(Positions* positions, Statistics* statistics, const Symbol& symbol, bool test) {
     const std::string& current_version = TraderApp::sVersion.toString();
     const std::string& migrate_version = statistics->version();
 
-    if (migrate_version.empty()) {
-        if (Exchanger().loadOrders(symbol)) {
-            const std::vector<const OrderWrapper *> &orders = Exchanger().book(symbol)->get();
-            std::vector<std::string> keys = DB().keys("order:*");
-            for (const OrderWrapper *order: orders) {
-                std::string id = "order:" + order->id();
-                if (std::find(keys.begin(), keys.end(), id) == keys.end())
-                    continue;
-
-                if (positions->copy(order) && not test)
-                    DB().del(id);
-            }
-        }
-
-        double profit = DB().get("stats:profit:" + symbol.id()).asDouble();
-        if (profit > 0.0) {
-            if (not test)
-                DB().del("stats:profit:" + symbol.id());
-
-            statistics->addProfit(profit);
-        }
+    if (migrate_version == "1.2.2") {
+        // todo: проверить миграцию очищения
+        if (not statistics->remove() || not positions->clear())
+            return false;
     }
 
     if (migrate_version != current_version) {
         statistics->setVersion(current_version);
-        statistics->save();
+        return statistics->save();
     }
+
+    return true;
 }

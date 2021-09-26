@@ -12,19 +12,13 @@ public: // static
 
 public: // methods
     Timer() = default;
-
     void tick();
-
-    void set(time_t ms);
 
     time_t ms() const;
     time_t sec() const;
 
 public: // signals
     Signal<time_t> onTick;
-
-protected: // vars
-    time_t _local = 0;
 };
 
 #define Time() Timer::getInstance()

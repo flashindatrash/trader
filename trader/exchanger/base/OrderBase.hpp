@@ -23,6 +23,7 @@ public: // signature
     typedef std::string Id;
 
     virtual Id id() const = 0;
+    virtual Symbol symbol() const = 0;
     virtual OrderSide side() const = 0;
     virtual Quantity baseQuantity() const = 0;
     virtual Quantity quoteQuantity() const = 0;
@@ -31,7 +32,6 @@ public: // methods
     Price price() const;
     Quantity fee() const;
     Quantity spentQuantity() const;
-    Change distance(Price current) const;
 };
 
 class OrderUtil {

@@ -1,20 +1,38 @@
 #include "Positions.hpp"
-#include <Time.hpp>
+#include "exchanger/Exchanger.hpp"
+#include "exchanger/wrapper/PriceWrapper.hpp"
 
 NS_USE
 
 static const char* FIELD_SIDE = "side";
+static const char* FIELD_SYMBOL = "symbol";
 static const char* FIELD_BASE_QUANTITY = "base_quantity";
 static const char* FIELD_QUOTE_QUANTITY = "quote_quantity";
-static const char* FIELD_TIME = "time";
 
 Position::Position(const db::Key& key)
     : db::Object(key)
 {
 }
 
+Position::Position(const OrderBase& order)
+    : db::Object(order.id())
+{
+    setSide(order.side());
+    setSymbol(order.symbol());
+    setQuoteQuantity(order.quoteQuantity());
+    setBaseQuantity(order.baseQuantity());
+}
+
 OrderBase::Id Position::id() const {
     return _key;
+}
+
+Symbol Position::symbol() const {
+    return get(FIELD_SYMBOL).asString();
+}
+
+void Position::setSymbol(Symbol value) {
+    set(FIELD_SYMBOL, value.c_str());
 }
 
 OrderSide Position::side() const {
@@ -41,16 +59,31 @@ void Position::setQuoteQuantity(Quantity value) {
     set(FIELD_QUOTE_QUANTITY, value);
 }
 
-time_t Position::time() const {
-    return stol(get(FIELD_TIME).asString().substr(2));
+OrderSide Position::revert() const {
+    return OrderUtil::revert(side());
 }
 
-void Position::setTime(time_t value) {
-    set(FIELD_TIME, "t:" + std::to_string(value));
+Price Position::current() const {
+    if (const PriceWrapper* current = Exchanger().price(symbol()))
+        return current->get(revert());
+    return 0.0;
+}
+
+Quantity Position::profit() const {
+    return profit(current());
 }
 
 Quantity Position::profit(Price price) const {
     return distance(price) * baseQuantity() - fee();
+}
+
+Change Position::distance() const {
+    Price price = current();
+    return price > 0.0 ? distance(price) : 0.0;
+}
+
+Change Position::distance(Price current) const {
+    return OrderUtil::distance(side(), price(), current);
 }
 
 Positions* Positions::create(const db::Key& key, bool sync) {
@@ -70,7 +103,6 @@ bool Positions::proceed_push(Position& value) const {
     if (value.price() <= 0.0 || value.baseQuantity() <= 0.0 || value.side() == OrderSide::Invalid)
         return false;
 
-    value.setTime(Time().ms());
     return not proceed_sync() || value.save();
 }
 
@@ -86,20 +118,10 @@ void Positions::proceed_sort() {
     // todo
 }
 
-bool Positions::copy(const OrderBase* order) {
-    if (order == nullptr)
-        return false;
-    Position position(order->id());
-    position.setQuoteQuantity(order->quoteQuantity());
-    position.setBaseQuantity(order->baseQuantity());
-    position.setSide(order->side());
-    return push(position);
-}
-
 Positions::const_iterator Positions::last(OrderSide side) const {
     switch (side) {
-    case OrderSide::Buy: return compare_if(Predicates::buy, Compares::min);
-    case OrderSide::Sell: return compare_if(Predicates::sell, Compares::max);
+    case OrderSide::Buy: return compare_if(Predicates::buy, Compares::priceMin);
+    case OrderSide::Sell: return compare_if(Predicates::sell, Compares::priceMax);
     case OrderSide::Invalid: return cend();
     }
     return cend();
@@ -113,21 +135,9 @@ Positions::Predicate Predicates::combine(Positions::Predicate a, Positions::Pred
     };
 }
 
-Positions::Predicate Predicates::priceGreater(Price price) {
-    return [price](const Position& position) {
-        return position.price() > price;
-    };
-}
-
-Positions::Predicate Predicates::priceLess(Price price) {
-    return [price](const Position& position) {
-        return position.price() < price;
-    };
-}
-
-Positions::Predicate Predicates::profitGreater(Price price, Quantity quantity) {
-    return [price, quantity](const Position& position) {
-        return position.profit(price) > quantity;
+Positions::Predicate Predicates::profitGreater(Quantity quantity) {
+    return [quantity](const Position& position) {
+        return position.profit() > quantity;
     };
 }
 
@@ -137,10 +147,8 @@ Positions::Predicate Predicates::side(OrderSide side) {
     };
 }
 
-Positions::Predicate Predicates::closable(const Symbol& symbol) {
-    return [symbol](const Position& position) {
-        return OrderUtil::isEnough(symbol, OrderUtil::revert(position.side()), position.baseQuantity());
-    };
+bool Predicates::closable(const Position& position) {
+    return OrderUtil::isEnough(position.symbol(), OrderUtil::revert(position.side()), position.baseQuantity());
 }
 
 bool Predicates::sell(const Position& position) {
@@ -153,30 +161,24 @@ bool Predicates::buy(const Position& position) {
 
 // ---------- Compares ----------
 
-Positions::Compare Compares::profitable(Price price) {
-    return [price](const Position& a, const Position& b) {
-        return b.distance(price) > a.distance(price);
-    };
-}
-
-Positions::Compare Compares::losable(Price price) {
-    return [price](const Position& a, const Position& b) {
-        return b.distance(price) < a.distance(price);
-    };
-}
-
-bool Compares::max(const Position& a, const Position& b) {
+bool Compares::priceMax(const Position& a, const Position& b) {
     return b.price() > a.price();
 }
 
-bool Compares::min(const Position& a, const Position& b) {
+bool Compares::priceMin(const Position& a, const Position& b) {
     return b.price() < a.price();
+}
+
+bool Compares::profitable(const Position& a, const Position& b) {
+    return b.profit() > a.profit();
+}
+
+bool Compares::losable(const Position& a, const Position& b) {
+    return b.profit() < a.profit();
 }
 
 // ---------- Summarizes ----------
 
-std::function<Quantity(const Position&)> Summarizes::profit(Price price) {
-    return [price](const Position& position) {
-        return position.profit(price);
-    };
+Quantity Summarizes::profit(const Position& position) {
+    return position.profit();
 }

@@ -6,11 +6,13 @@ class CandlestickWrapper;
 
 NS_BEGIN
 struct Context {
+    Context(const CandlestickWrapper* candlestick);
+
     const CandlestickWrapper* candlestick = nullptr;
 
-    const Price& price() const;
+    const Price& price(const OrderSide& side) const;
 
-    bool isValid() const;
+    double risk(const OrderSide& side) const;
 };
 NS_END
 

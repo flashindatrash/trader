@@ -44,12 +44,20 @@ bool ExchangerProxy::loadOrders(const std::string& key) {
     return _controller->loadOrders(*_books.get(key));
 }
 
-bool ExchangerProxy::loadCharts(const std::string& key, ChartInterval interval) {
-    return _controller->loadCharts(*_charts.get(key), interval);
+bool ExchangerProxy::loadStats(const std::string& key) {
+    return _controller->loadStats(*_stats.get(key));
 }
 
-void ExchangerProxy::listenCharts(const std::string& key, ChartInterval interval) {
-    _controller->listenCharts(*_charts.get(key), interval);
+bool ExchangerProxy::loadCharts(const std::string& key) {
+    return _controller->loadCharts(*_charts.get(key));
+}
+
+void ExchangerProxy::listenCharts(const std::string& key) {
+    _controller->listenCharts(*_charts.get(key));
+}
+
+void ExchangerProxy::listenTickers(const std::string& key) {
+    _controller->listenTicker(*_prices.get(key));
 }
 
 const OrderWrapper* ExchangerProxy::createOrder(OrderRequest& request) {

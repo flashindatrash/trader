@@ -6,6 +6,7 @@
 #include "Algorithm.hpp"
 #include "exchanger/Exchanger.hpp"
 #include "exchanger/wrapper/ChartWrapper.hpp"
+#include "exchanger/wrapper/BalanceWrapper.hpp"
 
 NS_USE
 
@@ -24,20 +25,30 @@ bool ScalpingStrategy::init(const core::Config& config) {
     if (not _algorithm->init())
         return false;
 
-    // load last 24 chart & start listening
-    if (not Exchanger().loadCharts(settings.symbol, ChartInterval::m15))
+    // set chart interval
+    Exchanger().chart(settings.symbol)->setInterval(ChartInterval::m5);
+
+    // load 24h chart
+    if (not Exchanger().loadCharts(settings.symbol))
         return false;
-    Exchanger().listenCharts(settings.symbol, ChartInterval::m5);
+
+    // start listen chart
+    Exchanger().listenCharts(settings.symbol);
+    Exchanger().listenTickers(settings.symbol);
+
+    // add test balance
+    if (settings.test) {
+        Exchanger().balance(settings.symbol.baseAsset())->gain(10000);
+        Exchanger().balance(settings.symbol.quoteAsset())->gain(10000);
+    }
 
     // create & start runner
     _runner = Runner::create();
     _runner->setCallback(std::bind(&Algorithm::execute, _algorithm, std::placeholders::_1));
-    if (not _runner->start(settings))
-        return false;
-
-    return true;
+    _runner->start(settings);
+    return isRunning();
 }
 
 bool ScalpingStrategy::isRunning() const {
-    return _runner && _runner->isRunning();
+    return _runner && _runner->isActive();
 }

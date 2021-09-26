@@ -15,10 +15,12 @@ public: // static
     static CandlestickWrapper* create();
 
 public: // methods
-    void set(Candlestick data);
+    void set(const Candlestick& data);
 
     const Price& priceOpen() const;
     const Price& priceClose() const;
+    Price priceMin() const;
+    Price priceMax() const;
 
     Price bodyLen() const;
     Price wickLen() const; // upper tail

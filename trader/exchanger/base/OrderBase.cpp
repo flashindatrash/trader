@@ -5,6 +5,7 @@
 #include "OrderBase.hpp"
 #include "exchanger/Exchanger.hpp"
 #include "exchanger/base/Symbol.hpp"
+#include "exchanger/wrapper/PriceWrapper.hpp"
 
 Price OrderBase::price() const {
     return OrderUtil::price(baseQuantity(), quoteQuantity());
@@ -16,10 +17,6 @@ Price OrderBase::fee() const {
 
 Quantity OrderBase::spentQuantity() const {
     return OrderUtil::spentQuantity(side(), baseQuantity(), quoteQuantity());
-}
-
-Change OrderBase::distance(Price current) const {
-    return OrderUtil::distance(side(), price(), current);
 }
 
 Change OrderUtil::change(const Price& left, const Price& right) {
@@ -65,7 +62,8 @@ bool OrderUtil::isEnough(const Symbol& symbol, OrderSide side, Quantity quantity
     // допускаем погрешность
     static const double error = 1.3;
 
+    Price price = Exchanger().price(symbol)->get(side);
     Quantity balance = spentQuantity(side, symbol.baseAsset().balance(), symbol.quoteAsset().balance());
-    Quantity cost = spentQuantity(side, quantity, symbol.price() * quantity);
+    Quantity cost = spentQuantity(side, quantity, price * quantity);
     return balance > cost * error;
 }

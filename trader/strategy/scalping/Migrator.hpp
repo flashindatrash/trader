@@ -13,6 +13,6 @@ class Statistics;
 
 class Migrator {
 public: // static
-    static void migrate(Positions* positions, Statistics* statistics, const Symbol& symbol, bool test);
+    static bool migrate(Positions* positions, Statistics* statistics, const Symbol& symbol, bool test);
 };
 NS_END

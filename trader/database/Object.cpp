@@ -46,8 +46,12 @@ bool Object::empty() const {
     return _map.empty();
 }
 
-bool Object::remove() const {
-    return DB().del(_key);
+bool Object::remove() {
+    if (DB().del(_key)) {
+        _map.clear();
+        return true;
+    }
+    return false;
 }
 
 bool Object::save() {

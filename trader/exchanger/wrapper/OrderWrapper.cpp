@@ -14,6 +14,10 @@ OrderBase::Id OrderWrapper::id() const {
     return _data.id;
 }
 
+Symbol OrderWrapper::symbol() const {
+    return _data.symbol;
+}
+
 OrderSide OrderWrapper::side() const {
     return _data.side;
 }

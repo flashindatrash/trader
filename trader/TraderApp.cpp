@@ -5,7 +5,7 @@
 #include "exchanger/Exchanger.hpp"
 #include "strategy/Strategy.hpp"
 
-core::Version TraderApp::sVersion = core::Version(1, 2, 2);
+core::Version TraderApp::sVersion = core::Version(1, 3, 0);
 
 TraderApp::TraderApp(const core::Config& config)
     : core::App(config)

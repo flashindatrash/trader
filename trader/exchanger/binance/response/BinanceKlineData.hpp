@@ -1,6 +1,5 @@
 #pragma once
 
-#include <string>
 #include "exchanger/wrapper/CandlestickWrapper.hpp"
 
 namespace Json {

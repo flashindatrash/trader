@@ -29,8 +29,9 @@ bool OldStrategy::init(const core::Config& config) {
     if (Exchanger().pair(_symbol.id()) == nullptr)
         return false;
 
+    Exchanger().chart(_symbol.id())->setInterval(ChartInterval::m15);
     Exchanger().loadOrders(_symbol.id());
-    Exchanger().listenCharts(_symbol.id(), ChartInterval::m15);
+    Exchanger().listenCharts(_symbol.id());
 
     _pool = new OrderManager(_symbol);
     _status_manager = new StatusManager(*_pool);

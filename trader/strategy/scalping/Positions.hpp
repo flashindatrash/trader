@@ -7,20 +7,29 @@
 NS_BEGIN
 class Position : public db::Object, public OrderBase {
 public: // methods
+    Position() = default;
     Position(const db::Key& key);
+    Position(const OrderBase& order);
 
     void setSide(OrderSide value);
+    void setSymbol(Symbol value);
     void setBaseQuantity(Quantity value);
     void setQuoteQuantity(Quantity value);
     void setTime(time_t value);
 
     Id id() const override;
+    Symbol symbol() const override;
     OrderSide side() const override;
     Quantity baseQuantity() const override;
     Quantity quoteQuantity() const override;
-    time_t time() const;
 
+    time_t time() const;
+    OrderSide revert() const;
+    Price current() const;
+    Quantity profit() const;
     Quantity profit(Price price) const;
+    Change distance() const;
+    Change distance(Price price) const;
 };
 
 class Positions : public db::ArrayAbstract<Position> {
@@ -30,9 +39,6 @@ public: // static
     static Positions* create(const db::Key& key, bool sync);
 
 public: // methods
-    // create new order
-    bool copy(const OrderBase* order);
-
     // last position by side
     const_iterator last(OrderSide side) const;
 
@@ -52,30 +58,28 @@ class Predicates {
 public: // static
     // with arguments
     static Positions::Predicate combine(Positions::Predicate a, Positions::Predicate b);
-    static Positions::Predicate priceGreater(Price price);
-    static Positions::Predicate priceLess(Price price);
-    static Positions::Predicate profitGreater(Price price, Quantity quantity);
+    static Positions::Predicate profitGreater(Quantity quantity);
     static Positions::Predicate side(OrderSide side);
-    static Positions::Predicate closable(const Symbol& symbol);
+
     // without arguments
     static bool sell(const Position& position);
     static bool buy(const Position& position);
+    static bool closable(const Position& position);
 };
 
 class Compares {
 public: // static
-    // with arguments
-    static Positions::Compare profitable(Price price);
-    static Positions::Compare losable(Price price);
     // without arguments
-    static bool max(const Position& a, const Position& b);
-    static bool min(const Position& a, const Position& b);
+    static bool priceMax(const Position& a, const Position& b);
+    static bool priceMin(const Position& a, const Position& b);
+    static bool profitable(const Position& a, const Position& b);
+    static bool losable(const Position& a, const Position& b);
 };
 
 class Summarizes {
 public: // static
-    // with arguments
-    static std::function<Quantity (const Position&)> profit(Price price);
+    // without arguments
+    static Quantity profit(const Position& position);
 };
 
 NS_END
