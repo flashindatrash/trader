@@ -13,7 +13,3 @@ Context::Context(const CandlestickWrapper* candlestick)
 const Price& Context::price(const OrderSide& side) const {
     return Exchanger().price(candlestick->id())->get(side);
 }
-
-double Context::risk(const OrderSide& side) const {
-    return 0.0;
-}

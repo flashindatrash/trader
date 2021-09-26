@@ -23,7 +23,6 @@ public: // methods
     Quantity baseQuantity() const override;
     Quantity quoteQuantity() const override;
 
-    time_t time() const;
     OrderSide revert() const;
     Price current() const;
     Quantity profit() const;

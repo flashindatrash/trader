@@ -11,8 +11,6 @@ struct Context {
     const CandlestickWrapper* candlestick = nullptr;
 
     const Price& price(const OrderSide& side) const;
-
-    double risk(const OrderSide& side) const;
 };
 NS_END
 

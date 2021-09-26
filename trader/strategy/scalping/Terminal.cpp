@@ -20,46 +20,22 @@ void Terminal::setTitle(const Symbol& symbol) {
 }
 
 void Terminal::update(Positions& positions, const Settings& settings, const Context& context) {
-    if (positions.size() == 0)
+    const auto profitable = positions.compare_if(Predicates::closable, Compares::profitable);
+    if (profitable == positions.cend())
         return;
 
-    std::sort(positions.begin(), positions.end(), Compares::priceMax);
-
-    std::string timeline;
-    bool current_embeded = false;
-    for (const Position& position : positions) {
-        if (not current_embeded && context.price(position.revert()) < position.price()) {
-            timeline.append("|");
-            current_embeded = true;
-        }
-        if (position.side() == OrderSide::Buy)
-            timeline.append("+");
-        else if (position.side() == OrderSide::Sell)
-            timeline.append("-");
-    }
-
-    if (not current_embeded)
-        timeline.append("|");
-
-    std::string close;
-    const auto profitable = positions.compare_if(Predicates::closable, Compares::profitable);
-    if (profitable != positions.cend()) {
-        double percent = profitable->distance() / (profitable->price() * settings.take_profit);
-        int percent_int = (int)(percent * 100.0);
-        close.append("[");
-        close.append(percent_int < 0 ? RED : GREEN);
-        close.append(std::to_string(percent_int) + "%");
-        close.append(RESET);
-        close.append("]");
-    }
+    Quantity profit = profitable->profit();
+    std::string positionFormat = "";
+    positionFormat.append(profit < 0 ? RED : GREEN);
+    positionFormat.append("%." + std::to_string(util::zeros_after_dot(profit) + 2) + "f ");
+    positionFormat.append(profitable->symbol().quoteAsset());
+    positionFormat.append(RESET);
 
     Quantity balance = settings.symbol.balance(Asset::USDT);
-    std::string balanceFormat = "%." + std::to_string(util::zeros_after_dot(balance) + 2) + "f " + Asset::USDT.id();
+    std::string balanceFormat = "[balance: %." + std::to_string(util::zeros_after_dot(balance) + 2) + "f " + Asset::USDT.id() + "]";
 
-    std::string format = "%s %s " + balanceFormat + " (%f / %f) (%f / %f / %f)";
-    Logger::status(format.c_str(), timeline.c_str(), close.c_str(), balance,
-                   context.risk(OrderSide::Buy), context.risk(OrderSide::Sell),
-                   context.price(OrderSide::Invalid), context.price(OrderSide::Buy), context.price(OrderSide::Sell));
+    std::string format = positionFormat + " " + balanceFormat;
+    Logger::status(format.c_str(), profit, balance);
 }
 
 void Terminal::printOrder(const OrderBase& order, const std::string& type) {
