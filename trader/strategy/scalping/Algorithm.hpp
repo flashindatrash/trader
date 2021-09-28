@@ -31,8 +31,7 @@ protected: // methods
 
     bool createOrder(OrderRequest& request, Position& result) const;
 
-    std::pair<OrderSide, double> risk() const;
-    double risk(OrderSide side) const;
+    OrderSide getSignal() const;
 
 protected: // vars
     const Settings _settings;

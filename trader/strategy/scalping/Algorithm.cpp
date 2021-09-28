@@ -69,6 +69,10 @@ bool Algorithm::tryTakeProfit(const Context& context) {
     if (position->distance() < position->price() * _settings.take_profit)
         return false;
 
+    // сигнал на закрытие
+    if (position->revert() != getSignal())
+        return false;
+
     return tryClose(*position);
 }
 
@@ -115,21 +119,11 @@ bool Algorithm::tryOpen(const Context& context) {
     if (_positions->size() > 0)
         return false;
 
-    // выбираем куда идем в шорт или лонг
-    std::pair<OrderSide, double> analyze = risk();
-    if (analyze.first == OrderSide::Invalid)
-        return false;
-
     // создадим реквест
     OrderRequest request;
     request.symbol = _settings.symbol;
-    request.side = analyze.first;
-    request.quantity = Exchanger().minQuantity(request.symbol);
-
-    // чем меньше риск, тем выше ставка
-    double lot_k = (_settings.risk - analyze.second) / _settings.risk;
-    double lot_diff = _settings.lot_max - _settings.lot_min;
-    request.quantity *= _settings.lot_min + lot_diff * lot_k;
+    request.side = getSignal();
+    request.quantity = Exchanger().minQuantity(request.symbol) * _settings.lot_min;
 
     // создание заказа
     Position position;
@@ -191,44 +185,15 @@ bool Algorithm::createOrder(OrderRequest& request, Position& result) const {
     return true;
 }
 
-std::pair<OrderSide, double> Algorithm::risk() const {
-    double buy = risk(OrderSide::Buy);
-    double sell = risk(OrderSide::Sell);
-
-    if (buy > _settings.risk && sell > _settings.risk)
-        return std::make_pair(OrderSide::Invalid, std::numeric_limits<double>::infinity());
-
-    if (sell < buy)
-        return std::make_pair(OrderSide::Sell, sell);
-    else
-        return std::make_pair(OrderSide::Buy, buy);
-}
-
-double Algorithm::risk(OrderSide side) const {
+OrderSide Algorithm::getSignal() const {
     const ChartWrapper* chart = Exchanger().chart(_settings.symbol);
     if (chart == nullptr)
-        return std::numeric_limits<double>::infinity();
+        return OrderSide::Invalid;
 
-    const PriceWrapper* price = Exchanger().price(_settings.symbol);
-    if (price == nullptr)
-        return std::numeric_limits<double>::infinity();
+    Price ema_long = chart->ema(30);
+    Price ema_short = chart->ema(20);
+    if (ema_long == 0.0 || ema_short == 0.0)
+        return OrderSide::Invalid;
 
-    Price current = price->get(side);
-    Price change;
-
-    switch (side) {
-        case OrderSide::Buy: change = current + current * _settings.take_profit; break;
-        case OrderSide::Sell: change = current - current * _settings.take_profit; break;
-        case OrderSide::Invalid: return std::numeric_limits<double>::infinity();
-    }
-
-    const ChartWrapper::Range range = chart->last(current, change);
-    if (not range.isValid())
-        return std::numeric_limits<double>::infinity();
-
-    time_t now = Time().ms();
-    time_t diffs = (now - range.end->timeClose()) + (now - range.begin->timeClose());
-
-    // эталонное время 1 час
-    return (double)diffs / (double)Timer::sHour;
+    return ema_short > ema_long ? OrderSide::Buy : OrderSide::Sell;
 }

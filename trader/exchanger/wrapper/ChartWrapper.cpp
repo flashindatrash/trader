@@ -76,6 +76,29 @@ ChartWrapper::Range ChartWrapper::last(Price current, Price change) const {
     return range;
 }
 
+Price ChartWrapper::ema(size_t length) const {
+    if (_candlesticks.size() < length + 1)
+        return 0.0;
+
+    auto it = _candlesticks.end() - length - 1;
+    Price result = (*(it++))->priceClose();
+
+    /*
+     * EMA = Price(t) × k + EMA(y) × (1−k)
+     * where:
+     * t=today
+     * y=yesterday
+     * N=number of days in EMA
+     * k=2÷(N+1)
+    */
+    double k = 2.0 / (length + 1);
+
+    for (; it < _candlesticks.cend(); ++it)
+        result = (*it)->priceClose() * k + result * (1 - k);
+
+    return result;
+}
+
 void ChartWrapper::setInterval(ChartInterval interval) {
     _interval = interval;
 }

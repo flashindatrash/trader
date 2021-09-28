@@ -36,6 +36,8 @@ public: // methods
     void setInterval(ChartInterval interval);
     const ChartInterval& interval() const;
 
+    Price ema(size_t length) const;
+
 protected: // methods
     ChartWrapper() = default;
 
