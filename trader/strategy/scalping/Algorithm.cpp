@@ -70,8 +70,8 @@ bool Algorithm::tryTakeProfit(const Context& context) {
         return false;
 
     // ждем сигнал на закрытие
-//    if (position->revert() != getSignal(context))
-//        return false;
+    if (position->revert() != getSignal(context))
+        return false;
 
     return tryClose(context, *position);
 }
