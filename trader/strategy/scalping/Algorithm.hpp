@@ -26,6 +26,7 @@ protected: // methods
 
     bool tryTakeProfit(const Context& context);
     bool tryStopLoss(const Context& context);
+    bool tryAverage(const Context& context);
     bool tryOpen(const Context& context);
     bool tryClose(const Context& context, const Position& closable);
 

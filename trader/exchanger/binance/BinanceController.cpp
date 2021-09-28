@@ -195,7 +195,7 @@ bool BinanceController::loadCharts(ChartWrapper& container) const {
         return false;
     }
 
-    for (auto & item : json) {
+    for (auto& item : json) {
         BinanceKlineData data(item);
         data.symbol = container.id();
 

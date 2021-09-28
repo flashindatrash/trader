@@ -55,7 +55,12 @@ bool Algorithm::init() {
 }
 
 void Algorithm::execute(const Context& context) {
-    bool status = tryTakeProfit(context) || tryStopLoss(context) || tryOpen(context);
+    bool status = false;
+    // закрытие сделок: получить профит || остановить убыток || усреднение цены
+    status |= tryTakeProfit(context) || tryStopLoss(context) || tryAverage(context);
+    // открытие сделок
+    status |= tryOpen(context);
+    // обновляем строку терминала
     Terminal::update(*_positions, _settings, context);
 }
 
@@ -77,6 +82,9 @@ bool Algorithm::tryTakeProfit(const Context& context) {
 }
 
 bool Algorithm::tryStopLoss(const Context& context) {
+    if (_settings.stop_loss >= 0.0)
+        return false;
+
     // самая проигранная позиция
     const auto position = _positions->compare_if(Predicates::closable, Compares::losable(context.price()));
     if (position == _positions->cend())
@@ -87,6 +95,45 @@ bool Algorithm::tryStopLoss(const Context& context) {
         return false;
 
     return tryClose(context, *position);
+}
+
+bool Algorithm::tryAverage(const Context& context) {
+    if (_settings.averaging >= 0.0 || _positions->size() == 0)
+        return false;
+
+    // самая проигранная позиция
+    auto& position = _positions->front();
+
+    // интересует выход за усреднение
+    if (position.distance(context.price(position.revert())) > position.price() * _settings.averaging)
+        return false;
+
+    // создадим реквест
+    OrderRequest request;
+    request.symbol = position.symbol();
+    request.side = position.side();
+    request.quantity = position.baseQuantity();
+
+    // создание заказа
+    Position avg;
+    if (not createOrder(context, request, avg))
+        return false;
+
+    Price t1 = position.price();
+
+    // объединение
+    position.setBaseQuantity(position.baseQuantity() + avg.baseQuantity());
+    position.setQuoteQuantity(position.quoteQuantity() + avg.quoteQuantity());
+
+    // todo: возможно стоит выпилить массив
+    // todo: вторая покупка, по ней не учтется комиссия
+    if (_settings.isRelease())
+        position.save();
+
+    Price t2 = position.price();
+
+    Terminal::printOrder(avg, ">");
+    return true;
 }
 
 bool Algorithm::tryClose(const Context& context, const Position& closable) {
@@ -119,11 +166,25 @@ bool Algorithm::tryOpen(const Context& context) {
     if (_positions->size() > 0)
         return false;
 
+    static OrderSide previous_signal = OrderSide::Invalid;
+
+    OrderSide side = getSignal(context);
+    if (side == OrderSide::Invalid || previous_signal == side)
+        return false;
+
+    // интересует только пересечение сигналов
+    if (previous_signal == OrderSide::Invalid) {
+        previous_signal = side;
+        return false;
+    }
+
+    previous_signal = side;
+
     // создадим реквест
     OrderRequest request;
     request.symbol = _settings.symbol;
-    request.side = getSignal(context);
-    request.quantity = Exchanger().minQuantity(request.symbol) * _settings.lot_min;
+    request.side = side;
+    request.quantity = Exchanger().minQuantity(request.symbol) * _settings.lot_size;
 
     // создание заказа
     Position position;

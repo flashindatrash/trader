@@ -29,8 +29,8 @@ public: // vars
 
     double take_profit = 0.0;
     double stop_loss = 0.0;
+    double averaging = 0.0;
 
-    double lot_min = 1.0;
-    double lot_max = 1.0;
+    double lot_size = 1.0;
 };
 NS_END

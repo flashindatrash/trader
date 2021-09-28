@@ -110,10 +110,10 @@ protected: //
     }
 
 public: // iterator
-    inline typename VectorT::reference front();
-    inline typename VectorT::const_reference front() const;
-    inline typename VectorT::reference back();
-    inline typename VectorT::const_reference back() const;
+    inline typename VectorT::reference front() { return _values.front(); }
+    inline typename VectorT::const_reference front() const { return _values.front(); }
+    inline typename VectorT::reference back() { return _values.back(); }
+    inline typename VectorT::const_reference back() const { return _values.back(); }
 
     typedef typename VectorT::iterator iterator;
     typedef typename VectorT::const_iterator const_iterator;
