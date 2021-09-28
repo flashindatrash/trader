@@ -27,11 +27,11 @@ protected: // methods
     bool tryTakeProfit(const Context& context);
     bool tryStopLoss(const Context& context);
     bool tryOpen(const Context& context);
-    bool tryClose(const Position& closable);
+    bool tryClose(const Context& context, const Position& closable);
 
-    bool createOrder(OrderRequest& request, Position& result) const;
+    bool createOrder(const Context& context, OrderRequest& request, Position& result) const;
 
-    OrderSide getSignal() const;
+    OrderSide getSignal(const Context& context) const;
 
 protected: // vars
     const Settings _settings;

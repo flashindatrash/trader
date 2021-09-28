@@ -17,14 +17,13 @@ public: // static
     static PriceWrapper* create();
 
 public: // methods
+    PriceWrapper() = default;
+
     void set(Price price);
     void set(Ticker ticker);
 
     const Price& get() const;
     const Price& get(const OrderSide& side) const;
-
-protected: // methods
-    PriceWrapper() = default;
 
 protected: // vars
     Price _price = 0.0;

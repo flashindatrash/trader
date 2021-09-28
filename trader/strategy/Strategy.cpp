@@ -1,7 +1,6 @@
 #include "Strategy.hpp"
 #include "Config.hpp"
 #include <global.hpp>
-#include "old/OldStrategy.hpp"
 #include "scalping/ScalpingStrategy.hpp"
 
 Strategy* Strategy::create(const core::Config& config) {

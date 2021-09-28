@@ -13,6 +13,7 @@
 #include "Time.hpp"
 
 std::string Logger::sLogFile = "/tmp/traderbot.log";
+time_t Logger::sTime = 0;
 bool Logger::sStatus = false;
 
 void Logger::title(const char* fmt, ...) {
@@ -91,9 +92,13 @@ void Logger::setLogfile(std::string filename) {
     sLogFile = std::move(filename);
 }
 
+void Logger::setTime(time_t time) {
+    sTime = time;
+}
+
 const char* Logger::format(const char* fmt) {
     static char new_fmt[1024];
-    time_t t = Time().sec();
+    time_t t = sTime > 0 ? sTime : Time().sec();
     struct tm* now = localtime(&t);
     sprintf(new_fmt, "[%04d/%02d/%02d %02d:%02d:%02d] T: %s\n", now->tm_year + 1900, now->tm_mon + 1, now->tm_mday, now->tm_hour, now->tm_min, now->tm_sec, fmt);
     return new_fmt;

@@ -20,12 +20,17 @@ void Terminal::setTitle(const Symbol& symbol) {
 }
 
 void Terminal::update(Positions& positions, const Settings& settings, const Context& context) {
-    const auto profitable = positions.compare_if(Predicates::closable, Compares::profitable);
+    if (settings.isBackTest())
+        return;
+
+    Price current = context.price();
+
+    const auto profitable = positions.compare_if(Predicates::closable, Compares::profitable(current));
     if (profitable == positions.cend())
         return;
 
-    Quantity profit = profitable->profit();
-    std::string positionFormat = "";
+    Quantity profit = profitable->profit(current);
+    std::string positionFormat;
     positionFormat.append(profit < 0 ? RED : GREEN);
     positionFormat.append("%." + std::to_string(util::zeros_after_dot(profit) + 2) + "f ");
     positionFormat.append(profitable->symbol().quoteAsset());

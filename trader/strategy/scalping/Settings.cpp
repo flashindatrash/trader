@@ -5,20 +5,18 @@
 
 NS_USE
 
-static const char* TEST = "TEST";
+static const char* MODE = "MODE";
 static const char* USERNAME = "REDIS_USERNAME";
 static const char* SYMBOL = "SYMBOL";
-static const char* RISK = "RISK";
 static const char* LOT_MIN = "LOT_MIN";
 static const char* LOT_MAX = "LOT_MAX";
 static const char* TAKE_PROFIT = "TAKE_PROFIT";
 static const char* STOP_LOSS = "STOP_LOSS";
 
 Settings::Settings(const core::Config& config) {
-    test = config.asBool(TEST);
+    mode = config.asString(MODE);
     username = config.asString(USERNAME);
     symbol = config.asString(SYMBOL);
-    risk = config.asDouble(RISK);
     lot_min = config.asDouble(LOT_MIN);
     lot_max = config.asDouble(LOT_MAX);
     take_profit = config.asDouble(TAKE_PROFIT) / 100.0;
@@ -26,8 +24,13 @@ Settings::Settings(const core::Config& config) {
 }
 
 bool Settings::isValid() const {
+    if (not isRelease() && not isDevelop() && not isBackTest()) {
+        Logger::info("Settings: unknown %s(%s)", MODE, mode.c_str());
+        return false;
+    }
+
     if (Exchanger().pair(symbol) == nullptr) {
-        Logger::info("Settings: %s symbol doesn't exist", symbol.c_str());
+        Logger::info("Settings: %s(%s) doesn't exist", SYMBOL, symbol.c_str());
         return false;
     }
 
@@ -57,6 +60,18 @@ bool Settings::isValid() const {
     }
 
     return true;
+}
+
+bool Settings::isRelease() const {
+    return mode == "release";
+}
+
+bool Settings::isDevelop() const {
+    return mode == "develop";
+}
+
+bool Settings::isBackTest() const {
+    return mode == "backtest";
 }
 
 std::string Settings::uniqId() const {

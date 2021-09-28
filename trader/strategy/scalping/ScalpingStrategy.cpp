@@ -33,11 +33,13 @@ bool ScalpingStrategy::init(const core::Config& config) {
         return false;
 
     // start listen chart
-    Exchanger().listenCharts(settings.symbol);
-    Exchanger().listenTickers(settings.symbol);
+    if (not settings.isBackTest()) {
+        Exchanger().listenCharts(settings.symbol);
+        Exchanger().listenTickers(settings.symbol);
+    }
 
     // add test balance
-    if (settings.test) {
+    if (not settings.isRelease()) {
         Exchanger().balance(settings.symbol.baseAsset())->gain(10000);
         Exchanger().balance(settings.symbol.quoteAsset())->gain(10000);
     }

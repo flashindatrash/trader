@@ -63,23 +63,8 @@ OrderSide Position::revert() const {
     return OrderUtil::revert(side());
 }
 
-Price Position::current() const {
-    if (const PriceWrapper* current = Exchanger().price(symbol()))
-        return current->get(revert());
-    return 0.0;
-}
-
-Quantity Position::profit() const {
-    return profit(current());
-}
-
 Quantity Position::profit(Price price) const {
     return distance(price) * baseQuantity() - fee();
-}
-
-Change Position::distance() const {
-    Price price = current();
-    return price > 0.0 ? distance(price) : 0.0;
 }
 
 Change Position::distance(Price current) const {
@@ -118,26 +103,11 @@ void Positions::proceed_sort() {
     // todo
 }
 
-Positions::const_iterator Positions::last(OrderSide side) const {
-    switch (side) {
-    case OrderSide::Buy: return compare_if(Predicates::buy, Compares::priceMin);
-    case OrderSide::Sell: return compare_if(Predicates::sell, Compares::priceMax);
-    case OrderSide::Invalid: return cend();
-    }
-    return cend();
-}
-
 // ---------- Predicates ----------
 
 Positions::Predicate Predicates::combine(Positions::Predicate a, Positions::Predicate b) {
     return [a, b](const Position& value) {
         return a(value) && b(value);
-    };
-}
-
-Positions::Predicate Predicates::profitGreater(Quantity quantity) {
-    return [quantity](const Position& position) {
-        return position.profit() > quantity;
     };
 }
 
@@ -161,24 +131,16 @@ bool Predicates::buy(const Position& position) {
 
 // ---------- Compares ----------
 
-bool Compares::priceMax(const Position& a, const Position& b) {
-    return b.price() > a.price();
+Positions::Compare Compares::profitable(Price current) {
+    return [current](const Position& a, const Position& b) {
+        return b.profit(current) > a.profit(current);
+    };
 }
 
-bool Compares::priceMin(const Position& a, const Position& b) {
-    return b.price() < a.price();
-}
-
-bool Compares::profitable(const Position& a, const Position& b) {
-    return b.profit() > a.profit();
-}
-
-bool Compares::losable(const Position& a, const Position& b) {
-    return b.profit() < a.profit();
+Positions::Compare Compares::losable(Price current) {
+    return [current](const Position& a, const Position& b) {
+        return b.profit(current) < a.profit(current);
+    };
 }
 
 // ---------- Summarizes ----------
-
-Quantity Summarizes::profit(const Position& position) {
-    return position.profit();
-}

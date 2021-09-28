@@ -40,8 +40,11 @@ public: //
     static void erase();
 
     static void setLogfile(std::string filename);
+    static void setTime(time_t time);
+
 private: // static
     static std::string sLogFile;
+    static time_t sTime;
     static bool sStatus;
 
     static const char* format(const char* fmt);

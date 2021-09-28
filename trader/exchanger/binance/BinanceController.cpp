@@ -179,8 +179,10 @@ bool BinanceController::loadCharts(ChartWrapper& container) const {
         return false;
     }
 
+    time_t now = Time().ms();
+
     Json::Value json;
-    BinaCPP::get_klines(container.id().c_str(), interval_converted.c_str(), 40, 0, 0, json);
+    BinaCPP::get_klines(container.id().c_str(), interval_converted.c_str(), 0, now - Timer::sDay, now, json);
 
     BinanceErrorData error(json, "BinanceController::loadCharts");
     if (error.has()) {

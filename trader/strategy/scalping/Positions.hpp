@@ -15,7 +15,6 @@ public: // methods
     void setSymbol(Symbol value);
     void setBaseQuantity(Quantity value);
     void setQuoteQuantity(Quantity value);
-    void setTime(time_t value);
 
     Id id() const override;
     Symbol symbol() const override;
@@ -24,10 +23,7 @@ public: // methods
     Quantity quoteQuantity() const override;
 
     OrderSide revert() const;
-    Price current() const;
-    Quantity profit() const;
     Quantity profit(Price price) const;
-    Change distance() const;
     Change distance(Price price) const;
 };
 
@@ -36,10 +32,6 @@ class Positions : public db::ArrayAbstract<Position> {
 
 public: // static
     static Positions* create(const db::Key& key, bool sync);
-
-public: // methods
-    // last position by side
-    const_iterator last(OrderSide side) const;
 
 protected: // methods
     Positions(const db::Key& key, bool sync);
@@ -57,7 +49,6 @@ class Predicates {
 public: // static
     // with arguments
     static Positions::Predicate combine(Positions::Predicate a, Positions::Predicate b);
-    static Positions::Predicate profitGreater(Quantity quantity);
     static Positions::Predicate side(OrderSide side);
 
     // without arguments
@@ -69,16 +60,13 @@ public: // static
 class Compares {
 public: // static
     // without arguments
-    static bool priceMax(const Position& a, const Position& b);
-    static bool priceMin(const Position& a, const Position& b);
-    static bool profitable(const Position& a, const Position& b);
-    static bool losable(const Position& a, const Position& b);
+    static Positions::Compare profitable(Price current);
+    static Positions::Compare losable(Price current);
 };
 
 class Summarizes {
 public: // static
     // without arguments
-    static Quantity profit(const Position& position);
 };
 
 NS_END

@@ -12,14 +12,17 @@ public: // methods
     explicit Settings(const core::Config& config);
 
     std::string uniqId() const;
+
     bool isValid() const;
+    bool isRelease() const;
+    bool isDevelop() const;
+    bool isBackTest() const;
 
 protected: // methods
     Settings() = default;
 
 public: // vars
-    bool test = false;
-
+    std::string mode;
     std::string username;
 
     Symbol symbol;
@@ -29,7 +32,5 @@ public: // vars
 
     double lot_min = 1.0;
     double lot_max = 1.0;
-
-    double risk = 0.5;
 };
 NS_END

@@ -43,44 +43,11 @@ const std::vector<CandlestickWrapper*>& ChartWrapper::get() const {
     return _candlesticks;
 }
 
-const CandlestickWrapper* ChartWrapper::last() const {
-    if (_candlesticks.empty())
-        return nullptr;
-
-    return _candlesticks.back();
-}
-
-ChartWrapper::Range ChartWrapper::last(Price current, Price change) const {
-    Range range;
-
-    if (current == change || _candlesticks.size() < 3)
-        return range;
-
-    for (auto it = _candlesticks.crbegin() + 1; it < _candlesticks.crend(); ++it) {
-        const CandlestickWrapper* candlestick = *it;
-
-        // find end
-        if (range.end == nullptr) {
-            if ((change > current && candlestick->priceMin() > change) || (change < current && candlestick->priceMax() < change))
-                range.end = candlestick;
-            continue;
-        }
-
-        // find begin
-        if (range.begin == nullptr) {
-            if ((change > current && candlestick->priceMax() < current) || (change < current && candlestick->priceMin() > current))
-                range.begin = candlestick;
-            continue;
-        }
-    }
-    return range;
-}
-
-Price ChartWrapper::ema(size_t length) const {
-    if (_candlesticks.size() < length + 1)
+Price ChartWrapper::ema(ConstIterator end, size_t length) const {
+    if (std::distance(_candlesticks.cbegin(), end) < length + 1)
         return 0.0;
 
-    auto it = _candlesticks.end() - length - 1;
+    auto it = end - (int)length - 1;
     Price result = (*(it++))->priceClose();
 
     /*
@@ -91,9 +58,9 @@ Price ChartWrapper::ema(size_t length) const {
      * N=number of days in EMA
      * k=2÷(N+1)
     */
-    double k = 2.0 / (length + 1);
+    double k = 2.0 / (length + 1.0);
 
-    for (; it < _candlesticks.cend(); ++it)
+    for (; it < end; ++it)
         result = (*it)->priceClose() * k + result * (1 - k);
 
     return result;
@@ -105,8 +72,4 @@ void ChartWrapper::setInterval(ChartInterval interval) {
 
 const ChartInterval& ChartWrapper::interval() const {
     return _interval;
-}
-
-bool ChartWrapper::Range::isValid() const {
-    return begin != nullptr && end != nullptr;
 }
