@@ -65,11 +65,3 @@ Price ChartWrapper::ema(ConstIterator end, size_t length) const {
 
     return result;
 }
-
-void ChartWrapper::setInterval(ChartInterval interval) {
-    _interval = interval;
-}
-
-const ChartInterval& ChartWrapper::interval() const {
-    return _interval;
-}

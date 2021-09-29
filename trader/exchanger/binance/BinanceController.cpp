@@ -172,17 +172,15 @@ bool BinanceController::loadStats(CandlestickWrapper& container) const {
     return true;
 }
 
-bool BinanceController::loadCharts(ChartWrapper& container) const {
-    const std::string& interval_converted = binance::serialize(container.interval());
+bool BinanceController::loadCharts(ChartWrapper& container, ChartRequest& request) const {
+    const std::string& interval_converted = binance::serialize(request.interval);
     if (interval_converted.empty()) {
         Logger::info("BinanceController::loadCharts: unknown chart interval");
         return false;
     }
 
-    time_t now = Time().ms();
-
     Json::Value json;
-    BinaCPP::get_klines(container.id().c_str(), interval_converted.c_str(), 0, now - Timer::sDay, now, json);
+    BinaCPP::get_klines(container.id().c_str(), interval_converted.c_str(), 0, request.time_start, request.time_end, json);
 
     BinanceErrorData error(json, "BinanceController::loadCharts");
     if (error.has()) {
@@ -245,9 +243,9 @@ void BinanceController::connectCharts(Storage::Type_chart& container) {
     _charts_connector = &container;
 }
 
-void BinanceController::listenCharts(ChartWrapper& container) {
+void BinanceController::listenCharts(ChartWrapper& container, ChartInterval interval) {
     BinanceWebsocket* websocket = BinanceWebsocket::create();
-    websocket->setPath(util::lowercase(container.id().c_str()) + "@kline_" + binance::serialize(container.interval()));
+    websocket->setPath(util::lowercase(container.id().c_str()) + "@kline_" + binance::serialize(interval));
     websocket->setCallback(std::bind(&BinanceController::onKlineDataStream, this, std::placeholders::_1));
     _websockets.push_back(websocket);
 }

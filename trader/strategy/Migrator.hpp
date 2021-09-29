@@ -8,11 +8,11 @@
 #include "Defines.hpp"
 
 NS_BEGIN
-class Positions;
+class Position;
 class Statistics;
 
 class Migrator {
 public: // static
-    static bool migrate(Positions* positions, Statistics* statistics, const Symbol& symbol, bool test);
+    static bool migrate(Position* position, Statistics* statistics, const Symbol& symbol);
 };
 NS_END

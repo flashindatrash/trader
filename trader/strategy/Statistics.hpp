@@ -11,7 +11,7 @@
 NS_BEGIN
 class Statistics : public db::Object {
 public: // static
-    static Statistics* create(const db::Key& key, bool sync);
+    static Statistics* create(const db::Key& key);
 
 public: // methods
     Quantity addProfit(Quantity profit);
@@ -20,10 +20,7 @@ public: // methods
     void setVersion(std::string value);
 
 protected: // methods
-    Statistics(const db::Key& key, bool sync);
-
-protected: // vars
-    const bool _sync;
+    Statistics(const db::Key& key);
 };
 NS_END
 

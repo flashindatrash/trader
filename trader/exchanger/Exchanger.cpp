@@ -48,12 +48,12 @@ bool ExchangerProxy::loadStats(const std::string& key) {
     return _controller->loadStats(*_stats.get(key));
 }
 
-bool ExchangerProxy::loadCharts(const std::string& key) {
-    return _controller->loadCharts(*_charts.get(key));
+bool ExchangerProxy::loadCharts(const std::string& key, ChartRequest& request) {
+    return _controller->loadCharts(*_charts.get(key), request);
 }
 
-void ExchangerProxy::listenCharts(const std::string& key) {
-    _controller->listenCharts(*_charts.get(key));
+void ExchangerProxy::listenCharts(const std::string& key, ChartInterval interval) {
+    _controller->listenCharts(*_charts.get(key), interval);
 }
 
 void ExchangerProxy::listenTickers(const std::string& key) {

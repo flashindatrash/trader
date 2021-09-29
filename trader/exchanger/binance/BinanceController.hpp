@@ -32,9 +32,9 @@ public: // virtual
     bool loadBalances(Storage::Type_balance& container) const override;
     bool loadOrders(BookWrapper& container) const override;
     bool loadStats(CandlestickWrapper& container) const override;
-    bool loadCharts(ChartWrapper& container) const override;
+    bool loadCharts(ChartWrapper& container, ChartRequest& request) const override;
 
-    void listenCharts(ChartWrapper& container) override;
+    void listenCharts(ChartWrapper& container, ChartInterval interval) override;
     void listenTicker(PriceWrapper& container) override;
 
     const OrderWrapper* createOrder(BookWrapper& container, OrderRequest& request) override;

@@ -4,7 +4,7 @@
 
 #include "Terminal.hpp"
 #include "Logger.hpp"
-#include "Positions.hpp"
+#include "Position.hpp"
 #include "Settings.hpp"
 #include "Context.hpp"
 #include "exchanger/base/OrderBase.hpp"
@@ -19,21 +19,17 @@ void Terminal::setTitle(const Symbol& symbol) {
     Logger::title("%s - %s", symbol.baseAsset().c_str(), symbol.quoteAsset().c_str());
 }
 
-void Terminal::update(Positions& positions, const Settings& settings, const Context& context) {
-    if (settings.isBackTest())
+void Terminal::update(Position& position, const Settings& settings, const Context& context) {
+    if (settings.isBackTest() || not position.has())
         return;
 
     Price current = context.price();
 
-    const auto profitable = positions.compare_if(Predicates::closable, Compares::profitable(current));
-    if (profitable == positions.cend())
-        return;
-
-    Quantity profit = profitable->profit(current);
+    Quantity profit = position.profit(current);
     std::string positionFormat;
     positionFormat.append(profit < 0 ? RED : GREEN);
     positionFormat.append("%." + std::to_string(util::zeros_after_dot(profit) + 2) + "f ");
-    positionFormat.append(profitable->symbol().quoteAsset());
+    positionFormat.append(position.symbol().quoteAsset());
     positionFormat.append(RESET);
 
     Quantity balance = settings.symbol.balance(Asset::USDT);

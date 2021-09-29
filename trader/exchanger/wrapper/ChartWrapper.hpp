@@ -12,6 +12,12 @@ enum ChartInterval : unsigned int {
     m15
 };
 
+struct ChartRequest {
+    ChartInterval interval = ChartInterval::m15;
+    time_t time_start = 0;
+    time_t time_end = 0;
+};
+
 class ChartWrapper : public Identifier {
 public: // static
     typedef std::vector<CandlestickWrapper*>::const_iterator ConstIterator;
@@ -25,9 +31,6 @@ public: // methods
     const CandlestickWrapper* add(const Candlestick& data);
     const std::vector<CandlestickWrapper*>& get() const;
 
-    void setInterval(ChartInterval interval);
-    const ChartInterval& interval() const;
-
     Price ema(ConstIterator end, size_t length) const;
 
 protected: // methods
@@ -35,6 +38,5 @@ protected: // methods
 
 protected: // vars
     std::vector<CandlestickWrapper*> _candlesticks;
-    ChartInterval _interval = ChartInterval::m15;
 };
 

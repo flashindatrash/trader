@@ -4,7 +4,7 @@
 #include "Time.hpp"
 #include "Logger.hpp"
 #include "Context.hpp"
-#include "Positions.hpp"
+#include "Position.hpp"
 #include "Statistics.hpp"
 #include "Terminal.hpp"
 #include "Migrator.hpp"
@@ -12,7 +12,6 @@
 #include "exchanger/wrapper/OrderWrapper.hpp"
 #include "exchanger/wrapper/PriceWrapper.hpp"
 #include "exchanger/wrapper/BalanceWrapper.hpp"
-#include "exchanger/wrapper/ChartWrapper.hpp"
 #include "exchanger/Exchanger.hpp"
 
 NS_USE
@@ -28,9 +27,9 @@ Algorithm::Algorithm(Settings settings)
 }
 
 Algorithm::~Algorithm() {
-    if (_positions != nullptr) {
-        delete _positions;
-        _positions = nullptr;
+    if (_position != nullptr) {
+        delete _position;
+        _position = nullptr;
     }
 
     if (_statistics != nullptr) {
@@ -44,126 +43,112 @@ bool Algorithm::init() {
     Logger::setLogfile("/tmp/" + _settings.uniqId() + ".log");
 
     // создадим структуры для хранения данных
-    _positions = Positions::create(_settings.uniqId() + ":positions", _settings.isRelease());
-    _statistics = Statistics::create(_settings.uniqId() + ":stats", _settings.isRelease());
+    _position = Position::create(_settings.uniqId() + ":position");
+    _statistics = Statistics::create(_settings.uniqId() + ":stats");
+
 
     // промигрируем данные
-    if (not Migrator::migrate(_positions, _statistics, _settings.symbol, _settings.isRelease()))
+    if (not Migrator::migrate(_position, _statistics, _settings.symbol))
         return false;
 
     return true;
 }
 
 void Algorithm::execute(const Context& context) {
-    bool status = false;
-    // закрытие сделок: получить профит || остановить убыток || усреднение цены
-    status |= tryTakeProfit(context) || tryStopLoss(context) || tryAverage(context);
+    // закрытие сделок: получить профит || усреднение цены || остановить убыток
+    bool open = tryTakeProfit(context) || tryAverage(context) || tryStopLoss(context);
     // открытие сделок
-    status |= tryOpen(context);
+    bool close = tryOpen(context);
+
     // обновляем строку терминала
-    Terminal::update(*_positions, _settings, context);
+    Terminal::update(*_position, _settings, context);
 }
 
 bool Algorithm::tryTakeProfit(const Context& context) {
-    // самая выгодная позиция
-    const auto position = _positions->compare_if(Predicates::closable, Compares::profitable(context.price()));
-    if (position == _positions->cend())
+    if (not _position->has())
         return false;
 
     // интересует выход за TAKE PROFIT
-    if (position->distance(context.price(position->revert())) < position->price() * _settings.take_profit)
+    if (_position->distance(context.price(_position->revert())) < _position->price() * _settings.take_profit)
         return false;
 
     // ждем сигнал на закрытие
-    if (position->revert() != getSignal(context))
+    if (_position->revert() != getSignal(context))
         return false;
 
-    return tryClose(context, *position);
+    return tryClose(context);
 }
 
 bool Algorithm::tryStopLoss(const Context& context) {
-    if (_settings.stop_loss >= 0.0)
-        return false;
-
-    // самая проигранная позиция
-    const auto position = _positions->compare_if(Predicates::closable, Compares::losable(context.price()));
-    if (position == _positions->cend())
+    if (not _position->has() || _settings.stop_loss >= 0.0)
         return false;
 
     // интересует выход за STOP LOSS
-    if (position->distance(context.price(position->revert())) > position->price() * _settings.stop_loss)
+    if (_position->distance(context.price(_position->revert())) > _position->price() * _settings.stop_loss)
         return false;
 
-    return tryClose(context, *position);
+    return tryClose(context);
 }
 
 bool Algorithm::tryAverage(const Context& context) {
-    if (_settings.averaging >= 0.0 || _positions->size() == 0)
+    if (not _position->has() || _settings.averaging >= 0.0)
         return false;
 
-    // самая проигранная позиция
-    auto& position = _positions->front();
-
     // интересует выход за усреднение
-    if (position.distance(context.price(position.revert())) > position.price() * _settings.averaging)
+    if (_position->distance(context.price(_position->revert())) > _position->price() * _settings.averaging)
         return false;
 
     // создадим реквест
     OrderRequest request;
-    request.symbol = position.symbol();
-    request.side = position.side();
-    request.quantity = position.baseQuantity();
+    request.symbol = _position->symbol();
+    request.side = _position->side();
+    request.quantity = _position->baseQuantity();
 
     // создание заказа
     Position avg;
     if (not createOrder(context, request, avg))
         return false;
 
-    Price t1 = position.price();
-
-    // объединение
-    position.setBaseQuantity(position.baseQuantity() + avg.baseQuantity());
-    position.setQuoteQuantity(position.quoteQuantity() + avg.quoteQuantity());
-
-    // todo: возможно стоит выпилить массив
-    // todo: вторая покупка, по ней не учтется комиссия
+    _position->merge(avg);
     if (_settings.isRelease())
-        position.save();
-
-    Price t2 = position.price();
+        _position->save();
 
     Terminal::printOrder(avg, ">");
     return true;
 }
 
-bool Algorithm::tryClose(const Context& context, const Position& closable) {
+bool Algorithm::tryClose(const Context& context) {
     // создадим реквест
     OrderRequest request;
-    request.symbol = _settings.symbol;
-    request.side = closable.revert();
-    request.quantity = closable.baseQuantity();
+    request.symbol = _position->symbol();
+    request.side = _position->revert();
+    request.quantity = _position->baseQuantity();
 
     // создадим заказ
     Position position;
     if (not createOrder(context, request, position))
         return false;
 
-    Quantity profit = closable.profit(position.price()) - position.fee();
+    Quantity profit = _position->profit(position.price()) - position.fee();
 
     // распечатаем созданную позицию с id закрытой
     Terminal::printOrder(position, "<");
 
     // удалим из базы, результат удаления не важен
-    _positions->remove(closable);
+    _position->remove();
 
-    // сохраняем профит, высчитываем и показываем PNL
+    // сохраняем профит
     auto profits = _statistics->addProfit(profit);
+    if (_settings.isRelease())
+        _statistics->save();
+
+    // показываем профит
     Terminal::printProfit(profit, profits);
     return true;
 }
 
 bool Algorithm::tryOpen(const Context& context) {
-    if (_positions->size() > 0)
+    if (_position->has())
         return false;
 
     static OrderSide previous_signal = OrderSide::Invalid;
@@ -191,8 +176,9 @@ bool Algorithm::tryOpen(const Context& context) {
     if (not createOrder(context, request, position))
         return false;
 
-    if (not _positions->push(position))
-        return false;
+    _position->copy(position);
+    if (_settings.isRelease())
+        _position->save();
 
     Terminal::printOrder(position, ">");
     return true;
@@ -203,13 +189,10 @@ bool Algorithm::createOrder(const Context& context, OrderRequest& request, Posit
         return false;
 
     if (not _settings.isRelease()) {
-        static int sTestId = 1;
-
-        result = Position("test" + std::to_string(sTestId++));
+        result.setSymbol(request.symbol);
+        result.setSide(request.side);
         result.setBaseQuantity(request.quantity);
         result.setQuoteQuantity(request.quantity * context.price(request.side));
-        result.setSide(request.side);
-        result.setSymbol(request.symbol);
 
         BalanceWrapper* baseBalance = Exchanger().balance(request.symbol.baseAsset());
         BalanceWrapper* quoteBalance = Exchanger().balance(request.symbol.quoteAsset());
@@ -238,7 +221,7 @@ bool Algorithm::createOrder(const Context& context, OrderRequest& request, Posit
     if (order == nullptr)
         return false;
 
-    result = Position(*order);
+    result.copy(*order);
     return true;
 }
 

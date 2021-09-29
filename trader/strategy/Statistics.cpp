@@ -11,20 +11,18 @@ NS_USE
 static const char* FIELD_VERSION = "version";
 static const char* FIELD_PROFIT = "profit";
 
-Statistics* Statistics::create(const db::Key& key, bool sync) {
-    auto* statistics = new Statistics(key, sync);
+Statistics* Statistics::create(const db::Key& key) {
+    auto* statistics = new Statistics(key);
     return statistics;
 }
 
-Statistics::Statistics(const db::Key& key, bool sync)
+Statistics::Statistics(const db::Key& key)
     : db::Object(key)
-    , _sync(sync)
 {
 }
 
 Quantity Statistics::addProfit(Quantity profit) {
     Quantity result = inc(FIELD_PROFIT, profit).asDouble();
-    if (_sync) save();
     return result;
 }
 

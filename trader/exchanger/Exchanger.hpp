@@ -9,6 +9,7 @@ namespace core {
 
 class ExchangerController;
 class OrderWrapper;
+struct ChartRequest;
 struct OrderRequest;
 enum ChartInterval : unsigned int;
 
@@ -23,8 +24,8 @@ public: // methods
 
     bool loadOrders(const std::string& key);
     bool loadStats(const std::string& key);
-    bool loadCharts(const std::string& key);
-    void listenCharts(const std::string& key);
+    bool loadCharts(const std::string& key, ChartRequest& request);
+    void listenCharts(const std::string& key, ChartInterval interval);
     void listenTickers(const std::string& key);
 
     const OrderWrapper* createOrder(OrderRequest& request);

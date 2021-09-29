@@ -7,7 +7,9 @@ namespace core {
 }
 
 class OrderWrapper;
+struct ChartRequest;
 struct OrderRequest;
+enum ChartInterval : unsigned int;
 
 class ExchangerController {
 public: // static
@@ -28,9 +30,9 @@ public: // virtual
     virtual bool loadBalances(Storage::Type_balance& container) const = 0;
     virtual bool loadOrders(BookWrapper& container) const = 0;
     virtual bool loadStats(CandlestickWrapper& container) const = 0;
-    virtual bool loadCharts(ChartWrapper& container) const = 0;
+    virtual bool loadCharts(ChartWrapper& container, ChartRequest& request) const = 0;
 
-    virtual void listenCharts(ChartWrapper& container) = 0;
+    virtual void listenCharts(ChartWrapper& container, ChartInterval interval) = 0;
     virtual void listenTicker(PriceWrapper& container) = 0;
 
     virtual const OrderWrapper* createOrder(BookWrapper& container, OrderRequest& request) = 0;

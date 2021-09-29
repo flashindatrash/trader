@@ -9,14 +9,14 @@
 class OrderBase;
 
 NS_BEGIN
-class Positions;
+class Position;
 class Settings;
 class Context;
 
 class Terminal {
 public: // static
     static void setTitle(const Symbol& symbol);
-    static void update(Positions& positions, const Settings& settings, const Context& context);
+    static void update(Position& position, const Settings& settings, const Context& context);
     static void printOrder(const OrderBase& order, const std::string& type);
     static void printProfit(Quantity profit, Quantity sum);
 };

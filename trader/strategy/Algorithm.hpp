@@ -9,7 +9,6 @@ NS_BEGIN
 class Context;
 class Statistics;
 class Position;
-class Positions;
 
 class Algorithm {
 public: // static
@@ -28,7 +27,7 @@ protected: // methods
     bool tryStopLoss(const Context& context);
     bool tryAverage(const Context& context);
     bool tryOpen(const Context& context);
-    bool tryClose(const Context& context, const Position& closable);
+    bool tryClose(const Context& context);
 
     bool createOrder(const Context& context, OrderRequest& request, Position& result) const;
 
@@ -37,7 +36,7 @@ protected: // methods
 protected: // vars
     const Settings _settings;
 
-    Positions* _positions = nullptr;
+    Position* _position = nullptr;
     Statistics* _statistics = nullptr;
 };
 NS_END

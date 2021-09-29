@@ -1,21 +1,74 @@
 #include "Strategy.hpp"
-#include "Config.hpp"
 #include <global.hpp>
-#include "scalping/ScalpingStrategy.hpp"
+#include "Time.hpp"
+#include "Config.hpp"
+#include "Settings.hpp"
+#include "Runner.hpp"
+#include "Algorithm.hpp"
+#include "exchanger/Exchanger.hpp"
+#include "exchanger/wrapper/ChartWrapper.hpp"
+#include "exchanger/wrapper/BalanceWrapper.hpp"
+
+NS_USE
 
 Strategy* Strategy::create(const core::Config& config) {
-    std::string type = config.asString("STRATEGY");
-
-    Strategy* strategy = nullptr;
-
-    if (type == "scalping")
-        strategy = new strategy::scalping::ScalpingStrategy();
-
-    if (strategy == nullptr)
-        return nullptr;
-
-    if (not strategy->init(config))
-        SAFE_DELETE(strategy);
-
+    auto* strategy = new Strategy();
+    strategy->init(config);
     return strategy;
+}
+
+Strategy::~Strategy() {
+    SAFE_DELETE(_runner);
+    SAFE_DELETE(_algorithm);
+}
+
+bool Strategy::init(const core::Config& config) {
+    Settings settings(config);
+    if (not settings.isValid())
+        return false;
+
+    // create algorithm
+    _algorithm = Algorithm::create(settings);
+    if (not _algorithm->init())
+        return false;
+
+    // load chart
+    if (settings.isBackTest()) {
+        time_t now = Time().ms();
+        ChartRequest request;
+        request.interval = ChartInterval::m15;
+        for (int i = 90; i > 0; --i) {
+            request.time_start = now - Timer::sDay * (i);
+            request.time_end = now - Timer::sDay * (i - 1);
+            Exchanger().loadCharts(settings.symbol, request);
+        }
+    } else {
+        ChartRequest request;
+        request.interval = ChartInterval::m5;
+        request.time_end = Time().ms();
+        request.time_start = request.time_end - Timer::sDay;
+        Exchanger().loadCharts(settings.symbol, request);
+    }
+
+    // start listen chart
+    if (not settings.isBackTest()) {
+        Exchanger().listenCharts(settings.symbol, ChartInterval::m5);
+        Exchanger().listenTickers(settings.symbol);
+    }
+
+    // add test balance
+    if (not settings.isRelease()) {
+        Exchanger().balance(settings.symbol.baseAsset())->gain(10000);
+        Exchanger().balance(settings.symbol.quoteAsset())->gain(10000);
+    }
+
+    // create & start runner
+    _runner = Runner::create();
+    _runner->setCallback(std::bind(&Algorithm::execute, _algorithm, std::placeholders::_1));
+    _runner->start(settings);
+    return isRunning();
+}
+
+bool Strategy::isRunning() const {
+    return _runner && _runner->isActive();
 }
