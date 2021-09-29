@@ -73,7 +73,7 @@ bool Algorithm::tryTakeProfit(const Context& context) {
         return false;
 
     // ждем сигнал на закрытие
-    if (_position->revert() != getSignal(context))
+    if (_position->revert() != currentSignal(context))
         return false;
 
     return tryClose(context);
@@ -125,25 +125,25 @@ bool Algorithm::tryClose(const Context& context) {
     request.quantity = _position->baseQuantity();
 
     // создадим заказ
-    Position position;
-    if (not createOrder(context, request, position))
+    Position close;
+    if (not createOrder(context, request, close))
         return false;
 
-    Quantity profit = _position->profit(position.price()) - position.fee();
+    // сохраняем отчет
+    Quantity profit = _report.add(*_position, close);
 
-    // распечатаем созданную позицию с id закрытой
-    Terminal::printOrder(position, "<");
-
-    // удалим из базы, результат удаления не важен
-    _position->remove();
-
-    // сохраняем профит
-    auto profits = _statistics->addProfit(profit);
+    // сохраняем статистику закрытия сделки
+    _statistics->profit(profit);
     if (_settings.isRelease())
         _statistics->save();
 
+    // распечатаем созданную позицию с id закрытой
+    Terminal::printOrder(close, "<");
     // показываем профит
-    Terminal::printProfit(profit, profits);
+    Terminal::printProfit(profit, _settings.symbol.quoteAsset());
+
+    // удалим из базы, результат удаления не важен
+    _position->remove();
     return true;
 }
 
@@ -153,7 +153,7 @@ bool Algorithm::tryOpen(const Context& context) {
 
     static OrderSide previous_signal = OrderSide::Invalid;
 
-    OrderSide side = getSignal(context);
+    OrderSide side = currentSignal(context);
     if (side == OrderSide::Invalid || previous_signal == side)
         return false;
 
@@ -225,11 +225,15 @@ bool Algorithm::createOrder(const Context& context, OrderRequest& request, Posit
     return true;
 }
 
-OrderSide Algorithm::getSignal(const Context& context) const {
+OrderSide Algorithm::currentSignal(const Context& context) const {
     Price ema_long = context.ema(30);
     Price ema_short = context.ema(20);
     if (ema_long == 0.0 || ema_short == 0.0)
         return OrderSide::Invalid;
 
     return ema_short > ema_long ? OrderSide::Buy : OrderSide::Sell;
+}
+
+void Algorithm::report() const {
+    Terminal::printReport(_report, _settings.symbol);
 }

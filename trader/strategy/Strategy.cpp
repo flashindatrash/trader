@@ -36,8 +36,8 @@ bool Strategy::init(const core::Config& config) {
     if (settings.isBackTest()) {
         time_t now = Time().ms();
         ChartRequest request;
-        request.interval = ChartInterval::m15;
-        for (int i = 90; i > 0; --i) {
+        request.interval = ChartInterval::m5;
+        for (int i = 7; i > 0; --i) {
             request.time_start = now - Timer::sDay * (i);
             request.time_end = now - Timer::sDay * (i - 1);
             Exchanger().loadCharts(settings.symbol, request);
@@ -66,7 +66,12 @@ bool Strategy::init(const core::Config& config) {
     _runner = Runner::create();
     _runner->setCallback(std::bind(&Algorithm::execute, _algorithm, std::placeholders::_1));
     _runner->start(settings);
-    return isRunning();
+
+    if (settings.isBackTest()) {
+        _algorithm->report();
+    }
+
+    return true;
 }
 
 bool Strategy::isRunning() const {

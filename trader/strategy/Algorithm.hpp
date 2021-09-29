@@ -2,6 +2,7 @@
 
 #include "Defines.hpp"
 #include "Settings.hpp"
+#include "Report.hpp"
 
 struct OrderRequest;
 
@@ -19,6 +20,7 @@ public: // methods
 
     bool init();
     void execute(const Context& context);
+    void report() const;
 
 protected: // methods
     explicit Algorithm(Settings settings);
@@ -30,11 +32,11 @@ protected: // methods
     bool tryClose(const Context& context);
 
     bool createOrder(const Context& context, OrderRequest& request, Position& result) const;
-
-    OrderSide getSignal(const Context& context) const;
+    OrderSide currentSignal(const Context& context) const;
 
 protected: // vars
     const Settings _settings;
+    Report _report;
 
     Position* _position = nullptr;
     Statistics* _statistics = nullptr;

@@ -7,11 +7,11 @@
 #include "Position.hpp"
 #include "Settings.hpp"
 #include "Context.hpp"
+#include "Report.hpp"
 #include "exchanger/base/OrderBase.hpp"
 #include "exchanger/wrapper/CandlestickWrapper.hpp"
 #include "util/NumberUtil.hpp"
 #include <utility>
-#include <vector>
 
 NS_USE
 
@@ -47,13 +47,21 @@ void Terminal::printOrder(const OrderBase& order, const std::string& type) {
     Logger::info(format.c_str(), type.c_str(), order.side() == OrderSide::Buy ? "buy" : "sell", order.baseQuantity(), order.price());
 }
 
-void Terminal::printProfit(Quantity profit, Quantity sum) {
+void Terminal::printProfit(Quantity profit, const Asset& asset) {
     std::string formatProfit = "%." + std::to_string(util::zeros_after_dot(profit) + 2) + "f";
-    std::string formatSum = "(%." + std::to_string(util::zeros_after_dot(sum) + 2) + "f)";
 
     if (profit > 0)
         formatProfit = "+ " + formatProfit;
 
-    std::string format = "%s" + formatProfit + "\t" + formatSum + "%s";
-    Logger::info(format.c_str(), profit > 0 ? GREEN : RED, profit, sum, RESET);
+    std::string format = "%s" + formatProfit + " %s%s";
+    Logger::info(format.c_str(), profit > 0 ? GREEN : RED, profit, asset.c_str(), RESET);
+}
+
+void Terminal::printReport(const Report& report, const Symbol& symbol) {
+    Logger::info("Report:\n\t%sProfit: %f %s\n\tUse %s: %f\n\tUse %s: %f%s",
+                 YELLOW,
+                 report.profit, symbol.quoteAsset().c_str(),
+                 symbol.baseAsset().c_str(), report.use_base,
+                 symbol.quoteAsset().c_str(), report.use_quote,
+                 RESET);
 }

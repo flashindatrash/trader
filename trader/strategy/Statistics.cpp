@@ -3,7 +3,6 @@
 //
 
 #include "Statistics.hpp"
-
 #include <utility>
 
 NS_USE
@@ -21,12 +20,11 @@ Statistics::Statistics(const db::Key& key)
 {
 }
 
-Quantity Statistics::addProfit(Quantity profit) {
-    Quantity result = inc(FIELD_PROFIT, profit).asDouble();
-    return result;
+Quantity Statistics::profit(Quantity profit) {
+    return inc(FIELD_PROFIT, profit).asDouble();
 }
 
-std::string Statistics::version() {
+std::string Statistics::version() const {
     return get(FIELD_VERSION).asString();
 }
 
