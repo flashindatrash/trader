@@ -44,7 +44,7 @@ const std::vector<CandlestickWrapper*>& ChartWrapper::get() const {
 }
 
 Price ChartWrapper::ema(ConstIterator end, size_t length) const {
-    if (std::distance(_candlesticks.cbegin(), end) < length + 1)
+    if (std::distance(_candlesticks.cbegin(), end) < (long)length + 1)
         return 0.0;
 
     auto it = end - (int)length - 1;
@@ -58,7 +58,7 @@ Price ChartWrapper::ema(ConstIterator end, size_t length) const {
      * N=number of days in EMA
      * k=2÷(N+1)
     */
-    double k = 2.0 / (length + 1.0);
+    double k = 2.0 / ((double)length + 1.0);
 
     for (; it < end; ++it)
         result = (*it)->priceClose() * k + result * (1 - k);
