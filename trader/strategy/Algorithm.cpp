@@ -148,9 +148,6 @@ bool Algorithm::tryClose(const Context& context) {
 }
 
 bool Algorithm::tryOpen(const Context& context) {
-    if (_position->has())
-        return false;
-
     static OrderSide previous_signal = OrderSide::Invalid;
 
     OrderSide side = currentSignal(context);
@@ -164,6 +161,9 @@ bool Algorithm::tryOpen(const Context& context) {
     }
 
     previous_signal = side;
+
+    if (_position->has())
+        return false;
 
     // создадим реквест
     OrderRequest request;
