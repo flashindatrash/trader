@@ -23,22 +23,27 @@ void Terminal::update(Position& position, const Settings& settings, const Contex
     if (settings.isBackTest() || not position.has())
         return;
 
-    Price current = context.price(position.revert());
+    Price current_price = context.price(position.revert());
+    Price position_price = position.price();
 
-    Change change = position.distance(current) / position.price() * 100.0;
-    std::string changeFormat = "%.2f%%";
-
-    Quantity profit = position.profit(current);
+    Quantity profit = position.profit(current_price);
     std::string profitFormat;
     profitFormat.append(profit < 0 ? RED : GREEN);
     profitFormat.append("%." + std::to_string(util::zeros_after_dot(profit) + 2) + "f ");
     profitFormat.append(position.symbol().quoteAsset());
     profitFormat.append(RESET);
 
-    Quantity balance = settings.symbol.balance(Asset::USDT);
-    std::string balanceFormat = "[balance: %." + std::to_string(util::zeros_after_dot(balance) + 2) + "f " + Asset::USDT.id() + "]";
+    Change change = position.distance(current_price) / position_price * 100.0;
+    std::string changeFormat = "%.2f%%";
 
-    std::string format = changeFormat + " " + profitFormat + " " + balanceFormat;
+    std::string positionFormat;
+    positionFormat.append(position.side() == OrderSide::Buy ? "long" : "short");
+    positionFormat.append(": %." + std::to_string(util::zeros_after_dot(position_price) + 2) + "f");
+
+    Quantity balance = settings.symbol.balance(Asset::USDT);
+    std::string balanceFormat = "balance: %." + std::to_string(util::zeros_after_dot(balance) + 2) + "f " + Asset::USDT.id();
+
+    std::string format = profitFormat + " " + changeFormat + " [" + positionFormat + "] [" + balanceFormat + "]";
     Logger::status(format.c_str(), change, profit, balance);
 }
 
