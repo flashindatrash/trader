@@ -23,20 +23,23 @@ void Terminal::update(Position& position, const Settings& settings, const Contex
     if (settings.isBackTest() || not position.has())
         return;
 
-    Price current = context.price();
+    Price current = context.price(position.revert());
+
+    Change change = position.distance(current) / position.price() * 100.0;
+    std::string changeFormat = "%.2f%%";
 
     Quantity profit = position.profit(current);
-    std::string positionFormat;
-    positionFormat.append(profit < 0 ? RED : GREEN);
-    positionFormat.append("%." + std::to_string(util::zeros_after_dot(profit) + 2) + "f ");
-    positionFormat.append(position.symbol().quoteAsset());
-    positionFormat.append(RESET);
+    std::string profitFormat;
+    profitFormat.append(profit < 0 ? RED : GREEN);
+    profitFormat.append("%." + std::to_string(util::zeros_after_dot(profit) + 2) + "f ");
+    profitFormat.append(position.symbol().quoteAsset());
+    profitFormat.append(RESET);
 
     Quantity balance = settings.symbol.balance(Asset::USDT);
     std::string balanceFormat = "[balance: %." + std::to_string(util::zeros_after_dot(balance) + 2) + "f " + Asset::USDT.id() + "]";
 
-    std::string format = positionFormat + " " + balanceFormat;
-    Logger::status(format.c_str(), profit, balance);
+    std::string format = changeFormat + " " + profitFormat + " " + balanceFormat;
+    Logger::status(format.c_str(), change, profit, balance);
 }
 
 void Terminal::printOrder(const OrderBase& order, const std::string& type) {
