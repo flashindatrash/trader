@@ -44,7 +44,7 @@ void Terminal::update(Position& position, const Settings& settings, const Contex
     std::string balanceFormat = "balance: %." + std::to_string(util::zeros_after_dot(balance) + 2) + "f " + Asset::USDT.id();
 
     std::string format = profitFormat + " " + changeFormat + " [" + positionFormat + "] [" + balanceFormat + "]";
-    Logger::status(format.c_str(), change, profit, balance);
+    Logger::status(format.c_str(), profit, change, position_price, balance);
 }
 
 void Terminal::printOrder(const OrderBase& order, const std::string& type) {
