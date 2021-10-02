@@ -16,11 +16,6 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug" AND UNIX AND NOT APPLE)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -rdynamic -pthread")
 endif()
 
-# openssl
-if(APPLE)
-        SET(OPENSSL_ROOT_DIR /usr/local/opt/openssl@1.1)
-endif()
-
 find_package(OpenSSL REQUIRED)
 if(OPENSSL_FOUND)
     include_directories(${OPENSSL_INCLUDE_DIR})

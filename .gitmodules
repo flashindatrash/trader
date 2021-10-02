@@ -1,4 +1,4 @@
 [submodule "binacpp"]
 	path = binacpp
-	url = https://github.com/flashindatrash/binacpp.git
+	url = git@github.com:flashindatrash/binacpp.git
 	branch = master
