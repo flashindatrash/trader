@@ -7,10 +7,16 @@
 
 NS_USE
 
-Quantity Report::add(const Position& open, const Position& close) {
-    Quantity added = open.profit(close.price()) - close.fee();
-    profit += added;
-    use_base = std::max(use_base, close.baseQuantity());
-    use_quote = std::max(use_quote, close.quoteQuantity());
-    return added;
+Report::Report(const Position& open, const Position& close) {
+    profit = open.profit(close.price());
+    change = open.change(close.price());
+    use_base = close.baseQuantity();
+    use_quote = close.quoteQuantity();
+}
+
+void Report::add(const Report& report) {
+    profit += report.profit;
+    change += report.change;
+    use_base = std::max(use_base, report.use_base);
+    use_quote = std::max(use_quote, report.use_quote);
 }

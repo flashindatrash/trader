@@ -32,7 +32,7 @@ protected: // methods
     bool tryClose(const Context& context);
 
     bool createOrder(const Context& context, OrderRequest& request, Position& result) const;
-    OrderSide currentSignal(const Context& context) const;
+    OrderSide getSignal(const Context& context) const;
 
 protected: // vars
     const Settings _settings;

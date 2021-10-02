@@ -9,13 +9,14 @@
 
 NS_BEGIN
 class Position;
+struct Report;
 
 class Statistics : public db::Object {
 public: // static
     static Statistics* create(const db::Key& key);
 
 public: // methods
-    Quantity profit(Quantity profit);
+    void report(const Report& report);
 
     std::string version() const;
     void setVersion(std::string value);

@@ -3,12 +3,14 @@
 //
 
 #include "Statistics.hpp"
+#include "Report.hpp"
 #include <utility>
 
 NS_USE
 
 static const char* FIELD_VERSION = "version";
 static const char* FIELD_PROFIT = "profit";
+static const char* FIELD_CHANGE = "change";
 
 Statistics* Statistics::create(const db::Key& key) {
     auto* statistics = new Statistics(key);
@@ -20,8 +22,9 @@ Statistics::Statistics(const db::Key& key)
 {
 }
 
-Quantity Statistics::profit(Quantity profit) {
-    return inc(FIELD_PROFIT, profit).asDouble();
+void Statistics::report(const Report& report) {
+    inc(FIELD_PROFIT, report.profit);
+    inc(FIELD_CHANGE, report.change);
 }
 
 std::string Statistics::version() const {

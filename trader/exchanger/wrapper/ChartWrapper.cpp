@@ -47,7 +47,7 @@ Price ChartWrapper::ema(ConstIterator end, size_t length) const {
     if (std::distance(_candlesticks.cbegin(), end) < (long)length + 1)
         return 0.0;
 
-    auto it = end - (int)length - 1;
+    auto it = std::prev(end, (int)length + 1);
     Price result = (*(it++))->priceClose();
 
     /*

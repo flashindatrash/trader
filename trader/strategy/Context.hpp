@@ -10,6 +10,7 @@ class Context {
 public: // methods
     Context(ChartWrapper::ConstIterator it, const PriceWrapper& price);
 
+    const CandlestickWrapper& candlestick() const;
     const std::string& id() const;
     const Price& price() const;
     const Price& price(const OrderSide& side) const;

@@ -69,11 +69,11 @@ bool Algorithm::tryTakeProfit(const Context& context) {
         return false;
 
     // интересует выход за TAKE PROFIT
-    if (_position->distance(context.price(_position->revert())) < _position->price() * _settings.take_profit)
+    if (_position->change(context.price(_position->revert())) < _settings.take_profit)
         return false;
 
     // ждем сигнал на закрытие
-    if (_position->revert() != currentSignal(context))
+    if (_position->revert() != getSignal(context))
         return false;
 
     return tryClose(context);
@@ -84,7 +84,7 @@ bool Algorithm::tryStopLoss(const Context& context) {
         return false;
 
     // интересует выход за STOP LOSS
-    if (_position->distance(context.price(_position->revert())) > _position->price() * _settings.stop_loss)
+    if (_position->change(context.price(_position->revert())) > _settings.stop_loss)
         return false;
 
     return tryClose(context);
@@ -95,7 +95,7 @@ bool Algorithm::tryAverage(const Context& context) {
         return false;
 
     // интересует выход за усреднение
-    if (_position->distance(context.price(_position->revert())) > _position->price() * _settings.averaging)
+    if (_position->change(context.price(_position->revert())) > _settings.averaging)
         return false;
 
     // создадим реквест
@@ -130,17 +130,18 @@ bool Algorithm::tryClose(const Context& context) {
         return false;
 
     // сохраняем отчет
-    Quantity profit = _report.add(*_position, close);
+    Report report(*_position, close);
+    _report.add(report);
 
     // сохраняем статистику закрытия сделки
-    _statistics->profit(profit);
+    _statistics->report(report);
     if (_settings.isRelease())
         _statistics->save();
 
     // распечатаем созданную позицию с id закрытой
     Terminal::printOrder(close, "<");
     // показываем профит
-    Terminal::printProfit(profit, _settings.symbol.quoteAsset());
+    Terminal::printProfit(report, _settings.symbol.quoteAsset());
 
     // удалим из базы, результат удаления не важен
     _position->remove();
@@ -150,7 +151,7 @@ bool Algorithm::tryClose(const Context& context) {
 bool Algorithm::tryOpen(const Context& context) {
     static OrderSide previous_signal = OrderSide::Invalid;
 
-    OrderSide side = currentSignal(context);
+    OrderSide side = getSignal(context);
     if (side == OrderSide::Invalid || previous_signal == side)
         return false;
 
@@ -225,7 +226,7 @@ bool Algorithm::createOrder(const Context& context, OrderRequest& request, Posit
     return true;
 }
 
-OrderSide Algorithm::currentSignal(const Context& context) const {
+OrderSide Algorithm::getSignal(const Context& context) const {
     Price ema_long = context.ema(30);
     Price ema_short = context.ema(20);
     if (ema_long == 0.0 || ema_short == 0.0)

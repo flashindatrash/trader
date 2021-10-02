@@ -11,23 +11,15 @@ Price OrderBase::price() const {
     return OrderUtil::price(baseQuantity(), quoteQuantity());
 }
 
-Price OrderBase::fee() const {
-    return quoteQuantity() * Exchanger().fee();
+Quantity OrderBase::fee() const {
+    return fee(quoteQuantity());
 }
 
-Quantity OrderBase::spentQuantity() const {
-    return OrderUtil::spentQuantity(side(), baseQuantity(), quoteQuantity());
+Quantity OrderBase::fee(Quantity quote) const {
+    return quote * Exchanger().fee();
 }
 
-Change OrderUtil::change(const Price& left, const Price& right) {
-    return (right - left) / left;
-}
-
-Change OrderUtil::changeAbs(const Price& left, const Price& right) {
-    return std::abs(change(left, right));
-}
-
-Change OrderUtil::distance(OrderSide side, Price price, Price current) {
+Price OrderUtil::distance(OrderSide side, Price price, Price current) {
     switch (side) {
         case Buy: return current - price;
         case Sell: return price - current;

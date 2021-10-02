@@ -11,9 +11,12 @@ Context::Context(ChartWrapper::ConstIterator it, const PriceWrapper& price)
 {
 }
 
+const CandlestickWrapper& Context::candlestick() const {
+    return **_it;
+}
+
 const std::string& Context::id() const {
-    CandlestickWrapper* candlestick = *_it;
-    return candlestick->id();
+    return candlestick().id();
 }
 
 const Price& Context::price() const {
@@ -25,5 +28,9 @@ const Price& Context::price(const OrderSide& side) const {
 }
 
 Price Context::ema(size_t length) const {
-    return Exchanger().chart(id())->ema(_it, length);
+    const ChartWrapper* chart = Exchanger().chart(id());
+    if (chart == nullptr)
+        return 0.0;
+
+    return chart->ema(_it, length);
 }

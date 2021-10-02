@@ -26,7 +26,7 @@ Symbol Position::symbol() const {
     return get(FIELD_SYMBOL).asString();
 }
 
-void Position::setSymbol(Symbol value) {
+void Position::setSymbol(const Symbol& value) {
     set(FIELD_SYMBOL, value.c_str());
 }
 
@@ -58,12 +58,16 @@ OrderSide Position::revert() const {
     return OrderUtil::revert(side());
 }
 
-Quantity Position::profit(Price price) const {
-    return distance(price) * baseQuantity() - fee();
+Quantity Position::profit(Price current) const {
+    return distance(current) * baseQuantity() - fee() - fee(current * baseQuantity());
 }
 
-Change Position::distance(Price current) const {
+Price Position::distance(Price current) const {
     return OrderUtil::distance(side(), price(), current);
+}
+
+Change Position::change(Price current) const {
+    return distance(current) / price();
 }
 
 bool Position::closable() const {

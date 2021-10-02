@@ -33,7 +33,7 @@ void Terminal::update(Position& position, const Settings& settings, const Contex
     profitFormat.append(position.symbol().quoteAsset());
     profitFormat.append(RESET);
 
-    Change change = position.distance(current_price) / position_price * 100.0;
+    Change change = position.change(current_price) * 100.0;
     std::string changeFormat = "%.2f%%";
 
     std::string positionFormat;
@@ -55,19 +55,20 @@ void Terminal::printOrder(const OrderBase& order, const std::string& type) {
     Logger::info(format.c_str(), type.c_str(), order.side() == OrderSide::Buy ? "buy" : "sell", order.baseQuantity(), order.price());
 }
 
-void Terminal::printProfit(Quantity profit, const Asset& asset) {
-    std::string formatProfit = "%." + std::to_string(util::zeros_after_dot(profit) + 2) + "f";
+void Terminal::printProfit(const Report& report, const Asset& asset) {
+    std::string formatProfit = "%." + std::to_string(util::zeros_after_dot(report.profit) + 2) + "f";
 
-    if (profit > 0)
+    if (report.profit > 0)
         formatProfit = "+ " + formatProfit;
 
-    std::string format = "%s" + formatProfit + " %s%s";
-    Logger::info(format.c_str(), profit > 0 ? GREEN : RED, profit, asset.c_str(), RESET);
+    std::string format = "%s" + formatProfit + " %s (%.2f%%)%s";
+    Logger::info(format.c_str(), report.profit > 0 ? GREEN : RED, report.profit, asset.c_str(), report.change, RESET);
 }
 
 void Terminal::printReport(const Report& report, const Symbol& symbol) {
-    Logger::info("Report:\n\t%sProfit: %f %s\n\tUse %s: %f\n\tUse %s: %f%s",
+    Logger::info("Report:\n\t%sChange: %0.2f%%\n\tProfit: %f %s\n\tUse %s: %f\n\tUse %s: %f%s",
                  YELLOW,
+                 report.change * 100.0,
                  report.profit, symbol.quoteAsset().c_str(),
                  symbol.baseAsset().c_str(), report.use_base,
                  symbol.quoteAsset().c_str(), report.use_quote,

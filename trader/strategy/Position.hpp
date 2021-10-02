@@ -13,7 +13,7 @@ public: // methods
     Position() = default;
 
     void setSide(OrderSide value);
-    void setSymbol(Symbol value);
+    void setSymbol(const Symbol& value);
     void setBaseQuantity(Quantity value);
     void setQuoteQuantity(Quantity value);
 
@@ -25,7 +25,8 @@ public: // methods
 
     OrderSide revert() const;
     Quantity profit(Price price) const;
-    Change distance(Price price) const;
+    Price distance(Price price) const;
+    Change change(Price price) const;
     bool closable() const;
 
     void copy(const OrderBase& ref);

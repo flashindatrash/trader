@@ -31,14 +31,12 @@ public: // signature
 public: // methods
     Price price() const;
     Quantity fee() const;
-    Quantity spentQuantity() const;
+    Quantity fee(Quantity quote) const;
 };
 
 class OrderUtil {
 public:
-    static Change change(const Price& left, const Price& right);
-    static Change changeAbs(const Price& left, const Price& right);
-    static Change distance(OrderSide side, Price price, Price current);
+    static Price distance(OrderSide side, Price price, Price current);
     static Quantity spentQuantity(OrderSide side, Quantity baseQuantity, Quantity quoteQuantity);
     static Price price(Quantity baseQuantity, Quantity quoteQuantity);
     static OrderSide revert(OrderSide side);
