@@ -151,6 +151,8 @@ bool Algorithm::tryClose(const Context& context) {
 bool Algorithm::tryOpen(const Context& context) {
     static OrderSide previous_signal = OrderSide::Invalid;
 
+    //Logger::info("%f %f", context.ema(20), context.ema(30));
+
     OrderSide side = getSignal(context);
     if (side == OrderSide::Invalid || previous_signal == side)
         return false;

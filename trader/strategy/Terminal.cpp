@@ -8,8 +8,6 @@
 #include "Settings.hpp"
 #include "Context.hpp"
 #include "Report.hpp"
-#include "exchanger/base/OrderBase.hpp"
-#include "exchanger/wrapper/CandlestickWrapper.hpp"
 #include "util/NumberUtil.hpp"
 #include <utility>
 

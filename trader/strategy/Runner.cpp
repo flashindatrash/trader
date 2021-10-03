@@ -32,7 +32,7 @@ void Runner::start(const Settings& settings) {
             price.set(ticker);
 
             // переопределим время логов временем свечи
-            Logger::setTime(candlestick->timeClose() / 1000);
+            Logger::setTime(candlestick->timeOpen() / 1000);
 
             Context context(it, price);
             _dispatcher.emmit(context);

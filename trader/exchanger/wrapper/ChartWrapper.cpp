@@ -47,7 +47,7 @@ Price ChartWrapper::ema(ConstIterator end, size_t length) const {
     if (std::distance(_candlesticks.cbegin(), end) < (long)length + 1)
         return 0.0;
 
-    auto it = std::prev(end, (int)length + 1);
+    auto it = _candlesticks.cbegin();
     Price result = (*(it++))->priceClose();
 
     /*
@@ -60,7 +60,7 @@ Price ChartWrapper::ema(ConstIterator end, size_t length) const {
     */
     double k = 2.0 / ((double)length + 1.0);
 
-    for (; it < end; ++it)
+    for (; it <= end; ++it)
         result = (*it)->priceClose() * k + result * (1 - k);
 
     return result;

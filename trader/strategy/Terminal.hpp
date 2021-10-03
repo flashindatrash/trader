@@ -6,8 +6,6 @@
 
 #include "Defines.hpp"
 
-class OrderBase;
-
 NS_BEGIN
 class Position;
 class Settings;
