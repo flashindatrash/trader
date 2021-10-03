@@ -74,7 +74,7 @@ bool Algorithm::tryTakeProfit(const Context& context) {
     time_t time = _position->time();
     // если прошло более 3х часов закрываем без сигналов, мы не угадали
     // todo: более четкое правило, смотреть не по времени, а сколько мы пробыли в проигрыше
-    if (time == 0 || context.time() > time + Timer::sHour * 4) {
+    if (context.time() > time + Timer::sHour * 4) {
         // ждем сигнал на закрытие
         EMACross indicator = ema(context);
         if (indicator.signal() != _position->revert())
