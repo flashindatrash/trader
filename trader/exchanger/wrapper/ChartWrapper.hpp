@@ -31,8 +31,6 @@ public: // methods
     const CandlestickWrapper* add(const Candlestick& data);
     const std::vector<CandlestickWrapper*>& get() const;
 
-    Price ema(ConstIterator end, size_t length) const;
-
 protected: // methods
     ChartWrapper() = default;
 

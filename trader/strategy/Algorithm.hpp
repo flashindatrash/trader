@@ -3,6 +3,7 @@
 #include "Defines.hpp"
 #include "Settings.hpp"
 #include "Report.hpp"
+#include "exchanger/indicator/EMACross.hpp"
 
 struct OrderRequest;
 
@@ -32,7 +33,7 @@ protected: // methods
     bool tryClose(const Context& context);
 
     bool createOrder(const Context& context, OrderRequest& request, Position& result) const;
-    OrderSide getSignal(const Context& context) const;
+    EMACross ema(const Context& context) const;
 
 protected: // vars
     const Settings _settings;

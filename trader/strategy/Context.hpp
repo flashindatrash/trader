@@ -1,6 +1,7 @@
 #pragma once
 
 #include "exchanger/wrapper/ChartWrapper.hpp"
+#include "exchanger/indicator/EMACross.hpp"
 #include "Defines.hpp"
 
 class CandlestickWrapper;
@@ -14,7 +15,7 @@ public: // methods
     const std::string& id() const;
     const Price& price() const;
     const Price& price(const OrderSide& side) const;
-    Price ema(size_t length) const;
+    EMACross ema(size_t long_length, size_t short_length) const;
 
 protected: // vars
     ChartWrapper::ConstIterator _it;

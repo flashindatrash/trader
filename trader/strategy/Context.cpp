@@ -27,10 +27,10 @@ const Price& Context::price(const OrderSide& side) const {
     return _price.get(side);
 }
 
-Price Context::ema(size_t length) const {
+EMACross Context::ema(size_t long_length, size_t short_length) const {
     const ChartWrapper* chart = Exchanger().chart(id());
     if (chart == nullptr)
-        return 0.0;
+        return EMACross();
 
-    return chart->ema(_it, length);
+    return EMACross(chart->get().cbegin(), _it, long_length, short_length);
 }

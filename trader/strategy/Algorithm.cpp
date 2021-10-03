@@ -46,7 +46,6 @@ bool Algorithm::init() {
     _position = Position::create(_settings.uniqId() + ":position");
     _statistics = Statistics::create(_settings.uniqId() + ":stats");
 
-
     // промигрируем данные
     if (not Migrator::migrate(_position, _statistics, _settings.symbol))
         return false;
@@ -73,7 +72,8 @@ bool Algorithm::tryTakeProfit(const Context& context) {
         return false;
 
     // ждем сигнал на закрытие
-    if (_position->revert() != getSignal(context))
+    EMACross indicator = ema(context);
+    if (indicator.signal() != _position->revert())
         return false;
 
     return tryClose(context);
@@ -149,29 +149,17 @@ bool Algorithm::tryClose(const Context& context) {
 }
 
 bool Algorithm::tryOpen(const Context& context) {
-    static OrderSide previous_signal = OrderSide::Invalid;
-
-    //Logger::info("%f %f", context.ema(20), context.ema(30));
-
-    OrderSide side = getSignal(context);
-    if (side == OrderSide::Invalid || previous_signal == side)
-        return false;
-
-    // интересует только пересечение сигналов
-    if (previous_signal == OrderSide::Invalid) {
-        previous_signal = side;
-        return false;
-    }
-
-    previous_signal = side;
-
     if (_position->has())
+        return false;
+
+    EMACross indicator = ema(context);
+    if (indicator.empty() || not indicator.crossed())
         return false;
 
     // создадим реквест
     OrderRequest request;
     request.symbol = _settings.symbol;
-    request.side = side;
+    request.side = indicator.signal();
     request.quantity = Exchanger().minQuantity(request.symbol) * _settings.lot_size;
 
     // создание заказа
@@ -228,13 +216,8 @@ bool Algorithm::createOrder(const Context& context, OrderRequest& request, Posit
     return true;
 }
 
-OrderSide Algorithm::getSignal(const Context& context) const {
-    Price ema_long = context.ema(30);
-    Price ema_short = context.ema(20);
-    if (ema_long == 0.0 || ema_short == 0.0)
-        return OrderSide::Invalid;
-
-    return ema_short > ema_long ? OrderSide::Buy : OrderSide::Sell;
+EMACross Algorithm::ema(const Context& context) const {
+    return context.ema(30, 20);
 }
 
 void Algorithm::report() const {

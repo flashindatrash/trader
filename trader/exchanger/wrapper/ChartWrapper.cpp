@@ -42,26 +42,3 @@ const CandlestickWrapper* ChartWrapper::add(const Candlestick& data) {
 const std::vector<CandlestickWrapper*>& ChartWrapper::get() const {
     return _candlesticks;
 }
-
-Price ChartWrapper::ema(ConstIterator end, size_t length) const {
-    if (std::distance(_candlesticks.cbegin(), end) < (long)length + 1)
-        return 0.0;
-
-    auto it = _candlesticks.cbegin();
-    Price result = (*(it++))->priceClose();
-
-    /*
-     * EMA = Price(t) × k + EMA(y) × (1−k)
-     * where:
-     * t=today
-     * y=yesterday
-     * N=number of days in EMA
-     * k=2÷(N+1)
-    */
-    double k = 2.0 / ((double)length + 1.0);
-
-    for (; it <= end; ++it)
-        result = (*it)->priceClose() * k + result * (1 - k);
-
-    return result;
-}
