@@ -19,6 +19,10 @@ const std::string& Context::id() const {
     return candlestick().id();
 }
 
+time_t Context::time() const {
+    return candlestick().timeClose();
+}
+
 const Price& Context::price() const {
     return _price.get();
 }

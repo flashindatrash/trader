@@ -13,6 +13,7 @@ public: // methods
 
     const CandlestickWrapper& candlestick() const;
     const std::string& id() const;
+    time_t time() const;
     const Price& price() const;
     const Price& price(const OrderSide& side) const;
     EMACross ema(size_t long_length, size_t short_length) const;

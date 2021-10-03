@@ -71,10 +71,15 @@ bool Algorithm::tryTakeProfit(const Context& context) {
     if (_position->change(context.price(_position->revert())) < _settings.take_profit)
         return false;
 
-    // ждем сигнал на закрытие
-    EMACross indicator = ema(context);
-    if (indicator.signal() != _position->revert())
-        return false;
+    time_t time = _position->time();
+    // если прошло более 3х часов закрываем без сигналов, мы не угадали
+    // todo: более четкое правило, смотреть не по времени, а сколько мы пробыли в проигрыше
+    if (time == 0 || context.time() > time + Timer::sHour * 4) {
+        // ждем сигнал на закрытие
+        EMACross indicator = ema(context);
+        if (indicator.signal() != _position->revert())
+            return false;
+    }
 
     return tryClose(context);
 }
@@ -168,6 +173,8 @@ bool Algorithm::tryOpen(const Context& context) {
         return false;
 
     _position->copy(position);
+    _position->setTime(context.time());
+
     if (_settings.isRelease())
         _position->save();
 

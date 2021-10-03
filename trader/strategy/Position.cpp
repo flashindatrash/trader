@@ -7,6 +7,7 @@ static const char* FIELD_SIDE = "side";
 static const char* FIELD_SYMBOL = "symbol";
 static const char* FIELD_BASE_QUANTITY = "base_quantity";
 static const char* FIELD_QUOTE_QUANTITY = "quote_quantity";
+static const char* FIELD_TIME = "time";
 
 Position* Position::create(const db::Key& key) {
     auto* position = new Position(key);
@@ -52,6 +53,17 @@ Quantity Position::quoteQuantity() const {
 
 void Position::setQuoteQuantity(Quantity value) {
     set(FIELD_QUOTE_QUANTITY, value);
+}
+
+time_t Position::time() const {
+    std::string value = get(FIELD_TIME).asString();
+    if (value.empty())
+        return 0;
+    return stol(value.substr(2));
+}
+
+void Position::setTime(time_t value) {
+    set(FIELD_TIME, "t:" + std::to_string(value));
 }
 
 OrderSide Position::revert() const {
