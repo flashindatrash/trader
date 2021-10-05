@@ -79,7 +79,7 @@ Price Position::distance(Price current) const {
 }
 
 Change Position::change(Price current) const {
-    return distance(current) / price();
+    return profit(current) / price();
 }
 
 bool Position::closable() const {

@@ -71,8 +71,9 @@ bool Algorithm::tryTakeProfit(const Context& context) {
     if (_position->change(context.price(_position->revert())) < _settings.take_profit)
         return false;
 
-    EMACross indicator = ema(context);
-    if (indicator.signal() != _position->revert())
+    OrderSide trend, signal;
+    indicator(context, trend, signal);
+    if (trend != _position->revert())
         return false;
 
     return tryClose(context);
@@ -158,14 +159,13 @@ bool Algorithm::tryOpen(const Context& context) {
     if (_position->has())
         return false;
 
-    EMACross indicator = ema(context);
-    if (indicator.empty() || not indicator.crossed())
-        return false;
+    OrderSide trend, signal;
+    indicator(context, trend, signal);
 
     // создадим реквест
     OrderRequest request;
     request.symbol = _settings.symbol;
-    request.side = indicator.signal();
+    request.side = signal;
     request.quantity = Exchanger().minQuantity(request.symbol) * _settings.lot_size;
 
     // создание заказа
@@ -224,8 +224,10 @@ bool Algorithm::createOrder(const Context& context, OrderRequest& request, Posit
     return true;
 }
 
-EMACross Algorithm::ema(const Context& context) const {
-    return context.ema(30, 20);
+void Algorithm::indicator(const Context& context, OrderSide& trend, OrderSide& signal) const {
+    EMACross ema = context.ema(30, 20);
+    trend = ema.trend();
+    signal = ema.crossed() ? trend : Invalid;
 }
 
 void Algorithm::report() const {

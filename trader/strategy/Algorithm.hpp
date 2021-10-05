@@ -33,7 +33,7 @@ protected: // methods
     bool tryClose(const Context& context);
 
     bool createOrder(const Context& context, OrderRequest& request, Position& result) const;
-    EMACross ema(const Context& context) const;
+    void indicator(const Context& context, OrderSide& trend, OrderSide& signal) const;
 
 protected: // vars
     const Settings _settings;

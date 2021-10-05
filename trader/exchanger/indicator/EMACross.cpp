@@ -9,14 +9,14 @@ EMACross::EMACross(ChartWrapper::ConstIterator begin, ChartWrapper::ConstIterato
     _short = EMA(begin, end, short_length);
 }
 
-OrderSide EMACross::signal() const {
+OrderSide EMACross::trend() const {
     if (empty())
         return OrderSide::Invalid;
 
-    return signal(_long.last(), _short.last());
+    return compare(_long.last(), _short.last());
 }
 
-OrderSide EMACross::signal(Price ema_long, Price ema_short) {
+OrderSide EMACross::compare(Price ema_long, Price ema_short) {
     return ema_short > ema_long ? OrderSide::Buy : OrderSide::Sell;
 }
 
@@ -24,7 +24,7 @@ bool EMACross::crossed() const {
     if (_long.size() < 2 || _short.size() < 2)
         return false;
 
-    return signal() != signal(_long.prev(), _short.prev());
+    return trend() != compare(_long.prev(), _short.prev());
 }
 
 bool EMACross::empty() const {

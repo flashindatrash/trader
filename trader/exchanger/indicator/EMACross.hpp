@@ -11,12 +11,13 @@ public: // methods
     EMACross() = default;
     EMACross(ChartWrapper::ConstIterator begin, ChartWrapper::ConstIterator end, size_t long_length, size_t short_length);
 
-    OrderSide signal() const;
+    OrderSide trend() const;
+
     bool crossed() const;
     bool empty() const;
 
 protected: // static
-    static OrderSide signal(Price ema_long, Price ema_short) ;
+    static OrderSide compare(Price ema_long, Price ema_short) ;
 
 protected: // vars
     EMA _long;
