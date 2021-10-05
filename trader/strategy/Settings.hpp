@@ -32,5 +32,7 @@ public: // vars
     double averaging = 0.0;
 
     double lot_size = 1.0;
+
+    double profit_ratio = 1.0;
 };
 NS_END

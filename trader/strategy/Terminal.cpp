@@ -64,11 +64,13 @@ void Terminal::printProfit(const Report& report, const Asset& asset) {
 }
 
 void Terminal::printReport(const Report& report, const Symbol& symbol) {
-    Logger::info("Report:\n\t%sChange: %0.2f%%\n\tProfit: %f %s\n\tUse %s: %f\n\tUse %s: %f%s",
+    Logger::info("Report:\n\t%sChange: %0.2f%%\n\tProfit: %f %s\n\tUse %s: %f\n\tUse %s: %f\n\tBalance %s: %f\n\tBalance %s: %f%s",
                  YELLOW,
                  report.change * 100.0,
                  report.profit, symbol.quoteAsset().c_str(),
                  symbol.baseAsset().c_str(), report.use_base,
                  symbol.quoteAsset().c_str(), report.use_quote,
+                 symbol.baseAsset().c_str(), symbol.baseAsset().balance(),
+                 symbol.quoteAsset().c_str(), symbol.quoteAsset().balance(),
                  RESET);
 }

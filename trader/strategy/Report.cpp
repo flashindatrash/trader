@@ -10,8 +10,8 @@ NS_USE
 Report::Report(const Position& open, const Position& close) {
     profit = open.profit(close.price());
     change = open.change(close.price());
-    use_base = close.baseQuantity();
-    use_quote = close.quoteQuantity();
+    use_base = open.baseQuantity();
+    use_quote = open.quoteQuantity();
 }
 
 void Report::add(const Report& report) {

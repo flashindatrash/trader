@@ -71,15 +71,9 @@ bool Algorithm::tryTakeProfit(const Context& context) {
     if (_position->change(context.price(_position->revert())) < _settings.take_profit)
         return false;
 
-    // time_t time = _position->time();
-    // если прошло более 3х часов закрываем без сигналов, мы не угадали
-    // todo: более четкое правило, смотреть не по времени, а сколько мы пробыли в проигрыше
-    // if (context.time() > time + Timer::sHour * 4) {
-        // ждем сигнал на закрытие
-        EMACross indicator = ema(context);
-        if (indicator.signal() != _position->revert())
-            return false;
-    // }
+    EMACross indicator = ema(context);
+    if (indicator.signal() != _position->revert())
+        return false;
 
     return tryClose(context);
 }
@@ -123,11 +117,18 @@ bool Algorithm::tryAverage(const Context& context) {
 }
 
 bool Algorithm::tryClose(const Context& context) {
+    // определим количество средств для закрытия
+    // для того чтобы уметь зарабатывать в quote и base монете
+    const Price& price = context.price(_position->revert());
+    Quantity quote_profit = _position->profit(price);
+    Quantity base_profit = quote_profit / price;
+    Quantity quantity = _position->baseQuantity() - base_profit * _settings.profit_ratio;
+
     // создадим реквест
     OrderRequest request;
     request.symbol = _position->symbol();
     request.side = _position->revert();
-    request.quantity = _position->baseQuantity();
+    request.quantity = quantity;
 
     // создадим заказ
     Position close;

@@ -58,8 +58,8 @@ bool Strategy::init(const core::Config& config) {
 
     // add test balance
     if (not settings.isRelease()) {
-        Exchanger().balance(settings.symbol.baseAsset())->gain(10000);
-        Exchanger().balance(settings.symbol.quoteAsset())->gain(10000);
+        //Exchanger().balance(settings.symbol.baseAsset())->gain(10000);
+        //Exchanger().balance(settings.symbol.quoteAsset())->gain(10000);
     }
 
     // create & start runner
