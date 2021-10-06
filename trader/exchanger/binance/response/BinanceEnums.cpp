@@ -13,6 +13,7 @@ std::string binance::serialize(const ChartInterval& interval) {
     switch (interval) {
         case ChartInterval::m5: return "5m";
         case ChartInterval::m15: return "15m";
+        case ChartInterval::d1: return "1d";
         default: return "";
     }
 }

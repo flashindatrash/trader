@@ -57,9 +57,9 @@ bool Strategy::init(const core::Config& config) {
     }
 
     // add test balance
-    if (not settings.isRelease()) {
-        //Exchanger().balance(settings.symbol.baseAsset())->gain(10000);
-        //Exchanger().balance(settings.symbol.quoteAsset())->gain(10000);
+    if (settings.isBackTest()) {
+        Exchanger().balance(settings.symbol.baseAsset())->gain(10000);
+        Exchanger().balance(settings.symbol.quoteAsset())->gain(10000);
     }
 
     // create & start runner
@@ -68,6 +68,10 @@ bool Strategy::init(const core::Config& config) {
     _runner->start(settings);
 
     if (settings.isBackTest()) {
+        // remove test balance
+        Exchanger().balance(settings.symbol.baseAsset())->spend(10000);
+        Exchanger().balance(settings.symbol.quoteAsset())->spend(10000);
+
         _algorithm->report();
     }
 

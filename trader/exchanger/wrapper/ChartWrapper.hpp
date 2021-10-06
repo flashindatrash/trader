@@ -9,7 +9,8 @@ class CandlestickWrapper;
 
 enum ChartInterval : unsigned int {
     m5,
-    m15
+    m15,
+    d1
 };
 
 struct ChartRequest {

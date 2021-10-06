@@ -114,7 +114,7 @@ bool Algorithm::tryAverage(const Context& context) {
     if (_settings.isRelease())
         _position->save();
 
-    if (not _settings.isBackTest())
+    if (true || not _settings.isBackTest())
         Terminal::printOrder(avg, ">");
 
     return true;
@@ -141,7 +141,7 @@ bool Algorithm::tryClose(const Context& context) {
     if (_settings.isRelease())
         _statistics->save();
 
-    if (not _settings.isBackTest()) {
+    if (true || not _settings.isBackTest()) {
         // распечатаем созданную позицию с id закрытой
         Terminal::printOrder(close, "<");
         // показываем профит
@@ -177,7 +177,7 @@ bool Algorithm::tryOpen(const Context& context) {
     if (_settings.isRelease())
         _position->save();
 
-    if (not _settings.isBackTest())
+    if (true || not _settings.isBackTest())
         Terminal::printOrder(position, ">");
 
     return true;

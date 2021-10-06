@@ -12,7 +12,6 @@ static const char* LOT_SIZE = "LOT_SIZE";
 static const char* TAKE_PROFIT = "TAKE_PROFIT";
 static const char* STOP_LOSS = "STOP_LOSS";
 static const char* AVERAGING = "AVERAGING";
-static const char* PROFIT_RATIO = "PROFIT_RATIO";
 
 Settings::Settings(const core::Config& config) {
     mode = config.asString(MODE);
