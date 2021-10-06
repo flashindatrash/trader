@@ -1,7 +1,6 @@
 #include "BalanceWrapper.hpp"
 
-BalanceWrapper* BalanceWrapper::create()
-{
+BalanceWrapper* BalanceWrapper::create() {
     auto* wrapper = new BalanceWrapper();
     return wrapper;
 }

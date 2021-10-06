@@ -371,8 +371,8 @@ const OrderWrapper* BinanceController::createOrder(BookWrapper& container, Order
                          binance::serialize(request.side).c_str(),
                          request.quantity,
                          request.symbol.baseAsset().c_str(),
-                         OrderUtil::spentQuantity(request.side, request.symbol.baseAsset().balance(),
-                                                  request.symbol.quoteAsset().balance()));
+                         OrderUtil::usedQuantity(request.side, request.symbol.baseAsset().balance(),
+                                                 request.symbol.quoteAsset().balance()));
 
             Logger::error("");
         }

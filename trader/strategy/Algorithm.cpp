@@ -60,7 +60,8 @@ void Algorithm::execute(const Context& context) {
     bool close = tryOpen(context);
 
     // обновляем строку терминала
-    Terminal::update(*_position, _settings, context);
+    if (_position->has() && not _settings.isBackTest())
+        Terminal::update(*_position, _settings.symbol, context);
 }
 
 bool Algorithm::tryTakeProfit(const Context& context) {
@@ -113,23 +114,18 @@ bool Algorithm::tryAverage(const Context& context) {
     if (_settings.isRelease())
         _position->save();
 
-    Terminal::printOrder(avg, ">");
+    if (not _settings.isBackTest())
+        Terminal::printOrder(avg, ">");
+
     return true;
 }
 
 bool Algorithm::tryClose(const Context& context) {
-    // определим количество средств для закрытия
-    // для того чтобы уметь зарабатывать в quote и base монете
-    const Price& price = context.price(_position->revert());
-    Quantity quote_profit = _position->profit(price);
-    Quantity base_profit = quote_profit / price;
-    Quantity quantity = _position->baseQuantity() - base_profit * _settings.profit_ratio;
-
     // создадим реквест
     OrderRequest request;
     request.symbol = _position->symbol();
     request.side = _position->revert();
-    request.quantity = quantity;
+    request.quantity = _position->baseQuantity();
 
     // создадим заказ
     Position close;
@@ -145,10 +141,12 @@ bool Algorithm::tryClose(const Context& context) {
     if (_settings.isRelease())
         _statistics->save();
 
-    // распечатаем созданную позицию с id закрытой
-    Terminal::printOrder(close, "<");
-    // показываем профит
-    Terminal::printProfit(report, _settings.symbol.quoteAsset());
+    if (not _settings.isBackTest()) {
+        // распечатаем созданную позицию с id закрытой
+        Terminal::printOrder(close, "<");
+        // показываем профит
+        Terminal::printProfit(report, _settings.symbol.quoteAsset());
+    }
 
     // удалим из базы, результат удаления не важен
     _position->remove();
@@ -179,7 +177,9 @@ bool Algorithm::tryOpen(const Context& context) {
     if (_settings.isRelease())
         _position->save();
 
-    Terminal::printOrder(position, ">");
+    if (not _settings.isBackTest())
+        Terminal::printOrder(position, ">");
+
     return true;
 }
 

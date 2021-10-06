@@ -28,7 +28,7 @@ Price OrderUtil::distance(OrderSide side, Price price, Price current) {
     return 0.0;
 }
 
-Quantity OrderUtil::spentQuantity(OrderSide side, Quantity baseQuantity, Quantity quoteQuantity) {
+Quantity OrderUtil::usedQuantity(OrderSide side, Quantity baseQuantity, Quantity quoteQuantity) {
     switch (side) {
         case Buy: return quoteQuantity;
         case Sell: return baseQuantity;
@@ -55,7 +55,7 @@ bool OrderUtil::isEnough(const Symbol& symbol, OrderSide side, Quantity quantity
     static const double error = 1.3;
 
     Price price = Exchanger().price(symbol)->get(side);
-    Quantity balance = spentQuantity(side, symbol.baseAsset().balance(), symbol.quoteAsset().balance());
-    Quantity cost = spentQuantity(side, quantity, price * quantity);
+    Quantity balance = usedQuantity(side, symbol.baseAsset().balance(), symbol.quoteAsset().balance());
+    Quantity cost = usedQuantity(side, quantity, price * quantity);
     return balance > cost * error;
 }

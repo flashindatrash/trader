@@ -5,7 +5,6 @@
 #include "Terminal.hpp"
 #include "Logger.hpp"
 #include "Position.hpp"
-#include "Settings.hpp"
 #include "Context.hpp"
 #include "Report.hpp"
 #include "util/NumberUtil.hpp"
@@ -17,10 +16,7 @@ void Terminal::setTitle(const Symbol& symbol) {
     Logger::title("%s - %s", symbol.baseAsset().c_str(), symbol.quoteAsset().c_str());
 }
 
-void Terminal::update(Position& position, const Settings& settings, const Context& context) {
-    if (settings.isBackTest() || not position.has())
-        return;
-
+void Terminal::update(Position& position, const Symbol& symbol, const Context& context) {
     Price current_price = context.price(position.revert());
     Price position_price = position.price();
 
@@ -38,7 +34,7 @@ void Terminal::update(Position& position, const Settings& settings, const Contex
     positionFormat.append(position.side() == OrderSide::Buy ? "long" : "short");
     positionFormat.append(": %." + std::to_string(util::zeros_after_dot(position_price) + 2) + "f");
 
-    Quantity balance = settings.symbol.balance(Asset::USDT);
+    Quantity balance = symbol.balance(Asset::USDT);
     std::string balanceFormat = "balance: %." + std::to_string(util::zeros_after_dot(balance) + 2) + "f " + Asset::USDT.id();
 
     std::string format = profitFormat + " " + changeFormat + " [" + positionFormat + "] [" + balanceFormat + "]";
@@ -59,7 +55,7 @@ void Terminal::printProfit(const Report& report, const Asset& asset) {
     if (report.profit > 0)
         formatProfit = "+ " + formatProfit;
 
-    std::string format = "%s" + formatProfit + " %s (%.2f%%)%s";
+    std::string format = "%s" + formatProfit + " %s (%0.3f%%)%s";
     Logger::info(format.c_str(), report.profit > 0 ? GREEN : RED, report.profit, asset.c_str(), report.change, RESET);
 }
 
