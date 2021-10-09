@@ -12,6 +12,7 @@ static const char* LOT_SIZE = "LOT_SIZE";
 static const char* TAKE_PROFIT = "TAKE_PROFIT";
 static const char* STOP_LOSS = "STOP_LOSS";
 static const char* AVERAGING = "AVERAGING";
+static const char* PROFIT_RATIO = "PROFIT_RATIO";
 
 Settings::Settings(const core::Config& config) {
     mode = config.asString(MODE);
@@ -21,6 +22,7 @@ Settings::Settings(const core::Config& config) {
     take_profit = config.asDouble(TAKE_PROFIT) / 100.0;
     stop_loss = config.asDouble(STOP_LOSS) / -100.0;
     averaging = config.asDouble(AVERAGING) / -100.0;
+    profit_ratio = config.asDouble(PROFIT_RATIO);
 }
 
 bool Settings::isValid() const {
@@ -36,6 +38,11 @@ bool Settings::isValid() const {
 
     if (lot_size < 1.0) {
         Logger::info("Settings: %s < 1.0", LOT_SIZE);
+        return false;
+    }
+
+    if (profit_ratio < 0.0 || profit_ratio > 1.0) {
+        Logger::info("Settings: %s must be between 0 to 1", PROFIT_RATIO);
         return false;
     }
 

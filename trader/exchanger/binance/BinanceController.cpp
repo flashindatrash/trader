@@ -7,7 +7,6 @@
 #include "Logger.hpp"
 #include "util/StringUtil.hpp"
 #include "Time.hpp"
-#include "exchanger/base/Symbol.hpp"
 #include "exchanger/wrapper/ChartWrapper.hpp"
 #include "exchanger/wrapper/BalanceWrapper.hpp"
 #include "exchanger/wrapper/BookWrapper.hpp"
@@ -344,16 +343,8 @@ const OrderWrapper* BinanceController::createOrder(BookWrapper& container, Order
         return nullptr;
     }
 
-    Quantity min_quantity = minQuantity(request.symbol);
-    if (min_quantity == 0.0) {
-        Logger::info("BinanceController::createOrder unknown priceMin quantity");
-        return nullptr;
-    } else if (request.quantity > min_quantity) {
-        if (info.lotSize.stepSize > 0.0)
-            request.quantity = std::max(std::round(request.quantity / info.lotSize.stepSize) * info.lotSize.stepSize, min_quantity);
-    } else {
-        request.quantity = min_quantity;
-    }
+    // round quantity to step size and min lot
+    request.quantity = roundQuantity(request.quantity, request.symbol);
 
     // enough to create order
     if (not request.isEnough())
@@ -391,26 +382,8 @@ const OrderWrapper* BinanceController::createOrder(BookWrapper& container, Order
     if (wrapper == nullptr)
         return nullptr;
 
-    // update balances
-    if (_balances_connector != nullptr) {
-        BalanceWrapper* baseBalance = _balances_connector->get(request.symbol.baseAsset());
-        BalanceWrapper* quoteBalance = _balances_connector->get(request.symbol.quoteAsset());
-
-        switch (wrapper->side()) {
-            case OrderSide::Buy: {
-                baseBalance->gain(wrapper->baseQuantity());
-                quoteBalance->spend(wrapper->quoteQuantity());
-                break;
-            }
-            case OrderSide::Sell: {
-                baseBalance->spend(wrapper->baseQuantity());
-                quoteBalance->gain(wrapper->quoteQuantity());
-                break;
-            }
-            case OrderSide::Invalid: break;
-        }
-    }
-
+    // update balance
+    wrapper->operate();
     return wrapper;
 }
 
@@ -437,6 +410,19 @@ double BinanceController::minQuantity(const std::string& symbol) const {
     if (info.lotSize.stepSize > 0.0)
         quantity = std::round(quantity / info.lotSize.stepSize) * info.lotSize.stepSize;
     return quantity;
+}
+
+double BinanceController::roundQuantity(double quantity, const std::string& symbol) const {
+    auto it = _symbols.find(symbol);
+    if (it == _symbols.end())
+        return 0.0;
+
+    const BinanceSymbolData& info = it->second;
+
+    if (info.lotSize.stepSize > 0.0)
+        quantity = std::round(quantity / info.lotSize.stepSize) * info.lotSize.stepSize;
+
+    return std::max(quantity, minQuantity(symbol));
 }
 
 double BinanceController::fee() const {

@@ -32,12 +32,13 @@ public: // methods
     Price price() const;
     Quantity fee() const;
     Quantity fee(Quantity quote) const;
+    void operate() const;
 };
 
 class OrderUtil {
 public:
     static Price distance(OrderSide side, Price price, Price current);
-    static Quantity usedQuantity(OrderSide side, Quantity baseQuantity, Quantity quoteQuantity);
+    static Quantity usedQuantity(OrderSide side, Quantity first, Quantity second);
     static Price price(Quantity baseQuantity, Quantity quoteQuantity);
     static OrderSide revert(OrderSide side);
     static bool isEnough(const Symbol& symbol, OrderSide side, Quantity quantity);

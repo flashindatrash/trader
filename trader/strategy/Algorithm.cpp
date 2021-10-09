@@ -8,10 +8,7 @@
 #include "Statistics.hpp"
 #include "Terminal.hpp"
 #include "Migrator.hpp"
-#include "exchanger/wrapper/CandlestickWrapper.hpp"
 #include "exchanger/wrapper/OrderWrapper.hpp"
-#include "exchanger/wrapper/PriceWrapper.hpp"
-#include "exchanger/wrapper/BalanceWrapper.hpp"
 #include "exchanger/Exchanger.hpp"
 
 NS_USE
@@ -114,18 +111,23 @@ bool Algorithm::tryAverage(const Context& context) {
     if (_settings.isRelease())
         _position->save();
 
-    if (true || not _settings.isBackTest())
-        Terminal::printOrder(avg, ">");
-
+    Terminal::printOrder(avg, ">");
     return true;
 }
 
 bool Algorithm::tryClose(const Context& context) {
+    // определим размер лота, для закрытия позиции
+    // он может быть тот же, или отличаться на размер профита
+    Price price = context.price(_position->revert());
+    Quantity profit_base = _position->profit(price) / price;
+    Quantity quantity_add = OrderUtil::usedQuantity(_position->side(), profit_base, -profit_base) * _settings.profit_ratio;
+    Quantity quantity = _position->baseQuantity() + quantity_add;
+
     // создадим реквест
     OrderRequest request;
     request.symbol = _position->symbol();
     request.side = _position->revert();
-    request.quantity = _position->baseQuantity();
+    request.quantity = quantity;
 
     // создадим заказ
     Position close;
@@ -141,12 +143,10 @@ bool Algorithm::tryClose(const Context& context) {
     if (_settings.isRelease())
         _statistics->save();
 
-    if (true || not _settings.isBackTest()) {
-        // распечатаем созданную позицию с id закрытой
-        Terminal::printOrder(close, "<");
-        // показываем профит
-        Terminal::printProfit(report, _settings.symbol.quoteAsset());
-    }
+    // распечатаем созданную позицию с id закрытой
+    Terminal::printOrder(close, "<");
+    // показываем профит
+    Terminal::printProfit(report, _settings.symbol.quoteAsset());
 
     // удалим из базы, результат удаления не важен
     _position->remove();
@@ -164,7 +164,7 @@ bool Algorithm::tryOpen(const Context& context) {
     OrderRequest request;
     request.symbol = _settings.symbol;
     request.side = signal;
-    request.quantity = Exchanger().minQuantity(request.symbol) * _settings.lot_size;
+    request.quantity = Exchanger().roundQuantity(0.0, request.symbol) * _settings.lot_size;
 
     // создание заказа
     Position position;
@@ -177,9 +177,7 @@ bool Algorithm::tryOpen(const Context& context) {
     if (_settings.isRelease())
         _position->save();
 
-    if (true || not _settings.isBackTest())
-        Terminal::printOrder(position, ">");
-
+    Terminal::printOrder(position, ">");
     return true;
 }
 
@@ -190,28 +188,9 @@ bool Algorithm::createOrder(const Context& context, OrderRequest& request, Posit
     if (not _settings.isRelease()) {
         result.setSymbol(request.symbol);
         result.setSide(request.side);
-        result.setBaseQuantity(request.quantity);
-        result.setQuoteQuantity(request.quantity * context.price(request.side));
-
-        BalanceWrapper* baseBalance = Exchanger().balance(request.symbol.baseAsset());
-        BalanceWrapper* quoteBalance = Exchanger().balance(request.symbol.quoteAsset());
-
-        if (baseBalance && quoteBalance) {
-            switch (request.side) {
-                case OrderSide::Buy: {
-                    baseBalance->gain(result.baseQuantity());
-                    quoteBalance->spend(result.quoteQuantity());
-                    break;
-                }
-                case OrderSide::Sell: {
-                    baseBalance->spend(result.baseQuantity());
-                    quoteBalance->gain(result.quoteQuantity());
-                    break;
-                }
-                case OrderSide::Invalid:
-                    break;
-            }
-        }
+        result.setBaseQuantity(Exchanger().roundQuantity(request.quantity, request.symbol));
+        result.setQuoteQuantity(result.baseQuantity() * context.price(request.side));
+        result.operate();
         return true;
     }
 
@@ -231,5 +210,11 @@ void Algorithm::indicator(const Context& context, OrderSide& trend, OrderSide& s
 }
 
 void Algorithm::report() const {
+    // вернем средва по последней не выполненной позиции
+    if (_position->has() && _settings.isBackTest()) {
+        _position->setSide(_position->revert());
+        _position->operate();
+    }
+
     Terminal::printReport(_report, _settings.symbol);
 }
