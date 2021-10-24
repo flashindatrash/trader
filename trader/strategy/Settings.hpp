@@ -17,6 +17,7 @@ public: // methods
     bool isRelease() const;
     bool isDevelop() const;
     bool isBackTest() const;
+    bool isBalanceUnlimited() const;
 
 protected: // methods
     Settings() = default;

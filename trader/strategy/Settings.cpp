@@ -61,6 +61,10 @@ bool Settings::isBackTest() const {
     return mode == "backtest";
 }
 
+bool Settings::isBalanceUnlimited() const {
+    return isBackTest() && false;
+}
+
 std::string Settings::uniqId() const {
     return username + ":" + symbol.id();
 }

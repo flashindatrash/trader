@@ -57,7 +57,7 @@ bool Strategy::init(const core::Config& config) {
     }
 
     // add test balance
-    if (settings.isBackTest()) {
+    if (settings.isBalanceUnlimited()) {
         Exchanger().balance(settings.symbol.baseAsset())->gain(10000);
         Exchanger().balance(settings.symbol.quoteAsset())->gain(10000);
     }
@@ -67,11 +67,14 @@ bool Strategy::init(const core::Config& config) {
     _runner->setCallback(std::bind(&Algorithm::execute, _algorithm, std::placeholders::_1));
     _runner->start(settings);
 
-    if (settings.isBackTest()) {
-        // remove test balance
+    // remove test balance
+    if (settings.isBalanceUnlimited()) {
         Exchanger().balance(settings.symbol.baseAsset())->spend(10000);
         Exchanger().balance(settings.symbol.quoteAsset())->spend(10000);
+    }
 
+    // print report
+    if (settings.isBackTest()) {
         _algorithm->report();
     }
 
