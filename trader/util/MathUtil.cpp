@@ -1,5 +1,5 @@
 #include <cmath>
-#include "NumberUtil.hpp"
+#include "MathUtil.hpp"
 
 unsigned int util::zeros_after_dot(double num) {
     num = std::abs(num);

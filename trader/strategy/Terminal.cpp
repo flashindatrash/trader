@@ -7,7 +7,7 @@
 #include "Position.hpp"
 #include "Context.hpp"
 #include "Report.hpp"
-#include "util/NumberUtil.hpp"
+#include "util/MathUtil.hpp"
 #include <utility>
 
 NS_USE
@@ -33,12 +33,13 @@ void Terminal::update(Position& position, const Symbol& symbol, const Context& c
     std::string positionFormat;
     positionFormat.append(position.side() == OrderSide::Buy ? "long" : "short");
     positionFormat.append(": %." + std::to_string(util::zeros_after_dot(position_price) + 2) + "f");
+    positionFormat.append(" > %." + std::to_string(util::zeros_after_dot(current_price) + 2) + "f");
 
     Quantity balance = symbol.balance(Asset::USDT);
     std::string balanceFormat = "balance: %." + std::to_string(util::zeros_after_dot(balance) + 2) + "f " + Asset::USDT.id();
 
     std::string format = profitFormat + " " + changeFormat + " [" + positionFormat + "] [" + balanceFormat + "]";
-    Logger::status(format.c_str(), profit, change, position_price, balance);
+    Logger::status(format.c_str(), profit, change, position_price, current_price, balance);
 }
 
 void Terminal::printOrder(const OrderBase& order, const std::string& type) {

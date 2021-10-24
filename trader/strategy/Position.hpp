@@ -16,7 +16,7 @@ public: // methods
     void setSymbol(const Symbol& value);
     void setBaseQuantity(Quantity value);
     void setQuoteQuantity(Quantity value);
-    void setTime(time_t time);
+    void setTime(time_t value);
 
     Id id() const override;
     Symbol symbol() const override;

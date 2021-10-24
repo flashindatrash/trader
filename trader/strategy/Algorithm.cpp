@@ -81,6 +81,10 @@ bool Algorithm::tryStopLoss(const Context& context) {
     if (not _position->has() || _settings.stop_loss >= 0.0)
         return false;
 
+    // не режем лося, если доступно усреднения
+    if (availableAverage() > 0)
+        return false;
+
     // интересует выход за STOP LOSS
     if (_position->change(context.price(_position->revert())) > _settings.stop_loss)
         return false;
@@ -89,11 +93,19 @@ bool Algorithm::tryStopLoss(const Context& context) {
 }
 
 bool Algorithm::tryAverage(const Context& context) {
-    if (not _position->has() || _settings.averaging >= 0.0)
+    // посчитаем сколько раз сможем усреднить
+    // todo: check available value
+    int available = availableAverage();
+    if (available == 0)
         return false;
 
+    // посчитаем процент усреднения
+    Change average_percent = _settings.averaging;
+    for (int i = 0; i < available - 1; ++i)
+        average_percent /= 2.0;
+
     // интересует выход за усреднение
-    if (_position->change(context.price(_position->revert())) > _settings.averaging)
+    if (_position->change(context.price(_position->revert())) > average_percent)
         return false;
 
     // создадим реквест
@@ -207,6 +219,21 @@ void Algorithm::indicator(const Context& context, OrderSide& trend, OrderSide& s
     EMACross ema = context.ema(30, 20);
     trend = ema.trend();
     signal = ema.crossed() ? trend : Invalid;
+}
+
+int Algorithm::availableAverage() const {
+    if (not _position->has() || _settings.averaging >= 0.0)
+        return 0;
+
+    Quantity balance = OrderUtil::usedQuantity(_position->side(), _position->symbol().baseAsset().balance(), _position->symbol().quoteAsset().balance());
+    Quantity quantity = OrderUtil::usedQuantity(_position->side(), _position->baseQuantity(), _position->quoteQuantity());
+    int result = 0;
+    while (quantity <= balance) {
+        ++result;
+        quantity *= 2.0;
+    }
+
+    return result;
 }
 
 void Algorithm::report() const {
