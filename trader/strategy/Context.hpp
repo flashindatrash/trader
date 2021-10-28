@@ -1,10 +1,10 @@
 #pragma once
 
 #include "exchanger/wrapper/ChartWrapper.hpp"
-#include "exchanger/indicator/EMACross.hpp"
 #include "Defines.hpp"
 
 class CandlestickWrapper;
+class BaseIndicator;
 
 NS_BEGIN
 class Context {
@@ -16,7 +16,7 @@ public: // methods
     time_t time() const;
     const Price& price() const;
     const Price& price(const OrderSide& side) const;
-    EMACross ema(size_t long_length, size_t short_length) const;
+    bool load(BaseIndicator& indicator) const;
 
 protected: // vars
     ChartWrapper::ConstIterator _it;

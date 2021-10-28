@@ -2,6 +2,7 @@
 #include "exchanger/Exchanger.hpp"
 #include "exchanger/wrapper/CandlestickWrapper.hpp"
 #include "exchanger/wrapper/PriceWrapper.hpp"
+#include "exchanger/indicator/BaseIndicator.hpp"
 
 NS_USE
 
@@ -31,10 +32,10 @@ const Price& Context::price(const OrderSide& side) const {
     return _price.get(side);
 }
 
-EMACross Context::ema(size_t long_length, size_t short_length) const {
+bool Context::load(BaseIndicator& indicator) const {
     const ChartWrapper* chart = Exchanger().chart(id());
     if (chart == nullptr)
-        return EMACross();
+        return false;
 
-    return EMACross(chart->get().cbegin(), _it, long_length, short_length);
+    return indicator.load(chart->get().cbegin(), _it);
 }

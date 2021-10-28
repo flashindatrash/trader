@@ -4,12 +4,12 @@
 
 #pragma once
 
-#include "exchanger/wrapper/ChartWrapper.hpp"
+#include "BaseIndicator.hpp"
 
-class EMA {
+class EMA : public BaseIndicator {
 public: // methods
     EMA() = default;
-    EMA(ChartWrapper::ConstIterator begin, ChartWrapper::ConstIterator end, size_t length);
+    EMA(size_t length);
 
     bool empty() const;
     size_t size() const;
@@ -17,7 +17,10 @@ public: // methods
     Price last() const;
     Price prev() const;
 
+    bool load(ChartWrapper::ConstIterator begin, ChartWrapper::ConstIterator end) override;
+
 protected: // vars
+    size_t _length = 0;
     std::vector<Price> _data;
 };
 

@@ -4,9 +4,14 @@
 
 #include "EMACross.hpp"
 
-EMACross::EMACross(ChartWrapper::ConstIterator begin, ChartWrapper::ConstIterator end, size_t long_length, size_t short_length) {
-    _long = EMA(begin, end, long_length);
-    _short = EMA(begin, end, short_length);
+EMACross::EMACross(size_t long_length, size_t short_length)
+    : _long(long_length)
+    , _short(short_length)
+{
+}
+
+bool EMACross::load(ChartWrapper::ConstIterator begin, ChartWrapper::ConstIterator end) {
+    return _long.load(begin, end) && _short.load(begin, end);
 }
 
 OrderSide EMACross::trend() const {

@@ -6,9 +6,14 @@
 
 #include "exchanger/wrapper/CandlestickWrapper.hpp"
 
-EMA::EMA(ChartWrapper::ConstIterator begin, ChartWrapper::ConstIterator end, size_t length) {
-    if (std::distance(begin, end) < (long)length + 1)
-        return;
+EMA::EMA(size_t length)
+    : _length(length)
+{
+}
+
+bool EMA::load(ChartWrapper::ConstIterator begin, ChartWrapper::ConstIterator end) {
+    if (std::distance(begin, end) < (long)_length + 1)
+        return false;
 
     _data.push_back((*(begin++))->priceClose());
 
@@ -20,10 +25,12 @@ EMA::EMA(ChartWrapper::ConstIterator begin, ChartWrapper::ConstIterator end, siz
      * N=number of days in EMA
      * k=2÷(N+1)
     */
-    double k = 2.0 / ((double)length + 1.0);
+    double k = 2.0 / ((double)_length + 1.0);
 
     for (; begin <= end; ++begin)
         _data.push_back((*begin)->priceClose() * k + _data.back() * (1 - k));
+
+    return true;
 }
 
 bool EMA::empty() const {

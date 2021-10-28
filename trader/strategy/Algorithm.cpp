@@ -216,7 +216,10 @@ bool Algorithm::createOrder(const Context& context, OrderRequest& request, Posit
 }
 
 void Algorithm::indicator(const Context& context, OrderSide& trend, OrderSide& signal) const {
-    EMACross ema = context.ema(30, 20);
+    EMACross ema = EMACross(30, 20);
+    if (not context.load(ema))
+        return;
+
     trend = ema.trend();
     signal = ema.crossed() ? trend : Invalid;
 }

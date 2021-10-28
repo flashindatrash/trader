@@ -46,7 +46,7 @@ void Terminal::printOrder(const OrderBase& order, const std::string& type) {
     std::string formatQuantity = "%." + std::to_string(util::zeros_after_dot(order.baseQuantity()) + 2) + "f";
     std::string formatPrice = "%." + std::to_string(util::zeros_after_dot(order.price()) + 2) + "f";
 
-    std::string format = "%s %s\t" + formatQuantity + " for " + formatPrice;
+    std::string format = "%s %s\t" + formatQuantity + " for\t" + formatPrice;
     Logger::info(format.c_str(), type.c_str(), order.side() == OrderSide::Buy ? "buy" : "sell", order.baseQuantity(), order.price());
 }
 

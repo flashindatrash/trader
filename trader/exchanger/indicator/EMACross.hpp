@@ -6,15 +6,17 @@
 
 #include "EMA.hpp"
 
-class EMACross {
+class EMACross : public BaseIndicator {
 public: // methods
     EMACross() = default;
-    EMACross(ChartWrapper::ConstIterator begin, ChartWrapper::ConstIterator end, size_t long_length, size_t short_length);
+    EMACross(size_t long_length, size_t short_length);
 
     OrderSide trend() const;
 
     bool crossed() const;
     bool empty() const;
+
+    bool load(ChartWrapper::ConstIterator begin, ChartWrapper::ConstIterator end) override;
 
 protected: // static
     static OrderSide compare(Price ema_long, Price ema_short) ;
