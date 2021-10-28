@@ -10,6 +10,8 @@
 #include "Migrator.hpp"
 #include "exchanger/wrapper/OrderWrapper.hpp"
 #include "exchanger/Exchanger.hpp"
+#include "exchanger/indicator/EMACross.hpp"
+#include "exchanger/indicator/MACD.hpp"
 
 NS_USE
 
@@ -216,8 +218,12 @@ bool Algorithm::createOrder(const Context& context, OrderRequest& request, Posit
 }
 
 void Algorithm::indicator(const Context& context, OrderSide& trend, OrderSide& signal) const {
-    EMACross ema = EMACross(30, 20);
+    EMACross ema = EMACross(20, 30);
     if (not context.load(ema))
+        return;
+
+    MACD macd = MACD(12, 26, 9);
+    if (not context.load(macd))
         return;
 
     trend = ema.trend();

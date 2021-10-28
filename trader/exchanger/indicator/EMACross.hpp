@@ -9,7 +9,7 @@
 class EMACross : public BaseIndicator {
 public: // methods
     EMACross() = default;
-    EMACross(size_t long_length, size_t short_length);
+    EMACross(size_t fast, size_t slow);
 
     OrderSide trend() const;
 
@@ -19,11 +19,11 @@ public: // methods
     bool load(ChartWrapper::ConstIterator begin, ChartWrapper::ConstIterator end) override;
 
 protected: // static
-    static OrderSide compare(Price ema_long, Price ema_short) ;
+    static OrderSide compare(Price fast, Price slow);
 
 protected: // vars
-    EMA _long;
-    EMA _short;
+    EMA _fast;
+    EMA _slow;
 };
 
 

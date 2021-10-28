@@ -4,34 +4,34 @@
 
 #include "EMACross.hpp"
 
-EMACross::EMACross(size_t long_length, size_t short_length)
-    : _long(long_length)
-    , _short(short_length)
+EMACross::EMACross(size_t fast, size_t slow)
+    : _fast(fast)
+    , _slow(slow)
 {
 }
 
 bool EMACross::load(ChartWrapper::ConstIterator begin, ChartWrapper::ConstIterator end) {
-    return _long.load(begin, end) && _short.load(begin, end);
+    return _fast.load(begin, end) && _slow.load(begin, end);
 }
 
 OrderSide EMACross::trend() const {
     if (empty())
         return OrderSide::Invalid;
 
-    return compare(_long.last(), _short.last());
+    return compare(_fast.last(), _slow.last());
 }
 
-OrderSide EMACross::compare(Price ema_long, Price ema_short) {
-    return ema_short > ema_long ? OrderSide::Buy : OrderSide::Sell;
+OrderSide EMACross::compare(Price fast, Price slow) {
+    return fast > slow ? OrderSide::Buy : OrderSide::Sell;
 }
 
 bool EMACross::crossed() const {
-    if (_long.size() < 2 || _short.size() < 2)
+    if (_fast.size() < 2 || _slow.size() < 2)
         return false;
 
-    return trend() != compare(_long.prev(), _short.prev());
+    return trend() != compare(_fast.prev(), _slow.prev());
 }
 
 bool EMACross::empty() const {
-    return _long.empty() || _short.empty();
+    return _fast.empty() || _slow.empty();
 }

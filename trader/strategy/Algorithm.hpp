@@ -3,7 +3,6 @@
 #include "Defines.hpp"
 #include "Settings.hpp"
 #include "Report.hpp"
-#include "exchanger/indicator/EMACross.hpp"
 
 struct OrderRequest;
 
