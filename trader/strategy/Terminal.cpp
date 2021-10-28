@@ -56,8 +56,8 @@ void Terminal::printProfit(const Report& report, const Asset& asset) {
     if (report.profit > 0)
         formatProfit = "+ " + formatProfit;
 
-    std::string format = "%s" + formatProfit + " %s (%0.3f%%)%s";
-    Logger::info(format.c_str(), report.profit > 0 ? GREEN : RED, report.profit, asset.c_str(), report.change, RESET);
+    std::string format = "%s" + formatProfit + " %s (%0.2f%%)%s";
+    Logger::info(format.c_str(), report.profit > 0 ? GREEN : RED, report.profit, asset.c_str(), report.change * 100, RESET);
 }
 
 void Terminal::printReport(const Report& report, const Symbol& symbol) {
