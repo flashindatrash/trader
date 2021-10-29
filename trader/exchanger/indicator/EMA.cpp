@@ -15,8 +15,13 @@ bool EMA::load(ChartWrapper::ConstIterator begin, ChartWrapper::ConstIterator en
     if (std::distance(begin, end) < (long)_length + 1)
         return false;
 
-    _data.push_back((*(begin++))->priceClose());
+    for (; begin <= end; ++begin)
+        add((*begin)->priceClose());
 
+    return true;
+}
+
+void EMA::add(Price value) {
     /*
      * EMA = Price(t) × k + EMA(y) × (1−k)
      * where:
@@ -25,12 +30,19 @@ bool EMA::load(ChartWrapper::ConstIterator begin, ChartWrapper::ConstIterator en
      * N=number of days in EMA
      * k=2÷(N+1)
     */
-    double k = 2.0 / ((double)_length + 1.0);
 
-    for (; begin <= end; ++begin)
-        _data.push_back((*begin)->priceClose() * k + _data.back() * (1 - k));
+    if (_data.empty())
+        _data.push_back(value);
+    else
+        _data.push_back(value * multiplier() + _data.back() * (1 - multiplier()));
+}
 
-    return true;
+double EMA::multiplier() const {
+    return 2.0 / ((double)_length + 1.0);
+}
+
+const Price& EMA::at(size_t index) const {
+    return _data.at(index);
 }
 
 bool EMA::empty() const {

@@ -8,6 +8,7 @@
 NS_USE
 
 Report::Report(const Position& open, const Position& close) {
+    success = open.count() == 1 ? 1 : 0;
     profit = open.profit(close.price());
     change = open.change(close.price());
     use_base = open.baseQuantity();
@@ -15,6 +16,8 @@ Report::Report(const Position& open, const Position& close) {
 }
 
 void Report::add(const Report& report) {
+    ++positions;
+    success += report.success;
     profit += report.profit;
     change += report.change;
     use_base = std::max(use_base, report.use_base);

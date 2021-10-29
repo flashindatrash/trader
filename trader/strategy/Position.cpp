@@ -8,6 +8,7 @@ static const char* FIELD_SYMBOL = "symbol";
 static const char* FIELD_BASE_QUANTITY = "base_quantity";
 static const char* FIELD_QUOTE_QUANTITY = "quote_quantity";
 static const char* FIELD_TIME = "time";
+static const char* FIELD_COUNT = "count";
 
 Position* Position::create(const db::Key& key) {
     auto* position = new Position(key);
@@ -66,6 +67,14 @@ void Position::setTime(time_t value) {
     set(FIELD_TIME, "t:" + std::to_string(value));
 }
 
+int Position::count() const {
+    return std::max(1, get(FIELD_COUNT).asInt());
+}
+
+void Position::setCount(int value) {
+    set(FIELD_COUNT, value);
+}
+
 OrderSide Position::revert() const {
     return OrderUtil::revert(side());
 }
@@ -99,6 +108,7 @@ void Position::merge(const OrderBase& ref) {
 
     setBaseQuantity(baseQuantity() + ref.baseQuantity());
     setQuoteQuantity(quoteQuantity() + ref.quoteQuantity());
+    setCount(count() + 1);
 }
 
 bool Position::has() const {

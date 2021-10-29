@@ -17,7 +17,14 @@ public: // methods
     Price last() const;
     Price prev() const;
 
+    void add(Price value);
+
+    const Price& at(size_t index) const;
+
     bool load(ChartWrapper::ConstIterator begin, ChartWrapper::ConstIterator end) override;
+
+protected: // methods
+    double multiplier() const;
 
 protected: // vars
     size_t _length = 0;

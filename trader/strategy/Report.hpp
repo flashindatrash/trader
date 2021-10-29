@@ -18,6 +18,9 @@ struct Report {
     Quantity use_base = 0.0;
     Quantity use_quote = 0.0;
 
+    int success = 0;
+    int positions = 0;
+
     void add(const Report& report);
 };
 NS_END

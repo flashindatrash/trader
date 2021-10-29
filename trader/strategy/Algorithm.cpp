@@ -10,7 +10,7 @@
 #include "Migrator.hpp"
 #include "exchanger/wrapper/OrderWrapper.hpp"
 #include "exchanger/Exchanger.hpp"
-#include "exchanger/indicator/EMACross.hpp"
+#include "exchanger/indicator/DEMA.hpp"
 #include "exchanger/indicator/MACD.hpp"
 
 NS_USE
@@ -53,6 +53,22 @@ bool Algorithm::init() {
 }
 
 void Algorithm::execute(const Context& context) {
+    /*DEMA dema = DEMA(20, 30);
+    if (not context.load(dema))
+        return;
+
+    MACD macd = MACD(12, 26, 9);
+    if (not context.load(macd))
+        return;
+
+    OrderSide signal_dema = dema.signal();
+    OrderSide signal_macd = macd.signal();
+    if (signal_dema == Invalid && signal_macd == Invalid)
+        return;
+
+    Logger::info("signal dema(%d) macd(%d)", signal_dema, signal_macd);
+    return;*/
+
     // закрытие сделок: получить профит || усреднение цены || остановить убыток
     bool open = tryTakeProfit(context) || tryAverage(context) || tryStopLoss(context);
     // открытие сделок
@@ -96,7 +112,6 @@ bool Algorithm::tryStopLoss(const Context& context) {
 
 bool Algorithm::tryAverage(const Context& context) {
     // посчитаем сколько раз сможем усреднить
-    // todo: check available value
     int available = availableAverage();
     if (available == 0)
         return false;
@@ -218,16 +233,12 @@ bool Algorithm::createOrder(const Context& context, OrderRequest& request, Posit
 }
 
 void Algorithm::indicator(const Context& context, OrderSide& trend, OrderSide& signal) const {
-    EMACross ema = EMACross(20, 30);
-    if (not context.load(ema))
+    DEMA dema = DEMA(20, 30);
+    if (not context.load(dema))
         return;
 
-    MACD macd = MACD(12, 26, 9);
-    if (not context.load(macd))
-        return;
-
-    trend = ema.trend();
-    signal = ema.crossed() ? trend : Invalid;
+    trend = dema.trend();
+    signal = dema.signal();
 }
 
 int Algorithm::availableAverage() const {

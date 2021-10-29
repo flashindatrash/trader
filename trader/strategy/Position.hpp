@@ -17,6 +17,7 @@ public: // methods
     void setBaseQuantity(Quantity value);
     void setQuoteQuantity(Quantity value);
     void setTime(time_t value);
+    void setCount(int value);
 
     Id id() const override;
     Symbol symbol() const override;
@@ -24,6 +25,7 @@ public: // methods
     Quantity baseQuantity() const override;
     Quantity quoteQuantity() const override;
     time_t time() const;
+    int count() const;
 
     OrderSide revert() const;
     Quantity profit(Price price) const;

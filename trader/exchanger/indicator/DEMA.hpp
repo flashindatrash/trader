@@ -6,12 +6,13 @@
 
 #include "EMA.hpp"
 
-class EMACross : public BaseIndicator {
+class DEMA : public BaseIndicator {
 public: // methods
-    EMACross() = default;
-    EMACross(size_t fast, size_t slow);
+    DEMA() = default;
+    DEMA(size_t fast, size_t slow);
 
     OrderSide trend() const;
+    OrderSide signal() const;
 
     bool crossed() const;
     bool empty() const;

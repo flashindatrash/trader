@@ -61,8 +61,9 @@ void Terminal::printProfit(const Report& report, const Asset& asset) {
 }
 
 void Terminal::printReport(const Report& report, const Symbol& symbol) {
-    Logger::info("Report:\n\t%sChange: %0.2f%%\n\tProfit: %f %s\n\tUse %s: %f\n\tUse %s: %f\n\tBalance %s: %f\n\tBalance %s: %f%s",
+    Logger::info("Report:\n\t%sSuccess: %0.0f%% (%d of %d positions)\n\tChange: %0.2f%%\n\tProfit: %f %s\n\tUse %s: %f\n\tUse %s: %f\n\tBalance %s: %f\n\tBalance %s: %f%s",
                  YELLOW,
+                 (double)report.success / (double)report.positions * 100.0, report.success, report.positions,
                  report.change * 100.0,
                  report.profit, symbol.quoteAsset().c_str(),
                  symbol.baseAsset().c_str(), report.use_base,
