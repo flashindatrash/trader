@@ -2,3 +2,6 @@
 	path = binacpp
 	url = git@github.com:flashindatrash/binacpp.git
 	branch = master
+[submodule "tgbot"]
+	path = tgbot
+	url = git@github.com:flashindatrash/tgbot-cpp.git
