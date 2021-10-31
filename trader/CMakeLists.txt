@@ -1,11 +1,26 @@
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 file(GLOB_RECURSE TRADER_SRC *.hpp *.cpp)
-file(GLOB BINACPP_SRC ../binacpp/src/*)
 
-include_directories(../binacpp/src/)
+# add for stacktrace
+if (CMAKE_BUILD_TYPE STREQUAL "Debug" AND UNIX AND NOT APPLE)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -rdynamic -pthread")
+endif()
 
-add_executable(trader ${BINACPP_SRC} ${TRADER_SRC})
-target_link_libraries(trader core ${ALL_LIBS})
+# hiredis
+SET(HIREDIS_ROOT_DIR /usr/local/Cellar/hiredis/1.0.0)
+FIND_LIBRARY(HIREDIS_LIBRARY
+		NAMES hiredis
+		PATHS /usr/lib /usr/local/lib
+		)
+include_directories("${HIREDIS_ROOT_DIR}/include")
+list(APPEND ALL_LIBS ${HIREDIS_LIBRARY})
+message("-- Found hiredis lib: ${HIREDIS_LIBRARY}")
+
+include_directories(${PROJECT_SOURCE_DIR}/binacpp/src/)
+include_directories(${PROJECT_SOURCE_DIR}/core)
+
+add_executable(trader ${TRADER_SRC})
+target_link_libraries(trader core binance ${ALL_LIBS})
 
 install(
 	TARGETS trader
