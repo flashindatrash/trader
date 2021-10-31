@@ -26,16 +26,9 @@ int main() {
     std::vector<BotCommand::Ptr> commands;
     BotCommand::Ptr cmdArray(new BotCommand);
     cmdArray->command = "log";
-    cmdArray->description = "send logs";
+    cmdArray->description = "receive logs";
     commands.push_back(cmdArray);
     bot.getApi().setMyCommands(commands);
-
-    std::vector<BotCommand::Ptr> vectCmd;
-    vectCmd = bot.getApi().getMyCommands();
-
-    for(std::vector<BotCommand::Ptr>::iterator it = vectCmd.begin(); it != vectCmd.end(); ++it) {
-        printf("cmd: %s -> %s\r",(*it)->command.c_str(),(*it)->description.c_str());
-    }
 
     bot.getEvents().onCommand("start", [&bot](Message::Ptr message) {
         bot.getApi().sendMessage(message->chat->id, "Hi!");
@@ -71,12 +64,11 @@ int main() {
 
         TgLongPoll longPoll(bot);
         while (true) {
-            printf("Long poll started\n");
             longPoll.start();
         }
     } catch (std::exception& e) {
         printf("error: %s\n", e.what());
     }
 
-    return 0;
+    return EXIT_SUCCESS;
 }
