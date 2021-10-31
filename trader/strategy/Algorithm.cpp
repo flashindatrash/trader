@@ -39,7 +39,9 @@ Algorithm::~Algorithm() {
 
 bool Algorithm::init() {
     Terminal::setTitle(_settings.symbol);
-    Logger::setLogfile("/tmp/" + _settings.uniqId() + ".log");
+
+    if (not _settings.isBackTest())
+        Logger::setLogfile("/tmp/" + _settings.username + ".log");
 
     // создадим структуры для хранения данных
     _position = Position::create(_settings.uniqId() + ":position");
@@ -53,22 +55,6 @@ bool Algorithm::init() {
 }
 
 void Algorithm::execute(const Context& context) {
-    /*DEMA dema = DEMA(20, 30);
-    if (not context.load(dema))
-        return;
-
-    MACD macd = MACD(12, 26, 9);
-    if (not context.load(macd))
-        return;
-
-    OrderSide signal_dema = dema.signal();
-    OrderSide signal_macd = macd.signal();
-    if (signal_dema == Invalid && signal_macd == Invalid)
-        return;
-
-    Logger::info("signal dema(%d) macd(%d)", signal_dema, signal_macd);
-    return;*/
-
     // закрытие сделок: получить профит || усреднение цены || остановить убыток
     bool open = tryTakeProfit(context) || tryAverage(context) || tryStopLoss(context);
     // открытие сделок

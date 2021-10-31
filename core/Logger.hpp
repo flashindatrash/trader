@@ -35,15 +35,14 @@ public: //
     static void title(const char* fmt, ...);
     static void info(const char* fmt, ...);
     static void status(const char* fmt, ...);
-    static void trace(const char* fmt, ...);
     static void error(const char* msg);
     static void erase();
 
-    static void setLogfile(std::string filename);
+    static void setLogfile(const std::string& filename);
     static void setTime(time_t time);
 
 private: // static
-    static std::string sLogFile;
+    static FILE* sFile;
     static time_t sTime;
     static bool sStatus;
 

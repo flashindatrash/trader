@@ -12,7 +12,7 @@
 #include <utility>
 #include "Time.hpp"
 
-std::string Logger::sLogFile = "/tmp/traderbot.log";
+FILE* Logger::sFile = nullptr;
 time_t Logger::sTime = 0;
 bool Logger::sStatus = false;
 
@@ -42,6 +42,13 @@ void Logger::info(const char* fmt, ...) {
     vfprintf(stdout, format(fmt), arg);
     fflush(stdout);
     va_end (arg);
+
+    if (sFile) {
+        va_start(arg, fmt);
+        vfprintf(sFile, std::string(fmt).append("\n").c_str(), arg);
+        fflush(sFile);
+        va_end (arg);
+    }
 }
 
 void Logger::status(const char* fmt, ...) {
@@ -69,27 +76,12 @@ void Logger::erase() {
     std::cout << CURSOR_START << CURSOR_UP << ERASE_LINE;
 }
 
-void Logger::trace(const char* fmt, ...) {
-    static FILE* file = nullptr;
-    if (file == nullptr)
-        file = fopen(sLogFile.c_str(), "wa");
-
-    if (file == nullptr)
-        return;
-
-    va_list arg;
-    va_start(arg, fmt);
-    vfprintf(file, format(fmt), arg);
-    fflush(file);
-    va_end (arg);
-}
-
 void Logger::error(const char* msg) {
     std::raise(SIGSEGV);
 }
 
-void Logger::setLogfile(std::string filename) {
-    sLogFile = std::move(filename);
+void Logger::setLogfile(const std::string& filename) {
+    sFile = fopen(filename.c_str(), "wa");
 }
 
 void Logger::setTime(time_t time) {

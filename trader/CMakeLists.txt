@@ -1,31 +1,9 @@
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 file(GLOB_RECURSE TRADER_SRC *.hpp *.cpp)
-file(GLOB BINACPP_SRC ../binacpp/src/*)
-
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 ${PROJ_WARNINGS}")
 
 # add for stacktrace
 if (CMAKE_BUILD_TYPE STREQUAL "Debug" AND UNIX AND NOT APPLE)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -rdynamic -pthread")
-endif()
-
-find_package(OpenSSL REQUIRED)
-if(OPENSSL_FOUND)
-	include_directories(${OPENSSL_INCLUDE_DIR})
-	list(APPEND ALL_LIBS ${OPENSSL_LIBRARIES})
-	message("-- Found OpenSSL lib: ${OPENSSL_LIBRARIES}")
-else()
-	message(FATAL_ERROR "Could not find the OpenSSL library")
-endif()
-
-# curl
-find_package(CURL REQUIRED)
-if(CURL_FOUND)
-	include_directories(${CURL_INCLUDE_DIR})
-	list(APPEND ALL_LIBS ${CURL_LIBRARIES})
-	message("-- Found CURL lib: ${CURL_LIBRARIES}")
-else()
-	message(FATAL_ERROR "Could not find the CURL library")
 endif()
 
 # hiredis
@@ -38,31 +16,11 @@ include_directories("${HIREDIS_ROOT_DIR}/include")
 list(APPEND ALL_LIBS ${HIREDIS_LIBRARY})
 message("-- Found hiredis lib: ${HIREDIS_LIBRARY}")
 
-# jsoncpp
-if(APPLE)
-	set(JSONCPP_ROOT_DIR "/usr/local/Cellar/jsoncpp/1.9.4_1")
-	include_directories(${JSONCPP_ROOT_DIR}/include)
-	list(APPEND ALL_LIBS ${JSONCPP_ROOT_DIR}/lib/libjsoncpp.dylib)
-elseif(UNIX)
-	include_directories(/usr/include/jsoncpp)
-	list(APPEND ALL_LIBS /usr/lib/x86_64-linux-gnu/libjsoncpp.so)
-endif()
-
-# websockets
-if(APPLE)
-	set(WEBSOCKETS_ROOT_DIR "/usr/local/Cellar/libwebsockets/4.2.1")
-	include_directories(${WEBSOCKETS_ROOT_DIR}/include)
-	list(APPEND ALL_LIBS ${WEBSOCKETS_ROOT_DIR}/lib/libwebsockets.dylib)
-elseif(UNIX)
-	include_directories(/usr/local/include/libwebsockets/)
-	list(APPEND ALL_LIBS /usr/local/lib/libwebsockets.so)
-endif()
-
 include_directories(${PROJECT_SOURCE_DIR}/binacpp/src/)
 include_directories(${PROJECT_SOURCE_DIR}/core)
 
-add_executable(trader ${BINACPP_SRC} ${TRADER_SRC})
-target_link_libraries(trader core ${ALL_LIBS})
+add_executable(trader ${TRADER_SRC})
+target_link_libraries(trader core binance ${ALL_LIBS})
 
 install(
 	TARGETS trader

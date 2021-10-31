@@ -1,11 +1,11 @@
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 file(GLOB_RECURSE TOOLS_SRC *.hpp *.cpp)
-file(GLOB BINACPP_SRC ../binacpp/src/*)
 
-include_directories(../binacpp/src/)
+include_directories(${PROJECT_SOURCE_DIR}/binacpp/src/)
+include_directories(${PROJECT_SOURCE_DIR}/core)
 
-add_executable(tools ${BINACPP_SRC} ${TOOLS_SRC})
-target_link_libraries(tools core ${ALL_LIBS})
+add_executable(tools ${TOOLS_SRC})
+target_link_libraries(tools core binance ${ALL_LIBS})
 
 install(
 	TARGETS tools
