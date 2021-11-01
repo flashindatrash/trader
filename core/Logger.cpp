@@ -27,7 +27,7 @@ void Logger::title(const char* fmt, ...) {
     std::cout << ESCEND;
     fflush(stdout);
 
-    va_end (arg);
+    va_end(arg);
 }
 
 void Logger::info(const char* fmt, ...) {
@@ -40,7 +40,7 @@ void Logger::info(const char* fmt, ...) {
     va_start(arg, fmt);
     vfprintf(stdout, format(fmt), arg);
     fflush(stdout);
-    va_end (arg);
+    va_end(arg);
 }
 
 void Logger::status(const char* fmt, ...) {
@@ -58,7 +58,7 @@ void Logger::status(const char* fmt, ...) {
     sprintf(new_fmt, "%s\n", fmt);
     vfprintf(stdout, new_fmt, arg);
     fflush(stdout);
-    va_end (arg);
+    va_end(arg);
 }
 
 void Logger::erase() {

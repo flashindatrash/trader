@@ -23,11 +23,21 @@ bool EventManager::send(const char* fmt, ...) {
     if (_curl == nullptr)
         return false;
 
+    va_list arg;
+    va_start(arg, fmt);
+    char buffer[256];
+    size_t size = std::vsnprintf(buffer, sizeof(buffer), fmt, arg);
+    va_end(arg);
+
+    if (size == 0)
+        return false;
+
+    std::string request = buffer;
     std::string result;
 
     curl_easy_setopt(_curl, CURLOPT_WRITEDATA, &result);
     curl_easy_setopt(_curl, CURLOPT_CUSTOMREQUEST, "PUT");
-    curl_easy_setopt(_curl, CURLOPT_POSTFIELDS, "message");
+    curl_easy_setopt(_curl, CURLOPT_POSTFIELDS, &request);
 
     CURLcode code = curl_easy_perform(_curl);
     if (code != CURLE_OK)

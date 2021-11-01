@@ -48,7 +48,9 @@ bool Algorithm::init() {
     if (not Migrator::migrate(_position, _statistics, _settings.symbol))
         return false;
 
-    Events().send("start %s pair", _settings.symbol.c_str());
+    if (_settings.isRelease())
+        Events().send("start %s pair", _settings.symbol.c_str());
+
     return true;
 }
 
@@ -211,6 +213,9 @@ bool Algorithm::createOrder(const Context& context, OrderRequest& request, Posit
     const OrderWrapper* order = Exchanger().createOrder(request);
     if (order == nullptr)
         return false;
+
+    if (_settings.isRelease())
+        Events().send("%s %f %s", order->side() == Buy ? "buy" : "sell", order->baseQuantity(), order->symbol().baseAsset().c_str());
 
     result.copy(*order);
     return true;
