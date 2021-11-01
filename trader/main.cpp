@@ -1,12 +1,11 @@
-#include <stdio.h>
+#include <cstdio>
 #include <execinfo.h>
-#include <signal.h>
-#include <stdlib.h>
+#include <csignal>
+#include <cstdlib>
 #include <unistd.h>
 
 #include <argparser/ArgumentParser.hpp>
 #include "Logger.hpp"
-#include "Config.hpp"
 #include "TraderApp.hpp"
 
 void handler(int sig) {

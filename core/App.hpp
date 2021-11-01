@@ -6,7 +6,7 @@ namespace core {
 
 class App {
 protected: // methods
-    App(const Config& config);
+    App(Config  config);
     virtual ~App() = default;
 
     void sleep_ms(int ms);

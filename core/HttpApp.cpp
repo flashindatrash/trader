@@ -4,6 +4,8 @@
 
 #include "HttpApp.hpp"
 
+using namespace core;
+
 HttpApp::HttpApp(const Config& config)
     : App(config)
 {

@@ -1,4 +1,5 @@
 set(Boost_USE_MULTITHREADED ON)
+file(GLOB_RECURSE EVENT_MANAGER_SRC *.hpp *.cpp)
 
 find_package(Threads REQUIRED)
 find_package(OpenSSL REQUIRED)
@@ -13,7 +14,7 @@ endif()
 # core
 include_directories(${PROJECT_SOURCE_DIR}/core)
 
-add_executable(event_manager main.cpp)
+add_executable(event_manager ${EVENT_MANAGER_SRC})
 target_link_libraries(event_manager core /usr/local/lib/libTgBot.a ${CMAKE_THREAD_LIBS_INIT} ${OPENSSL_LIBRARIES} ${Boost_LIBRARIES} ${CURL_LIBRARIES})
 
 install(
