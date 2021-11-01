@@ -11,7 +11,7 @@
 #include "exchanger/wrapper/OrderWrapper.hpp"
 #include "exchanger/Exchanger.hpp"
 #include "exchanger/indicator/DEMA.hpp"
-#include "exchanger/indicator/MACD.hpp"
+#include "event/EventManager.hpp"
 
 NS_USE
 
@@ -40,9 +40,6 @@ Algorithm::~Algorithm() {
 bool Algorithm::init() {
     Terminal::setTitle(_settings.symbol);
 
-    if (not _settings.isBackTest())
-        Logger::setLogfile("/tmp/" + _settings.username + ".log");
-
     // создадим структуры для хранения данных
     _position = Position::create(_settings.uniqId() + ":position");
     _statistics = Statistics::create(_settings.uniqId() + ":stats");
@@ -51,6 +48,7 @@ bool Algorithm::init() {
     if (not Migrator::migrate(_position, _statistics, _settings.symbol))
         return false;
 
+    Events().send("start %s pair", _settings.symbol.c_str());
     return true;
 }
 

@@ -38,11 +38,9 @@ public: //
     static void error(const char* msg);
     static void erase();
 
-    static void setLogfile(const std::string& filename);
     static void setTime(time_t time);
 
 private: // static
-    static FILE* sFile;
     static time_t sTime;
     static bool sStatus;
 

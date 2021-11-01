@@ -16,7 +16,7 @@ namespace db {
 class Database : public core::Proxy<Database> {
 public: // methods
     Database() = default;
-    virtual ~Database() override;
+    ~Database() override;
 
     bool init(const core::Config& config);
 

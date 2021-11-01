@@ -12,7 +12,6 @@
 #include <utility>
 #include "Time.hpp"
 
-FILE* Logger::sFile = nullptr;
 time_t Logger::sTime = 0;
 bool Logger::sStatus = false;
 
@@ -42,13 +41,6 @@ void Logger::info(const char* fmt, ...) {
     vfprintf(stdout, format(fmt), arg);
     fflush(stdout);
     va_end (arg);
-
-    if (sFile) {
-        va_start(arg, fmt);
-        vfprintf(sFile, std::string(fmt).append("\n").c_str(), arg);
-        fflush(sFile);
-        va_end (arg);
-    }
 }
 
 void Logger::status(const char* fmt, ...) {
@@ -78,10 +70,6 @@ void Logger::erase() {
 
 void Logger::error(const char* msg) {
     std::raise(SIGSEGV);
-}
-
-void Logger::setLogfile(const std::string& filename) {
-    sFile = fopen(filename.c_str(), "wa");
 }
 
 void Logger::setTime(time_t time) {
