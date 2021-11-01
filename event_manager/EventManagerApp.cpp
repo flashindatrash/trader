@@ -23,13 +23,17 @@ int EventManagerApp::run() {
         return EXIT_FAILURE;
     }
 
-
+    // init messenger
     Messenger messenger(token);
     if (not messenger.init()) {
         Logger::info("can't init messenger");
         return EXIT_FAILURE;
     }
 
-    messenger.run();
+    // run main thread
+    while (messenger.isRunning()) {
+        messenger.run();
+    }
+
     return EXIT_SUCCESS;
 }
