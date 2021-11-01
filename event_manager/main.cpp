@@ -6,6 +6,10 @@
 
 #include <tgbot/tgbot.h>
 
+#include <argparser/ArgumentParser.hpp>
+#include "Logger.hpp"
+#include "Config.hpp"
+
 using namespace TgBot;
 
 void sendLogs(Bot& bot, std::int64_t chat_id, const std::string& username) {
@@ -19,8 +23,31 @@ void sendLogs(Bot& bot, std::int64_t chat_id, const std::string& username) {
         bot.getApi().sendMessage(chat_id, line);
 }
 
-int main() {
-    std::string token = "2049249720:AAF5EgAvwRkTLUag8URHHGwxffCmfY_vq_Q";
+int main(int argc, char** argv) {
+    std::string cfg_file;
+
+    cppargparser::ArgumentParser args;
+    try {
+        args.addArgument(cppargparser::Argument("-c", "--config", "config", 1, true));
+
+        auto parsed = args.parse(argc, argv);
+        cfg_file = parsed.getValue("--config");
+    } catch(...) {
+        args.showHelp("event_manager -c ./config/default.cfg");
+        return EXIT_FAILURE;
+    }
+
+    core::Config cfg;
+    if (!cfg.read(cfg_file.c_str())) {
+        Logger::info("Can't init config %s", cfg_file.c_str());
+        return EXIT_FAILURE;
+    }
+
+    const std::string& token = cfg.asString("EVENT_TOKEN");
+    if (token.empty()) {
+        Logger::info("undefined EVENT_TOKEN");
+        return EXIT_FAILURE;
+    }
 
     Bot bot(token);
     std::vector<BotCommand::Ptr> commands;
