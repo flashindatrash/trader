@@ -4,6 +4,7 @@
 
 #include "EventManager.hpp"
 #include "Config.hpp"
+#include <cstdarg>
 
 bool EventManager::init(const core::Config& config) {
     _curl = curl_easy_init();
