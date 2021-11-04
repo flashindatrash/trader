@@ -163,6 +163,9 @@ bool Algorithm::tryClose(const Context& context) {
     // показываем профит
     Terminal::printProfit(report, _settings.symbol.quoteAsset());
 
+    if (_settings.isRelease())
+        DB().rpush(_settings.username + ":events", "profit: " + std::to_string(report.profit) + " " + (std::string)_settings.symbol.quoteAsset());
+
     // удалим из базы, результат удаления не важен
     _position->remove();
     return true;
@@ -214,7 +217,7 @@ bool Algorithm::createOrder(const Context& context, OrderRequest& request, Posit
     if (order == nullptr)
         return false;
 
-    DB().rpush(_settings.username + ":events", (order->side() == Buy ? "buy " : "sell ") + std::to_string(order->baseQuantity()) + " " + (std::string)order->symbol().baseAsset());
+    DB().rpush(_settings.username + ":events", (order->side() == Buy ? "buy " : "sell ") + std::to_string(order->baseQuantity()) + " " + (std::string)order->symbol().baseAsset() + " for " + std::to_string(order->price()));
     //Events().send("%s %f %s", order->side() == Buy ? "buy" : "sell", order->baseQuantity(), order->symbol().baseAsset().c_str());
 
     result.copy(*order);
