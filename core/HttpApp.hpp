@@ -5,12 +5,14 @@
 #pragma once
 
 #include "App.hpp"
+#include "network/TCPServer.h"
 
 namespace core {
 
 class HttpApp : public App {
 public: // methods
     HttpApp(const Config& config);
+
 };
 
 }

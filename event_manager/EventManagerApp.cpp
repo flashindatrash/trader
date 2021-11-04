@@ -5,6 +5,7 @@
 #include "EventManagerApp.hpp"
 #include "Logger.hpp"
 #include "Messenger.hpp"
+#include "database/Database.hpp"
 
 EventManagerApp* EventManagerApp::create(const core::Config& config) {
     auto* app = new EventManagerApp(config);
@@ -12,7 +13,7 @@ EventManagerApp* EventManagerApp::create(const core::Config& config) {
 }
 
 EventManagerApp::EventManagerApp(const core::Config& config)
-    : core::HttpApp(config)
+    : core::App(config)
 {
 }
 
@@ -27,6 +28,11 @@ int EventManagerApp::run() {
     Messenger messenger(token);
     if (not messenger.init()) {
         Logger::info("can't init messenger");
+        return EXIT_FAILURE;
+    }
+
+    // init database
+    if (not DB().init(_config)) {
         return EXIT_FAILURE;
     }
 

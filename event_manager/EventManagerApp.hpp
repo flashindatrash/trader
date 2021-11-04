@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include "HttpApp.hpp"
+#include "App.hpp"
 
-class EventManagerApp : public core::HttpApp {
+class EventManagerApp : public core::App {
 public: // static
     static EventManagerApp* create(const core::Config& config);
 

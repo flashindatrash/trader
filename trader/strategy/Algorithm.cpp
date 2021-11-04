@@ -11,7 +11,6 @@
 #include "exchanger/wrapper/OrderWrapper.hpp"
 #include "exchanger/Exchanger.hpp"
 #include "exchanger/indicator/DEMA.hpp"
-#include "event/EventManager.hpp"
 
 NS_USE
 
@@ -48,8 +47,9 @@ bool Algorithm::init() {
     if (not Migrator::migrate(_position, _statistics, _settings.symbol))
         return false;
 
-    if (_settings.isRelease())
-        Events().send("start %s pair", _settings.symbol.c_str());
+    if (_settings.isRelease() || true)
+        DB().rpush(_settings.username + ":events", "start " + (std::string)_settings.symbol + " pair");
+        //Events().send("start %s pair", _settings.symbol.c_str());
 
     return true;
 }
@@ -214,8 +214,8 @@ bool Algorithm::createOrder(const Context& context, OrderRequest& request, Posit
     if (order == nullptr)
         return false;
 
-    if (_settings.isRelease())
-        Events().send("%s %f %s", order->side() == Buy ? "buy" : "sell", order->baseQuantity(), order->symbol().baseAsset().c_str());
+    DB().rpush(_settings.username + ":events", (order->side() == Buy ? "buy " : "sell ") + std::to_string(order->baseQuantity()) + " " + (std::string)order->symbol().baseAsset());
+    //Events().send("%s %f %s", order->side() == Buy ? "buy" : "sell", order->baseQuantity(), order->symbol().baseAsset().c_str());
 
     result.copy(*order);
     return true;

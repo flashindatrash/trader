@@ -15,6 +15,9 @@ public: // methods
     bool init();
     void run();
 
+    void sendMessage(std::int64_t id, const std::string& message);
+    void sendMessage(const std::string& username, const std::string& message);
+
 private: // methods
     void onCommand(const TgBot::Message::Ptr message);
     void onAnyMessage(const TgBot::Message::Ptr message);
@@ -22,6 +25,9 @@ private: // methods
 private: // vars
     TgBot::Bot _bot;
     TgBot::TgLongPoll _long_pull;
+
+    // table id/username
+    std::unordered_map<std::int64_t, std::string> _users;
 };
 
 

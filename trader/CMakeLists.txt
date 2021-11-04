@@ -7,12 +7,6 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug" AND UNIX AND NOT APPLE)
 endif()
 
 # hiredis
-SET(HIREDIS_ROOT_DIR /usr/local/Cellar/hiredis/1.0.0)
-FIND_LIBRARY(HIREDIS_LIBRARY
-		NAMES hiredis
-		PATHS /usr/lib /usr/local/lib
-		)
-include_directories("${HIREDIS_ROOT_DIR}/include")
 list(APPEND ALL_LIBS ${HIREDIS_LIBRARY})
 message("-- Found hiredis lib: ${HIREDIS_LIBRARY}")
 

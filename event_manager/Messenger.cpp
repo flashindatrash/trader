@@ -3,6 +3,7 @@
 //
 
 #include "Messenger.hpp"
+#include "database/Database.hpp"
 #include <functional>
 
 Messenger::Messenger(const std::string& token)
@@ -14,8 +15,8 @@ Messenger::Messenger(const std::string& token)
 bool Messenger::init() {
     std::vector<TgBot::BotCommand::Ptr> commands;
     TgBot::BotCommand::Ptr cmdArray(new TgBot::BotCommand);
-    cmdArray->command = "log";
-    cmdArray->description = "receive logs";
+    cmdArray->command = "register";
+    cmdArray->description = "Register trader";
     commands.push_back(cmdArray);
     if (not _bot.getApi().setMyCommands(commands))
         return false;
@@ -34,11 +35,40 @@ void Messenger::onCommand(const TgBot::Message::Ptr message) {
 }
 
 void Messenger::onAnyMessage(const TgBot::Message::Ptr message) {
+    std::int64_t id = message->chat->id;
+
     printf("User wrote %s\n", message->text.c_str());
     if (StringTools::startsWith(message->text, "/start"))
         return;
 
-    _bot.getApi().sendMessage(message->chat->id, "Your message is: " + message->text);
+    if (StringTools::startsWith(message->text, "/register")) {
+        _users.insert(std::make_pair(id, ""));
+        sendMessage(id, "Input trader name");
+        return;
+    }
+
+    auto user = _users.find(id);
+    if (user == _users.end())
+        return;
+
+    std::string& nickname = user->second;
+    if (nickname.empty() && not message->text.empty()) {
+        nickname = message->text;
+        sendMessage(nickname, "Your username: " + nickname);
+    }
+}
+
+void Messenger::sendMessage(std::int64_t id, const std::string& message) {
+    _bot.getApi().sendMessage(id, message);
+}
+
+void Messenger::sendMessage(const std::string& username, const std::string& message) {
+    for (auto& it : _users) {
+        if (it.second == username) {
+            sendMessage(it.first, message);
+            return;
+        }
+    }
 }
 
 bool Messenger::isRunning() const {
@@ -46,5 +76,22 @@ bool Messenger::isRunning() const {
 }
 
 void Messenger::run() {
+    for (auto& user : _users) {
+        const std::string& username = user.second;
+        if (username.empty())
+            continue;
+
+        const std::string key = username + ":events";
+
+        db::VectorValues events = DB().lrange(key);
+        if (events.empty())
+            continue;
+
+        for (auto& event : events)
+            sendMessage(username, event.asString());
+
+        DB().del(key);
+    }
+
     _long_pull.start();
 }
