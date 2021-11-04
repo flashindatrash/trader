@@ -15,8 +15,8 @@ public: // methods
     bool init();
     void run();
 
-    void sendMessage(std::int64_t id, const std::string& message);
-    void sendMessage(const std::string& username, const std::string& message);
+    void sendMessage(std::int64_t id, const std::string& message, std::int32_t reply_to = 0);
+    void sendMessage(const std::string& username, const std::string& message, std::int32_t reply_to = 0);
 
 private: // methods
     void onCommand(const TgBot::Message::Ptr message);

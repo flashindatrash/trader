@@ -6,8 +6,10 @@
 #include "database/Database.hpp"
 #include <functional>
 
+static TgBot::CurlHttpClient http_client;
+
 Messenger::Messenger(const std::string& token)
-    : _bot(token)
+    : _bot(token, http_client)
     , _long_pull(_bot)
 {
 }
@@ -43,7 +45,7 @@ void Messenger::onAnyMessage(const TgBot::Message::Ptr message) {
 
     if (StringTools::startsWith(message->text, "/register")) {
         _users.insert(std::make_pair(id, ""));
-        sendMessage(id, "Input trader name");
+        sendMessage(id, "Input trader name", message->messageId);
         return;
     }
 
@@ -54,21 +56,18 @@ void Messenger::onAnyMessage(const TgBot::Message::Ptr message) {
     std::string& nickname = user->second;
     if (nickname.empty() && not message->text.empty()) {
         nickname = message->text;
-        sendMessage(nickname, "Your username: " + nickname);
+        sendMessage(nickname, "Your username: " + nickname, message->messageId);
     }
 }
 
-void Messenger::sendMessage(std::int64_t id, const std::string& message) {
-    _bot.getApi().sendMessage(id, message);
+void Messenger::sendMessage(std::int64_t id, const std::string& message, std::int32_t reply_to) {
+    _bot.getApi().sendMessage(id, message, false, reply_to);
 }
 
-void Messenger::sendMessage(const std::string& username, const std::string& message) {
-    for (auto& it : _users) {
-        if (it.second == username) {
-            sendMessage(it.first, message);
-            return;
-        }
-    }
+void Messenger::sendMessage(const std::string& username, const std::string& message, std::int32_t reply_to) {
+    for (auto& it : _users)
+        if (it.second == username)
+            return sendMessage(it.first, message, reply_to);
 }
 
 bool Messenger::isRunning() const {
