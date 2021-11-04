@@ -3,6 +3,7 @@
 //
 
 #include "Events.hpp"
+#include <cstdarg>
 
 NS_USE
 
