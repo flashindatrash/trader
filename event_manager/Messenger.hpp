@@ -22,6 +22,8 @@ private: // methods
     void onCommand(const TgBot::Message::Ptr message);
     void onAnyMessage(const TgBot::Message::Ptr message);
 
+    void check();
+
 private: // vars
     TgBot::Bot _bot;
     TgBot::TgLongPoll _long_pull;

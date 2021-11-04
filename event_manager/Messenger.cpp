@@ -32,6 +32,25 @@ bool Messenger::init() {
     return true;
 }
 
+void Messenger::check() {
+    for (auto& user : _users) {
+        const std::string& username = user.second;
+        if (username.empty())
+            continue;
+
+        const std::string key = username + ":events";
+
+        db::VectorValues events = DB().lrange(key);
+        if (events.empty())
+            continue;
+
+        for (auto& event : events)
+            sendMessage(username, event.asString());
+
+        DB().del(key);
+    }
+}
+
 void Messenger::onCommand(const TgBot::Message::Ptr message) {
     _bot.getApi().sendMessage(message->chat->id, "Hi!");
 }
@@ -65,9 +84,10 @@ void Messenger::sendMessage(std::int64_t id, const std::string& message, std::in
 }
 
 void Messenger::sendMessage(const std::string& username, const std::string& message, std::int32_t reply_to) {
-    for (auto& it : _users)
+    for (auto& it : _users) {
         if (it.second == username)
             return sendMessage(it.first, message, reply_to);
+    }
 }
 
 bool Messenger::isRunning() const {
@@ -75,22 +95,12 @@ bool Messenger::isRunning() const {
 }
 
 void Messenger::run() {
-    for (auto& user : _users) {
-        const std::string& username = user.second;
-        if (username.empty())
-            continue;
-
-        const std::string key = username + ":events";
-
-        db::VectorValues events = DB().lrange(key);
-        if (events.empty())
-            continue;
-
-        for (auto& event : events)
-            sendMessage(username, event.asString());
-
-        DB().del(key);
+    try {
+        _long_pull.start();
+    } catch (std::exception& e) {
+        printf("error: %s\n", e.what());
+        return;
     }
 
-    _long_pull.start();
+    check();
 }
