@@ -6,6 +6,7 @@
 #include "Context.hpp"
 #include "Position.hpp"
 #include "Statistics.hpp"
+#include "Events.hpp"
 #include "Terminal.hpp"
 #include "Migrator.hpp"
 #include "exchanger/wrapper/OrderWrapper.hpp"
@@ -42,14 +43,14 @@ bool Algorithm::init() {
     // создадим структуры для хранения данных
     _position = Position::create(_settings.uniqId() + ":position");
     _statistics = Statistics::create(_settings.uniqId() + ":stats");
+    _events = Events::create(_settings.username + ":events");
 
     // промигрируем данные
     if (not Migrator::migrate(_position, _statistics, _settings.symbol))
         return false;
 
-    if (_settings.isRelease() || true)
-        DB().rpush(_settings.username + ":events", "start " + (std::string)_settings.symbol + " pair");
-        //Events().send("start %s pair", _settings.symbol.c_str());
+    if (_settings.isRelease())
+        _events->send("%s start", _settings.symbol.c_str());
 
     return true;
 }
@@ -155,16 +156,15 @@ bool Algorithm::tryClose(const Context& context) {
 
     // сохраняем статистику закрытия сделки
     _statistics->report(report);
-    if (_settings.isRelease())
+    if (_settings.isRelease()) {
         _statistics->save();
+        _events->send("profit: %f %s", report.profit, _settings.symbol.quoteAsset().c_str());
+    }
 
     // распечатаем созданную позицию с id закрытой
     Terminal::printOrder(close, "<");
     // показываем профит
     Terminal::printProfit(report, _settings.symbol.quoteAsset());
-
-    if (_settings.isRelease())
-        DB().rpush(_settings.username + ":events", "profit: " + std::to_string(report.profit) + " " + (std::string)_settings.symbol.quoteAsset());
 
     // удалим из базы, результат удаления не важен
     _position->remove();
@@ -217,8 +217,7 @@ bool Algorithm::createOrder(const Context& context, OrderRequest& request, Posit
     if (order == nullptr)
         return false;
 
-    DB().rpush(_settings.username + ":events", (order->side() == Buy ? "buy " : "sell ") + std::to_string(order->baseQuantity()) + " " + (std::string)order->symbol().baseAsset() + " for " + std::to_string(order->price()));
-    //Events().send("%s %f %s", order->side() == Buy ? "buy" : "sell", order->baseQuantity(), order->symbol().baseAsset().c_str());
+    _events->send("%s %f %s for %f", order->side() == Buy ? "buy" : "sell", order->baseQuantity(), order->symbol().baseAsset().c_str(), order->price());
 
     result.copy(*order);
     return true;
