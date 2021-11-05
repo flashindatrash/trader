@@ -24,15 +24,15 @@ int EventManagerApp::run() {
         return EXIT_FAILURE;
     }
 
+    // init database
+    if (not DB().init(_config)) {
+        return EXIT_FAILURE;
+    }
+    
     // init messenger
     Messenger messenger(token);
     if (not messenger.init()) {
         Logger::info("can't init messenger");
-        return EXIT_FAILURE;
-    }
-
-    // init database
-    if (not DB().init(_config)) {
         return EXIT_FAILURE;
     }
 

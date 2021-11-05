@@ -17,6 +17,7 @@ Messenger::Messenger(const std::string& token)
 }
 
 bool Messenger::init() {
+    // add telegram commands
     std::vector<TgBot::BotCommand::Ptr> commands;
     TgBot::BotCommand::Ptr cmdArray(new TgBot::BotCommand);
     cmdArray->command = "register";
@@ -29,15 +30,15 @@ bool Messenger::init() {
     if (not _bot.getApi().deleteWebhook())
         return false;
 
-    _bot.getEvents().onCommand("start", std::bind(&Messenger::onCommand, this, std::placeholders::_1));
-    _bot.getEvents().onAnyMessage(std::bind(&Messenger::onAnyMessage, this, std::placeholders::_1));
-
-    // notify all users
+    // notify users about restart
     for (const User& user : _users) {
         Logger::info("Add user %s with id %d", user.name().c_str(), user.id());
         sendMessage(user.id(), "Bot restarted");
     }
 
+    // add handlers
+    _bot.getEvents().onCommand("start", std::bind(&Messenger::onCommand, this, std::placeholders::_1));
+    _bot.getEvents().onAnyMessage(std::bind(&Messenger::onAnyMessage, this, std::placeholders::_1));
     return true;
 }
 
