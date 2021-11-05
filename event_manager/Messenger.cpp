@@ -34,6 +34,7 @@ bool Messenger::init() {
 
     // notify all users
     for (const User& user : _users) {
+        Logger::info("Add user %s with id %d", user.name().c_str(), user.id());
         sendMessage(user.id(), "Bot restarted");
     }
 
@@ -63,7 +64,7 @@ void Messenger::onAnyMessage(const TgBot::Message::Ptr message) {
     std::int64_t id = message->chat->id;
     const std::string& text = message->text;
 
-    Logger::info("User wrote %s", text.c_str());
+    Logger::info("User wrote: %s", text.c_str());
     if (StringTools::startsWith(text, "/start"))
         return;
 
@@ -93,6 +94,8 @@ void Messenger::sendMessage(std::int64_t id, const std::string& message, std::in
         return;
 
     _bot.getApi().sendMessage(id, message, false, reply_to);
+
+    Logger::info("Bot wrote [%d]: %s", id, message.c_str());
 }
 
 void Messenger::sendMessage(const std::string& username, const std::string& message, std::int32_t reply_to) {
