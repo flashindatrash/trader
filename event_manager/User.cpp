@@ -9,6 +9,7 @@ static const char* FIELD_ID = "id";
 User::User(const db::Key& key)
     : db::Object(key)
 {
+    load();
 }
 
 void User::setId(int value) {
