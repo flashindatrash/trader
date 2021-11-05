@@ -5,6 +5,7 @@
 #pragma once
 
 #include <tgbot/tgbot.h>
+#include "User.hpp"
 
 class Messenger {
 public: // methods
@@ -27,9 +28,7 @@ private: // methods
 private: // vars
     TgBot::Bot _bot;
     TgBot::TgLongPoll _long_pull;
-
-    // table id/username
-    std::unordered_map<std::int64_t, std::string> _users;
+    Users _users;
 };
 
 

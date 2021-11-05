@@ -12,6 +12,7 @@ static TgBot::CurlHttpClient http_client;
 Messenger::Messenger(const std::string& token)
     : _bot(token, http_client)
     , _long_pull(_bot)
+    , _users("users")
 {
 }
 
@@ -24,7 +25,7 @@ bool Messenger::init() {
     if (not _bot.getApi().setMyCommands(commands))
         return false;
 
-    Logger::info("Bot username: %s", _bot.getApi().getMe()->username.c_str());
+    Logger::info("Bot name: %s", _bot.getApi().getMe()->username.c_str());
     if (not _bot.getApi().deleteWebhook())
         return false;
 
@@ -34,19 +35,15 @@ bool Messenger::init() {
 }
 
 void Messenger::check() {
-    for (auto& user : _users) {
-        const std::string& username = user.second;
-        if (username.empty())
-            continue;
-
-        const std::string key = username + ":events";
+    for (User& user : _users) {
+        const std::string key = user.name() + ":events";
 
         db::VectorValues events = DB().lrange(key);
         if (events.empty())
             continue;
 
         for (auto& event : events)
-            sendMessage(username, event.asString());
+            sendMessage(user.id(), event.asString());
 
         DB().del(key);
     }
@@ -58,37 +55,46 @@ void Messenger::onCommand(const TgBot::Message::Ptr message) {
 
 void Messenger::onAnyMessage(const TgBot::Message::Ptr message) {
     std::int64_t id = message->chat->id;
+    const std::string& text = message->text;
 
-    Logger::info("User wrote %s", message->text.c_str());
-    if (StringTools::startsWith(message->text, "/start"))
+    Logger::info("User wrote %s", text.c_str());
+    if (StringTools::startsWith(text, "/start"))
         return;
 
-    if (StringTools::startsWith(message->text, "/register")) {
-        _users.insert(std::make_pair(id, ""));
+    static bool wait_username = false;
+    if (StringTools::startsWith(text, "/register")) {
+        wait_username = true;
         sendMessage(id, "Input trader name", message->messageId);
         return;
     }
 
-    auto user = _users.find(id);
-    if (user == _users.end())
-        return;
+    if (wait_username) {
+        User user(text);
+        user.setId(id);
 
-    std::string& nickname = user->second;
-    if (nickname.empty() && not message->text.empty()) {
-        nickname = message->text;
-        sendMessage(nickname, "Your username: " + nickname, message->messageId);
+        if (_users.push(user)) {
+            sendMessage(id, "Your name: " + user.name(), message->messageId);
+        } else {
+            sendMessage(id, "Failed to register: " + user.name(), message->messageId);
+        }
+
+        wait_username = false;
     }
 }
 
 void Messenger::sendMessage(std::int64_t id, const std::string& message, std::int32_t reply_to) {
+    if (id == 0)
+        return;
+
     _bot.getApi().sendMessage(id, message, false, reply_to);
 }
 
 void Messenger::sendMessage(const std::string& username, const std::string& message, std::int32_t reply_to) {
-    for (auto& it : _users) {
-        if (it.second == username)
-            return sendMessage(it.first, message, reply_to);
-    }
+    auto it = _users.find_if(Users::byName(username));
+    if (it == _users.end())
+        return;
+
+    sendMessage(it->id(), message, reply_to);
 }
 
 bool Messenger::isRunning() const {
