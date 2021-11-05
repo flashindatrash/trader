@@ -9,7 +9,6 @@ static const char* FIELD_ID = "id";
 User::User(const db::Key& key)
     : db::Object(key)
 {
-    load();
 }
 
 void User::setId(int value) {
@@ -27,6 +26,7 @@ std::string User::name() const {
 Users::Users(const db::Key& key)
     : BaseClass(key)
 {
+    load();
 }
 
 bool Users::proceed_push(User& value) const {
