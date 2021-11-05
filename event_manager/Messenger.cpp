@@ -24,7 +24,7 @@ bool Messenger::init() {
     if (not _bot.getApi().setMyCommands(commands))
         return false;
 
-    Logger::info("Bot username: %s\n", _bot.getApi().getMe()->username.c_str());
+    Logger::info("Bot username: %s", _bot.getApi().getMe()->username.c_str());
     if (not _bot.getApi().deleteWebhook())
         return false;
 
@@ -59,7 +59,7 @@ void Messenger::onCommand(const TgBot::Message::Ptr message) {
 void Messenger::onAnyMessage(const TgBot::Message::Ptr message) {
     std::int64_t id = message->chat->id;
 
-    Logger::info("User wrote %s\n", message->text.c_str());
+    Logger::info("User wrote %s", message->text.c_str());
     if (StringTools::startsWith(message->text, "/start"))
         return;
 
@@ -99,7 +99,7 @@ void Messenger::run() {
     try {
         _long_pull.start();
     } catch (std::exception& e) {
-        Logger::info("error: %s\n", e.what());
+        Logger::info("error: %s", e.what());
         return;
     }
 
