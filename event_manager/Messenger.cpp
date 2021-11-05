@@ -31,6 +31,12 @@ bool Messenger::init() {
 
     _bot.getEvents().onCommand("start", std::bind(&Messenger::onCommand, this, std::placeholders::_1));
     _bot.getEvents().onAnyMessage(std::bind(&Messenger::onAnyMessage, this, std::placeholders::_1));
+
+    // notify all users
+    for (const User& user : _users) {
+        sendMessage(user.id(), "Bot restarted");
+    }
+
     return true;
 }
 
