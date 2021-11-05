@@ -40,7 +40,7 @@ bool BinanceController::init(const core::Config& config) {
     BinaCPP_logger::set_debug_level(0);
     BinaCPP_logger::enable_logfile(0);
 
-    // init binance api
+    // init binance config
     static string api_key       = config.asString(CONFIG_API_KEY);
     static string secret_key    = config.asString(CONFIG_SECRET_KEY);
     if (api_key.empty() || secret_key.empty())
@@ -52,8 +52,13 @@ bool BinanceController::init(const core::Config& config) {
     if (config.has(CONFIG_FEE))
         _config_fee = config.asDouble(CONFIG_FEE) / 100.0;
 
-    BinaCPP::init(api_key, secret_key);
-    BinaCPP_websocket::init();
+    // init binance api
+    if (not BinaCPP::init(api_key, secret_key))
+        return false;
+
+    // init binance websocket
+    if (not BinaCPP_websocket::init())
+        return false;
 
     return initUserListenKey();
 }

@@ -31,9 +31,9 @@ void BinanceWebsocket::connect() {
     if (_connected)
         return;
 
-    _connected = true;
     std::string endpoint = "/ws/" + _path;
-    BinaCPP_websocket::connect_endpoint(std::bind(&BinanceWebsocket::handler, this, std::placeholders::_1), endpoint.c_str());
+    if (BinaCPP_websocket::connect_endpoint(std::bind(&BinanceWebsocket::handler, this, std::placeholders::_1), endpoint.c_str()))
+        _connected = true;
 }
 
 int BinanceWebsocket::handler(Json::Value& json) {
