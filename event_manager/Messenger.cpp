@@ -66,10 +66,21 @@ void Messenger::check() {
 }
 
 void Messenger::onCommand(const TgBot::Message::Ptr message) {
-    _bot.getApi().sendChatAction(message->chat->id, "typing");
+    std::int64_t id = message->chat->id;
 
-    if (StringTools::startsWith(message->text, "/start"))
-        _bot.getApi().sendMessage(message->chat->id, "Hi!");
+    _bot.getApi().sendChatAction(id, "typing");
+
+    if (StringTools::startsWith(message->text, "/start")) {
+        auto it = _users.find_if(Users::byId(id));
+
+        std::string reply;
+        if (it == _users.end())
+            reply = util::format("Hi %s! Use /register with your trader's username", message->chat->username.c_str());
+        else
+            reply = util::format("Hi %s! Your trader username is %s", message->chat->username.c_str(), it->name().c_str());
+
+        sendMessage(id, reply, message->messageId);
+    }
 }
 
 void Messenger::onAnyMessage(const TgBot::Message::Ptr message) {
