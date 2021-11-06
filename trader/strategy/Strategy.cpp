@@ -2,9 +2,9 @@
 #include <global.hpp>
 #include "Time.hpp"
 #include "Config.hpp"
-#include "Settings.hpp"
 #include "Runner.hpp"
 #include "Algorithm.hpp"
+#include "Listener.hpp"
 #include "exchanger/Exchanger.hpp"
 #include "exchanger/wrapper/ChartWrapper.hpp"
 #include "exchanger/wrapper/BalanceWrapper.hpp"
@@ -20,6 +20,7 @@ Strategy* Strategy::create(const core::Config& config) {
 Strategy::~Strategy() {
     SAFE_DELETE(_runner);
     SAFE_DELETE(_algorithm);
+    SAFE_DELETE(_listener);
 }
 
 bool Strategy::init(const core::Config& config) {
@@ -30,6 +31,11 @@ bool Strategy::init(const core::Config& config) {
     // create algorithm
     _algorithm = Algorithm::create(settings);
     if (not _algorithm->init())
+        return false;
+
+    // create listener
+    _listener = Listener::create(settings);
+    if (not _listener->init(*_algorithm))
         return false;
 
     // load chart
@@ -64,7 +70,7 @@ bool Strategy::init(const core::Config& config) {
 
     // create & start runner
     _runner = Runner::create();
-    _runner->setCallback(std::bind(&Algorithm::execute, _algorithm, std::placeholders::_1));
+    _runner->setCallback(std::bind(&Strategy::execute, this, std::placeholders::_1));
     _runner->start(settings);
 
     // remove test balance
@@ -73,12 +79,12 @@ bool Strategy::init(const core::Config& config) {
         Exchanger().balance(settings.symbol.quoteAsset())->spend(10000);
     }
 
-    // print report
-    if (settings.isBackTest()) {
-        _algorithm->report();
-    }
-
+    _algorithm->stop();
     return true;
+}
+
+void Strategy::execute(const Context& context) {
+    _listener->update(_algorithm->execute(context), context);
 }
 
 bool Strategy::isRunning() const {

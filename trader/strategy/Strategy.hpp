@@ -8,7 +8,9 @@ namespace core {
 
 NS_BEGIN
 class Runner;
+class Context;
 class Algorithm;
+class Listener;
 NS_END
 
 class Strategy {
@@ -22,9 +24,12 @@ public: // methods
     bool isRunning() const;
 
 protected: // methods
+    Strategy() = default;
+
+    void execute(const NS::Context& context);
+
+protected: // vars
     NS::Runner* _runner = nullptr;
     NS::Algorithm* _algorithm = nullptr;
-
-protected: // methods
-    Strategy() = default;
+    NS::Listener* _listener = nullptr;
 };

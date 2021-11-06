@@ -1,14 +1,9 @@
 #include "Algorithm.hpp"
 
 #include <utility>
-#include "Time.hpp"
-#include "Logger.hpp"
 #include "Context.hpp"
 #include "Position.hpp"
-#include "Statistics.hpp"
-#include "Events.hpp"
-#include "Terminal.hpp"
-#include "Migrator.hpp"
+#include "Report.hpp"
 #include "exchanger/wrapper/OrderWrapper.hpp"
 #include "exchanger/Exchanger.hpp"
 #include "exchanger/indicator/DEMA.hpp"
@@ -30,40 +25,30 @@ Algorithm::~Algorithm() {
         delete _position;
         _position = nullptr;
     }
-
-    if (_statistics != nullptr) {
-        delete _statistics;
-        _statistics = nullptr;
-    }
 }
 
 bool Algorithm::init() {
-    Terminal::setTitle(_settings.symbol);
-
-    // создадим структуры для хранения данных
     _position = Position::create(_settings.uniqId() + ":position");
-    _statistics = Statistics::create(_settings.uniqId() + ":stats");
-    _events = Events::create(_settings.username + ":events");
-
-    // промигрируем данные
-    if (not Migrator::migrate(_position, _statistics, _settings.symbol))
-        return false;
-
-    if (_settings.isRelease())
-        _events->send("%s start", _settings.symbol.c_str());
-
     return true;
 }
 
-void Algorithm::execute(const Context& context) {
+void Algorithm::stop() {
+    // вернем средва по последней не выполненной позиции
+    if (_position->has() && _settings.isBackTest()) {
+        _position->setSide(_position->revert());
+        _position->operate();
+    }
+
+    onStop.emmit(nullptr);
+}
+
+const Position& Algorithm::execute(const Context& context) {
     // закрытие сделок: получить профит || усреднение цены || остановить убыток
     bool open = tryTakeProfit(context) || tryAverage(context) || tryStopLoss(context);
     // открытие сделок
     bool close = tryOpen(context);
 
-    // обновляем строку терминала
-    if (_position->has() && not _settings.isBackTest())
-        Terminal::update(*_position, _settings.symbol, context);
+    return *_position;
 }
 
 bool Algorithm::tryTakeProfit(const Context& context) {
@@ -127,7 +112,7 @@ bool Algorithm::tryAverage(const Context& context) {
     if (_settings.isRelease())
         _position->save();
 
-    Terminal::printOrder(avg, ">");
+    onAverage.emmit(avg);
     return true;
 }
 
@@ -150,24 +135,13 @@ bool Algorithm::tryClose(const Context& context) {
     if (not createOrder(context, request, close))
         return false;
 
-    // сохраняем отчет
+    // создадим отчет
     Report report(*_position, close);
-    _report.add(report);
-
-    // сохраняем статистику закрытия сделки
-    _statistics->report(report);
-    if (_settings.isRelease()) {
-        _statistics->save();
-        _events->send("profit: %f %s", report.profit, _settings.symbol.quoteAsset().c_str());
-    }
-
-    // распечатаем созданную позицию с id закрытой
-    Terminal::printOrder(close, "<");
-    // показываем профит
-    Terminal::printProfit(report, _settings.symbol.quoteAsset());
 
     // удалим из базы, результат удаления не важен
     _position->remove();
+
+    onClose.emmit(report);
     return true;
 }
 
@@ -195,7 +169,7 @@ bool Algorithm::tryOpen(const Context& context) {
     if (_settings.isRelease())
         _position->save();
 
-    Terminal::printOrder(position, ">");
+    onOpen.emmit(position);
     return true;
 }
 
@@ -216,8 +190,6 @@ bool Algorithm::createOrder(const Context& context, OrderRequest& request, Posit
     const OrderWrapper* order = Exchanger().createOrder(request);
     if (order == nullptr)
         return false;
-
-    _events->send("%s %f %s for %f", order->side() == Buy ? "buy" : "sell", order->baseQuantity(), order->symbol().baseAsset().c_str(), order->price());
 
     result.copy(*order);
     return true;
@@ -245,14 +217,4 @@ int Algorithm::availableAverage() const {
     }
 
     return result;
-}
-
-void Algorithm::report() const {
-    // вернем средва по последней не выполненной позиции
-    if (_position->has() && _settings.isBackTest()) {
-        _position->setSide(_position->revert());
-        _position->operate();
-    }
-
-    Terminal::printReport(_report, _settings.symbol);
 }

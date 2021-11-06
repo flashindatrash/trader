@@ -14,7 +14,7 @@ struct Report;
 class Terminal {
 public: // static
     static void setTitle(const Symbol& symbol);
-    static void update(Position& position, const Symbol& symbol, const Context& context);
+    static void update(const Position& position, const Context& context);
     static void printOrder(const OrderBase& order, const std::string& type);
     static void printProfit(const Report& report, const Asset& asset);
     static void printReport(const Report& report, const Symbol& symbol);

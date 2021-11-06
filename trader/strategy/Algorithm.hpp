@@ -1,16 +1,15 @@
 #pragma once
 
+#include "Signal.hpp"
 #include "Defines.hpp"
 #include "Settings.hpp"
-#include "Report.hpp"
 
 struct OrderRequest;
 
 NS_BEGIN
 class Context;
-class Statistics;
 class Position;
-class Events;
+class Report;
 
 class Algorithm {
 public: // static
@@ -20,8 +19,9 @@ public: // methods
     virtual ~Algorithm();
 
     bool init();
-    void execute(const Context& context);
-    void report() const;
+    void stop();
+
+    const Position& execute(const Context& context);
 
 protected: // methods
     explicit Algorithm(Settings settings);
@@ -36,12 +36,15 @@ protected: // methods
     void indicator(const Context& context, OrderSide& trend, OrderSide& signal) const;
     int availableAverage() const;
 
+public: // signals
+    Signal<Position&> onOpen;
+    Signal<Position&> onAverage;
+    Signal<Report&> onClose;
+    Signal<void*> onStop;
+
 protected: // vars
     const Settings _settings;
-    Report _report;
 
     Position* _position = nullptr;
-    Statistics* _statistics = nullptr;
-    Events* _events = nullptr;
 };
 NS_END

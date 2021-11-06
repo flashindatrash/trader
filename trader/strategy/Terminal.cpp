@@ -16,7 +16,7 @@ void Terminal::setTitle(const Symbol& symbol) {
     Logger::title("%s - %s", symbol.baseAsset().c_str(), symbol.quoteAsset().c_str());
 }
 
-void Terminal::update(Position& position, const Symbol& symbol, const Context& context) {
+void Terminal::update(const Position& position, const Context& context) {
     Price current_price = context.price(position.revert());
     Price position_price = position.price();
 
@@ -35,7 +35,7 @@ void Terminal::update(Position& position, const Symbol& symbol, const Context& c
     positionFormat.append(": %." + std::to_string(util::zeros_after_dot(position_price) + 2) + "f");
     positionFormat.append(" > %." + std::to_string(util::zeros_after_dot(current_price) + 2) + "f");
 
-    Quantity balance = symbol.balance(Asset::USDT);
+    Quantity balance = position.symbol().balance(Asset::USDT);
     std::string balanceFormat = "balance: %." + std::to_string(util::zeros_after_dot(balance) + 2) + "f " + Asset::USDT.id();
 
     std::string format = profitFormat + " " + changeFormat + " [" + positionFormat + "] [" + balanceFormat + "]";
