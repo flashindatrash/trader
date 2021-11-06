@@ -11,7 +11,6 @@
 NS_BEGIN
 class Algorithm;
 class Statistics;
-class Events;
 class Position;
 class Context;
 
@@ -33,13 +32,14 @@ protected: // methods
     void handleClose(const Report& report);
     void handleStop(void*);
 
+    void sendEvent(const std::string& event);
+
 protected: // vars
     const Settings _settings;
 
     Report _report;
 
     Statistics* _statistics = nullptr;
-    Events* _events = nullptr;
 };
 NS_END
 

@@ -8,9 +8,9 @@
 #include "Algorithm.hpp"
 #include "EventFormatter.hpp"
 #include "Position.hpp"
-#include "Events.hpp"
 #include "Statistics.hpp"
 #include "Logger.hpp"
+#include "database/Database.hpp"
 
 NS_USE
 
@@ -29,11 +29,6 @@ Listener::~Listener() {
         delete _statistics;
         _statistics = nullptr;
     }
-
-    if (_events != nullptr) {
-        delete _events;
-        _events = nullptr;
-    }
 }
 
 bool Listener::init(Algorithm& algorithm) {
@@ -45,7 +40,6 @@ bool Listener::init(Algorithm& algorithm) {
     Logger::title(EventFormatter::title(_settings.symbol));
 
     _statistics = Statistics::create(_settings.uniqId() + ":stats");
-    _events = Events::create(_settings.username + ":events");
     return true;
 }
 
@@ -60,16 +54,14 @@ void Listener::handleOpen(const Position& position) {
     std::string event = EventFormatter::order(position);
     Logger::info(event);
 
-    if (_settings.isRelease())
-        _events->push(event);
+    sendEvent(event);
 }
 
 void Listener::handleAverage(const Position& position) {
     std::string event = EventFormatter::order(position);
     Logger::info(event);
 
-    if (_settings.isRelease())
-        _events->push(event);
+    sendEvent(event);
 }
 
 void Listener::handleClose(const Report& report) {
@@ -81,13 +73,20 @@ void Listener::handleClose(const Report& report) {
 
     // сохраняем статистику закрытия сделки
     _statistics->report(report);
-    if (_settings.isRelease()) {
+    if (_settings.isRelease())
         _statistics->save();
-        _events->push(event);
-    }
+
+    sendEvent(event);
 }
 
 void Listener::handleStop(void*) {
     std::string event = EventFormatter::report(_report, _settings.symbol);
     Logger::info(event);
+}
+
+void Listener::sendEvent(const std::string& event) {
+    if (not _settings.isRelease())
+        return;
+
+    DB().rpush(_settings.username + ":events", event);
 }
