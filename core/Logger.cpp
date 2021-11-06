@@ -8,7 +8,6 @@
 #include <iostream>
 #include <ctime>
 #include <csignal>
-#include <cstdarg>
 #include <utility>
 #include "Time.hpp"
 

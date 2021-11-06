@@ -1,4 +1,5 @@
 #include "StringUtil.hpp"
+#include <cstdarg>
 
 std::string util::format(const char* fmt, ...) {
     va_list arg;
