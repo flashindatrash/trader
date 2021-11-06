@@ -20,10 +20,17 @@ Messenger::Messenger(const std::string& token)
 bool Messenger::init() {
     // add telegram commands
     std::vector<TgBot::BotCommand::Ptr> commands;
-    TgBot::BotCommand::Ptr cmdArray(new TgBot::BotCommand);
-    cmdArray->command = "register";
-    cmdArray->description = "Register trader";
-    commands.push_back(cmdArray);
+
+    TgBot::BotCommand::Ptr cmdRegister(new TgBot::BotCommand);
+    cmdRegister->command = "register";
+    cmdRegister->description = "Register trader";
+    commands.push_back(cmdRegister);
+
+    TgBot::BotCommand::Ptr cmdTest(new TgBot::BotCommand);
+    cmdTest->command = "test";
+    cmdTest->description = "Test";
+    commands.push_back(cmdTest);
+
     if (not _bot.getApi().setMyCommands(commands))
         return false;
 
@@ -59,7 +66,10 @@ void Messenger::check() {
 }
 
 void Messenger::onCommand(const TgBot::Message::Ptr message) {
-    _bot.getApi().sendMessage(message->chat->id, "Hi!");
+    _bot.getApi().sendChatAction(message->chat->id, "typing");
+
+    if (StringTools::startsWith(message->text, "/start"))
+        _bot.getApi().sendMessage(message->chat->id, "Hi!");
 }
 
 void Messenger::onAnyMessage(const TgBot::Message::Ptr message) {
@@ -67,8 +77,6 @@ void Messenger::onAnyMessage(const TgBot::Message::Ptr message) {
     const std::string& text = message->text;
 
     Logger::info(util::format("User wrote: %s", text.c_str()));
-    if (StringTools::startsWith(text, "/start"))
-        return;
 
     static bool wait_username = false;
     if (StringTools::startsWith(text, "/register")) {

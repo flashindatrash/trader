@@ -5,6 +5,7 @@
 #include "Runner.hpp"
 #include "Algorithm.hpp"
 #include "Listener.hpp"
+#include "Reactor.hpp"
 #include "exchanger/Exchanger.hpp"
 #include "exchanger/wrapper/ChartWrapper.hpp"
 #include "exchanger/wrapper/BalanceWrapper.hpp"
@@ -21,6 +22,7 @@ Strategy::~Strategy() {
     SAFE_DELETE(_runner);
     SAFE_DELETE(_algorithm);
     SAFE_DELETE(_listener);
+    SAFE_DELETE(_reactor);
 }
 
 bool Strategy::init(const core::Config& config) {
@@ -36,6 +38,11 @@ bool Strategy::init(const core::Config& config) {
     // create listener
     _listener = Listener::create(settings);
     if (not _listener->init(*_algorithm))
+        return false;
+
+    // create reactor
+    _reactor = Reactor::create();
+    if (not _reactor->init())
         return false;
 
     // load chart

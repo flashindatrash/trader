@@ -11,6 +11,7 @@ class Runner;
 class Context;
 class Algorithm;
 class Listener;
+class Reactor;
 NS_END
 
 class Strategy {
@@ -32,4 +33,5 @@ protected: // vars
     NS::Runner* _runner = nullptr;
     NS::Algorithm* _algorithm = nullptr;
     NS::Listener* _listener = nullptr;
+    NS::Reactor* _reactor = nullptr;
 };
