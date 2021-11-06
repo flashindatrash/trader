@@ -32,10 +32,10 @@
 
 class Logger {
 public: //
-    static void title(const char* fmt, ...);
-    static void info(const char* fmt, ...);
-    static void status(const char* fmt, ...);
-    static void error(const char* msg);
+    static void title(const std::string& value);
+    static void info(const std::string& value);
+    static void status(const std::string& value);
+    static void error(const std::string& value);
     static void erase();
 
     static void setTime(time_t time);
@@ -44,5 +44,5 @@ private: // static
     static time_t sTime;
     static bool sStatus;
 
-    static const char* format(const char* fmt);
+    static const char* formatTime();
 };

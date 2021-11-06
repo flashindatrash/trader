@@ -1,6 +1,7 @@
 #include "Database.hpp"
 #include "Config.hpp"
 #include "Logger.hpp"
+#include "util/StringUtil.hpp"
 #include "hiredis/hiredis.h"
 
 using namespace db;
@@ -15,7 +16,7 @@ Database::~Database() {
 bool Database::init(const core::Config& config) {
     _context = redisConnect(config.asString("REDIS_HOST").c_str(), config.asInt("REDIS_PORT"));
     if (_context == nullptr) {
-        Logger::info("can't allocate redis context\n");
+        Logger::info("can't allocate redis context");
         return false;
     } else if (_context->err) {
         Logger::info(_context->errstr);
@@ -44,7 +45,7 @@ redisReply* Database::receive(void* reply) const {
 
     redisReply* result = (redisReply*)reply;
     if (result->type == REDIS_REPLY_ERROR) {
-        Logger::info("redisReply: %s", result->str);
+        Logger::info(util::format("redisReply: %s", result->str));
         return nullptr;
     }
 

@@ -5,6 +5,7 @@
 #include "exchanger/Exchanger.hpp"
 #include "strategy/Strategy.hpp"
 #include "event/EventManager.hpp"
+#include "util/StringUtil.hpp"
 
 core::Version TraderApp::sVersion = core::Version(1, 3, 1);
 
@@ -26,7 +27,7 @@ TraderApp* TraderApp::create(const core::Config& config) {
 }
 
 int TraderApp::run() {
-    Logger::info("TraderBot version: %s", sVersion.toString().c_str());
+    Logger::info(util::format("TraderBot version: %s", sVersion.toString().c_str()));
 
     // init database
     if (not DB().init(_config))

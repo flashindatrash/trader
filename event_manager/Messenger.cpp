@@ -5,6 +5,7 @@
 #include "Messenger.hpp"
 #include "database/Database.hpp"
 #include "Logger.hpp"
+#include "util/StringUtil.hpp"
 #include <functional>
 
 static TgBot::CurlHttpClient http_client;
@@ -26,13 +27,13 @@ bool Messenger::init() {
     if (not _bot.getApi().setMyCommands(commands))
         return false;
 
-    Logger::info("Bot name: %s", _bot.getApi().getMe()->username.c_str());
+    Logger::info(util::format("Bot name: %s", _bot.getApi().getMe()->username.c_str()));
     if (not _bot.getApi().deleteWebhook())
         return false;
 
     // notify users about restart
     for (const User& user : _users) {
-        Logger::info("Add user %s with id %d", user.name().c_str(), user.id());
+        Logger::info(util::format("Add user %s with id %d", user.name().c_str(), user.id()));
         sendMessage(user.id(), "Bot restarted");
     }
 
@@ -65,7 +66,7 @@ void Messenger::onAnyMessage(const TgBot::Message::Ptr message) {
     std::int64_t id = message->chat->id;
     const std::string& text = message->text;
 
-    Logger::info("User wrote: %s", text.c_str());
+    Logger::info(util::format("User wrote: %s", text.c_str()));
     if (StringTools::startsWith(text, "/start"))
         return;
 
@@ -96,7 +97,7 @@ void Messenger::sendMessage(std::int64_t id, const std::string& message, std::in
 
     _bot.getApi().sendMessage(id, message, false, reply_to);
 
-    Logger::info("Bot wrote [%d]: %s", id, message.c_str());
+    Logger::info(util::format("Bot wrote [%d]: %s", id, message.c_str()));
 }
 
 void Messenger::sendMessage(const std::string& username, const std::string& message, std::int32_t reply_to) {
@@ -115,7 +116,7 @@ void Messenger::run() {
     try {
         _long_pull.start();
     } catch (std::exception& e) {
-        Logger::info("error: %s", e.what());
+        Logger::info(util::format("error: %s", e.what()));
         return;
     }
 

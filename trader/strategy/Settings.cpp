@@ -2,6 +2,7 @@
 #include "Config.hpp"
 #include "Logger.hpp"
 #include "exchanger/Exchanger.hpp"
+#include "util/StringUtil.hpp"
 
 NS_USE
 
@@ -27,22 +28,22 @@ Settings::Settings(const core::Config& config) {
 
 bool Settings::isValid() const {
     if (not isRelease() && not isDevelop() && not isBackTest()) {
-        Logger::info("Settings: unknown %s(%s)", MODE, mode.c_str());
+        Logger::info(util::format("Settings: unknown %s(%s)", MODE, mode.c_str()));
         return false;
     }
 
     if (Exchanger().pair(symbol) == nullptr) {
-        Logger::info("Settings: %s(%s) doesn't exist", SYMBOL, symbol.c_str());
+        Logger::info(util::format("Settings: %s(%s) doesn't exist", SYMBOL, symbol.c_str()));
         return false;
     }
 
     if (lot_size < 1.0) {
-        Logger::info("Settings: %s < 1.0", LOT_SIZE);
+        Logger::info(util::format("Settings: %s < 1.0", LOT_SIZE));
         return false;
     }
 
     if (profit_ratio < 0.0 || profit_ratio > 1.0) {
-        Logger::info("Settings: %s must be between 0 to 1", PROFIT_RATIO);
+        Logger::info(util::format("Settings: %s must be between 0 to 1", PROFIT_RATIO));
         return false;
     }
 

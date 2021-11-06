@@ -6,10 +6,11 @@
 
 #include <utility>
 #include "Algorithm.hpp"
-#include "Terminal.hpp"
+#include "EventFormatter.hpp"
 #include "Position.hpp"
 #include "Events.hpp"
 #include "Statistics.hpp"
+#include "Logger.hpp"
 
 NS_USE
 
@@ -41,42 +42,39 @@ bool Listener::init(Algorithm& algorithm) {
     algorithm.onClose.connect(std::bind(&Listener::handleClose, this, std::placeholders::_1));
     algorithm.onStop.connect(std::bind(&Listener::handleStop, this, std::placeholders::_1));
 
-    Terminal::setTitle(_settings.symbol);
+    Logger::title(EventFormatter::title(_settings.symbol).c_str());
 
     _statistics = Statistics::create(_settings.uniqId() + ":stats");
     _events = Events::create(_settings.username + ":events");
-
-    if (_settings.isRelease()) {
-        _events->send("%s start", _settings.symbol.c_str());
-    }
-
     return true;
 }
 
 void Listener::update(const Position& position, const Context& context) {
     if (position.has() && not _settings.isBackTest()) {
-        Terminal::update(position, context);
+        std::string event = EventFormatter::update(position, context);
+        Logger::status(event.c_str());
     }
 }
 
 void Listener::handleOpen(const Position& position) {
-    Terminal::printOrder(position, ">");
+    std::string event = EventFormatter::order(position);
+    Logger::info(event.c_str());
 
-    if (_settings.isRelease()) {
-        _events->send("%s %f %s for %f", position.side() == Buy ? "buy" : "sell", position.baseQuantity(), position.symbol().baseAsset().c_str(), position.price());
-    }
+    if (_settings.isRelease())
+        _events->push(event);
 }
 
 void Listener::handleAverage(const Position& position) {
-    Terminal::printOrder(position, ">");
+    std::string event = EventFormatter::order(position);
+    Logger::info(event.c_str());
 
-    if (_settings.isRelease()) {
-        _events->send("%s %f %s for %f", position.side() == Buy ? "buy" : "sell", position.baseQuantity(), position.symbol().baseAsset().c_str(), position.price());
-    }
+    if (_settings.isRelease())
+        _events->push(event);
 }
 
 void Listener::handleClose(const Report& report) {
-    Terminal::printProfit(report, _settings.symbol.quoteAsset());
+    std::string event = EventFormatter::profit(report, _settings.symbol.quoteAsset());
+    Logger::info(event.c_str());
 
     _report.add(report);
 
@@ -84,10 +82,11 @@ void Listener::handleClose(const Report& report) {
     _statistics->report(report);
     if (_settings.isRelease()) {
         _statistics->save();
-        _events->send("profit: %f %s", report.profit, _settings.symbol.quoteAsset().c_str());
+        _events->push(event);
     }
 }
 
 void Listener::handleStop(void*) {
-    Terminal::printReport(_report, _settings.symbol);
+    std::string event = EventFormatter::report(_report, _settings.symbol);
+    Logger::info(event.c_str());
 }

@@ -7,6 +7,7 @@
 #include <argparser/ArgumentParser.hpp>
 #include "Logger.hpp"
 #include "TraderApp.hpp"
+#include "util/StringUtil.hpp"
 
 void handler(int sig) {
   void *array[10];
@@ -44,7 +45,7 @@ int main(int argc, char** argv) {
 
     core::Config cfg;
     if (!cfg.read(cfg_file.c_str())) {
-        Logger::info("Can't init config %s", cfg_file.c_str());
+        Logger::info(util::format("Can't init config %s", cfg_file.c_str()));
         return EXIT_FAILURE;
     }
 

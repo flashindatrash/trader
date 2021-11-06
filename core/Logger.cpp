@@ -15,35 +15,23 @@
 time_t Logger::sTime = 0;
 bool Logger::sStatus = false;
 
-void Logger::title(const char* fmt, ...) {
+void Logger::title(const std::string& value) {
     if (getenv("QT_TERMINAL") != nullptr)
         return;
-    va_list arg;
 
-    va_start(arg, fmt);
-
-    std::cout << ESCSTART;
-    vfprintf(stdout, fmt, arg);
-    std::cout << ESCEND;
-    fflush(stdout);
-
-    va_end(arg);
+    std::cout << ESCSTART << value << ESCEND;
 }
 
-void Logger::info(const char* fmt, ...) {
+void Logger::info(const std::string& value) {
     if (sStatus) {
         erase();
         sStatus = false;
     }
 
-    va_list arg;
-    va_start(arg, fmt);
-    vfprintf(stdout, format(fmt), arg);
-    fflush(stdout);
-    va_end(arg);
+    std::cout << formatTime() << ": " << value << std::endl;
 }
 
-void Logger::status(const char* fmt, ...) {
+void Logger::status(const std::string& value) {
     if (getenv("QT_TERMINAL") != nullptr)
         return;
 
@@ -51,14 +39,7 @@ void Logger::status(const char* fmt, ...) {
         erase();
     sStatus = true;
 
-    va_list arg;
-    va_start(arg, fmt);
-
-    static char new_fmt[1024];
-    sprintf(new_fmt, "%s\n", fmt);
-    vfprintf(stdout, new_fmt, arg);
-    fflush(stdout);
-    va_end(arg);
+    std::cout << value << std::endl;
 }
 
 void Logger::erase() {
@@ -68,7 +49,7 @@ void Logger::erase() {
     std::cout << CURSOR_START << CURSOR_UP << ERASE_LINE;
 }
 
-void Logger::error(const char* msg) {
+void Logger::error(const std::string& value) {
     std::raise(SIGSEGV);
 }
 
@@ -76,10 +57,10 @@ void Logger::setTime(time_t time) {
     sTime = time;
 }
 
-const char* Logger::format(const char* fmt) {
-    static char new_fmt[1024];
+const char* Logger::formatTime() {
+    static char format[512];
     time_t t = sTime > 0 ? sTime : Time().sec();
     struct tm* now = localtime(&t);
-    sprintf(new_fmt, "[%04d/%02d/%02d %02d:%02d:%02d] T: %s\n", now->tm_year + 1900, now->tm_mon + 1, now->tm_mday, now->tm_hour, now->tm_min, now->tm_sec, fmt);
-    return new_fmt;
+    sprintf(format, "[%04d/%02d/%02d %02d:%02d:%02d]", now->tm_year + 1900, now->tm_mon + 1, now->tm_mday, now->tm_hour, now->tm_min, now->tm_sec);
+    return format;
 }
