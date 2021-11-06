@@ -79,7 +79,9 @@ bool Strategy::init(const core::Config& config) {
         Exchanger().balance(settings.symbol.quoteAsset())->spend(10000);
     }
 
-    _algorithm->stop();
+    // dispatch stop
+    if (not isRunning())
+        _algorithm->stop();
     return true;
 }
 

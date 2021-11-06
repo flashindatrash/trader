@@ -42,7 +42,7 @@ bool Listener::init(Algorithm& algorithm) {
     algorithm.onClose.connect(std::bind(&Listener::handleClose, this, std::placeholders::_1));
     algorithm.onStop.connect(std::bind(&Listener::handleStop, this, std::placeholders::_1));
 
-    Logger::title(EventFormatter::title(_settings.symbol).c_str());
+    Logger::title(EventFormatter::title(_settings.symbol));
 
     _statistics = Statistics::create(_settings.uniqId() + ":stats");
     _events = Events::create(_settings.username + ":events");
@@ -52,13 +52,13 @@ bool Listener::init(Algorithm& algorithm) {
 void Listener::update(const Position& position, const Context& context) {
     if (position.has() && not _settings.isBackTest()) {
         std::string event = EventFormatter::update(position, context);
-        Logger::status(event.c_str());
+        Logger::status(event);
     }
 }
 
 void Listener::handleOpen(const Position& position) {
     std::string event = EventFormatter::order(position);
-    Logger::info(event.c_str());
+    Logger::info(event);
 
     if (_settings.isRelease())
         _events->push(event);
@@ -66,7 +66,7 @@ void Listener::handleOpen(const Position& position) {
 
 void Listener::handleAverage(const Position& position) {
     std::string event = EventFormatter::order(position);
-    Logger::info(event.c_str());
+    Logger::info(event);
 
     if (_settings.isRelease())
         _events->push(event);
@@ -74,8 +74,9 @@ void Listener::handleAverage(const Position& position) {
 
 void Listener::handleClose(const Report& report) {
     std::string event = EventFormatter::profit(report, _settings.symbol.quoteAsset());
-    Logger::info(event.c_str());
+    Logger::info(event);
 
+    // добавим в общий репорт
     _report.add(report);
 
     // сохраняем статистику закрытия сделки
@@ -88,5 +89,5 @@ void Listener::handleClose(const Report& report) {
 
 void Listener::handleStop(void*) {
     std::string event = EventFormatter::report(_report, _settings.symbol);
-    Logger::info(event.c_str());
+    Logger::info(event);
 }
