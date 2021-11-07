@@ -20,13 +20,10 @@ public: // methods
 
 private: // methods
     void onStart(const TgBot::Message::Ptr message);
-    void onSelect(const TgBot::Message::Ptr message);
     void onAnyMessage(const TgBot::Message::Ptr message);
     void onCallbackQuery(const TgBot::CallbackQuery::Ptr query);
 
     void pool();
-
-    bool checkRegistration(const TgBot::Chat::Ptr& chat);
 
 private: // vars
     TgBot::Bot _bot;
