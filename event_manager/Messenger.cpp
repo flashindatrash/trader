@@ -38,15 +38,14 @@ bool Messenger::init() {
     if (not _bot.getApi().deleteWebhook())
         return false;
 
-    // notify users about restart
-    for (const User& user : _users) {
+    // print all users
+    for (const User& user : _users)
         Logger::info(util::format("Add user %s with id %d", user.name().c_str(), user.id()));
-        sendMessage(user.id(), "Bot restarted");
-    }
 
     // add handlers
-    _bot.getEvents().onCommand("start", std::bind(&Messenger::onCommand, this, std::placeholders::_1));
+    _bot.getEvents().onCommand("start", std::bind(&Messenger::onStart, this, std::placeholders::_1));
     _bot.getEvents().onAnyMessage(std::bind(&Messenger::onAnyMessage, this, std::placeholders::_1));
+    _bot.getEvents().onCallbackQuery(std::bind(&Messenger::onCallbackQuery, this, std::placeholders::_1));
     return true;
 }
 
@@ -65,39 +64,21 @@ void Messenger::check() {
     }
 }
 
-void Messenger::onCommand(const TgBot::Message::Ptr message) {
-    std::int64_t id = message->chat->id;
-    const std::string& text = message->text;
+void Messenger::onStart(const TgBot::Message::Ptr message) {
+    if (not StringTools::startsWith(message->text, "/start"))
+        return
 
-    Logger::info(util::format("User command: %s", text.c_str()));
+    _bot.getApi().sendChatAction(message->chat->id, "typing");
 
-    _bot.getApi().sendChatAction(id, "typing");
+    auto it = _users.find_if(Users::byId(message->chat->id));
 
-    if (StringTools::startsWith(text, "/start")) {
-        auto it = _users.find_if(Users::byId(id));
+    std::string reply;
+    if (it == _users.end())
+        reply = util::format("Hi %s! Use /register with your trader's username", message->chat->username.c_str());
+    else
+        reply = util::format("Hi %s! Your trader username is %s", message->chat->username.c_str(), it->name().c_str());
 
-        std::string reply;
-        if (it == _users.end())
-            reply = util::format("Hi %s! Use /register with your trader's username", message->chat->username.c_str());
-        else
-            reply = util::format("Hi %s! Your trader username is %s", message->chat->username.c_str(), it->name().c_str());
-
-        sendMessage(id, reply, message->messageId);
-    }
-
-    if (StringTools::startsWith(text, "/test")) {
-        TgBot::InlineKeyboardMarkup::Ptr markup(new TgBot::InlineKeyboardMarkup());
-
-        std::vector<TgBot::InlineKeyboardButton::Ptr> row;
-        TgBot::InlineKeyboardButton::Ptr btn(new TgBot::InlineKeyboardButton);
-        btn->text = "text";
-        btn->callbackData = "callback data";
-        row.push_back(btn);
-
-        markup->inlineKeyboard.push_back(row);
-
-        sendMessage(id, "test", message->messageId, markup);
-    }
+    sendMessage(message->chat->id, reply, message->messageId);
 }
 
 void Messenger::onAnyMessage(const TgBot::Message::Ptr message) {
@@ -139,6 +120,11 @@ void Messenger::onAnyMessage(const TgBot::Message::Ptr message) {
 
         sendMessage(id, "test", message->messageId, markup);
     }
+}
+
+void Messenger::onCallbackQuery(const TgBot::CallbackQuery::Ptr query) {
+    Logger::info(util::format("User query: %s with %s", query->message->text.c_str(), query->data.c_str()));
+
 }
 
 void Messenger::sendMessage(std::int64_t id, const std::string& message, std::int32_t reply_to, TgBot::GenericReply::Ptr reply_markup) {

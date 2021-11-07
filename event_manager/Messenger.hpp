@@ -19,8 +19,9 @@ public: // methods
     void sendMessage(std::int64_t id, const std::string& message, std::int32_t reply_to = 0, TgBot::GenericReply::Ptr reply_markup = std::make_shared<TgBot::GenericReply>());
 
 private: // methods
-    void onCommand(const TgBot::Message::Ptr message);
+    void onStart(const TgBot::Message::Ptr message);
     void onAnyMessage(const TgBot::Message::Ptr message);
+    void onCallbackQuery(const TgBot::CallbackQuery::Ptr query);
 
     void check();
 
