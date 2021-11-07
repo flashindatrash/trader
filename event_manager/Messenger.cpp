@@ -125,20 +125,8 @@ void Messenger::onAnyMessage(const TgBot::Message::Ptr message) {
 }
 
 void Messenger::sendMessage(std::int64_t id, const std::string& message, std::int32_t reply_to, TgBot::GenericReply::Ptr reply_markup) {
-    if (id == 0)
-        return;
-
-    _bot.getApi().sendMessage(id, message, false, reply_to);
-
+    _bot.getApi().sendMessage(id, message, false, reply_to, reply_markup);
     Logger::info(util::format("Bot wrote [%d]: %s", id, message.c_str()));
-}
-
-void Messenger::sendMessage(const std::string& username, const std::string& message, std::int32_t reply_to, TgBot::GenericReply::Ptr reply_markup) {
-    auto it = _users.find_if(Users::byName(username));
-    if (it == _users.end())
-        return;
-
-    sendMessage(it->id(), message, reply_to);
 }
 
 bool Messenger::isRunning() const {
