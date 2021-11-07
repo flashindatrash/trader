@@ -16,7 +16,6 @@ public: // methods
     std::string name() const;
 };
 
-
 class Users : public db::ArrayAbstract<User> {
     typedef db::ArrayAbstract<User> BaseClass;
 

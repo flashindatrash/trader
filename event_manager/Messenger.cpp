@@ -3,8 +3,8 @@
 //
 
 #include "Messenger.hpp"
-#include "database/Database.hpp"
 #include "Logger.hpp"
+#include "database/Database.hpp"
 #include "util/StringUtil.hpp"
 #include <functional>
 
@@ -23,13 +23,13 @@ bool Messenger::init() {
 
     TgBot::BotCommand::Ptr cmdRegister(new TgBot::BotCommand);
     cmdRegister->command = "register";
-    cmdRegister->description = "Register trader";
+    cmdRegister->description = "Register user";
     commands.push_back(cmdRegister);
 
-    TgBot::BotCommand::Ptr cmdTest(new TgBot::BotCommand);
-    cmdTest->command = "test";
-    cmdTest->description = "Test";
-    commands.push_back(cmdTest);
+    TgBot::BotCommand::Ptr cmdSelect(new TgBot::BotCommand);
+    cmdSelect->command = "select";
+    cmdSelect->description = "Choose a pair of trader";
+    commands.push_back(cmdSelect);
 
     if (not _bot.getApi().setMyCommands(commands))
         return false;
@@ -44,12 +44,13 @@ bool Messenger::init() {
 
     // add handlers
     _bot.getEvents().onCommand("start", std::bind(&Messenger::onStart, this, std::placeholders::_1));
+    _bot.getEvents().onCommand("select", std::bind(&Messenger::onSelect, this, std::placeholders::_1));
     _bot.getEvents().onAnyMessage(std::bind(&Messenger::onAnyMessage, this, std::placeholders::_1));
     _bot.getEvents().onCallbackQuery(std::bind(&Messenger::onCallbackQuery, this, std::placeholders::_1));
     return true;
 }
 
-void Messenger::check() {
+void Messenger::pool() {
     for (User& user : _users) {
         const std::string key = user.name() + ":events";
 
@@ -66,19 +67,27 @@ void Messenger::check() {
 
 void Messenger::onStart(const TgBot::Message::Ptr message) {
     if (not StringTools::startsWith(message->text, "/start"))
-        return
+        return;
 
-    _bot.getApi().sendChatAction(message->chat->id, "typing");
+    Logger::info(util::format("User start: %s", message->text.c_str()));
+
+    if (not checkRegistration(message->chat))
+        return;
 
     auto it = _users.find_if(Users::byId(message->chat->id));
+    sendMessage(message->chat->id, util::format("Hi %s! Your trader username is %s", message->chat->username.c_str(), it->name().c_str()), message->messageId);
+}
 
-    std::string reply;
-    if (it == _users.end())
-        reply = util::format("Hi %s! Use /register with your trader's username", message->chat->username.c_str());
-    else
-        reply = util::format("Hi %s! Your trader username is %s", message->chat->username.c_str(), it->name().c_str());
+void Messenger::onSelect(const TgBot::Message::Ptr message) {
+    if (not StringTools::startsWith(message->text, "/select"))
+        return;
 
-    sendMessage(message->chat->id, reply, message->messageId);
+    Logger::info(util::format("User select: %s", message->text.c_str()));
+
+    if (not checkRegistration(message->chat))
+        return;
+
+    _bot.getApi().sendChatAction(message->chat->id, "typing");
 }
 
 void Messenger::onAnyMessage(const TgBot::Message::Ptr message) {
@@ -90,7 +99,7 @@ void Messenger::onAnyMessage(const TgBot::Message::Ptr message) {
     static bool wait_username = false;
     if (StringTools::startsWith(text, "/register")) {
         wait_username = true;
-        sendMessage(id, "Input trader name", message->messageId);
+        sendMessage(id, "Input trader name", message->messageId, std::make_shared<TgBot::ForceReply>());
         return;
     }
 
@@ -99,12 +108,16 @@ void Messenger::onAnyMessage(const TgBot::Message::Ptr message) {
         user.setId(id);
 
         if (_users.push(user)) {
-            sendMessage(id, "Your name: " + user.name(), message->messageId);
+            sendMessage(id, util::format("Your name: %s", user.name().c_str()), message->messageId);
         } else {
-            sendMessage(id, "Failed to register: " + user.name(), message->messageId);
+            sendMessage(id, util::format("Failed to register: %s", user.name().c_str()), message->messageId);
         }
 
         wait_username = false;
+    }
+
+    if (StringTools::startsWith(text, "/select")) {
+        sendMessage(id, "test force reply", message->messageId, std::make_shared<TgBot::ForceReply>());
     }
 
     if (StringTools::startsWith(text, "/test")) {
@@ -132,6 +145,17 @@ void Messenger::sendMessage(std::int64_t id, const std::string& message, std::in
     Logger::info(util::format("Bot wrote [%d]: %s", id, message.c_str()));
 }
 
+bool Messenger::checkRegistration(const TgBot::Chat::Ptr& chat) {
+    auto it = _users.find_if(Users::byId(chat->id));
+
+    if (it == _users.end()) {
+        sendMessage(chat->id, util::format("Hi %s! Use /register with your trader's username", chat->username.c_str()));
+        return false;
+    }
+
+    return true;
+}
+
 bool Messenger::isRunning() const {
     return true;
 }
@@ -144,5 +168,5 @@ void Messenger::run() {
         return;
     }
 
-    check();
+    pool();
 }
