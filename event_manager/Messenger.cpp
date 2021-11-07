@@ -81,6 +81,20 @@ void Messenger::onCommand(const TgBot::Message::Ptr message) {
 
         sendMessage(id, reply, message->messageId);
     }
+
+    if (StringTools::startsWith(message->text, "/test")) {
+        TgBot::InlineKeyboardMarkup::Ptr markup(new TgBot::InlineKeyboardMarkup());
+
+        std::vector<TgBot::InlineKeyboardButton::Ptr> row;
+        TgBot::InlineKeyboardButton::Ptr btn(new TgBot::InlineKeyboardButton);
+        btn->text = "text";
+        btn->callbackData = "callback data";
+        row.push_back(btn);
+
+        markup->inlineKeyboard.push_back(row);
+
+        sendMessage(id, "test", message->messageId, markup);
+    }
 }
 
 void Messenger::onAnyMessage(const TgBot::Message::Ptr message) {
@@ -110,7 +124,7 @@ void Messenger::onAnyMessage(const TgBot::Message::Ptr message) {
     }
 }
 
-void Messenger::sendMessage(std::int64_t id, const std::string& message, std::int32_t reply_to) {
+void Messenger::sendMessage(std::int64_t id, const std::string& message, std::int32_t reply_to, TgBot::GenericReply::Ptr reply_markup) {
     if (id == 0)
         return;
 
@@ -119,7 +133,7 @@ void Messenger::sendMessage(std::int64_t id, const std::string& message, std::in
     Logger::info(util::format("Bot wrote [%d]: %s", id, message.c_str()));
 }
 
-void Messenger::sendMessage(const std::string& username, const std::string& message, std::int32_t reply_to) {
+void Messenger::sendMessage(const std::string& username, const std::string& message, std::int32_t reply_to, TgBot::GenericReply::Ptr reply_markup) {
     auto it = _users.find_if(Users::byName(username));
     if (it == _users.end())
         return;
