@@ -67,10 +67,13 @@ void Messenger::check() {
 
 void Messenger::onCommand(const TgBot::Message::Ptr message) {
     std::int64_t id = message->chat->id;
+    const std::string& text = message->text;
+
+    Logger::info(util::format("User command: %s", text.c_str()));
 
     _bot.getApi().sendChatAction(id, "typing");
 
-    if (StringTools::startsWith(message->text, "/start")) {
+    if (StringTools::startsWith(text, "/start")) {
         auto it = _users.find_if(Users::byId(id));
 
         std::string reply;
@@ -82,7 +85,7 @@ void Messenger::onCommand(const TgBot::Message::Ptr message) {
         sendMessage(id, reply, message->messageId);
     }
 
-    if (StringTools::startsWith(message->text, "/test")) {
+    if (StringTools::startsWith(text, "/test")) {
         TgBot::InlineKeyboardMarkup::Ptr markup(new TgBot::InlineKeyboardMarkup());
 
         std::vector<TgBot::InlineKeyboardButton::Ptr> row;
@@ -121,6 +124,20 @@ void Messenger::onAnyMessage(const TgBot::Message::Ptr message) {
         }
 
         wait_username = false;
+    }
+
+    if (StringTools::startsWith(text, "/test")) {
+        TgBot::InlineKeyboardMarkup::Ptr markup(new TgBot::InlineKeyboardMarkup());
+
+        std::vector<TgBot::InlineKeyboardButton::Ptr> row;
+        TgBot::InlineKeyboardButton::Ptr btn(new TgBot::InlineKeyboardButton);
+        btn->text = "text";
+        btn->callbackData = "callback data";
+        row.push_back(btn);
+
+        markup->inlineKeyboard.push_back(row);
+
+        sendMessage(id, "test", message->messageId, markup);
     }
 }
 
