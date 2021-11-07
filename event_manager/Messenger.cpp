@@ -124,7 +124,7 @@ void Messenger::onAnyMessage(const TgBot::Message::Ptr message) {
 
 void Messenger::onCallbackQuery(const TgBot::CallbackQuery::Ptr query) {
     Logger::info(util::format("User query: %s with %s", query->message->text.c_str(), query->data.c_str()));
-
+    sendMessage(query->message->chat->id, "ok", 0);
 }
 
 void Messenger::sendMessage(std::int64_t id, const std::string& message, std::int32_t reply_to, TgBot::GenericReply::Ptr reply_markup) {
