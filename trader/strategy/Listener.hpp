@@ -24,20 +24,23 @@ public: // methods
     bool init(Algorithm& algorithm);
     void update(const Position& position, const Context& context);
 
+    const std::string& status() const;
+
+    void sendEvent(const std::string& event) const;
+
 protected: // methods
-    explicit Listener(Settings  settings);
+    explicit Listener(Settings settings);
 
     void handleOpen(const Position& position);
     void handleAverage(const Position& position);
     void handleClose(const Report& report);
     void handleStop(void*);
 
-    void sendEvent(const std::string& event);
-
 protected: // vars
     const Settings _settings;
 
     Report _report;
+    std::string _status;
 
     Statistics* _statistics = nullptr;
 };

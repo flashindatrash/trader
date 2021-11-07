@@ -45,9 +45,9 @@ bool Listener::init(Algorithm& algorithm) {
 
 void Listener::update(const Position& position, const Context& context) {
     if (position.has() && not _settings.isBackTest()) {
-        std::string event = EventFormatter::update(position, context);
-        Logger::status(event);
-    }
+        _status = EventFormatter::update(position, context);
+        Logger::status(_status);
+    } else _status = "";
 }
 
 void Listener::handleOpen(const Position& position) {
@@ -84,7 +84,11 @@ void Listener::handleStop(void*) {
     Logger::info(event);
 }
 
-void Listener::sendEvent(const std::string& event) {
+const std::string& Listener::status() const {
+    return _status;
+}
+
+void Listener::sendEvent(const std::string& event) const {
     if (not _settings.isRelease())
         return;
 

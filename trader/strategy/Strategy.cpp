@@ -41,7 +41,7 @@ bool Strategy::init(const core::Config& config) {
         return false;
 
     // create reactor
-    _reactor = Reactor::create();
+    _reactor = Reactor::create(settings);
     if (not _reactor->init())
         return false;
 
@@ -93,7 +93,10 @@ bool Strategy::init(const core::Config& config) {
 }
 
 void Strategy::execute(const Context& context) {
-    _listener->update(_algorithm->execute(context), context);
+    const Position& position = _algorithm->execute(context);
+
+    _listener->update(position, context);
+    _reactor->pool(*_listener);
 }
 
 bool Strategy::isRunning() const {
