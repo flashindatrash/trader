@@ -14,6 +14,9 @@ struct Report {
     Report(const Position& open, const Position& close);
 
     Quantity profit = 0.0;
+    Quantity earn_base = 0.0;
+    Quantity earn_quote = 0.0;
+
     Change change = 0.0;
     Quantity use_base = 0.0;
     Quantity use_quote = 0.0;

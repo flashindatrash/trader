@@ -16,7 +16,7 @@ public: // static
     static std::string title(const Symbol& symbol);
     static std::string update(const Position& position, const Context& context);
     static std::string order(const OrderBase& order);
-    static std::string profit(const Report& report, const Asset& asset);
+    static std::string profit(const Report& report, const Symbol& symbol);
     static std::string report(const Report& report, const Symbol& symbol);
 };
 NS_END

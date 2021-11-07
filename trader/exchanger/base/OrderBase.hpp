@@ -37,7 +37,7 @@ public: // methods
 
 class OrderUtil {
 public:
-    static Price distance(OrderSide side, Price price, Price current);
+    static Price distance(OrderSide side, Price first, Price second);
     static Quantity usedQuantity(OrderSide side, Quantity first, Quantity second);
     static Price price(Quantity baseQuantity, Quantity quoteQuantity);
     static OrderSide revert(OrderSide side);

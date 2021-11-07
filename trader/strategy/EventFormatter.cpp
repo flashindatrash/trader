@@ -48,21 +48,26 @@ std::string EventFormatter::order(const OrderBase& order) {
     return util::format(format.c_str(), order.side() == OrderSide::Buy ? "buy" : "sell", order.baseQuantity(), order.symbol().baseAsset().c_str(), order.price(), order.symbol().quoteAsset().c_str());
 }
 
-std::string EventFormatter::profit(const Report& report, const Asset& asset) {
-    std::string formatProfit = "%." + std::to_string(util::zeros_after_dot(report.profit) + 2) + "f";
+std::string EventFormatter::profit(const Report& report, const Symbol& symbol) {
+    std::string formatEarnBase = "%." + std::to_string(util::zeros_after_dot(report.earn_base) + 2) + "f";
+    if (report.earn_base > 0)
+        formatEarnBase = "+" + formatEarnBase;
 
-    if (report.profit > 0)
-        formatProfit = "+ " + formatProfit;
+    std::string formatEarnQuote = "%." + std::to_string(util::zeros_after_dot(report.earn_quote) + 2) + "f";
+    if (report.earn_quote > 0)
+        formatEarnQuote = "+" + formatEarnQuote;
 
-    std::string format = formatProfit + " %s (%0.2f%%)";
-    return util::format(format.c_str(), report.profit, asset.c_str(), report.change * 100);
+    std::string format = formatEarnBase + " %s " + formatEarnQuote + " %s (%0.2f%%)";
+    return util::format(format.c_str(), report.earn_base, symbol.baseAsset().c_str(), report.earn_quote, symbol.quoteAsset().c_str(), report.change * 100);
 }
 
 std::string EventFormatter::report(const Report& report, const Symbol& symbol) {
-    return util::format("Report:\n\tSuccess: %0.0f%% (%d of %d positions)\n\tChange: %0.2f%%\n\tProfit: %f %s\n\tUse %s: %f\n\tUse %s: %f\n\tBalance %s: %f\n\tBalance %s: %f",
+    return util::format("Report:\n\tSuccess: %0.0f%% (%d of %d positions)\n\tChange: %0.2f%%\n\tProfit: %f %s\n\tEarn %s: %f\n\tEarn %s: %f\n\tUse %s: %f\n\tUse %s: %f\n\tBalance %s: %f\n\tBalance %s: %f",
                  (double)report.success / (double)report.positions * 100.0, report.success, report.positions,
                  report.change * 100.0,
                  report.profit, symbol.quoteAsset().c_str(),
+                 symbol.baseAsset().c_str(), report.earn_base,
+                 symbol.quoteAsset().c_str(), report.earn_quote,
                  symbol.baseAsset().c_str(), report.use_base,
                  symbol.quoteAsset().c_str(), report.use_quote,
                  symbol.baseAsset().c_str(), symbol.baseAsset().balance(),

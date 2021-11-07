@@ -65,7 +65,7 @@ void Listener::handleAverage(const Position& position) {
 }
 
 void Listener::handleClose(const Report& report) {
-    std::string event = EventFormatter::profit(report, _settings.symbol.quoteAsset());
+    std::string event = EventFormatter::profit(report, _settings.symbol);
     Logger::info(event);
 
     // добавим в общий репорт

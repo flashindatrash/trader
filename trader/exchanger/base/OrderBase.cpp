@@ -42,10 +42,10 @@ void OrderBase::operate() const {
     }
 }
 
-Price OrderUtil::distance(OrderSide side, Price price, Price current) {
+Price OrderUtil::distance(OrderSide side, Price first, Price second) {
     switch (side) {
-        case Buy: return current - price;
-        case Sell: return price - current;
+        case Buy: return second - first;
+        case Sell: return first - second;
         case Invalid: return 0.0;
     }
     return 0.0;
