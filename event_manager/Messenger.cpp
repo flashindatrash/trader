@@ -93,14 +93,13 @@ void Messenger::onSelect(const TgBot::Message::Ptr message) {
 void Messenger::onAnyMessage(const TgBot::Message::Ptr message) {
     std::int64_t id = message->chat->id;
     const std::string& text = message->text;
-    const TgBot::Message::Ptr& reply_to = message->replyToMessage;
 
     Logger::info(util::format("User wrote: %s", text.c_str()));
 
     static bool wait_username = false;
     if (StringTools::startsWith(text, "/register")) {
         wait_username = true;
-        sendMessage(id, "Input trader name", message->messageId, std::make_shared<TgBot::ForceReply>());
+        sendMessage(id, "Input trader name", message->messageId);
         return;
     }
 
@@ -118,11 +117,7 @@ void Messenger::onAnyMessage(const TgBot::Message::Ptr message) {
     }
 
     if (StringTools::startsWith(text, "/select")) {
-        sendMessage(id, "test force reply", message->messageId, std::make_shared<TgBot::ForceReply>());
-    }
-
-    if (reply_to.use_count()) {
-        Logger::info(util::format("reply to %s", reply_to->text.c_str()));
+        sendMessage(id, "test force reply", message->messageId);
     }
 
     if (StringTools::startsWith(text, "/test")) {
