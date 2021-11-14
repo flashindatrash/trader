@@ -32,23 +32,25 @@ void Reactor::pool(const Listener& listener) const {
     db::VectorValues commands = DB().lrange(key_commands);
     for (const db::Value& cmd : commands) {
         const std::string& text = cmd.asString();
-        size_t space_index = text.find(' ');
+        size_t delimiter_index = text.find(':');
 
-        if (space_index == std::string::npos) {
+        // delete invalid command
+        if (delimiter_index == std::string::npos) {
             DB().lrem(key_commands, cmd);
             continue;
         }
 
-        const std::string& type = text.substr(1, space_index);
-        const std::string& pair = text.substr(space_index + 1);
+        const std::string& type = text.substr(1, delimiter_index);
+        const std::string& argument = text.substr(delimiter_index + 1);
 
         if (type == "update") {
-            if (util::lowercase(pair.c_str()) == (std::string)_settings.symbol) {
+            // check if symbol for current trader
+            if (util::lowercase(argument.c_str()) == (std::string)_settings.symbol) {
                 listener.sendEvent(listener.status());
                 DB().lrem(key_commands, cmd);
             }
         } else {
-            // unsupported
+            // delete unsupported command
             DB().lrem(key_commands, cmd);
         }
     }
