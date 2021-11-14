@@ -110,7 +110,11 @@ void Messenger::onAnyMessage(const TgBot::Message::Ptr message) {
         return;
 
     // format: /command:argument
-    DB().rpush(user->name() + ":commands", command + ":" + argument);
+    std::string key = user->name() + ":commands";
+    std::string value = command + ":" + argument;
+    if (DB().rpush(key, command) > 0) {
+        Logger::info(util::format("Add command %s into %s", value.c_str(), key.c_str()));
+    }
 }
 
 void Messenger::onCallbackQuery(const TgBot::CallbackQuery::Ptr query) {
