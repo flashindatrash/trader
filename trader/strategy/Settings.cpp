@@ -63,7 +63,7 @@ bool Settings::isBackTest() const {
 }
 
 bool Settings::isBalanceUnlimited() const {
-    return isBackTest() && false;
+    return isBackTest() && true;
 }
 
 std::string Settings::uniqId() const {

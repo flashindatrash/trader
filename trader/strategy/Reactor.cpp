@@ -34,6 +34,11 @@ void Reactor::pool(const Listener& listener) const {
         const std::string& text = cmd.asString();
         size_t space_index = text.find(' ');
 
+        if (space_index == std::string::npos) {
+            DB().lrem(key_commands, cmd);
+            continue;
+        }
+
         const std::string& type = text.substr(1, space_index);
         const std::string& pair = text.substr(space_index + 1);
 

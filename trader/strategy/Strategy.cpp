@@ -50,7 +50,7 @@ bool Strategy::init(const core::Config& config) {
         time_t now = Time().ms();
         ChartRequest request;
         request.interval = ChartInterval::m5;
-        for (int i = 7; i > 0; --i) {
+        for (int i = 30; i > 0; --i) {
             request.time_start = now - Timer::sDay * (i);
             request.time_end = now - Timer::sDay * (i - 1);
             Exchanger().loadCharts(settings.symbol, request);
@@ -71,8 +71,8 @@ bool Strategy::init(const core::Config& config) {
 
     // add test balance
     if (settings.isBalanceUnlimited()) {
-        Exchanger().balance(settings.symbol.baseAsset())->gain(10000);
-        Exchanger().balance(settings.symbol.quoteAsset())->gain(10000);
+        Exchanger().balance(settings.symbol.baseAsset())->gain(0.25);
+        //Exchanger().balance(settings.symbol.quoteAsset())->gain(10000);
     }
 
     // create & start runner
@@ -82,8 +82,8 @@ bool Strategy::init(const core::Config& config) {
 
     // remove test balance
     if (settings.isBalanceUnlimited()) {
-        Exchanger().balance(settings.symbol.baseAsset())->spend(10000);
-        Exchanger().balance(settings.symbol.quoteAsset())->spend(10000);
+        Exchanger().balance(settings.symbol.baseAsset())->spend(0.25);
+        //Exchanger().balance(settings.symbol.quoteAsset())->spend(10000);
     }
 
     // dispatch stop

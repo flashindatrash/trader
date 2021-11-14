@@ -80,6 +80,9 @@ void Listener::handleClose(const Report& report) {
 }
 
 void Listener::handleStop(void*) {
+    if (_report.positions == 0)
+        return;
+
     std::string event = EventFormatter::report(_report, _settings.symbol);
     Logger::info(event);
 }
