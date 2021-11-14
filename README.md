@@ -16,9 +16,10 @@
 ##### создаем в юзере папку Developer и переходим  
 	cd ~
 	mkdir Developer  
-	cd Developer  
+  
 
 ##### build libwebsockets  
+	cd ~/Developer
 	git clone https://libwebsockets.org/repo/libwebsockets  
 	cd libwebsockets  
 	mkdir build  
@@ -26,6 +27,15 @@
 	cmake ..
 	make && sudo make install  
 	sudo ldconfig  
+
+##### build tgbot
+	cd ~/Developer
+	git clone https://github.com/reo7sp/tgbot-cpp 
+	cd tgbot-cpp  
+	mkdir build  
+	cd build
+	cmake ..
+	sudo make install
 
 ##### клонируем репозиторий и переходим  
 	cd ~/Developer  
