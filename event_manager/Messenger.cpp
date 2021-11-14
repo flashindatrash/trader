@@ -66,29 +66,51 @@ void Messenger::onStart(const TgBot::Message::Ptr message) {
 void Messenger::onAnyMessage(const TgBot::Message::Ptr message) {
     Logger::info(util::format("User wrote: %s", message->text.c_str()));
 
-    if (StringTools::startsWith(message->text, "/register")) {
-        std::vector<std::string> split = StringTools::split(message->text, ' ');
-        if (split.size() < 2)
-            return;
-
-        User user(split.at(1));
-        user.setId(message->chat->id);
-
-        if (_users.push(user)) {
-            sendMessage(message->chat->id, util::format("Your name: %s", user.name().c_str()), message->messageId);
-        } else {
-            sendMessage(message->chat->id, util::format("Failed to register: %s", user.name().c_str()), message->messageId);
-        }
+    // supports only commands with /
+    if (not StringTools::startsWith(message->text, "/")) {
+        sendMessage(message->chat->id, "Start message with a /", message->messageId);
         return;
     }
 
-    if (StringTools::startsWith(message->text, "/")) {
-        auto user = _users.find_if(Users::byId(message->chat->id));
-        if (user == _users.end())
-            return;
+    // split by spaces
+    std::vector<std::string> split = StringTools::split(message->text, ' ');
 
-        DB().rpush(user->name() + ":commands", message->text);
+    // supports only 1 argument
+    if (split.size() > 2) {
+        sendMessage(message->chat->id, "Invalid command", message->messageId);
+        return;
     }
+
+    std::string command = split.at(0);
+    std::string argument = split.size() > 1 ? split.at(1) : "";
+
+    // register new username
+    if (command == "/register") {
+        std::string response;
+
+        if (argument.empty()) {
+            response = "Username is empty";
+        } else {
+            User user(argument);
+            user.setId(message->chat->id);
+
+            if (_users.push(user))
+                response = util::format("Your name: %s", user.name().c_str());
+            else
+                response = util::format("Failed to register: %s", user.name().c_str());
+        }
+
+        sendMessage(message->chat->id, response, message->messageId);
+        return;
+    }
+
+    // send other commands into trader
+    auto user = _users.find_if(Users::byId(message->chat->id));
+    if (user == _users.end())
+        return;
+
+    // format: /command:argument
+    DB().rpush(user->name() + ":commands", command + ":" + argument);
 }
 
 void Messenger::onCallbackQuery(const TgBot::CallbackQuery::Ptr query) {
