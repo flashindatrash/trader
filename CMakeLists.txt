@@ -52,8 +52,8 @@ endif()
 
 subdirs(
 	core
+	protocol
 	binacpp
-	tools
 	trader
 	event_manager
 )

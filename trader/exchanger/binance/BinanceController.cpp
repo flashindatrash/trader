@@ -26,7 +26,7 @@ static const char* CONFIG_FEE = "BINANCE_FEE";
 
 BinanceController::~BinanceController() {
     for (BinanceWebsocket* websocket : _websockets)
-        SAFE_DELETE(websocket);
+        delete websocket;
     _websockets.clear();
 
     BinaCPP_websocket::exit_event_loop();

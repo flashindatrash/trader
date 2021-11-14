@@ -1,5 +1,4 @@
 #include "Strategy.hpp"
-#include <global.hpp>
 #include "Time.hpp"
 #include "Config.hpp"
 #include "Runner.hpp"
@@ -19,10 +18,15 @@ Strategy* Strategy::create(const core::Config& config) {
 }
 
 Strategy::~Strategy() {
-    SAFE_DELETE(_runner);
-    SAFE_DELETE(_algorithm);
-    SAFE_DELETE(_listener);
-    SAFE_DELETE(_reactor);
+    delete _runner;
+    delete _algorithm;
+    delete _listener;
+    delete _reactor;
+
+    _runner = nullptr;
+    _algorithm = nullptr;
+    _listener = nullptr;
+    _reactor = nullptr;
 }
 
 bool Strategy::init(const core::Config& config) {

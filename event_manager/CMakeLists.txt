@@ -11,14 +11,20 @@ if (CURL_FOUND)
     add_definitions(-DHAVE_CURL)
 endif()
 
-# hiredis
+# libraries
+list(APPEND ALL_LIBS /usr/local/lib/libTgBot.a)
+list(APPEND ALL_LIBS ${CMAKE_THREAD_LIBS_INIT})
+list(APPEND ALL_LIBS ${OPENSSL_LIBRARIES})
+list(APPEND ALL_LIBS ${Boost_LIBRARIES})
+list(APPEND ALL_LIBS ${CURL_LIBRARIES})
 list(APPEND ALL_LIBS ${HIREDIS_LIBRARY})
 
-# core
+# includes
 include_directories(${PROJECT_SOURCE_DIR}/core)
+include_directories(${PROJECT_SOURCE_DIR}/protocol)
 
 add_executable(event_manager ${EVENT_MANAGER_SRC})
-target_link_libraries(event_manager core /usr/local/lib/libTgBot.a ${CMAKE_THREAD_LIBS_INIT} ${OPENSSL_LIBRARIES} ${Boost_LIBRARIES} ${CURL_LIBRARIES} ${ALL_LIBS})
+target_link_libraries(event_manager protocol ${ALL_LIBS})
 
 install(
         TARGETS event_manager

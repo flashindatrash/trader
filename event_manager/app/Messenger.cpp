@@ -7,6 +7,7 @@
 #include "database/Database.hpp"
 #include "util/StringUtil.hpp"
 #include <functional>
+#include "Command.hpp"
 
 static TgBot::CurlHttpClient http_client;
 

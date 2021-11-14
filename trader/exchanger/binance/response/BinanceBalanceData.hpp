@@ -1,9 +1,12 @@
 #pragma once
 
-#include <global.hpp>
+#include <string>
 
-struct BinanceBalanceData
-{
+namespace Json {
+class Value;
+}
+
+struct BinanceBalanceData {
 public: // methods
     BinanceBalanceData() = default;
     BinanceBalanceData(std::string a, double f);

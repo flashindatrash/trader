@@ -1,6 +1,6 @@
-#include <argparser/ArgumentParser.hpp>
+#include "argparser/ArgumentParser.hpp"
 #include "Logger.hpp"
-#include "EventManagerApp.hpp"
+#include "app/EventManagerApp.hpp"
 #include "util/StringUtil.hpp"
 
 int main(int argc, char** argv) {

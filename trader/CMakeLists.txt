@@ -6,15 +6,16 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug" AND UNIX AND NOT APPLE)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -rdynamic -pthread")
 endif()
 
-# hiredis
+# libraries
 list(APPEND ALL_LIBS ${HIREDIS_LIBRARY})
-message("-- Found hiredis lib: ${HIREDIS_LIBRARY}")
 
+# includes
 include_directories(${PROJECT_SOURCE_DIR}/binacpp/src/)
 include_directories(${PROJECT_SOURCE_DIR}/core)
+include_directories(${PROJECT_SOURCE_DIR}/protocol)
 
 add_executable(trader ${TRADER_SRC})
-target_link_libraries(trader core binance ${ALL_LIBS})
+target_link_libraries(trader protocol binance ${ALL_LIBS})
 
 install(
 	TARGETS trader

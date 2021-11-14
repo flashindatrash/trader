@@ -8,7 +8,6 @@ FIND_LIBRARY(HIREDIS_LIBRARY
         PATHS /usr/lib /usr/local/lib
         )
 include_directories("${HIREDIS_ROOT_DIR}/include")
-message("-- Found hiredis lib: ${HIREDIS_LIBRARY}")
 
 add_library(core ${CORE_SRC})
 target_link_libraries(core)

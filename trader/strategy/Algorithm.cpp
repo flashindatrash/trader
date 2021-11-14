@@ -21,10 +21,8 @@ Algorithm::Algorithm(Settings settings)
 }
 
 Algorithm::~Algorithm() {
-    if (_position != nullptr) {
-        delete _position;
-        _position = nullptr;
-    }
+    delete _position;
+    _position = nullptr;
 }
 
 bool Algorithm::init() {

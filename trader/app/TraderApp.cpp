@@ -15,10 +15,8 @@ TraderApp::TraderApp(const core::Config& config)
 }
 
 TraderApp::~TraderApp() {
-    if (_strategy != nullptr) {
-        delete _strategy;
-        _strategy = nullptr;
-    }
+    delete _strategy;
+    _strategy = nullptr;
 }
 
 TraderApp* TraderApp::create(const core::Config& config) {
