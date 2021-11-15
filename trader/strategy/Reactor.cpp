@@ -4,7 +4,6 @@
 
 #include "Reactor.hpp"
 #include "Listener.hpp"
-#include "database/Database.hpp"
 #include "util/StringUtil.hpp"
 #include "Command.hpp"
 
@@ -32,7 +31,9 @@ void Reactor::pool(const Listener& listener) const {
     for (const protocol::Command& command : commands) {
         switch (command.action()) {
             case protocol::Command::Update: {
-                listener.sendEvent(listener.status());
+                const std::string& status = listener.status();
+                if (not status.empty())
+                    listener.sendEvent(listener.status());
                 break;
             }
             default: break;

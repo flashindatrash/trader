@@ -26,7 +26,7 @@ Algorithm::~Algorithm() {
 }
 
 bool Algorithm::init() {
-    _position = Position::create(_settings.uniqId() + ":position");
+    _position = Position::create(_settings.storage("position"));
     return true;
 }
 

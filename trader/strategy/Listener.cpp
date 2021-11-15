@@ -39,7 +39,7 @@ bool Listener::init(Algorithm& algorithm) {
 
     Logger::title(EventFormatter::title(_settings.symbol));
 
-    _statistics = Statistics::create(_settings.uniqId() + ":stats");
+    _statistics = Statistics::create(_settings.storage("stats"));
     return true;
 }
 

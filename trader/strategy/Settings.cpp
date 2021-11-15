@@ -1,6 +1,7 @@
 #include "Settings.hpp"
 #include "Config.hpp"
 #include "Logger.hpp"
+#include "Storage.hpp"
 #include "exchanger/Exchanger.hpp"
 #include "util/StringUtil.hpp"
 
@@ -66,6 +67,6 @@ bool Settings::isBalanceUnlimited() const {
     return isBackTest() && true;
 }
 
-std::string Settings::uniqId() const {
-    return username + ":" + symbol.id();
+std::string Settings::storage(const std::string& key) const {
+    return protocol::Storage::key(username, symbol.id(), key);
 }
