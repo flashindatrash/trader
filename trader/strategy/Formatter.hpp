@@ -26,7 +26,7 @@ public: // methods
     Formatter(std::string value);
 
     std::string terminal() const;
-    std::string markdown() const;
+    std::string html() const;
 
 private: // methods
     static void replace(std::string& text, const std::string& from, const std::string& to);

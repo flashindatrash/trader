@@ -51,14 +51,14 @@ void Listener::handleOpen(const Position& position) {
     Formatter event = Formatter::order(position);
     Logger::info(event.terminal());
 
-    sendEvent(event.markdown());
+    sendEvent(event.html());
 }
 
 void Listener::handleAverage(const Position& position) {
     Formatter event = Formatter::order(position);
     Logger::info(event.terminal());
 
-    sendEvent(event.markdown());
+    sendEvent(event.html());
 }
 
 void Listener::handleClose(const Report& report) {
@@ -73,7 +73,7 @@ void Listener::handleClose(const Report& report) {
     if (_settings.isRelease())
         _statistics->save();
 
-    sendEvent(event.markdown());
+    sendEvent(event.html());
 }
 
 void Listener::handleStop(void*) {
@@ -85,11 +85,11 @@ void Listener::handleStop(void*) {
 }
 
 std::string Listener::status() const {
-    return _status.markdown();
+    return _status.html();
 }
 
 std::string Listener::statistics() const {
-    return Formatter::stats(*_statistics, _settings.symbol).markdown();
+    return Formatter::stats(*_statistics, _settings.symbol).html();
 }
 
 void Listener::sendEvent(const std::string& event) const {

@@ -96,7 +96,7 @@ std::string Formatter::terminal() const {
     return result;
 }
 
-std::string Formatter::markdown() const {
+std::string Formatter::html() const {
     std::string result = _text;
     replace(result, sImportantBegin, "<u>");
     replace(result, sImportantEnd, "</u>");
