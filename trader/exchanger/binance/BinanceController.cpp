@@ -1,5 +1,6 @@
 #include "BinanceController.hpp"
 #include "BinanceWebsocket.hpp"
+#include <cmath>
 #include "binacpp.h"
 #include "binacpp_websocket.h"
 #include "binacpp_logger.h"
