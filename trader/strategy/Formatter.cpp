@@ -98,8 +98,8 @@ std::string Formatter::terminal() const {
 
 std::string Formatter::markdown() const {
     std::string result = _text;
-    replace(result, sImportantBegin, "**");
-    replace(result, sImportantEnd, "**");
+    replace(result, sImportantBegin, "<u>");
+    replace(result, sImportantEnd, "</u>");
     return result;
 }
 
