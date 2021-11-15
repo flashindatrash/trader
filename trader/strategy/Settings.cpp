@@ -3,6 +3,7 @@
 #include "Logger.hpp"
 #include "Storage.hpp"
 #include "exchanger/Exchanger.hpp"
+#include "exchanger/base/OrderBase.hpp"
 #include "util/StringUtil.hpp"
 
 NS_USE
@@ -15,6 +16,7 @@ static const char* TAKE_PROFIT = "TAKE_PROFIT";
 static const char* STOP_LOSS = "STOP_LOSS";
 static const char* AVERAGING = "AVERAGING";
 static const char* PROFIT_RATIO = "PROFIT_RATIO";
+static const char* OPEN_FILTER = "OPEN_FILTER";
 
 Settings::Settings(const core::Config& config) {
     mode = config.asString(MODE);
@@ -25,6 +27,7 @@ Settings::Settings(const core::Config& config) {
     stop_loss = config.asDouble(STOP_LOSS) / -100.0;
     averaging = config.asDouble(AVERAGING) / -100.0;
     profit_ratio = config.asDouble(PROFIT_RATIO);
+    open_filter = config.asInt(OPEN_FILTER);
 }
 
 bool Settings::isValid() const {
@@ -48,6 +51,11 @@ bool Settings::isValid() const {
         return false;
     }
 
+    if (open_filter != OrderSide::Invalid && open_filter != OrderSide::Buy && open_filter != OrderSide::Sell) {
+        Logger::info(util::format("Settings: invalid %s param %d", OPEN_FILTER, open_filter));
+        return false;
+    }
+
     return true;
 }
 
@@ -64,7 +72,7 @@ bool Settings::isBackTest() const {
 }
 
 bool Settings::isBalanceUnlimited() const {
-    return isBackTest() && true;
+    return isBackTest() && false;
 }
 
 std::string Settings::storage(const std::string& key) const {
