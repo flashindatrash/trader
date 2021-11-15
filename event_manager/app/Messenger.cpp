@@ -114,6 +114,8 @@ void Messenger::onAnyMessage(const TgBot::Message::Ptr message) {
     std::string pair = command.substr(1);
     if (protocol::Command::add(user->name(), pair, protocol::Command::parse(argument))) {
         Logger::info(util::format("Add command %s into %s (user: %s)", argument.c_str(), pair.c_str(), user->name().c_str()));
+    } else {
+        Logger::info(util::format("Failed add command %s into %s (user: %s)", argument.c_str(), pair.c_str(), user->name().c_str()));
     }
 }
 

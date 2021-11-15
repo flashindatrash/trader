@@ -24,7 +24,8 @@ public: // methods
     bool init(Algorithm& algorithm);
     void update(const Position& position, const Context& context);
 
-    const std::string& status() const;
+    std::string status() const;
+    std::string statistics() const;
 
     void sendEvent(const std::string& event) const;
 

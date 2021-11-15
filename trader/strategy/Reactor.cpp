@@ -31,9 +31,11 @@ void Reactor::pool(const Listener& listener) const {
     for (const protocol::Command& command : commands) {
         switch (command.action()) {
             case protocol::Command::Update: {
-                const std::string& status = listener.status();
-                if (not status.empty())
-                    listener.sendEvent(listener.status());
+                listener.sendEvent(listener.status());
+                break;
+            }
+            case protocol::Command::Stats: {
+                listener.sendEvent(listener.statistics());
                 break;
             }
             default: break;

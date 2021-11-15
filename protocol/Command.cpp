@@ -38,7 +38,9 @@ Command::Action Command::parse(const std::string& value) {
     std::string lowercase = util::lowercase(value.c_str());
     if (lowercase == "update")
         return Update;
-
+    else if (lowercase == "stats")
+        return Stats;
+    
     return Invalid;
 }
 

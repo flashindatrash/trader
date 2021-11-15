@@ -12,7 +12,8 @@ class Command {
 public: // enum
     enum Action : unsigned int {
         Invalid,
-        Update
+        Update,
+        Stats
     };
 
 public: // static

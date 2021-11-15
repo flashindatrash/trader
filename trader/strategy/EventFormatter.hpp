@@ -8,6 +8,7 @@
 
 NS_BEGIN
 class Position;
+class Statistics;
 class Context;
 struct Report;
 
@@ -18,5 +19,6 @@ public: // static
     static std::string order(const OrderBase& order);
     static std::string profit(const Report& report, const Symbol& symbol);
     static std::string report(const Report& report, const Symbol& symbol);
+    static std::string stats(const Statistics& statistics, const Symbol& symbol);
 };
 NS_END

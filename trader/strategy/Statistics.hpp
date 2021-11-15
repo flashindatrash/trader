@@ -19,6 +19,10 @@ public: // methods
     void report(const Report& report);
 
     std::string version() const;
+    Quantity profit() const;
+    Quantity earnBase() const;
+    Quantity earnQuote() const;
+
     void setVersion(std::string value);
 
 protected: // methods

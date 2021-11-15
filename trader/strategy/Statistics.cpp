@@ -35,6 +35,18 @@ std::string Statistics::version() const {
     return get(FIELD_VERSION).asString();
 }
 
+Quantity Statistics::profit() const {
+    return get(FIELD_PROFIT).asDouble();
+}
+
+Quantity Statistics::earnBase() const {
+    return get(FIELD_BASE).asDouble();
+}
+
+Quantity Statistics::earnQuote() const {
+    return get(FIELD_QUOTE).asDouble();
+}
+
 void Statistics::setVersion(std::string value) {
     set(FIELD_VERSION, std::move(value));
 }

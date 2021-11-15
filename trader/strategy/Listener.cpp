@@ -25,10 +25,8 @@ Listener::Listener(Settings settings)
 }
 
 Listener::~Listener() {
-    if (_statistics != nullptr) {
-        delete _statistics;
-        _statistics = nullptr;
-    }
+    delete _statistics;
+    _statistics = nullptr;
 }
 
 bool Listener::init(Algorithm& algorithm) {
@@ -87,12 +85,16 @@ void Listener::handleStop(void*) {
     Logger::info(event);
 }
 
-const std::string& Listener::status() const {
+std::string Listener::status() const {
     return _status;
 }
 
+std::string Listener::statistics() const {
+    return EventFormatter::stats(*_statistics, _settings.symbol);
+}
+
 void Listener::sendEvent(const std::string& event) const {
-    if (not _settings.isRelease())
+    if (not _settings.isRelease() || event.empty())
         return;
 
     DB().rpush(_settings.username + ":events", event);

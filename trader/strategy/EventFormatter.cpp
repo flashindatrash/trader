@@ -4,6 +4,7 @@
 
 #include "EventFormatter.hpp"
 #include "Position.hpp"
+#include "Statistics.hpp"
 #include "Context.hpp"
 #include "Report.hpp"
 #include "util/MathUtil.hpp"
@@ -69,4 +70,11 @@ std::string EventFormatter::report(const Report& report, const Symbol& symbol) {
                  symbol.quoteAsset().c_str(), report.use_quote,
                  symbol.baseAsset().c_str(), symbol.baseAsset().balance(),
                  symbol.quoteAsset().c_str(), symbol.quoteAsset().balance());
+}
+
+std::string EventFormatter::stats(const Statistics& statistics, const Symbol& symbol) {
+    return util::format("Stats: %f %s, %f %s (%f)",
+                        statistics.earnBase(), symbol.baseAsset().c_str(),
+                        statistics.earnQuote(), symbol.quoteAsset().c_str(),
+                        statistics.profit());
 }
