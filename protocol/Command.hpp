@@ -16,6 +16,7 @@ public: // enum
     };
 
 public: // static
+    static std::string key(const std::string& username, const std::string& symbol);
     static bool add(const std::string& username, const std::string& symbol, Action action);
     static std::vector<Command> get(const std::string& username, const std::string& symbol);
     static Action parse(const std::string& value);

@@ -3,28 +3,33 @@
 //
 
 #include "Command.hpp"
-
-#include <utility>
+#include "Storage.hpp"
 #include "util/StringUtil.hpp"
+#include <utility>
 
 using namespace protocol;
+
+std::string Command::key(const std::string& username, const std::string& symbol) {
+    return Storage::key(username, symbol, "commands");
+}
 
 bool Command::add(const std::string& username, const std::string& symbol, Action action) {
     if (action == Invalid)
         return false;
 
-    std::string symbol_lowercase = util::lowercase(symbol.c_str());
-    return DB().rpush(username + ":" + symbol_lowercase + ":commands", (int)action) > 0;
+    return DB().rpush(key(username, symbol), (int)action) > 0;
 }
 
 std::vector<Command> Command::get(const std::string& username, const std::string& symbol) {
+    std::string storage = key(username, symbol);
+
     std::vector<Command> commands;
-    db::VectorValues values = DB().lrange(username + ":" + symbol + ":commands");
+    db::VectorValues values = DB().lrange(storage);
     for (const db::Value& value : values)
         commands.emplace_back((Action)value.asInt());
 
     if (not values.empty())
-        DB().del(username + ":" + symbol + ":commands");
+        DB().del(storage);
 
     return commands;
 }
