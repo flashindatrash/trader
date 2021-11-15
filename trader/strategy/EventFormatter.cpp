@@ -33,11 +33,8 @@ std::string EventFormatter::update(const Position& position, const Context& cont
     positionFormat.append(": %." + std::to_string(util::zeros_after_dot(position_price) + 2) + "f");
     positionFormat.append(" > %." + std::to_string(util::zeros_after_dot(current_price) + 2) + "f");
 
-    Quantity balance = position.symbol().balance(Asset::USDT);
-    std::string balanceFormat = "balance: %." + std::to_string(util::zeros_after_dot(balance) + 2) + "f " + Asset::USDT.id();
-
-    std::string format = profitFormat + " " + changeFormat + " [" + positionFormat + "] [" + balanceFormat + "]";
-    return util::format(format.c_str(), profit, change, position_price, current_price, balance);
+    std::string format = profitFormat + " " + changeFormat + " [" + positionFormat + "]";
+    return util::format(format.c_str(), profit, change, position_price, current_price);
 }
 
 std::string EventFormatter::order(const OrderBase& order) {

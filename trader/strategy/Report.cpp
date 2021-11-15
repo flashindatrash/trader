@@ -13,8 +13,10 @@ Report::Report(const Position& open, const Position& close) {
     earn_base = OrderUtil::distance(close.side(), open.baseQuantity(), close.baseQuantity());
     earn_quote = OrderUtil::distance(open.side(), open.quoteQuantity(), close.quoteQuantity());
     change = open.change(close.price());
-    use_base = open.baseQuantity();
-    use_quote = open.quoteQuantity();
+    if (open.side() == Sell)
+        use_base = open.baseQuantity();
+    if (open.side() == Buy)
+        use_quote = open.quoteQuantity();
 }
 
 void Report::add(const Report& report) {
