@@ -110,11 +110,10 @@ void Messenger::onAnyMessage(const TgBot::Message::Ptr message) {
     if (user == _users.end())
         return;
 
-    // format: /command:argument
-    std::string key = user->name() + ":commands";
-    std::string value = command + ":" + argument;
-    if (DB().rpush(key, command) > 0) {
-        Logger::info(util::format("Add command %s into %s", value.c_str(), key.c_str()));
+    // format: /pair:action
+    std::string pair = command.substr(1);
+    if (protocol::Command::add(user->name(), pair, protocol::Command::parse(argument))) {
+        Logger::info(util::format("Add command %s into %s (user: %s)", argument.c_str(), pair.c_str(), user->name().c_str()));
     }
 }
 
