@@ -6,7 +6,6 @@
 
 #include <utility>
 #include "Algorithm.hpp"
-#include "EventFormatter.hpp"
 #include "Position.hpp"
 #include "Statistics.hpp"
 #include "Logger.hpp"
@@ -35,7 +34,7 @@ bool Listener::init(Algorithm& algorithm) {
     algorithm.onClose.connect(std::bind(&Listener::handleClose, this, std::placeholders::_1));
     algorithm.onStop.connect(std::bind(&Listener::handleStop, this, std::placeholders::_1));
 
-    Logger::title(EventFormatter::title(_settings.symbol));
+    Logger::title(Formatter::title(_settings.symbol).terminal());
 
     _statistics = Statistics::create(_settings.storage("stats"));
     return true;
@@ -43,28 +42,28 @@ bool Listener::init(Algorithm& algorithm) {
 
 void Listener::update(const Position& position, const Context& context) {
     if (position.has() && not _settings.isBackTest()) {
-        _status = EventFormatter::update(position, context);
-        Logger::status(_status);
-    } else _status = "";
+        _status = Formatter::update(position, context);
+        Logger::status(_status.terminal());
+    } else _status = Formatter();
 }
 
 void Listener::handleOpen(const Position& position) {
-    std::string event = EventFormatter::order(position);
-    Logger::info(event);
+    Formatter event = Formatter::order(position);
+    Logger::info(event.terminal());
 
-    sendEvent(event);
+    sendEvent(event.markdown());
 }
 
 void Listener::handleAverage(const Position& position) {
-    std::string event = EventFormatter::order(position);
-    Logger::info(event);
+    Formatter event = Formatter::order(position);
+    Logger::info(event.terminal());
 
-    sendEvent(event);
+    sendEvent(event.markdown());
 }
 
 void Listener::handleClose(const Report& report) {
-    std::string event = EventFormatter::profit(report, _settings.symbol);
-    Logger::info(event);
+    Formatter event = Formatter::profit(report, _settings.symbol);
+    Logger::info(event.terminal());
 
     // добавим в общий репорт
     _report.add(report);
@@ -74,23 +73,23 @@ void Listener::handleClose(const Report& report) {
     if (_settings.isRelease())
         _statistics->save();
 
-    sendEvent(event);
+    sendEvent(event.markdown());
 }
 
 void Listener::handleStop(void*) {
     if (_report.positions == 0)
         return;
 
-    std::string event = EventFormatter::report(_report, _settings.symbol);
-    Logger::info(event);
+    Formatter event = Formatter::report(_report, _settings.symbol);
+    Logger::info(event.terminal());
 }
 
 std::string Listener::status() const {
-    return _status;
+    return _status.markdown();
 }
 
 std::string Listener::statistics() const {
-    return EventFormatter::stats(*_statistics, _settings.symbol);
+    return Formatter::stats(*_statistics, _settings.symbol).markdown();
 }
 
 void Listener::sendEvent(const std::string& event) const {

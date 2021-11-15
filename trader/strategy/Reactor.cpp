@@ -4,7 +4,6 @@
 
 #include "Reactor.hpp"
 #include "Listener.hpp"
-#include "util/StringUtil.hpp"
 #include "Command.hpp"
 
 NS_USE

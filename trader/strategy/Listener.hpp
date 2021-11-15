@@ -7,6 +7,7 @@
 #include "Defines.hpp"
 #include "Settings.hpp"
 #include "Report.hpp"
+#include "Formatter.hpp"
 
 NS_BEGIN
 class Algorithm;
@@ -41,7 +42,7 @@ protected: // vars
     const Settings _settings;
 
     Report _report;
-    std::string _status;
+    Formatter _status;
 
     Statistics* _statistics = nullptr;
 };

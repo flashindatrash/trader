@@ -125,7 +125,7 @@ void Messenger::onCallbackQuery(const TgBot::CallbackQuery::Ptr query) {
 }
 
 void Messenger::sendMessage(std::int64_t id, const std::string& message, std::int32_t reply_to, TgBot::GenericReply::Ptr reply_markup) {
-    _bot.getApi().sendMessage(id, message, false, reply_to, reply_markup);
+    _bot.getApi().sendMessage(id, message, false, reply_to, reply_markup, "Markdown");
     Logger::info(util::format("Bot wrote [%d]: %s", id, message.c_str()));
 }
 
