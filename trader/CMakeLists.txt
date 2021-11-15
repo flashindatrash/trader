@@ -15,7 +15,7 @@ include_directories(${PROJECT_SOURCE_DIR}/core)
 include_directories(${PROJECT_SOURCE_DIR}/protocol)
 
 add_executable(trader ${TRADER_SRC})
-target_link_libraries(trader protocol binance ${ALL_LIBS})
+target_link_libraries(trader core protocol binance ${ALL_LIBS})
 
 install(
 	TARGETS trader
