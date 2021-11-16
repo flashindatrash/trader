@@ -91,6 +91,17 @@ Change Position::change(Price current) const {
     return distance(current) / price();
 }
 
+int Position::averages() const {
+    Quantity balance = OrderUtil::usedQuantity(side(), symbol().baseAsset().balance(), symbol().quoteAsset().balance());
+    Quantity quantity = OrderUtil::usedQuantity(side(), baseQuantity(), quoteQuantity());
+    int result = 0;
+    while (quantity <= balance) {
+        ++result;
+        quantity *= 2.0;
+    }
+    return result;
+}
+
 bool Position::closable() const {
     return OrderUtil::isEnough(symbol(), OrderUtil::revert(side()), baseQuantity());
 }

@@ -34,7 +34,6 @@ protected: // methods
 
     bool createOrder(const Context& context, OrderRequest& request, Position& result) const;
     void indicator(const Context& context, OrderSide& trend, OrderSide& signal) const;
-    int availableAverage() const;
 
 public: // signals
     Signal<Position&> onOpen;

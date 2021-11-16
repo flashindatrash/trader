@@ -11,7 +11,6 @@
 #include "util/MathUtil.hpp"
 #include "util/StringUtil.hpp"
 #include <utility>
-#include <regex>
 
 NS_USE
 

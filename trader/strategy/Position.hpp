@@ -31,6 +31,7 @@ public: // methods
     Quantity profit(Price price) const;
     Price distance(Price price) const;
     Change change(Price price) const;
+    int averages() const;
     bool closable() const;
 
     void copy(const OrderBase& ref);

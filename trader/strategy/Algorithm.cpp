@@ -70,7 +70,7 @@ bool Algorithm::tryStopLoss(const Context& context) {
         return false;
 
     // не режем лося, если доступно усреднения
-    if (availableAverage() > 0)
+    if (_settings.averaging < 0.0 && _position->averages() > 0)
         return false;
 
     // интересует выход за STOP LOSS
@@ -81,8 +81,11 @@ bool Algorithm::tryStopLoss(const Context& context) {
 }
 
 bool Algorithm::tryAverage(const Context& context) {
+    if (not _position->has() || _settings.averaging >= 0.0)
+        return 0;
+
     // посчитаем сколько раз сможем усреднить
-    int available = availableAverage();
+    int available = _position->averages();
     if (available == 0)
         return false;
 
@@ -204,19 +207,4 @@ void Algorithm::indicator(const Context& context, OrderSide& trend, OrderSide& s
 
     trend = dema.trend();
     signal = dema.signal();
-}
-
-int Algorithm::availableAverage() const {
-    if (not _position->has() || _settings.averaging >= 0.0)
-        return 0;
-
-    Quantity balance = OrderUtil::usedQuantity(_position->side(), _position->symbol().baseAsset().balance(), _position->symbol().quoteAsset().balance());
-    Quantity quantity = OrderUtil::usedQuantity(_position->side(), _position->baseQuantity(), _position->quoteQuantity());
-    int result = 0;
-    while (quantity <= balance) {
-        ++result;
-        quantity *= 2.0;
-    }
-
-    return result;
 }
