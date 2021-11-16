@@ -33,7 +33,10 @@ void Position::setSymbol(const Symbol& value) {
 }
 
 OrderSide Position::side() const {
-    return (OrderSide)get(FIELD_SIDE).asInt();
+    OrderSide side = (OrderSide)get(FIELD_SIDE).asInt();
+    if (side == Buy || side == Sell)
+        return side;
+    return Invalid;
 }
 
 void Position::setSide(OrderSide value) {
@@ -123,5 +126,5 @@ void Position::merge(const OrderBase& ref) {
 }
 
 bool Position::has() const {
-    return side() != OrderSide::Invalid && baseQuantity() > 0.0 && quoteQuantity() > 0.0;
+    return side() != Invalid && baseQuantity() > 0.0 && quoteQuantity() > 0.0;
 }

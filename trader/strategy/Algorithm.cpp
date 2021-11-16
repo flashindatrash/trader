@@ -82,7 +82,7 @@ bool Algorithm::tryStopLoss(const Context& context) {
 
 bool Algorithm::tryAverage(const Context& context) {
     if (not _position->has() || _settings.averaging >= 0.0)
-        return 0;
+        return false;
 
     // посчитаем сколько раз сможем усреднить
     int available = _position->averages();
@@ -211,6 +211,8 @@ bool Algorithm::createOrder(const Context& context, OrderRequest& request, Posit
 }
 
 void Algorithm::indicator(const Context& context, OrderSide& trend, OrderSide& signal) const {
+    trend = signal = Invalid;
+
     DEMA dema = DEMA(20, 30);
     if (not context.load(dema))
         return;
