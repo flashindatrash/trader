@@ -42,9 +42,9 @@ void Algorithm::stop() {
 
 const Position& Algorithm::execute(const Context& context) {
     // закрытие сделок: получить профит || усреднение цены || остановить убыток
-    bool open = tryTakeProfit(context) || tryAverage(context) || tryStopLoss(context);
+    bool close = tryTakeProfit(context) || tryAverage(context) || tryStopLoss(context);
     // открытие сделок
-    bool close = tryOpen(context);
+    bool open = tryOpen(context);
 
     return *_position;
 }

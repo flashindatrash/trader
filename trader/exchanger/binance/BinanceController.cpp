@@ -426,7 +426,7 @@ double BinanceController::roundQuantity(double quantity, const std::string& symb
     const BinanceSymbolData& info = it->second;
 
     if (info.lotSize.stepSize > 0.0)
-        quantity = std::round(quantity / info.lotSize.stepSize) * info.lotSize.stepSize;
+        quantity = std::floor(quantity / info.lotSize.stepSize) * info.lotSize.stepSize;
 
     return std::max(quantity, minQuantity(symbol));
 }
