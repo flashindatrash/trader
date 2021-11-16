@@ -64,8 +64,8 @@ const OrderWrapper* ExchangerProxy::createOrder(OrderRequest& request) {
     return _controller->createOrder(*_books.get(request.symbol), request);
 }
 
-double ExchangerProxy::roundQuantity(double quantity, const std::string& key) const {
-    return _controller->roundQuantity(quantity, key);
+double ExchangerProxy::roundQuantity(double quantity, const std::string& key, double(*fn)(double)) const {
+    return _controller->roundQuantity(quantity, key, fn);
 }
 
 double ExchangerProxy::fee() const {

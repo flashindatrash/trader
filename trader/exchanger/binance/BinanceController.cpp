@@ -350,7 +350,7 @@ const OrderWrapper* BinanceController::createOrder(BookWrapper& container, Order
     }
 
     // round quantity to step size and min lot
-    request.quantity = roundQuantity(request.quantity, request.symbol);
+    request.quantity = roundQuantity(request.quantity, request.symbol, std::round);
 
     // enough to create order
     if (not request.isEnough())
@@ -416,7 +416,7 @@ double BinanceController::minQuantity(const std::string& symbol) const {
     return quantity;
 }
 
-double BinanceController::roundQuantity(double quantity, const std::string& symbol) const {
+double BinanceController::roundQuantity(double quantity, const std::string& symbol, double(*fn)(double)) const {
     auto it = _symbols.find(symbol);
     if (it == _symbols.end())
         return 0.0;
@@ -424,7 +424,7 @@ double BinanceController::roundQuantity(double quantity, const std::string& symb
     const BinanceSymbolData& info = it->second;
 
     if (info.lotSize.stepSize > 0.0)
-        quantity = std::floor(quantity / info.lotSize.stepSize) * info.lotSize.stepSize;
+        quantity = fn(quantity / info.lotSize.stepSize) * info.lotSize.stepSize;
 
     return std::max(quantity, minQuantity(symbol));
 }

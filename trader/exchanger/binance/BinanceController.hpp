@@ -39,7 +39,7 @@ public: // virtual
 
     const OrderWrapper* createOrder(BookWrapper& container, OrderRequest& request) override;
 
-    double roundQuantity(double quantity, const std::string& symbol) const override;
+    double roundQuantity(double quantity, const std::string& symbol, double(*fn)(double)) const override;
     double fee() const override;
 
 protected: // methods

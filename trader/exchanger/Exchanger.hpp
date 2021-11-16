@@ -30,7 +30,7 @@ public: // methods
 
     const OrderWrapper* createOrder(OrderRequest& request);
 
-    double roundQuantity(double quantity, const std::string& key) const;
+    double roundQuantity(double quantity, const std::string& key, double(*fn)(double) = std::round) const;
     double fee() const;
 
 protected: // methods

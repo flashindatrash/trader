@@ -122,14 +122,24 @@ bool Algorithm::tryClose(const Context& context) {
     // он может быть тот же, или отличаться на размер профита
     Price price = context.price(_position->revert());
     Quantity profit_base = _position->profit(price) / price;
-    Quantity quantity_add = OrderUtil::usedQuantity(_position->side(), profit_base, -profit_base) * _settings.profit_ratio;
-    Quantity quantity = _position->baseQuantity() + quantity_add;
+
+    Quantity additional = 0.0;
+    double (*round)(double) = std::round;
+    if (_position->side() == Buy) {
+        // если это лонг, то продаем чуть меньше с округлением вверх
+        additional = -profit_base;
+        round = std::ceil;
+    } else if (_position->side() == Sell) {
+        // если это шорт, то покупаем чуть больше с округлением вниз
+        additional = profit_base;
+        round = std::floor;
+    }
 
     // создадим реквест
     OrderRequest request;
     request.symbol = _position->symbol();
     request.side = _position->revert();
-    request.quantity = quantity;
+    request.quantity = Exchanger().roundQuantity(_position->baseQuantity() + additional, _position->symbol(), round);
 
     // создадим заказ
     Position close;
