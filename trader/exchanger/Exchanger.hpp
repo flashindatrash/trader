@@ -2,6 +2,7 @@
 
 #include "Proxy.hpp"
 #include "exchanger/base/Storage.hpp"
+#include <cmath>
 
 namespace core {
     class Config;

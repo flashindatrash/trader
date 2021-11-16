@@ -1,6 +1,7 @@
 #pragma once
 
 #include "exchanger/base/Storage.hpp"
+#include <cmath>
 
 namespace core {
     class Config;
