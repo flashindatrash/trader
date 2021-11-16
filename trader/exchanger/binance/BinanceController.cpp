@@ -370,8 +370,6 @@ const OrderWrapper* BinanceController::createOrder(BookWrapper& container, Order
                          request.symbol.baseAsset().c_str(),
                          OrderUtil::usedQuantity(request.side, request.symbol.baseAsset().balance(),
                                                  request.symbol.quoteAsset().balance())));
-
-            Logger::error("");
         }
         return nullptr;
     }

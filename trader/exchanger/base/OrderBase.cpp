@@ -74,11 +74,8 @@ OrderSide OrderUtil::revert(OrderSide side) {
 }
 
 bool OrderUtil::isEnough(const Symbol& symbol, OrderSide side, Quantity quantity) {
-    // допускаем погрешность
-    static const double error = 1.3;
-
     Price price = Exchanger().price(symbol)->get(side);
     Quantity balance = usedQuantity(side, symbol.baseAsset().balance(), symbol.quoteAsset().balance());
     Quantity cost = usedQuantity(side, quantity, price * quantity);
-    return balance > cost * error;
+    return balance >= cost;
 }

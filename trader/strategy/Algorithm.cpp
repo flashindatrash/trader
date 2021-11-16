@@ -31,7 +31,7 @@ bool Algorithm::init() {
 }
 
 void Algorithm::stop() {
-    // вернем средва по последней не выполненной позиции
+    // вернем средства по последней не выполненной позиции
     if (_position->has() && _settings.isBackTest()) {
         _position->setSide(_position->revert());
         _position->operate();
