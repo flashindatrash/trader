@@ -51,9 +51,9 @@ Formatter Formatter::order(const OrderBase& order) {
 
 Formatter Formatter::profit(const Report& report, const Symbol& symbol) {
     std::string result = "profit";
-    if (std::fabs(report.earn_base) > std::numeric_limits<double>::epsilon())
+    if (std::abs(report.earn_base) > std::numeric_limits<double>::epsilon())
         result += " " + asset(report.earn_base, symbol.baseAsset(), true);
-    if (std::fabs(report.earn_quote) > std::numeric_limits<double>::epsilon())
+    if (std::abs(report.earn_quote) > std::numeric_limits<double>::epsilon())
         result += " " + asset(report.earn_quote, symbol.quoteAsset(), true);
     return result;
 }
