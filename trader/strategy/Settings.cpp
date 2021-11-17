@@ -71,10 +71,6 @@ bool Settings::isBackTest() const {
     return mode == "backtest";
 }
 
-bool Settings::isBalanceUnlimited() const {
-    return isBackTest() && false;
-}
-
 std::string Settings::storage(const std::string& key) const {
     return protocol::Storage::key(username, symbol.id(), key);
 }

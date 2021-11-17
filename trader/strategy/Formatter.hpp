@@ -21,6 +21,9 @@ public: // static
     static Formatter report(const Report& report, const Symbol& symbol);
     static Formatter stats(const Statistics& statistics, const Symbol& symbol);
 
+private: // static
+    static std::string asset(Quantity quantity, const Asset& asset, bool change = false);
+
 public: // methods
     Formatter() = default;
     Formatter(std::string value);

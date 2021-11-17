@@ -50,20 +50,12 @@ bool Strategy::init(const core::Config& config) {
         return false;
 
     // load chart
-    if (settings.isBackTest()) {
-        time_t now = Time().ms();
-        ChartRequest request;
-        request.interval = ChartInterval::m5;
-        for (int i = 7; i > 0; --i) {
-            request.time_start = now - Timer::sDay * (i);
-            request.time_end = now - Timer::sDay * (i - 1);
-            Exchanger().loadCharts(settings.symbol, request);
-        }
-    } else {
-        ChartRequest request;
-        request.interval = ChartInterval::m5;
-        request.time_end = Time().ms();
-        request.time_start = request.time_end - Timer::sDay;
+    time_t now = Time().ms();
+    ChartRequest request;
+    request.interval = ChartInterval::m5;
+    for (int i = settings.isBackTest() ? 30 : 1; i > 0; --i) {
+        request.time_start = now - Timer::sDay * i;
+        request.time_end = now - Timer::sDay * (i - 1);
         Exchanger().loadCharts(settings.symbol, request);
     }
 
@@ -73,22 +65,10 @@ bool Strategy::init(const core::Config& config) {
         Exchanger().listenTickers(settings.symbol);
     }
 
-    // add test balance
-    if (settings.isBalanceUnlimited()) {
-        Exchanger().balance(settings.symbol.baseAsset())->gain(0.25);
-        //Exchanger().balance(settings.symbol.quoteAsset())->gain(10000);
-    }
-
     // create & start runner
     _runner = Runner::create();
     _runner->setCallback(std::bind(&Strategy::execute, this, std::placeholders::_1));
     _runner->start(settings);
-
-    // remove test balance
-    if (settings.isBalanceUnlimited()) {
-        Exchanger().balance(settings.symbol.baseAsset())->spend(0.25);
-        //Exchanger().balance(settings.symbol.quoteAsset())->spend(10000);
-    }
 
     // dispatch stop
     if (not isRunning())

@@ -43,24 +43,19 @@ Formatter Formatter::update(const Position& position, const Context& context) {
 }
 
 Formatter Formatter::order(const OrderBase& order) {
-    std::string formatQuantity = "%." + std::to_string(util::zeros_after_dot(order.baseQuantity()) + 2) + "f";
-    std::string formatPrice = "%." + std::to_string(util::zeros_after_dot(order.price()) + 2) + "f";
-
-    std::string format = "%s " + formatQuantity + " %s for " + formatPrice + " %s";
-    return util::format(format.c_str(), order.side() == OrderSide::Buy ? "buy" : "sell", order.baseQuantity(), order.symbol().baseAsset().c_str(), order.price(), order.symbol().quoteAsset().c_str());
+    std::string side = order.side() == OrderSide::Buy ? "buy" : "sell";
+    std::string quantity = asset(order.baseQuantity(), order.symbol().baseAsset());
+    std::string price = asset(order.price(), order.symbol().quoteAsset());
+    return util::format("%s %s for %s", side.c_str(), quantity.c_str(), price.c_str());
 }
 
 Formatter Formatter::profit(const Report& report, const Symbol& symbol) {
-    std::string formatEarnBase = "%." + std::to_string(util::zeros_after_dot(report.earn_base) + 2) + "f";
-    if (report.earn_base > 0)
-        formatEarnBase = "+" + formatEarnBase;
-
-    std::string formatEarnQuote = "%." + std::to_string(util::zeros_after_dot(report.earn_quote) + 2) + "f";
-    if (report.earn_quote > 0)
-        formatEarnQuote = "+" + formatEarnQuote;
-
-    std::string format = sImportantBegin + formatEarnBase + sImportantEnd + " %s " + sImportantBegin + formatEarnQuote + sImportantEnd + " %s (%0.2f%%)";
-    return util::format(format.c_str(), report.earn_base, symbol.baseAsset().c_str(), report.earn_quote, symbol.quoteAsset().c_str(), report.change * 100);
+    std::string result = "profit";
+    if (std::fabs(report.earn_base) > std::numeric_limits<double>::epsilon())
+        result += " " + asset(report.earn_base, symbol.baseAsset(), true);
+    if (std::fabs(report.earn_quote) > std::numeric_limits<double>::epsilon())
+        result += " " + asset(report.earn_quote, symbol.quoteAsset(), true);
+    return result;
 }
 
 Formatter Formatter::report(const Report& report, const Symbol& symbol) {
@@ -81,6 +76,11 @@ Formatter Formatter::stats(const Statistics& statistics, const Symbol& symbol) {
                         statistics.earnBase(), symbol.baseAsset().c_str(),
                         statistics.earnQuote(), symbol.quoteAsset().c_str(),
                         statistics.profit());
+}
+
+std::string Formatter::asset(Quantity quantity, const Asset& asset, bool change) {
+    std::string format = "%s%s%." + std::to_string(util::zeros_after_dot(quantity) + 2) + "f%s %s";
+    return util::format(format.c_str(), change ? sImportantBegin : "", change && quantity > 0 ? "+" : "", quantity, change ? sImportantEnd : "", asset.c_str());
 }
 
 Formatter::Formatter(std::string value)
