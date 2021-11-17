@@ -28,16 +28,20 @@ int main(int argc, char** argv) {
 
     std::string cfg_file;
     std::vector<std::string> symbol;
+    std::string filter;
 
     cppargparser::ArgumentParser args;
     try {
         args.addArgument(cppargparser::Argument("-c", "--config", "config", 1, true));
         args.addArgument(cppargparser::Argument("-s", "--symbol", "symbol", 2, false));
+        args.addArgument(cppargparser::Argument("-f", "--filter", "filter", 1, false));
 
         auto parsed = args.parse(argc, argv);
         cfg_file = parsed.getValue("--config");
         if (parsed.hasArgument("--symbol"))
             symbol = parsed.getValues("--symbol");
+        if (parsed.hasArgument("--filter"))
+            filter = parsed.getValue("--filter");
     } catch(...) {
         args.showHelp("trader -c ./config/default.cfg -s btc usdt");
         return EXIT_FAILURE;
@@ -51,6 +55,9 @@ int main(int argc, char** argv) {
 
     if (symbol.size() >= 2)
         cfg.set("SYMBOL", symbol.at(0) + symbol.at(1));
+
+    if (not filter.empty())
+        cfg.set("OPEN_FILTER", filter);
 
     return TraderApp::create(cfg)->run();
 }
