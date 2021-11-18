@@ -53,7 +53,7 @@ bool Strategy::init(const core::Config& config) {
     time_t now = Time().ms();
     ChartRequest request;
     request.interval = ChartInterval::m5;
-    for (int i = settings.isBackTest() ? 30 : 1; i > 0; --i) {
+    for (int i = settings.isBackTest() ? 4 : 1; i > 0; --i) {
         request.time_start = now - Timer::sDay * i;
         request.time_end = now - Timer::sDay * (i - 1);
         Exchanger().loadCharts(settings.symbol, request);

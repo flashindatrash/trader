@@ -98,8 +98,9 @@ int Position::averages() const {
     Quantity balance = OrderUtil::usedQuantity(side(), symbol().baseAsset().balance(), symbol().quoteAsset().balance());
     Quantity quantity = OrderUtil::usedQuantity(side(), baseQuantity(), quoteQuantity());
     int result = 0;
-    while (quantity <= balance) {
+    while (balance >= quantity) {
         ++result;
+        balance -= quantity;
         quantity *= 2.0;
     }
     return result;
