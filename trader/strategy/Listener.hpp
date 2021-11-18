@@ -25,17 +25,16 @@ public: // methods
     bool init(Algorithm& algorithm);
     void update(const Position& position, const Context& context);
 
-    std::string status() const;
-    std::string statistics() const;
+    Formatter status() const;
+    Formatter statistics() const;
 
-    void sendEvent(const std::string& event) const;
+    void sendEvent(const Formatter& event) const;
 
 protected: // methods
     explicit Listener(Settings settings);
 
-    void handleOpen(const Position& position);
-    void handleAverage(const Position& position);
-    void handleClose(const Report& report);
+    void handlePosition(const Position& position);
+    void handleReport(const Report& report);
     void handleStop(void*);
 
 protected: // vars

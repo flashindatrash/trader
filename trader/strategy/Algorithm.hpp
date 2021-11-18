@@ -38,7 +38,8 @@ protected: // methods
 public: // signals
     Signal<Position&> onOpen;
     Signal<Position&> onAverage;
-    Signal<Report&> onClose;
+    Signal<Position&> onClose;
+    Signal<Report&> onReport;
     Signal<void*> onStop;
 
 protected: // vars

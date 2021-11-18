@@ -29,9 +29,10 @@ Listener::~Listener() {
 }
 
 bool Listener::init(Algorithm& algorithm) {
-    algorithm.onOpen.connect(std::bind(&Listener::handleOpen, this, std::placeholders::_1));
-    algorithm.onAverage.connect(std::bind(&Listener::handleAverage, this, std::placeholders::_1));
-    algorithm.onClose.connect(std::bind(&Listener::handleClose, this, std::placeholders::_1));
+    algorithm.onOpen.connect(std::bind(&Listener::handlePosition, this, std::placeholders::_1));
+    algorithm.onAverage.connect(std::bind(&Listener::handlePosition, this, std::placeholders::_1));
+    algorithm.onClose.connect(std::bind(&Listener::handlePosition, this, std::placeholders::_1));
+    algorithm.onReport.connect(std::bind(&Listener::handleReport, this, std::placeholders::_1));
     algorithm.onStop.connect(std::bind(&Listener::handleStop, this, std::placeholders::_1));
 
     Logger::title(Formatter::title(_settings.symbol).terminal());
@@ -47,21 +48,14 @@ void Listener::update(const Position& position, const Context& context) {
     } else _status = Formatter();
 }
 
-void Listener::handleOpen(const Position& position) {
+void Listener::handlePosition(const Position& position) {
     Formatter event = Formatter::order(position);
     Logger::info(event.terminal());
 
-    sendEvent(event.html());
+    sendEvent(event);
 }
 
-void Listener::handleAverage(const Position& position) {
-    Formatter event = Formatter::order(position);
-    Logger::info(event.terminal());
-
-    sendEvent(event.html());
-}
-
-void Listener::handleClose(const Report& report) {
+void Listener::handleReport(const Report& report) {
     Formatter event = Formatter::profit(report, _settings.symbol);
     Logger::info(event.terminal());
 
@@ -73,7 +67,7 @@ void Listener::handleClose(const Report& report) {
     if (_settings.isRelease())
         _statistics->save();
 
-    sendEvent(event.html());
+    sendEvent(event);
 }
 
 void Listener::handleStop(void*) {
@@ -84,17 +78,21 @@ void Listener::handleStop(void*) {
     Logger::info(event.terminal());
 }
 
-std::string Listener::status() const {
-    return _status.html();
+Formatter Listener::status() const {
+    return _status;
 }
 
-std::string Listener::statistics() const {
-    return Formatter::stats(*_statistics, _settings.symbol).html();
+Formatter Listener::statistics() const {
+    return Formatter::stats(*_statistics, _settings.symbol);
 }
 
-void Listener::sendEvent(const std::string& event) const {
-    if (not _settings.isRelease() || event.empty())
+void Listener::sendEvent(const Formatter& event) const {
+    if (not _settings.isRelease())
         return;
 
-    DB().rpush(_settings.username + ":events", event);
+    std::string text = event.html();
+    if (text.empty())
+        return;
+
+    DB().rpush(_settings.username + ":events", text);
 }

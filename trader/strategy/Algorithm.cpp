@@ -152,7 +152,8 @@ bool Algorithm::tryClose(const Context& context) {
     // удалим из базы, результат удаления не важен
     _position->remove();
 
-    onClose.emmit(report);
+    onClose.emmit(close);
+    onReport.emmit(report);
     return true;
 }
 
