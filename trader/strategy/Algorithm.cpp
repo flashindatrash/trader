@@ -121,7 +121,7 @@ bool Algorithm::tryClose(const Context& context) {
     // определим размер лота, для закрытия позиции
     // он может быть тот же, или отличаться на размер профита
     Price price = context.price(_position->revert());
-    Quantity profit_base = _position->profit(price) / price;
+    Quantity profit_base = _position->profit(price) / price * _settings.profit_ratio;
 
     Quantity additional = 0.0;
     double (*round)(double) = std::round;
