@@ -3,8 +3,9 @@
 //
 
 #include "Reactor.hpp"
-#include "Listener.hpp"
 #include "Command.hpp"
+#include "Algorithm.hpp"
+#include "Listener.hpp"
 
 NS_USE
 
@@ -22,7 +23,7 @@ bool Reactor::init() {
     return true;
 }
 
-void Reactor::pool(const Listener& listener) const {
+void Reactor::process(Algorithm& algorithm, const Context& context, const Listener& listener) const {
     if (not _settings.isRelease())
         return;
 
@@ -36,6 +37,9 @@ void Reactor::pool(const Listener& listener) const {
             case protocol::Command::Stats: {
                 listener.sendEvent(listener.statistics());
                 break;
+            }
+            case protocol::Command::Close: {
+                algorithm.tryClose(context);
             }
             default: break;
         }

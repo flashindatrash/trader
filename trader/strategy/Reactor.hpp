@@ -8,6 +8,8 @@
 #include "Settings.hpp"
 
 NS_BEGIN
+class Algorithm;
+class Context;
 class Listener;
 
 class Reactor {
@@ -17,7 +19,7 @@ public: // static
 public: // methods
     bool init();
 
-    void pool(const Listener& listener) const;
+    void process(Algorithm& algorithm, const Context& context, const Listener& listener) const;
 
 protected: // methods
     explicit Reactor(Settings settings);

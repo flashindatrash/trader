@@ -21,16 +21,16 @@ public: // methods
     bool init();
     void stop();
 
-    const Position& execute(const Context& context);
-
-protected: // methods
-    explicit Algorithm(Settings settings);
-
     bool tryTakeProfit(const Context& context);
     bool tryStopLoss(const Context& context);
     bool tryAverage(const Context& context);
     bool tryOpen(const Context& context);
     bool tryClose(const Context& context);
+
+    const Position& execute(const Context& context);
+
+protected: // methods
+    explicit Algorithm(Settings settings);
 
     bool createOrder(const Context& context, OrderRequest& request, Position& result) const;
     void indicator(const Context& context, OrderSide& trend, OrderSide& signal) const;

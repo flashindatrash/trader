@@ -80,7 +80,7 @@ void Strategy::execute(const Context& context) {
     const Position& position = _algorithm->execute(context);
 
     _listener->update(position, context);
-    _reactor->pool(*_listener);
+    _reactor->process(*_algorithm, context, *_listener);
 }
 
 bool Strategy::isRunning() const {

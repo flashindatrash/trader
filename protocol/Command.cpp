@@ -40,7 +40,8 @@ Command::Action Command::parse(const std::string& value) {
         return Update;
     else if (lowercase == "stats")
         return Stats;
-    
+    else if (lowercase == "close")
+        return Close;
     return Invalid;
 }
 

@@ -13,7 +13,8 @@ public: // enum
     enum Action : unsigned int {
         Invalid,
         Update,
-        Stats
+        Stats,
+        Close
     };
 
 public: // static
