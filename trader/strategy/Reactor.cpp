@@ -40,6 +40,7 @@ void Reactor::process(Algorithm& algorithm, const Context& context, const Listen
             }
             case protocol::Command::Close: {
                 algorithm.tryClose(context);
+                break;
             }
             default: break;
         }
