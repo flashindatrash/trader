@@ -56,7 +56,8 @@ bool Strategy::init(const core::Config& config) {
     for (int i = settings.isBackTest() ? 4 : 1; i > 0; --i) {
         request.time_start = now - Timer::sDay * i;
         request.time_end = now - Timer::sDay * (i - 1);
-        Exchanger().loadCharts(settings.symbol, request);
+        if (not Exchanger().loadCharts(settings.symbol, request))
+            return false;
     }
 
     // start listen chart

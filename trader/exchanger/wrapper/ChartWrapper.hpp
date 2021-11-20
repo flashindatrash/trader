@@ -10,6 +10,7 @@ class CandlestickWrapper;
 enum ChartInterval : unsigned int {
     m5,
     m15,
+    h1,
     d1
 };
 

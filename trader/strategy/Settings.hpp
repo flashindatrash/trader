@@ -32,6 +32,6 @@ public: // vars
     double averaging = 0.0;
     double lot_size = 1.0;
     double profit_ratio = 0.0;
-    int open_filter = 0;
+    int open_filter = -1;
 };
 NS_END

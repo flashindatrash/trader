@@ -169,7 +169,7 @@ bool Algorithm::tryOpen(const Context& context) {
     indicator(context, trend, signal);
 
     // проверяем на фильтр открываемых позиций
-    if (_settings.open_filter != OrderSide::Invalid && _settings.open_filter != (int)signal)
+    if (_settings.open_filter != -1 && (_settings.open_filter == OrderSide::Invalid || _settings.open_filter != (int)signal)п)
         return false;
 
     // создадим реквест

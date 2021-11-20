@@ -51,7 +51,7 @@ bool Settings::isValid() const {
         return false;
     }
 
-    if (open_filter != OrderSide::Invalid && open_filter != OrderSide::Buy && open_filter != OrderSide::Sell) {
+    if (open_filter != -1 && open_filter != OrderSide::Invalid && open_filter != OrderSide::Buy && open_filter != OrderSide::Sell) {
         Logger::info(util::format("Settings: invalid %s param %d", OPEN_FILTER, open_filter));
         return false;
     }
