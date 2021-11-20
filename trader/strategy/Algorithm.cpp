@@ -30,6 +30,10 @@ bool Algorithm::init() {
     return true;
 }
 
+void Algorithm::start() {
+    onStart.emmit(nullptr);
+}
+
 void Algorithm::stop() {
     // вернем средства по последней не выполненной позиции
     if (_position->has() && _settings.isBackTest()) {

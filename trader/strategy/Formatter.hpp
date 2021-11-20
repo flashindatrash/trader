@@ -11,6 +11,7 @@ class Position;
 class Statistics;
 class Context;
 struct Report;
+struct Settings;
 
 class Formatter {
 public: // static
@@ -20,6 +21,7 @@ public: // static
     static Formatter profit(const Report& report, const Symbol& symbol);
     static Formatter report(const Report& report, const Symbol& symbol);
     static Formatter stats(const Statistics& statistics, const Symbol& symbol);
+    static Formatter settings(const Settings& settings);
 
 private: // static
     static std::string asset(Quantity quantity, const Asset& asset, bool change = false);

@@ -19,6 +19,7 @@ public: // methods
     virtual ~Algorithm();
 
     bool init();
+    void start();
     void stop();
 
     bool tryTakeProfit(const Context& context);
@@ -36,11 +37,12 @@ protected: // methods
     void indicator(const Context& context, OrderSide& trend, OrderSide& signal) const;
 
 public: // signals
+    Signal<void*> onStart;
+    Signal<void*> onStop;
     Signal<Position&> onOpen;
     Signal<Position&> onAverage;
     Signal<Position&> onClose;
     Signal<Report&> onReport;
-    Signal<void*> onStop;
 
 protected: // vars
     const Settings _settings;

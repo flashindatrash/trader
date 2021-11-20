@@ -70,8 +70,10 @@ bool Strategy::init(const core::Config& config) {
     _runner->setCallback(std::bind(&Strategy::execute, this, std::placeholders::_1));
     _runner->start(settings);
 
-    // dispatch stop
-    if (not isRunning())
+    // dispatch start/stop
+    if (isRunning())
+        _algorithm->start();
+    else
         _algorithm->stop();
     return true;
 }

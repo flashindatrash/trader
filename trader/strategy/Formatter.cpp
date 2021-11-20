@@ -7,7 +7,9 @@
 #include "Statistics.hpp"
 #include "Context.hpp"
 #include "Report.hpp"
+#include "Settings.hpp"
 #include "Logger.hpp"
+#include "exchanger/Exchanger.hpp"
 #include "util/MathUtil.hpp"
 #include "util/StringUtil.hpp"
 #include <utility>
@@ -78,6 +80,12 @@ Formatter Formatter::stats(const Statistics& statistics, const Symbol& symbol) {
                         statistics.earnBase(), symbol.baseAsset().c_str(),
                         statistics.earnQuote(), symbol.quoteAsset().c_str(),
                         statistics.profit());
+}
+
+Formatter Formatter::settings(const Settings& settings) {
+    Quantity min = Exchanger().roundQuantity(0.0, settings.symbol);
+    Quantity lot = Exchanger().roundQuantity(min * settings.lot_size, settings.symbol);
+    return util::format("Lot: %f", lot);
 }
 
 std::string Formatter::asset(Quantity quantity, const Asset& asset, bool change) {

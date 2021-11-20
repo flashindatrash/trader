@@ -29,11 +29,12 @@ Listener::~Listener() {
 }
 
 bool Listener::init(Algorithm& algorithm) {
+    algorithm.onStart.connect(std::bind(&Listener::handleStart, this, std::placeholders::_1));
+    algorithm.onStop.connect(std::bind(&Listener::handleStop, this, std::placeholders::_1));
     algorithm.onOpen.connect(std::bind(&Listener::handlePosition, this, std::placeholders::_1));
     algorithm.onAverage.connect(std::bind(&Listener::handlePosition, this, std::placeholders::_1));
     algorithm.onClose.connect(std::bind(&Listener::handlePosition, this, std::placeholders::_1));
     algorithm.onReport.connect(std::bind(&Listener::handleReport, this, std::placeholders::_1));
-    algorithm.onStop.connect(std::bind(&Listener::handleStop, this, std::placeholders::_1));
 
     Logger::title(Formatter::title(_settings.symbol).terminal());
 
@@ -46,6 +47,19 @@ void Listener::update(const Position& position, const Context& context) {
         _status = Formatter::update(position, context);
         Logger::status(_status.terminal());
     } else _status = Formatter();
+}
+
+void Listener::handleStart(void*) {
+    Formatter event = Formatter::settings(_settings);
+    Logger::info(event.terminal());
+}
+
+void Listener::handleStop(void*) {
+    if (_report.positions == 0)
+        return;
+
+    Formatter event = Formatter::report(_report, _settings.symbol);
+    Logger::info(event.terminal());
 }
 
 void Listener::handlePosition(const Position& position) {
@@ -68,14 +82,6 @@ void Listener::handleReport(const Report& report) {
         _statistics->save();
 
     sendEvent(event);
-}
-
-void Listener::handleStop(void*) {
-    if (_report.positions == 0)
-        return;
-
-    Formatter event = Formatter::report(_report, _settings.symbol);
-    Logger::info(event.terminal());
 }
 
 Formatter Listener::status() const {

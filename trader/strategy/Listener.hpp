@@ -33,9 +33,10 @@ public: // methods
 protected: // methods
     explicit Listener(Settings settings);
 
+    void handleStart(void*);
+    void handleStop(void*);
     void handlePosition(const Position& position);
     void handleReport(const Report& report);
-    void handleStop(void*);
 
 protected: // vars
     const Settings _settings;
