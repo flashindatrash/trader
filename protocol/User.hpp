@@ -5,10 +5,13 @@
 #pragma once
 
 #include "database/Array.hpp"
+#include "Stats.hpp"
 
-class User : public db::Object {
+namespace protocol {
+
+class User : public Stats {
 public: // methods
-    User(const db::Key& key);
+    User(const std::string& username);
 
     void setId(int value);
     int id() const;
@@ -29,3 +32,5 @@ public: // methods
 protected: // methods
     bool proceed_push(User& value) const override;
 };
+
+}

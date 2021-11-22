@@ -4,7 +4,6 @@
 
 #include "Formatter.hpp"
 #include "Position.hpp"
-#include "Statistics.hpp"
 #include "Context.hpp"
 #include "Report.hpp"
 #include "Settings.hpp"
@@ -73,13 +72,6 @@ Formatter Formatter::report(const Report& report, const Symbol& symbol) {
                  symbol.quoteAsset().c_str(), report.use_quote,
                  symbol.baseAsset().c_str(), symbol.baseAsset().balance(),
                  symbol.quoteAsset().c_str(), symbol.quoteAsset().balance());
-}
-
-Formatter Formatter::stats(const Statistics& statistics, const Symbol& symbol) {
-    return util::format("Stats: %f %s, %f %s (%f)",
-                        statistics.earnBase(), symbol.baseAsset().c_str(),
-                        statistics.earnQuote(), symbol.quoteAsset().c_str(),
-                        statistics.profit());
 }
 
 Formatter Formatter::settings(const Settings& settings) {

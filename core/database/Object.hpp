@@ -10,7 +10,7 @@ public: // static
     typedef std::unordered_map<Key, Value> Map;
 
 public: // methods
-    Object(Key  key);
+    Object(Key key);
     Object() = default;
 
     void set(const Key& field, const Value& value);

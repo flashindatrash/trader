@@ -6,11 +6,10 @@
 
 #include "Settings.hpp"
 #include "Report.hpp"
-#include "Formatter.hpp"
+#include "Pair.hpp"
 
 NS_BEGIN
 class Algorithm;
-class Statistics;
 class Position;
 
 class Listener {
@@ -18,8 +17,6 @@ public: // static
     static Listener* create(const Settings& settings);
 
 public: // methods
-    virtual ~Listener();
-
     bool init(Algorithm& algorithm);
 
 protected: // methods
@@ -34,7 +31,7 @@ protected: // methods
 protected: // vars
     Report _report;
     const Settings _settings;
-    Statistics* _statistics = nullptr;
+    protocol::Pair _pair;
 };
 NS_END
 

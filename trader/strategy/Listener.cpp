@@ -5,11 +5,13 @@
 #include "Listener.hpp"
 
 #include <utility>
+#include "Formatter.hpp"
 #include "Algorithm.hpp"
 #include "Position.hpp"
-#include "Statistics.hpp"
+#include "Pair.hpp"
 #include "Logger.hpp"
 #include "Event.hpp"
+#include "User.hpp"
 #include "Context.hpp"
 
 NS_USE
@@ -21,12 +23,8 @@ Listener* Listener::create(const Settings& settings) {
 
 Listener::Listener(Settings settings)
     : _settings(std::move(settings))
+    , _pair(settings.username, settings.symbol)
 {
-}
-
-Listener::~Listener() {
-    delete _statistics;
-    _statistics = nullptr;
 }
 
 bool Listener::init(Algorithm& algorithm) {
@@ -39,8 +37,6 @@ bool Listener::init(Algorithm& algorithm) {
     algorithm.onReport.connect(std::bind(&Listener::handleReport, this, std::placeholders::_1));
 
     Logger::title(Formatter::title(_settings.symbol).terminal());
-
-    _statistics = Statistics::create(_settings.storage("stats"));
     return true;
 }
 
@@ -81,15 +77,23 @@ void Listener::handleReport(const Report& report) {
     // добавим в общий репорт
     _report.add(report);
 
-    // сохраняем статистику закрытия сделки
-    _statistics->report(report);
+    // сохраняем статистику пары
+    _pair.setProfit(report.profit);
+    _pair.setChange(report.change);
+    _pair.setEarnBase(report.earn_base);
+    _pair.setEarnQuote(report.earn_quote);
+    if (_settings.isRelease())
+        _pair.save();
 
+    // сохраняем статистику пользователя
     if (_settings.isRelease()) {
-        _statistics->save();
-        protocol::Event::add(_settings.username, event.html());
+        protocol::User user(_settings.username);
+        user.setProfit(report.profit);
+        user.setChange(report.change);
+        user.save();
     }
-}
 
-/*Formatter Listener::statistics() const {
-    return Formatter::stats(*_statistics, _settings.symbol);
-}*/
+    // отправляем эвент
+    if (_settings.isRelease())
+        protocol::Event::add(_settings.username, event.html());
+}

@@ -8,7 +8,6 @@
 
 NS_BEGIN
 class Position;
-class Statistics;
 class Context;
 struct Report;
 struct Settings;
@@ -20,7 +19,6 @@ public: // static
     static Formatter order(const OrderBase& order);
     static Formatter profit(const Report& report, const Symbol& symbol);
     static Formatter report(const Report& report, const Symbol& symbol);
-    static Formatter stats(const Statistics& statistics, const Symbol& symbol);
     static Formatter settings(const Settings& settings);
 
 private: // static

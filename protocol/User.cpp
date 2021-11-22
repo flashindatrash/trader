@@ -4,10 +4,12 @@
 
 #include "User.hpp"
 
+using namespace protocol;
+
 static const char* FIELD_ID = "id";
 
-User::User(const db::Key& key)
-    : db::Object(key)
+User::User(const std::string& username)
+    : Stats(username)
 {
 }
 

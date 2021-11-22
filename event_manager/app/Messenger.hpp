@@ -28,7 +28,7 @@ private: // methods
 private: // vars
     TgBot::Bot _bot;
     TgBot::TgLongPoll _long_pull;
-    Users _users;
+    protocol::Users _users;
 };
 
 

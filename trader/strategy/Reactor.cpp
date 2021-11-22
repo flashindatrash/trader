@@ -34,15 +34,11 @@ void Reactor::execute() const {
     std::vector<protocol::Command> commands = protocol::Command::get(_settings.username, _settings.symbol);
     for (const protocol::Command& command : commands) {
         switch (command.action()) {
-            case protocol::Command::Update: {
+            case protocol::Command::Status: {
                 if (_algorithm.position().has()) {
                     Formatter event = Formatter::update(_algorithm.position(), *Context::current);
                     protocol::Event::add(_settings.username, event.html());
                 }
-                break;
-            }
-            case protocol::Command::Stats: {
-                // listener.sendEvent(listener.statistics());
                 break;
             }
             case protocol::Command::Close: {

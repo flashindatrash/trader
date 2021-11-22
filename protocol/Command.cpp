@@ -37,10 +37,8 @@ std::vector<Command> Command::get(const std::string& username, const std::string
 
 Command::Action Command::parse(const std::string& value) {
     std::string lowercase = util::lowercase(value.c_str());
-    if (lowercase == "update")
-        return Update;
-    else if (lowercase == "stats")
-        return Stats;
+    if (lowercase == "status")
+        return Status;
     else if (lowercase == "close")
         return Close;
     return Invalid;

@@ -5,7 +5,7 @@
 
 using namespace db;
 
-Object::Object(Key  key)
+Object::Object(Key key)
     : _key(std::move(key))
 {
     load();
