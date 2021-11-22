@@ -25,7 +25,7 @@ bool Messenger::init() {
         return false;
 
     // print all users
-    for (const User& user : _users)
+    for (const protocol::User& user : _users)
         Logger::info(util::format("Add user %s with id %d", user.name().c_str(), user.id()));
 
     // add handlers
@@ -36,7 +36,7 @@ bool Messenger::init() {
 }
 
 void Messenger::pool() {
-    for (User& user : _users) {
+    for (protocol::User& user : _users) {
         std::vector<protocol::Event> events = protocol::Event::get(user.name());
         for (auto& event : events)
             sendMessage(user.id(), event.text());
@@ -49,7 +49,7 @@ void Messenger::onStart(const TgBot::Message::Ptr message) {
 
     Logger::info(util::format("User start: %s", message->text.c_str()));
 
-    auto user = _users.find_if(Users::byId(message->chat->id));
+    auto user = _users.find_if(protocol::Users::byId(message->chat->id));
     if (user == _users.end()) {
         sendMessage(message->chat->id, util::format("Hi %s! Use /register with your trader's username", message->chat->username.c_str()));
         return;
@@ -86,7 +86,7 @@ void Messenger::onAnyMessage(const TgBot::Message::Ptr message) {
         if (argument.empty()) {
             response = "Username is empty";
         } else {
-            User user(argument);
+            protocol::User user(argument);
             user.setId(message->chat->id);
 
             if (_users.push(user))
@@ -100,7 +100,7 @@ void Messenger::onAnyMessage(const TgBot::Message::Ptr message) {
     }
 
     // send other commands into trader
-    auto user = _users.find_if(Users::byId(message->chat->id));
+    auto user = _users.find_if(protocol::Users::byId(message->chat->id));
     if (user == _users.end())
         return;
 
