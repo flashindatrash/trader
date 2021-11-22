@@ -1,8 +1,8 @@
 #include "Algorithm.hpp"
 
 #include <utility>
-#include "Context.hpp"
 #include "Position.hpp"
+#include "Context.hpp"
 #include "Report.hpp"
 #include "exchanger/wrapper/OrderWrapper.hpp"
 #include "exchanger/Exchanger.hpp"
@@ -44,33 +44,39 @@ void Algorithm::stop() {
     onStop.emmit(nullptr);
 }
 
-const Position& Algorithm::execute(const Context& context) {
+bool Algorithm::execute() {
     // закрытие сделок: получить профит || усреднение цены || остановить убыток
-    bool close = tryTakeProfit(context) || tryAverage(context) || tryStopLoss(context);
+    bool close = tryTakeProfit() || tryAverage() || tryStopLoss();
     // открытие сделок
-    bool open = tryOpen(context);
+    bool open = tryOpen();
+    // уведомление о выполнении тика
+    onTick.emmit(*_position);
+    // статус позции либо открыли, либо закрыли
+    return close || open;
+}
 
+const Position& Algorithm::position() const {
     return *_position;
 }
 
-bool Algorithm::tryTakeProfit(const Context& context) {
-    if (not _position->has())
+bool Algorithm::tryTakeProfit() {
+    if (not _position->has() || Context::current == nullptr)
         return false;
 
     // интересует выход за TAKE PROFIT
-    if (_position->change(context.price(_position->revert())) < _settings.take_profit)
+    if (_position->change(Context::current->price(_position->revert())) < _settings.take_profit)
         return false;
 
     OrderSide trend, signal;
-    indicator(context, trend, signal);
+    indicator(trend, signal);
     if (trend != _position->revert())
         return false;
 
-    return tryClose(context);
+    return tryClose();
 }
 
-bool Algorithm::tryStopLoss(const Context& context) {
-    if (not _position->has() || _settings.stop_loss >= 0.0)
+bool Algorithm::tryStopLoss() {
+    if (not _position->has() || Context::current == nullptr || _settings.stop_loss >= 0.0)
         return false;
 
     // не режем лося, если доступно усреднения
@@ -78,14 +84,14 @@ bool Algorithm::tryStopLoss(const Context& context) {
         return false;
 
     // интересует выход за STOP LOSS
-    if (_position->change(context.price(_position->revert())) > _settings.stop_loss)
+    if (_position->change(Context::current->price(_position->revert())) > _settings.stop_loss)
         return false;
 
-    return tryClose(context);
+    return tryClose();
 }
 
-bool Algorithm::tryAverage(const Context& context) {
-    if (not _position->has() || _settings.averaging >= 0.0)
+bool Algorithm::tryAverage() {
+    if (not _position->has() || Context::current == nullptr || _settings.averaging >= 0.0)
         return false;
 
     // посчитаем сколько раз сможем усреднить
@@ -99,7 +105,7 @@ bool Algorithm::tryAverage(const Context& context) {
         average_percent /= 2.0;
 
     // интересует выход за усреднение
-    if (_position->change(context.price(_position->revert())) > average_percent)
+    if (_position->change(Context::current->price(_position->revert())) > average_percent)
         return false;
 
     // создадим реквест
@@ -110,7 +116,7 @@ bool Algorithm::tryAverage(const Context& context) {
 
     // создание заказа
     Position avg;
-    if (not createOrder(context, request, avg))
+    if (not createOrder(request, avg))
         return false;
 
     _position->merge(avg);
@@ -121,10 +127,13 @@ bool Algorithm::tryAverage(const Context& context) {
     return true;
 }
 
-bool Algorithm::tryClose(const Context& context) {
+bool Algorithm::tryClose() {
+    if (Context::current == nullptr)
+        return false;
+
     // определим размер лота, для закрытия позиции
     // он может быть тот же, или отличаться на размер профита
-    Price price = context.price(_position->revert());
+    Price price = Context::current->price(_position->revert());
     Quantity profit_base = _position->profit(price) / price * _settings.profit_ratio;
 
     Quantity additional = 0.0;
@@ -147,7 +156,7 @@ bool Algorithm::tryClose(const Context& context) {
 
     // создадим заказ
     Position close;
-    if (not createOrder(context, request, close))
+    if (not createOrder(request, close))
         return false;
 
     // создадим отчет
@@ -161,12 +170,12 @@ bool Algorithm::tryClose(const Context& context) {
     return true;
 }
 
-bool Algorithm::tryOpen(const Context& context) {
-    if (_position->has())
+bool Algorithm::tryOpen() {
+    if (_position->has() || Context::current == nullptr)
         return false;
 
     OrderSide trend, signal;
-    indicator(context, trend, signal);
+    indicator(trend, signal);
 
     // проверяем на фильтр открываемых позиций
     if (_settings.open_filter != -1 && (_settings.open_filter == OrderSide::Invalid || _settings.open_filter != (int)signal))
@@ -180,11 +189,11 @@ bool Algorithm::tryOpen(const Context& context) {
 
     // создание заказа
     Position position;
-    if (not createOrder(context, request, position))
+    if (not createOrder(request, position))
         return false;
 
     _position->copy(position);
-    _position->setTime(context.time());
+    _position->setTime(Context::current->time());
 
     if (_settings.isRelease())
         _position->save();
@@ -193,7 +202,10 @@ bool Algorithm::tryOpen(const Context& context) {
     return true;
 }
 
-bool Algorithm::createOrder(const Context& context, OrderRequest& request, Position& result) const {
+bool Algorithm::createOrder(OrderRequest& request, Position& result) const {
+    if (Context::current == nullptr)
+        return false;
+
     if (request.side == OrderSide::Invalid || not request.isEnough())
         return false;
 
@@ -201,7 +213,7 @@ bool Algorithm::createOrder(const Context& context, OrderRequest& request, Posit
         result.setSymbol(request.symbol);
         result.setSide(request.side);
         result.setBaseQuantity(Exchanger().roundQuantity(request.quantity, request.symbol));
-        result.setQuoteQuantity(result.baseQuantity() * context.price(request.side));
+        result.setQuoteQuantity(result.baseQuantity() * Context::current->price(request.side));
         result.operate();
         return true;
     }
@@ -215,11 +227,14 @@ bool Algorithm::createOrder(const Context& context, OrderRequest& request, Posit
     return true;
 }
 
-void Algorithm::indicator(const Context& context, OrderSide& trend, OrderSide& signal) const {
+void Algorithm::indicator(OrderSide& trend, OrderSide& signal) const {
     trend = signal = Invalid;
 
+    if (Context::current == nullptr)
+        return;
+
     DEMA dema = DEMA(20, 30);
-    if (not context.load(dema))
+    if (not Context::current->load(dema))
         return;
 
     trend = dema.trend();

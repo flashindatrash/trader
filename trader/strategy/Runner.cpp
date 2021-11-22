@@ -34,8 +34,7 @@ void Runner::start(const Settings& settings) {
             // переопределим время логов временем свечи
             Logger::setTime(candlestick->timeOpen() / 1000);
 
-            Context context(it, price);
-            _dispatcher.emmit(context);
+            setContext(Context(it, price));
         }
         return;
     }
@@ -48,12 +47,16 @@ void Runner::setCallback(Callback::Fn callback) {
     _dispatcher.connect(std::move(callback));
 }
 
+void Runner::setContext(const Context& context) {
+    Context::current = &context;
+    _dispatcher.emmit(nullptr);
+}
+
 void Runner::tick(time_t ms) {
     if (_chart->get().empty())
         return;
 
-    Context context(_chart->get().cend() - 1, *Exchanger().price(_chart->id()));
-    _dispatcher.emmit(context);
+    setContext(Context(_chart->get().cend() - 1, *Exchanger().price(_chart->id())));
 }
 
 bool Runner::isActive() const {

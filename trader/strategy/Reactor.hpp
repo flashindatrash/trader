@@ -4,27 +4,25 @@
 
 #pragma once
 
-#include "Defines.hpp"
 #include "Settings.hpp"
 
 NS_BEGIN
 class Algorithm;
-class Context;
-class Listener;
 
 class Reactor {
 public: // static
-    static Reactor* create(const Settings& settings);
+    static Reactor* create(Algorithm& algorithm, const Settings& settings);
 
 public: // methods
     bool init();
 
-    void process(Algorithm& algorithm, const Context& context, const Listener& listener) const;
+    void execute() const;
 
 protected: // methods
-    explicit Reactor(Settings settings);
+    explicit Reactor(Algorithm& algorithm, Settings settings);
 
 protected: // vars
+    Algorithm& _algorithm;
     const Settings _settings;
 
 };

@@ -8,6 +8,9 @@ class BaseIndicator;
 
 NS_BEGIN
 class Context {
+public: // static
+    static const Context* current;
+
 public: // methods
     Context(ChartWrapper::ConstIterator it, const PriceWrapper& price);
 
@@ -22,5 +25,6 @@ protected: // vars
     ChartWrapper::ConstIterator _it;
     const PriceWrapper& _price;
 };
+
 NS_END
 

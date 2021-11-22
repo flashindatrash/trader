@@ -1,13 +1,11 @@
 #pragma once
 
 #include "Signal.hpp"
-#include "Defines.hpp"
 #include "Settings.hpp"
 
 struct OrderRequest;
 
 NS_BEGIN
-class Context;
 class Position;
 class Report;
 
@@ -22,19 +20,21 @@ public: // methods
     void start();
     void stop();
 
-    bool tryTakeProfit(const Context& context);
-    bool tryStopLoss(const Context& context);
-    bool tryAverage(const Context& context);
-    bool tryOpen(const Context& context);
-    bool tryClose(const Context& context);
+    bool tryTakeProfit();
+    bool tryStopLoss();
+    bool tryAverage();
+    bool tryOpen();
+    bool tryClose();
 
-    const Position& execute(const Context& context);
+    bool execute();
+
+    const Position& position() const;
 
 protected: // methods
     explicit Algorithm(Settings settings);
 
-    bool createOrder(const Context& context, OrderRequest& request, Position& result) const;
-    void indicator(const Context& context, OrderSide& trend, OrderSide& signal) const;
+    bool createOrder(OrderRequest& request, Position& result) const;
+    void indicator(OrderSide& trend, OrderSide& signal) const;
 
 public: // signals
     Signal<void*> onStart;
@@ -42,6 +42,7 @@ public: // signals
     Signal<Position&> onOpen;
     Signal<Position&> onAverage;
     Signal<Position&> onClose;
+    Signal<Position&> onTick;
     Signal<Report&> onReport;
 
 protected: // vars

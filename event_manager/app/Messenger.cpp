@@ -8,6 +8,7 @@
 #include "util/StringUtil.hpp"
 #include <functional>
 #include "Command.hpp"
+#include "Event.hpp"
 
 static TgBot::CurlHttpClient http_client;
 
@@ -36,16 +37,9 @@ bool Messenger::init() {
 
 void Messenger::pool() {
     for (User& user : _users) {
-        const std::string key = user.name() + ":events";
-
-        db::VectorValues events = DB().lrange(key);
-        if (events.empty())
-            continue;
-
+        std::vector<protocol::Event> events = protocol::Event::get(user.name());
         for (auto& event : events)
-            sendMessage(user.id(), event.asString());
-
-        DB().del(key);
+            sendMessage(user.id(), event.text());
     }
 }
 

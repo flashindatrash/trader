@@ -5,6 +5,7 @@
 #include "Command.hpp"
 #include "Storage.hpp"
 #include "util/StringUtil.hpp"
+#include "database/Database.hpp"
 #include <utility>
 
 using namespace protocol;

@@ -45,7 +45,7 @@ bool Strategy::init(const core::Config& config) {
         return false;
 
     // create reactor
-    _reactor = Reactor::create(settings);
+    _reactor = Reactor::create(*_algorithm, settings);
     if (not _reactor->init())
         return false;
 
@@ -53,7 +53,7 @@ bool Strategy::init(const core::Config& config) {
     time_t now = Time().ms();
     ChartRequest request;
     request.interval = ChartInterval::m5;
-    for (int i = settings.isBackTest() ? 4 : 1; i > 0; --i) {
+    for (int i = settings.isBackTest() ? 30 : 1; i > 0; --i) {
         request.time_start = now - Timer::sDay * i;
         request.time_end = now - Timer::sDay * (i - 1);
         if (not Exchanger().loadCharts(settings.symbol, request))
@@ -79,11 +79,9 @@ bool Strategy::init(const core::Config& config) {
     return true;
 }
 
-void Strategy::execute(const Context& context) {
-    const Position& position = _algorithm->execute(context);
-
-    _listener->update(position, context);
-    _reactor->process(*_algorithm, context, *_listener);
+void Strategy::execute(void*) {
+    _algorithm->execute();
+    _reactor->execute();
 }
 
 bool Strategy::isRunning() const {

@@ -11,7 +11,7 @@ class Context;
 
 class Runner {
 public: // static
-    typedef Signal<Context> Callback;
+    typedef Signal<void*> Callback;
 
     static Runner* create();
 
@@ -24,6 +24,7 @@ protected: // methods
     Runner() = default;
 
     void tick(time_t ms);
+    void setContext(const Context& context);
 
 protected: // vars
     Callback _dispatcher;

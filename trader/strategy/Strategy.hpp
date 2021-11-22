@@ -27,7 +27,7 @@ public: // methods
 protected: // methods
     Strategy() = default;
 
-    void execute(const NS::Context& context);
+    void execute(void*);
 
 protected: // vars
     NS::Runner* _runner = nullptr;

@@ -7,6 +7,10 @@
 
 using namespace protocol;
 
+std::string Storage::key(const std::string& username, const std::string& key) {
+    return username + ":" + key;
+}
+
 std::string Storage::key(const std::string& username, const std::string& symbol, const std::string& key) {
     return username + ":" + util::uppercase(symbol.c_str()) + ":" + key;
 }

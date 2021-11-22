@@ -6,6 +6,8 @@
 
 NS_USE
 
+const Context* Context::current = nullptr;
+
 Context::Context(ChartWrapper::ConstIterator it, const PriceWrapper& price)
     : _it(it)
     , _price(price)

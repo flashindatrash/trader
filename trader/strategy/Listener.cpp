@@ -9,7 +9,8 @@
 #include "Position.hpp"
 #include "Statistics.hpp"
 #include "Logger.hpp"
-#include "database/Database.hpp"
+#include "Event.hpp"
+#include "Context.hpp"
 
 NS_USE
 
@@ -34,19 +35,13 @@ bool Listener::init(Algorithm& algorithm) {
     algorithm.onOpen.connect(std::bind(&Listener::handlePosition, this, std::placeholders::_1));
     algorithm.onAverage.connect(std::bind(&Listener::handlePosition, this, std::placeholders::_1));
     algorithm.onClose.connect(std::bind(&Listener::handlePosition, this, std::placeholders::_1));
+    algorithm.onTick.connect(std::bind(&Listener::handleTick, this, std::placeholders::_1));
     algorithm.onReport.connect(std::bind(&Listener::handleReport, this, std::placeholders::_1));
 
     Logger::title(Formatter::title(_settings.symbol).terminal());
 
     _statistics = Statistics::create(_settings.storage("stats"));
     return true;
-}
-
-void Listener::update(const Position& position, const Context& context) {
-    if (position.has() && not _settings.isBackTest()) {
-        _status = Formatter::update(position, context);
-        Logger::status(_status.terminal());
-    } else _status = Formatter();
 }
 
 void Listener::handleStart(void*) {
@@ -66,7 +61,17 @@ void Listener::handlePosition(const Position& position) {
     Formatter event = Formatter::order(position);
     Logger::info(event.terminal());
 
-    sendEvent(event);
+    if (_settings.isRelease()) {
+        protocol::Event::add(_settings.username, event.html());
+    }
+}
+
+void Listener::handleTick(const Position& position) {
+    if (Context::current == nullptr || not position.has())
+        return;
+
+    Formatter event = Formatter::update(position, *Context::current);
+    Logger::status(event.terminal());
 }
 
 void Listener::handleReport(const Report& report) {
@@ -78,27 +83,13 @@ void Listener::handleReport(const Report& report) {
 
     // сохраняем статистику закрытия сделки
     _statistics->report(report);
-    if (_settings.isRelease())
+
+    if (_settings.isRelease()) {
         _statistics->save();
-
-    sendEvent(event);
+        protocol::Event::add(_settings.username, event.html());
+    }
 }
 
-Formatter Listener::status() const {
-    return _status;
-}
-
-Formatter Listener::statistics() const {
+/*Formatter Listener::statistics() const {
     return Formatter::stats(*_statistics, _settings.symbol);
-}
-
-void Listener::sendEvent(const Formatter& event) const {
-    if (not _settings.isRelease())
-        return;
-
-    std::string text = event.html();
-    if (text.empty())
-        return;
-
-    DB().rpush(_settings.username + ":events", text);
-}
+}*/
