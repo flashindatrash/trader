@@ -82,7 +82,7 @@ std::string Formatter::asset(Quantity quantity, const Asset& asset/* = Asset::Em
     std::string format = "%." + std::to_string(util::zeros_after_dot(quantity) + 2) + "f";
     result.append(util::format(format.c_str(), quantity));
     if (change) result.append(sImportantEnd);
-    if (not asset.id().empty()) result.append(" %s", asset.c_str());
+    result.append(" %s", asset.c_str());
     return result;
 }
 
