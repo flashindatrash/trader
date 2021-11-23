@@ -4,6 +4,7 @@
 #include "exchanger/wrapper/PriceWrapper.hpp"
 #include "util/StringUtil.hpp"
 
+const Asset Asset::Empty = Asset();
 const Asset Asset::USDT = Asset("USDT");
 
 Asset::Asset(const std::string& asset) {

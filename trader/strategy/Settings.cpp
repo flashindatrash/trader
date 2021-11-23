@@ -71,6 +71,10 @@ bool Settings::isBackTest() const {
     return mode == "backtest";
 }
 
+bool Settings::logEnabled() const {
+    return not isBackTest();
+}
+
 std::string Settings::storage(const std::string& key) const {
     return protocol::Storage::key(username, symbol.id(), key);
 }

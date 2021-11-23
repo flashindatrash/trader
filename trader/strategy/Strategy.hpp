@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Defines.hpp"
+#include "Settings.hpp"
 
 namespace core {
     class Config;
@@ -30,6 +31,7 @@ protected: // methods
     void execute(void*);
 
 protected: // vars
+    NS::Settings _settings;
     NS::Runner* _runner = nullptr;
     NS::Algorithm* _algorithm = nullptr;
     NS::Listener* _listener = nullptr;

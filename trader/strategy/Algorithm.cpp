@@ -1,6 +1,5 @@
 #include "Algorithm.hpp"
 
-#include <utility>
 #include "Position.hpp"
 #include "Context.hpp"
 #include "Report.hpp"
@@ -15,8 +14,8 @@ Algorithm* Algorithm::create(const Settings& settings) {
     return algorithm;
 }
 
-Algorithm::Algorithm(Settings settings)
-    : _settings(std::move(settings))
+Algorithm::Algorithm(const Settings& settings)
+    : _settings(settings)
 {
 }
 
@@ -94,18 +93,12 @@ bool Algorithm::tryAverage() {
     if (not _position->has() || Context::current == nullptr || _settings.averaging >= 0.0)
         return false;
 
-    // посчитаем сколько раз сможем усреднить
-    int available = _position->averages();
-    if (available == 0)
+    // доступно ли хотябы одно усреднение
+    if (_position->averages() < 1)
         return false;
 
-    // посчитаем процент усреднения
-    Change average_percent = _settings.averaging;
-    for (int i = 0; i < available - 1; ++i)
-        average_percent /= 2.0;
-
     // интересует выход за усреднение
-    if (_position->change(Context::current->price(_position->revert())) > average_percent)
+    if (_position->change(Context::current->price(_position->revert())) > _position->averagePercent(_settings.averaging))
         return false;
 
     // создадим реквест

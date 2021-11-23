@@ -17,9 +17,9 @@ Reactor* Reactor::create(Algorithm& algorithm, const Settings& settings) {
     return reactor;
 }
 
-Reactor::Reactor(Algorithm& algorithm, Settings settings)
+Reactor::Reactor(Algorithm& algorithm, const Settings& settings)
     : _algorithm(algorithm)
-    , _settings(std::move(settings))
+    , _settings(settings)
 {
 }
 
@@ -36,7 +36,7 @@ void Reactor::execute() const {
         switch (command.action()) {
             case protocol::Command::Status: {
                 if (_algorithm.position().has()) {
-                    Formatter event = Formatter::update(_algorithm.position(), *Context::current);
+                    Formatter event = Formatter::update(_algorithm.position(), *Context::current, _settings);
                     protocol::Event::add(_settings.username, event.html());
                 }
                 break;

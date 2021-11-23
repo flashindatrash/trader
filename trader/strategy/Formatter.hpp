@@ -15,14 +15,14 @@ struct Settings;
 class Formatter {
 public: // static
     static Formatter title(const Symbol& symbol);
-    static Formatter update(const Position& position, const Context& context);
+    static Formatter update(const Position& position, const Context& context, const Settings& settings);
     static Formatter order(const OrderBase& order);
     static Formatter profit(const Report& report, const Symbol& symbol);
     static Formatter report(const Report& report, const Symbol& symbol);
     static Formatter settings(const Settings& settings);
 
 private: // static
-    static std::string asset(Quantity quantity, const Asset& asset, bool change = false);
+    static std::string asset(Quantity quantity, const Asset& asset = Asset::Empty, bool change = false);
 
 public: // methods
     Formatter() = default;

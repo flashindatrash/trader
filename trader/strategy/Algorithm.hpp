@@ -31,7 +31,7 @@ public: // methods
     const Position& position() const;
 
 protected: // methods
-    explicit Algorithm(Settings settings);
+    explicit Algorithm(const Settings& settings);
 
     bool createOrder(OrderRequest& request, Position& result) const;
     void indicator(OrderSide& trend, OrderSide& signal) const;
@@ -46,7 +46,7 @@ public: // signals
     Signal<Report&> onReport;
 
 protected: // vars
-    const Settings _settings;
+    const Settings& _settings;
 
     Position* _position = nullptr;
 };

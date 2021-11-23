@@ -19,11 +19,11 @@ public: // methods
     void execute() const;
 
 protected: // methods
-    explicit Reactor(Algorithm& algorithm, Settings settings);
+    explicit Reactor(Algorithm& algorithm, const Settings& settings);
 
 protected: // vars
     Algorithm& _algorithm;
-    const Settings _settings;
+    const Settings& _settings;
 
 };
 NS_END

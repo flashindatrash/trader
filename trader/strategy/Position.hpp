@@ -32,6 +32,7 @@ public: // methods
     Price distance(Price price) const;
     Change change(Price price) const;
     int averages() const;
+    Change averagePercent(Change max) const;
     bool closable() const;
 
     void copy(const OrderBase& ref);

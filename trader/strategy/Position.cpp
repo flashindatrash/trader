@@ -106,6 +106,17 @@ int Position::averages() const {
     return result;
 }
 
+Change Position::averagePercent(Change max) const {
+    int available = averages();
+    if (available == 0)
+        return 0.0;
+
+    Change average_percent = max;
+    for (int i = 0; i < available - 1; ++i)
+        average_percent /= 2.0;
+    return average_percent;
+}
+
 bool Position::closable() const {
     return OrderUtil::isEnough(symbol(), OrderUtil::revert(side()), baseQuantity());
 }

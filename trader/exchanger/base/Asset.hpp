@@ -5,6 +5,7 @@
 
 class Asset : public Identifier {
 public: // static
+    static const Asset Empty;
     static const Asset USDT;
 
 public: // methods

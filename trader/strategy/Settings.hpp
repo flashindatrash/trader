@@ -9,6 +9,7 @@ namespace core {
 NS_BEGIN
 struct Settings {
 public: // methods
+    Settings() = default;
     explicit Settings(const core::Config& config);
 
     std::string storage(const std::string& key) const;
@@ -18,8 +19,7 @@ public: // methods
     bool isDevelop() const;
     bool isBackTest() const;
 
-protected: // methods
-    Settings() = default;
+    bool logEnabled() const;
 
 public: // vars
     std::string mode;

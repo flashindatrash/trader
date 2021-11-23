@@ -20,7 +20,7 @@ public: // methods
     bool init(Algorithm& algorithm);
 
 protected: // methods
-    explicit Listener(Settings settings);
+    explicit Listener(const Settings& settings);
 
     void handleStart(void*);
     void handleStop(void*);
@@ -29,8 +29,8 @@ protected: // methods
     void handleReport(const Report& report);
 
 protected: // vars
+    const Settings& _settings;
     Report _report;
-    const Settings _settings;
     protocol::Pair _pair;
 };
 NS_END

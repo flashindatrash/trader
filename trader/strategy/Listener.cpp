@@ -8,7 +8,6 @@
 #include "Formatter.hpp"
 #include "Algorithm.hpp"
 #include "Position.hpp"
-#include "Pair.hpp"
 #include "Logger.hpp"
 #include "Event.hpp"
 #include "User.hpp"
@@ -21,8 +20,8 @@ Listener* Listener::create(const Settings& settings) {
     return listener;
 }
 
-Listener::Listener(Settings settings)
-    : _settings(std::move(settings))
+Listener::Listener(const Settings& settings)
+    : _settings(settings)
     , _pair(settings.username, settings.symbol)
 {
 }
@@ -41,8 +40,12 @@ bool Listener::init(Algorithm& algorithm) {
 }
 
 void Listener::handleStart(void*) {
-    Formatter event = Formatter::settings(_settings);
-    Logger::info(event.terminal());
+    _report = Report();
+
+    if (_settings.logEnabled()) {
+        Formatter event = Formatter::settings(_settings);
+        Logger::info(event.terminal());
+    }
 }
 
 void Listener::handleStop(void*) {
@@ -55,45 +58,47 @@ void Listener::handleStop(void*) {
 
 void Listener::handlePosition(const Position& position) {
     Formatter event = Formatter::order(position);
-    Logger::info(event.terminal());
 
-    if (_settings.isRelease()) {
+    if (_settings.logEnabled())
+        Logger::info(event.terminal());
+
+    if (_settings.isRelease())
         protocol::Event::add(_settings.username, event.html());
-    }
 }
 
 void Listener::handleTick(const Position& position) {
     if (Context::current == nullptr || not position.has())
         return;
 
-    Formatter event = Formatter::update(position, *Context::current);
+    if (_settings.isBackTest())
+        return;
+
+    Formatter event = Formatter::update(position, *Context::current, _settings);
     Logger::status(event.terminal());
 }
 
 void Listener::handleReport(const Report& report) {
-    Formatter event = Formatter::profit(report, _settings.symbol);
-    Logger::info(event.terminal());
-
     // добавим в общий репорт
     _report.add(report);
+
+    if (not _settings.isRelease())
+        return;
+
+    // отправляем эвент
+    Formatter event = Formatter::profit(report, _settings.symbol);
+    Logger::info(event.terminal());
+    protocol::Event::add(_settings.username, event.html());
 
     // сохраняем статистику пары
     _pair.setProfit(report.profit);
     _pair.setChange(report.change);
     _pair.setEarnBase(report.earn_base);
     _pair.setEarnQuote(report.earn_quote);
-    if (_settings.isRelease())
-        _pair.save();
+    _pair.save();
 
     // сохраняем статистику пользователя
-    if (_settings.isRelease()) {
-        protocol::User user(_settings.username);
-        user.setProfit(report.profit);
-        user.setChange(report.change);
-        user.save();
-    }
-
-    // отправляем эвент
-    if (_settings.isRelease())
-        protocol::Event::add(_settings.username, event.html());
+    protocol::User user(_settings.username);
+    user.setProfit(report.profit);
+    user.setChange(report.change);
+    user.save();
 }

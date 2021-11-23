@@ -30,22 +30,22 @@ Strategy::~Strategy() {
 }
 
 bool Strategy::init(const core::Config& config) {
-    Settings settings(config);
-    if (not settings.isValid())
+    _settings = Settings(config);
+    if (not _settings.isValid())
         return false;
 
     // create algorithm
-    _algorithm = Algorithm::create(settings);
+    _algorithm = Algorithm::create(_settings);
     if (not _algorithm->init())
         return false;
 
     // create listener
-    _listener = Listener::create(settings);
+    _listener = Listener::create(_settings);
     if (not _listener->init(*_algorithm))
         return false;
 
     // create reactor
-    _reactor = Reactor::create(*_algorithm, settings);
+    _reactor = Reactor::create(*_algorithm, _settings);
     if (not _reactor->init())
         return false;
 
@@ -53,29 +53,28 @@ bool Strategy::init(const core::Config& config) {
     time_t now = Time().ms();
     ChartRequest request;
     request.interval = ChartInterval::m5;
-    for (int i = settings.isBackTest() ? 30 : 1; i > 0; --i) {
+    for (int i = _settings.isBackTest() ? 30 : 1; i > 0; --i) {
         request.time_start = now - Timer::sDay * i;
         request.time_end = now - Timer::sDay * (i - 1);
-        if (not Exchanger().loadCharts(settings.symbol, request))
+        if (not Exchanger().loadCharts(_settings.symbol, request))
             return false;
     }
 
     // start listen chart
-    if (not settings.isBackTest()) {
-        Exchanger().listenCharts(settings.symbol, ChartInterval::m5);
-        Exchanger().listenTickers(settings.symbol);
+    if (not _settings.isBackTest()) {
+        Exchanger().listenCharts(_settings.symbol, ChartInterval::m5);
+        Exchanger().listenTickers(_settings.symbol);
     }
 
     // create & start runner
     _runner = Runner::create();
     _runner->setCallback(std::bind(&Strategy::execute, this, std::placeholders::_1));
-    _runner->start(settings);
 
-    // dispatch start/stop
-    if (isRunning())
-        _algorithm->start();
-    else
+    _algorithm->start();
+    _runner->start(_settings);
+    if (not isRunning())
         _algorithm->stop();
+
     return true;
 }
 
