@@ -30,8 +30,8 @@ Formatter Formatter::update(const Position& position, const Context& context, co
     std::string result;
     result.append(position.side() == OrderSide::Buy ? "long" : "short");
     result.append(": " + asset(position_price) + " > " + asset(current_price));
-    result.append(util::format(" %.2f%%", position.change(current_price) * 100.0));
-    result.append(util::format(" (%.2f%%)", position.averagePercent(settings.averaging) * 100.0));
+    result.append(util::format(" change %.2f%%", position.change(current_price) * 100.0));
+    if (position.averages() > 0) result.append(util::format(" [%.2f%%]", position.averagePercent(settings.averaging) * 100.0));
     result.append(sImportantBegin);
     result.append(" " + asset(profit, position.symbol().quoteAsset()));
     result.append(sImportantEnd);

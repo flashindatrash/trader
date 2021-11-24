@@ -4,7 +4,6 @@
 
 #include "Messenger.hpp"
 #include "Logger.hpp"
-#include "database/Database.hpp"
 #include "util/StringUtil.hpp"
 #include <functional>
 #include "Command.hpp"
@@ -21,6 +20,16 @@ Messenger::Messenger(const std::string& token)
 
 bool Messenger::init() {
     Logger::info(util::format("Bot name: %s", _bot.getApi().getMe()->username.c_str()));
+
+    std::vector<TgBot::BotCommand::Ptr> commands;
+    TgBot::BotCommand::Ptr cmdArray(new TgBot::BotCommand);
+    cmdArray->command = "stats";
+    cmdArray->description = "User statistics";
+    commands.push_back(cmdArray);
+
+    if (not _bot.getApi().setMyCommands(commands))
+        return false;
+
     if (not _bot.getApi().deleteWebhook())
         return false;
 
@@ -99,10 +108,16 @@ void Messenger::onAnyMessage(const TgBot::Message::Ptr message) {
         return;
     }
 
-    // send other commands into trader
+    // find user
     auto user = _users.find_if(protocol::Users::byId(message->chat->id));
-    if (user == _users.end())
+    if (user == _users.cend())
         return;
+
+    if (command == "/stats") {
+        protocol::User upd(user->name());
+        sendMessage(message->chat->id, util::format("Profit: +%f USD (+%.1f%%)", upd.profit(), upd.change() * 100.0), message->messageId);
+        return;
+    }
 
     // format: /pair:action
     std::string pair = command.substr(1);
