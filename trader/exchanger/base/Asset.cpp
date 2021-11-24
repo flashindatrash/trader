@@ -6,6 +6,7 @@
 
 const Asset Asset::Empty = Asset("");
 const Asset Asset::USDT = Asset("USDT");
+const Asset Asset::BUSD = Asset("BUSD");
 
 Asset::Asset(const std::string& asset) {
     setId(util::uppercase(asset.c_str()));
@@ -24,15 +25,23 @@ const Quantity& Asset::balance() const {
 }
 
 Quantity Asset::balance(const Asset& asset) const {
-    if (id() == asset.id())
-        return balance();
+    return convert(balance(), asset);
+}
+
+Quantity Asset::convert(Quantity quantity, const Asset& asset/* = Asset::USDT*/) const {
+    if (id() == asset.id() || (isUSD() && asset.isUSD()))
+        return quantity;
 
     if (const PriceWrapper* price = Exchanger().price(id() + asset.id()))
-        return price->get() * balance();
+        return price->get() * quantity;
 
     return 0.0;
 }
 
-const std::string Asset::operator+(const Asset& quote) const {
+bool Asset::isUSD() const {
+    return id() == USDT.id() || id() == BUSD.id();
+}
+
+std::string Asset::operator+(const Asset& quote) const {
     return id() + quote.id();
 }
