@@ -7,10 +7,15 @@
 using namespace protocol;
 
 static const char* FIELD_ID = "id";
+static const char* FIELD_PROFIT = "profit";
 
 User::User(const std::string& username)
-    : Stats(username)
+    : db::Object(username)
 {
+}
+
+std::string User::name() const {
+    return _key;
 }
 
 void User::setId(int value) {
@@ -21,8 +26,12 @@ int User::id() const {
     return get(FIELD_ID).asInt();
 }
 
-std::string User::name() const {
-    return _key;
+void User::setProfit(double value) {
+    inc(FIELD_PROFIT, value);
+}
+
+double User::profit() const {
+    return get(FIELD_PROFIT).asDouble();
 }
 
 Users::Users(const db::Key& key)

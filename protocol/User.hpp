@@ -5,18 +5,21 @@
 #pragma once
 
 #include "database/Array.hpp"
-#include "Stats.hpp"
 
 namespace protocol {
 
-class User : public Stats {
+class User : public db::Object {
 public: // methods
     User(const std::string& username);
+
+    std::string name() const;
 
     void setId(int value);
     int id() const;
 
-    std::string name() const;
+    void setProfit(double value);
+    double profit() const;
+
 };
 
 class Users : public db::ArrayAbstract<User> {

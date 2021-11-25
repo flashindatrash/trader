@@ -22,7 +22,7 @@ Listener* Listener::create(const Settings& settings) {
 
 Listener::Listener(const Settings& settings)
     : _settings(settings)
-    , _pair(settings.username, settings.symbol)
+    , _stats(settings.username, settings.symbol)
 {
 }
 
@@ -90,15 +90,14 @@ void Listener::handleReport(const Report& report) {
     protocol::Event::add(_settings.username, event.html());
 
     // сохраняем статистику пары
-    _pair.setProfit(report.profit);
-    _pair.setChange(report.change);
-    _pair.setEarnBase(report.earn_base);
-    _pair.setEarnQuote(report.earn_quote);
-    _pair.save();
+    _stats.setProfit(report.profit);
+    _stats.setChange(report.change);
+    _stats.setEarnBase(report.earn_base);
+    _stats.setEarnQuote(report.earn_quote);
+    _stats.save();
 
     // сохраняем статистику пользователя
     protocol::User user(_settings.username);
     user.setProfit(report.profit);
-    user.setChange(report.change);
     user.save();
 }

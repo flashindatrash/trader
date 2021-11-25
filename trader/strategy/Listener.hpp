@@ -6,7 +6,7 @@
 
 #include "Settings.hpp"
 #include "Report.hpp"
-#include "Pair.hpp"
+#include "Trader.hpp"
 
 NS_BEGIN
 class Algorithm;
@@ -31,7 +31,7 @@ protected: // methods
 protected: // vars
     const Settings& _settings;
     Report _report;
-    protocol::Pair _pair;
+    protocol::Trader _stats;
 };
 NS_END
 
