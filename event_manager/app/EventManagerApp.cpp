@@ -32,7 +32,7 @@ int EventManagerApp::run() {
     // init messenger
     Messenger messenger(token);
     if (not messenger.init()) {
-        Logger::info("can't load messenger");
+        Logger::info("can't init messenger");
         return EXIT_FAILURE;
     }
 
