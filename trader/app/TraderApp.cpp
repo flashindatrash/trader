@@ -4,7 +4,6 @@
 #include "database/Database.hpp"
 #include "exchanger/Exchanger.hpp"
 #include "strategy/Strategy.hpp"
-#include "event/EventManager.hpp"
 #include "util/StringUtil.hpp"
 
 core::Version TraderApp::sVersion = core::Version(1, 3, 1);
@@ -29,10 +28,6 @@ int TraderApp::run() {
 
     // init database
     if (not DB().init(_config))
-        return EXIT_FAILURE;
-
-    // init event manager
-    if (not Events().init(_config))
         return EXIT_FAILURE;
 
     // init exchanger

@@ -11,7 +11,7 @@
 	sudo apt -y install redis  
 
 ##### запускаем сервис редиса  
-	sudo /etc/init.d/redis-server start  
+	sudo /etc/load.d/redis-server start  
 
 ##### создаем в юзере папку Developer и переходим  
 	cd ~
@@ -43,7 +43,7 @@
 	cd traderbot  
 
 ##### обновляем сабмодули репы  
-	git submodule update --init --recursive  
+	git submodule update --load --recursive  
 
 ##### создаем свой конфиг  
 	cp ./config/default.cfg ./config/test.cfg  

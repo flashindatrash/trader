@@ -31,7 +31,6 @@ Formatter Formatter::update(const Position& position, const Context& context, co
     result.append(position.side() == OrderSide::Buy ? "long" : "short");
     result.append(": " + asset(position_price) + " > " + asset(current_price));
     result.append(util::format(" change %.2f%%", position.change(current_price) * 100.0));
-    if (position.averages() > 0) result.append(util::format(" [%.2f%%]", position.averagePercent(settings.averaging) * 100.0));
     result.append(sImportantBegin);
     result.append(" " + asset(profit, position.symbol().quoteAsset()));
     result.append(sImportantEnd);
@@ -66,12 +65,6 @@ Formatter Formatter::report(const Report& report, const Symbol& symbol) {
                  symbol.quoteAsset().c_str(), report.use_quote,
                  symbol.baseAsset().c_str(), symbol.baseAsset().balance(),
                  symbol.quoteAsset().c_str(), symbol.quoteAsset().balance());
-}
-
-Formatter Formatter::settings(const Settings& settings) {
-    Quantity min = Exchanger().roundQuantity(0.0, settings.symbol);
-    Quantity lot = Exchanger().roundQuantity(min * settings.lot_size, settings.symbol);
-    return util::format("Lot: %f", lot);
 }
 
 std::string Formatter::asset(Quantity quantity, const Asset& asset/* = Asset::Empty*/, bool change/* = false*/) {

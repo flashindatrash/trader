@@ -26,38 +26,33 @@ int main(int argc, char** argv) {
     signal(SIGSEGV, handler);
     srand(time(NULL));
 
-    std::string cfg_file;
-    std::vector<std::string> symbol;
-    std::string filter;
+    std::string config_file;
+    std::string script_file;
+    std::string symbol;
 
     cppargparser::ArgumentParser args;
     try {
         args.addArgument(cppargparser::Argument("-c", "--config", "config", 1, true));
-        args.addArgument(cppargparser::Argument("-s", "--symbol", "symbol", 2, false));
-        args.addArgument(cppargparser::Argument("-f", "--filter", "filter", 1, false));
+        args.addArgument(cppargparser::Argument("-s", "--script", "script", 1, true));
+        args.addArgument(cppargparser::Argument("-p", "--pair", "pair", 2, true));
 
         auto parsed = args.parse(argc, argv);
-        cfg_file = parsed.getValue("--config");
-        if (parsed.hasArgument("--symbol"))
-            symbol = parsed.getValues("--symbol");
-        if (parsed.hasArgument("--filter"))
-            filter = parsed.getValue("--filter");
+        config_file = parsed.getValue("--config");
+        script_file = parsed.getValue("--script");
+        symbol = parsed.getValues("--pair").at(0) + parsed.getValues("--pair").at(1);
     } catch(...) {
-        args.showHelp("trader -c ./config/default.cfg -s btc usdt");
+        args.showHelp("trader -c default.cfg -s script.lua -p btc usdt");
         return EXIT_FAILURE;
     }
 
     core::Config cfg;
-    if (!cfg.read(cfg_file.c_str())) {
-        Logger::info(util::format("Can't init config %s", cfg_file.c_str()));
+    if (!cfg.read(config_file.c_str())) {
+        Logger::info(util::format("Can't load config %s", config_file.c_str()));
         return EXIT_FAILURE;
     }
 
-    if (symbol.size() >= 2)
-        cfg.set("SYMBOL", symbol.at(0) + symbol.at(1));
-
-    if (not filter.empty())
-        cfg.set("OPEN_FILTER", filter);
+    cfg.set("SCRIPT", script_file);
+    cfg.set("SYMBOL", symbol);
 
     return TraderApp::create(cfg)->run();
 }

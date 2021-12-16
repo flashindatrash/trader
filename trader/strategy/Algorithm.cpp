@@ -1,11 +1,11 @@
 #include "Algorithm.hpp"
 
 #include "Position.hpp"
+#include "Script.hpp"
 #include "Context.hpp"
 #include "Report.hpp"
 #include "exchanger/wrapper/OrderWrapper.hpp"
 #include "exchanger/Exchanger.hpp"
-#include "exchanger/indicator/DEMA.hpp"
 
 NS_USE
 
@@ -26,7 +26,8 @@ Algorithm::~Algorithm() {
 
 bool Algorithm::init() {
     _position = Position::create(_settings.storage("position"));
-    return true;
+    _script = Script::create(_settings.script);
+    return _position != nullptr && _script != nullptr;
 }
 
 void Algorithm::start() {
@@ -44,13 +45,13 @@ void Algorithm::stop() {
 }
 
 bool Algorithm::execute() {
-    // закрытие сделок: получить профит || усреднение цены || остановить убыток
-    bool close = tryTakeProfit() || tryAverage() || tryStopLoss();
-    // открытие сделок
+    if (Context::current == nullptr)
+        return false;
+
+    bool close = tryClose() || tryAverage();
     bool open = tryOpen();
-    // уведомление о выполнении тика
+
     onTick.emmit(*_position);
-    // статус позции либо открыли, либо закрыли
     return close || open;
 }
 
@@ -58,47 +59,15 @@ const Position& Algorithm::position() const {
     return *_position;
 }
 
-bool Algorithm::tryTakeProfit() {
-    if (not _position->has() || Context::current == nullptr)
+bool Algorithm::tryClose() {
+    if (not _position->has() || not _script->close(*_position))
         return false;
 
-    // интересует выход за TAKE PROFIT
-    if (_position->change(Context::current->price(_position->revert())) < _settings.take_profit)
-        return false;
-
-    OrderSide trend, signal;
-    indicator(trend, signal);
-    if (trend != _position->revert())
-        return false;
-
-    return tryClose();
-}
-
-bool Algorithm::tryStopLoss() {
-    if (not _position->has() || Context::current == nullptr || _settings.stop_loss >= 0.0)
-        return false;
-
-    // не режем лося, если доступно усреднения
-    if (_settings.averaging < 0.0 && _position->averages() > 0)
-        return false;
-
-    // интересует выход за STOP LOSS
-    if (_position->change(Context::current->price(_position->revert())) > _settings.stop_loss)
-        return false;
-
-    return tryClose();
+    return close();
 }
 
 bool Algorithm::tryAverage() {
-    if (not _position->has() || Context::current == nullptr || _settings.averaging >= 0.0)
-        return false;
-
-    // доступно ли хотябы одно усреднение
-    if (_position->averages() < 1)
-        return false;
-
-    // интересует выход за усреднение
-    if (_position->change(Context::current->price(_position->revert())) > _position->averagePercent(_settings.averaging))
+    if (not _position->has() || not _script->average(*_position))
         return false;
 
     // создадим реквест
@@ -120,10 +89,7 @@ bool Algorithm::tryAverage() {
     return true;
 }
 
-bool Algorithm::tryClose() {
-    if (Context::current == nullptr)
-        return false;
-
+bool Algorithm::close() {
     // определим размер лота, для закрытия позиции
     // он может быть тот же, или отличаться на размер профита
     Price price = Context::current->price(_position->revert());
@@ -164,21 +130,16 @@ bool Algorithm::tryClose() {
 }
 
 bool Algorithm::tryOpen() {
-    if (_position->has() || Context::current == nullptr)
-        return false;
-
-    OrderSide trend, signal;
-    indicator(trend, signal);
-
-    // проверяем на фильтр открываемых позиций
-    if (_settings.open_filter != -1 && (_settings.open_filter == OrderSide::Invalid || _settings.open_filter != (int)signal))
+    if (_position->has())
         return false;
 
     // создадим реквест
     OrderRequest request;
     request.symbol = _settings.symbol;
-    request.side = signal;
-    request.quantity = Exchanger().roundQuantity(0.0, request.symbol) * _settings.lot_size;
+    request.quantity = Exchanger().roundQuantity(0.0, request.symbol);
+
+    if (not _script->open(request))
+        return false;
 
     // создание заказа
     Position position;
@@ -218,18 +179,4 @@ bool Algorithm::createOrder(OrderRequest& request, Position& result) const {
 
     result.copy(*order);
     return true;
-}
-
-void Algorithm::indicator(OrderSide& trend, OrderSide& signal) const {
-    trend = signal = Invalid;
-
-    if (Context::current == nullptr)
-        return;
-
-    DEMA dema = DEMA(20, 30);
-    if (not Context::current->load(dema))
-        return;
-
-    trend = dema.trend();
-    signal = dema.signal();
 }

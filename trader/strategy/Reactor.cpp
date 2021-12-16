@@ -42,7 +42,7 @@ void Reactor::execute() const {
                 break;
             }
             case protocol::Command::Close: {
-                _algorithm.tryClose();
+                _algorithm.close();
                 break;
             }
             default: break;

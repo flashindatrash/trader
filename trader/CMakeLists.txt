@@ -9,6 +9,12 @@ endif()
 # libraries
 list(APPEND ALL_LIBS ${HIREDIS_LIBRARY})
 
+# lua
+find_package(Lua51 REQUIRED)
+include_directories(${LUA_INCLUDE_DIR})
+list(APPEND ALL_LIBS ${LUA_LIBRARIES})
+
+
 # includes
 include_directories(${PROJECT_SOURCE_DIR}/binacpp/src/)
 include_directories(${PROJECT_SOURCE_DIR}/core)

@@ -53,7 +53,7 @@ bool Strategy::init(const core::Config& config) {
     time_t now = Time().ms();
     ChartRequest request;
     request.interval = ChartInterval::m5;
-    for (int i = _settings.isBackTest() ? 30 : 1; i > 0; --i) {
+    for (int i = _settings.isBackTest() ? 2 : 1; i > 0; --i) {
         request.time_start = now - Timer::sDay * i;
         request.time_end = now - Timer::sDay * (i - 1);
         if (not Exchanger().loadCharts(_settings.symbol, request))
@@ -62,8 +62,13 @@ bool Strategy::init(const core::Config& config) {
 
     // start listen chart
     if (not _settings.isBackTest()) {
-        Exchanger().listenCharts(_settings.symbol, ChartInterval::m5);
+        Exchanger().listenCharts(_settings.symbol, request.interval);
         Exchanger().listenTickers(_settings.symbol);
+    }
+
+    if (_settings.isBackTest()) {
+        Exchanger().balance(_settings.symbol.baseAsset())->gain(1000);
+        Exchanger().balance(_settings.symbol.quoteAsset())->gain(1000);
     }
 
     // create & start runner

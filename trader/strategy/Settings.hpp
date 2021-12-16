@@ -24,14 +24,10 @@ public: // methods
 public: // vars
     std::string mode;
     std::string username;
+    std::string script;
 
     Symbol symbol;
 
-    double take_profit = 0.0;
-    double stop_loss = 0.0;
-    double averaging = 0.0;
-    double lot_size = 1.0;
     double profit_ratio = 0.0;
-    int open_filter = -1;
 };
 NS_END

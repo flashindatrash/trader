@@ -7,6 +7,7 @@ struct OrderRequest;
 
 NS_BEGIN
 class Position;
+class Script;
 class Report;
 
 class Algorithm {
@@ -20,12 +21,11 @@ public: // methods
     void start();
     void stop();
 
-    bool tryTakeProfit();
-    bool tryStopLoss();
-    bool tryAverage();
     bool tryOpen();
     bool tryClose();
+    bool tryAverage();
 
+    bool close();
     bool execute();
 
     const Position& position() const;
@@ -34,7 +34,6 @@ protected: // methods
     explicit Algorithm(const Settings& settings);
 
     bool createOrder(OrderRequest& request, Position& result) const;
-    void indicator(OrderSide& trend, OrderSide& signal) const;
 
 public: // signals
     Signal<void*> onStart;
@@ -48,6 +47,7 @@ public: // signals
 protected: // vars
     const Settings& _settings;
 
+    Script* _script = nullptr;
     Position* _position = nullptr;
 };
 NS_END

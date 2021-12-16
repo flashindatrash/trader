@@ -94,33 +94,6 @@ Change Position::change(Price current) const {
     return distance(current) / price();
 }
 
-int Position::averages() const {
-    Quantity balance = OrderUtil::usedQuantity(side(), symbol().baseAsset().balance(), symbol().quoteAsset().balance());
-    Quantity quantity = OrderUtil::usedQuantity(side(), baseQuantity(), quoteQuantity());
-    int result = 0;
-    while (balance >= quantity) {
-        ++result;
-        balance -= quantity;
-        quantity *= 2.0;
-    }
-    return result;
-}
-
-Change Position::averagePercent(Change max) const {
-    int available = averages();
-    if (available == 0)
-        return 0.0;
-
-    Change average_percent = max;
-    for (int i = 0; i < available - 1; ++i)
-        average_percent /= 2.0;
-    return average_percent;
-}
-
-bool Position::closable() const {
-    return OrderUtil::isEnough(symbol(), OrderUtil::revert(side()), baseQuantity());
-}
-
 void Position::copy(const OrderBase& ref) {
     setSymbol(ref.symbol());
     setSide(ref.side());

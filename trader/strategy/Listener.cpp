@@ -41,11 +41,6 @@ bool Listener::init(Algorithm& algorithm) {
 
 void Listener::handleStart(void*) {
     _report = Report();
-
-    if (_settings.logEnabled()) {
-        Formatter event = Formatter::settings(_settings);
-        Logger::info(event.terminal());
-    }
 }
 
 void Listener::handleStop(void*) {
@@ -81,23 +76,25 @@ void Listener::handleReport(const Report& report) {
     // добавим в общий репорт
     _report.add(report);
 
-    if (not _settings.isRelease())
-        return;
-
-    // отправляем эвент
+    // формируем эвент
     Formatter event = Formatter::profit(report, _settings.symbol);
-    Logger::info(event.terminal());
-    protocol::Event::add(_settings.username, event.html());
 
-    // сохраняем статистику пары
-    _stats.setProfit(report.profit);
-    _stats.setChange(report.change);
-    _stats.setEarnBase(report.earn_base);
-    _stats.setEarnQuote(report.earn_quote);
-    _stats.save();
+    if (_settings.logEnabled())
+        Logger::info(event.terminal());
 
-    // сохраняем статистику пользователя
-    protocol::User user(_settings.username);
-    user.setProfit(report.profit);
-    user.save();
+    if (_settings.isRelease()) {
+        protocol::Event::add(_settings.username, event.html());
+
+        // сохраняем статистику пары
+        _stats.setProfit(report.profit);
+        _stats.setChange(report.change);
+        _stats.setEarnBase(report.earn_base);
+        _stats.setEarnQuote(report.earn_quote);
+        _stats.save();
+
+        // сохраняем статистику пользователя
+        protocol::User user(_settings.username);
+        user.setProfit(report.profit);
+        user.save();
+    }
 }

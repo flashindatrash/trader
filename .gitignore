@@ -7,6 +7,9 @@ CMakeLists.txt.*
 config/*
 !config/default.cfg
 
+script/*
+!script/default.lua
+
 *.autosave
 *.swp
 *.lock

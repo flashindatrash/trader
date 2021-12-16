@@ -19,7 +19,6 @@ public: // static
     static Formatter order(const OrderBase& order);
     static Formatter profit(const Report& report, const Symbol& symbol);
     static Formatter report(const Report& report, const Symbol& symbol);
-    static Formatter settings(const Settings& settings);
 
 private: // static
     static std::string asset(Quantity quantity, const Asset& asset = Asset::Empty, bool change = false);
