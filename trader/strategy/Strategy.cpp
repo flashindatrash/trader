@@ -1,13 +1,9 @@
 #include "Strategy.hpp"
-#include "Time.hpp"
 #include "Config.hpp"
 #include "Runner.hpp"
 #include "Algorithm.hpp"
 #include "Listener.hpp"
 #include "Reactor.hpp"
-#include "exchanger/Exchanger.hpp"
-#include "exchanger/wrapper/ChartWrapper.hpp"
-#include "exchanger/wrapper/BalanceWrapper.hpp"
 
 NS_USE
 
@@ -49,33 +45,9 @@ bool Strategy::init(const core::Config& config) {
     if (not _reactor->init())
         return false;
 
-    // load chart
-    time_t now = Time().ms();
-    ChartRequest request;
-    request.interval = ChartInterval::m5;
-    for (int i = _settings.isBackTest() ? 2 : 1; i > 0; --i) {
-        request.time_start = now - Timer::sDay * i;
-        request.time_end = now - Timer::sDay * (i - 1);
-        if (not Exchanger().loadCharts(_settings.symbol, request))
-            return false;
-    }
-
-    // start listen chart
-    if (not _settings.isBackTest()) {
-        Exchanger().listenCharts(_settings.symbol, request.interval);
-        Exchanger().listenTickers(_settings.symbol);
-    }
-
-    if (_settings.isBackTest()) {
-        Exchanger().balance(_settings.symbol.baseAsset())->gain(1000);
-        Exchanger().balance(_settings.symbol.quoteAsset())->gain(1000);
-    }
-
     // create & start runner
     _runner = Runner::create();
     _runner->setCallback(std::bind(&Strategy::execute, this, std::placeholders::_1));
-
-    _algorithm->start();
     _runner->start(_settings);
     if (not isRunning())
         _algorithm->stop();

@@ -36,7 +36,6 @@ protected: // methods
     bool createOrder(OrderRequest& request, Position& result) const;
 
 public: // signals
-    Signal<void*> onStart;
     Signal<void*> onStop;
     Signal<Position&> onOpen;
     Signal<Position&> onAverage;

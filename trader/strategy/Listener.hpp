@@ -22,7 +22,6 @@ public: // methods
 protected: // methods
     explicit Listener(const Settings& settings);
 
-    void handleStart(void*);
     void handleStop(void*);
     void handlePosition(const Position& position);
     void handleTick(const Position& position);

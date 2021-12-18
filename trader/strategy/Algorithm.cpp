@@ -27,11 +27,7 @@ Algorithm::~Algorithm() {
 bool Algorithm::init() {
     _position = Position::create(_settings.storage("position"));
     _script = Script::create(_settings.script);
-    return _position != nullptr && _script != nullptr;
-}
-
-void Algorithm::start() {
-    onStart.emmit(nullptr);
+    return _position != nullptr && _script != nullptr && _script->main(_settings);
 }
 
 void Algorithm::stop() {

@@ -1,5 +1,6 @@
 --[[
     # Algorithm methods:
+        - bool __main__(settings): initialize
         - (side, pip) open(): open new position
         - bool close(position): close active position
         - bool average(position): average active position
@@ -7,9 +8,15 @@
     # API methods:
         - void print(string.format(text)): print log
         - number balance(string asset): get account balance
+        - void topup(string asset, number quantity): top up test balance
         - trend, signal = dema(int fast, int slow): get trend side and signal side of double ema
+        - bool chart(string baseAsset, string quoteAsset, Enum interval, int days = 1): load & listen chart
 
     # Structures
+        - settings (Object)
+            .baseAsset: first asset
+            .quoteAsset: second asset
+            .mode: mode
         - position (Object)
             .baseAsset: first asset
             .quoteAsset: second asset
@@ -24,7 +31,24 @@
             0: Invalid
             1: Buy
             2: Sell
+        - interval (Enum)
+            0: 5 min
+            1: 15 min
+            2: 1 hour
+            3: 1 day
 ]]
+
+function __main__(settings)
+    days = 1;
+
+    if settings.mode == "backtest" then
+        days = 31;
+        topup(settings.baseAsset, 1000);
+        topup(settings.quoteAsset, 1000);
+    end
+
+    return chart(settings.baseAsset, settings.quoteAsset, 0, days);
+end
 
 function open()
     trend, signal = dema(20, 30);
