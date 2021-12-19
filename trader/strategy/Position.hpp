@@ -35,6 +35,8 @@ public: // methods
     void copy(const OrderBase& ref);
     void merge(const OrderBase& ref);
 
+    bool remove(bool release);
+    bool save(bool release);
     bool has() const;
 
 protected: // methods

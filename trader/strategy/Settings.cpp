@@ -59,7 +59,7 @@ bool Settings::isBackTest() const {
 }
 
 bool Settings::logEnabled() const {
-    return not isBackTest();
+    return true || not isBackTest();
 }
 
 std::string Settings::storage(const std::string& key) const {

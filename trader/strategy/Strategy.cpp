@@ -49,8 +49,11 @@ bool Strategy::init(const core::Config& config) {
     _runner = Runner::create();
     _runner->setCallback(std::bind(&Strategy::execute, this, std::placeholders::_1));
 
-    if (not _runner->start(_settings))
+    if (not _runner->start(_settings)) {
+        delete _runner;
+        _runner = nullptr;
         _algorithm->stop();
+    }
 
     return true;
 }

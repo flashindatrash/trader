@@ -35,7 +35,7 @@ void Algorithm::stop() {
     if (_position->has() && _settings.isBackTest()) {
         _position->setSide(_position->revert());
         _position->operate();
-        // todo: clear position
+        _position->remove(_settings.isRelease());
     }
 
     onStop.emmit(nullptr);
@@ -79,8 +79,7 @@ bool Algorithm::tryAverage() {
         return false;
 
     _position->merge(avg);
-    if (_settings.isRelease())
-        _position->save();
+    _position->save(_settings.isRelease());
 
     onAverage.emmit(avg);
     return true;
@@ -119,8 +118,7 @@ bool Algorithm::close() {
     Report report(*_position, close);
 
     // удалим из базы, результат удаления не важен
-    if (_settings.isRelease())
-        _position->remove();
+    _position->remove(_settings.isRelease());
 
     onClose.emmit(close);
     onReport.emmit(report);
@@ -146,9 +144,7 @@ bool Algorithm::tryOpen() {
 
     _position->copy(position);
     _position->setTime(Context::current->time());
-
-    if (_settings.isRelease())
-        _position->save();
+    _position->save(_settings.isRelease());
 
     onOpen.emmit(position);
     return true;

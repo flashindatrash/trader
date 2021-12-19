@@ -110,6 +110,18 @@ void Position::merge(const OrderBase& ref) {
     setCount(count() + 1);
 }
 
+bool Position::remove(bool release) {
+    if (not release) {
+        _map.clear();
+        return true;
+    }
+    return db::Object::remove();
+}
+
+bool Position::save(bool release) {
+    return not release || db::Object::save();
+}
+
 bool Position::has() const {
     return side() != Invalid && baseQuantity() > 0.0 && quoteQuantity() > 0.0;
 }
