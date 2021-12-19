@@ -15,8 +15,6 @@ struct Report {
 
     // фактический заработок в Quote (уже с вычетом комиссии)
     Quantity profit = 0.0;
-    // процентное соотношение заработка от депозита
-    Change change = 0.0;
 
     // количество аработанных ассетов (без учета комиссии)
     Quantity earn_base = 0.0;
@@ -25,6 +23,7 @@ struct Report {
     // количество используем ассетов
     Quantity use_base = 0.0;
     Quantity use_quote = 0.0;
+    Quantity use_total = 0.0;
 
     // сумарный оборот ассетов
     Quantity volume_base = 0.0;
@@ -36,5 +35,6 @@ struct Report {
     int positions = 0;
 
     void add(const Report& report);
+    Change apy() const;
 };
 NS_END

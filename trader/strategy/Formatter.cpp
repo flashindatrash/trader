@@ -54,9 +54,9 @@ Formatter Formatter::profit(const Report& report, const Symbol& symbol) {
 }
 
 Formatter Formatter::report(const Report& report, const Symbol& symbol) {
-    return util::format("Report:\n\tSuccess: %0.0f%% (%d of %d positions)\n\tProfit: %f (%.1f%%)\n\tEarn %s: %f\n\tEarn %s: %f\n\tVolume %s: %f\n\tVolume %s: %f\n\tUse %s: %f\n\tUse %s: %f\n\tBalance %s: %f\n\tBalance %s: %f",
+    return util::format("Report:\n\tSuccess: %0.0f%% (%d of %d positions)\n\tProfit: %f (APY: %.1f%%)\n\tEarn %s: %f\n\tEarn %s: %f\n\tVolume %s: %f\n\tVolume %s: %f\n\tUse %s: %f\n\tUse %s: %f\n\tBalance %s: %f\n\tBalance %s: %f",
                  (double)report.success / (double)report.positions * 100.0, report.success, report.positions,
-                 report.profit, report.change * 100.0,
+                 report.profit, report.apy() * 100.0,
                  symbol.baseAsset().c_str(), report.earn_base,
                  symbol.quoteAsset().c_str(), report.earn_quote,
                  symbol.baseAsset().c_str(), report.volume_base,

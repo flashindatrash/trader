@@ -16,7 +16,7 @@ Runner* Runner::create() {
     return runner;
 }
 
-void Runner::start(const Settings& settings) {
+bool Runner::start(const Settings& settings) {
     _chart = Exchanger().chart(settings.symbol);
     if (settings.isBackTest()) {
         PriceWrapper price;
@@ -36,11 +36,11 @@ void Runner::start(const Settings& settings) {
 
             setContext(Context(it, price));
         }
-        return;
+        return false;
     }
 
-    _active = true;
     Time().onTick.connect(std::bind(&Runner::tick, this, std::placeholders::_1));
+    return true;
 }
 
 void Runner::setCallback(Callback::Fn callback) {
@@ -57,8 +57,4 @@ void Runner::tick(time_t ms) {
         return;
 
     setContext(Context(_chart->get().cend() - 1, *Exchanger().price(_chart->id())));
-}
-
-bool Runner::isActive() const {
-    return _active;
 }

@@ -84,7 +84,6 @@ void Listener::handleReport(const Report& report) {
 
         // сохраняем статистику пары
         _stats.setProfit(report.profit);
-        _stats.setChange(report.change);
         _stats.setEarnBase(report.earn_base);
         _stats.setEarnQuote(report.earn_quote);
         _stats.save();

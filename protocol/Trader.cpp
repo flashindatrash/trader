@@ -7,7 +7,6 @@
 
 static const char* FIELD_VERSION = "version";
 static const char* FIELD_PROFIT = "profit";
-static const char* FIELD_CHANGE = "change";
 static const char* FIELD_BASE = "base";
 static const char* FIELD_QUOTE = "quote";
 
@@ -24,14 +23,6 @@ void Trader::setProfit(double value) {
 
 double Trader::profit() const {
     return get(FIELD_PROFIT).asDouble();
-}
-
-void Trader::setChange(double value) {
-    inc(FIELD_CHANGE, value);
-}
-
-double Trader::change() const {
-    return get(FIELD_CHANGE).asDouble();
 }
 
 void Trader::setEarnBase(double value) {

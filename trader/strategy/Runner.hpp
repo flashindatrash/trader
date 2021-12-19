@@ -16,8 +16,7 @@ public: // static
     static Runner* create();
 
 public: // methods
-    void start(const Settings& settings);
-    bool isActive() const;
+    bool start(const Settings& settings);
     void setCallback(Callback::Fn callback);
 
 protected: // methods
@@ -28,7 +27,6 @@ protected: // methods
 
 protected: // vars
     Callback _dispatcher;
-    bool _active = false;
     ChartWrapper* _chart = nullptr;
 };
 NS_END

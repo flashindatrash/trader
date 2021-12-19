@@ -35,6 +35,7 @@ void Algorithm::stop() {
     if (_position->has() && _settings.isBackTest()) {
         _position->setSide(_position->revert());
         _position->operate();
+        // todo: clear position
     }
 
     onStop.emmit(nullptr);
@@ -118,7 +119,8 @@ bool Algorithm::close() {
     Report report(*_position, close);
 
     // удалим из базы, результат удаления не важен
-    _position->remove();
+    if (_settings.isRelease())
+        _position->remove();
 
     onClose.emmit(close);
     onReport.emmit(report);

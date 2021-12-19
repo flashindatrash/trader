@@ -48,8 +48,8 @@ bool Strategy::init(const core::Config& config) {
     // create & start runner
     _runner = Runner::create();
     _runner->setCallback(std::bind(&Strategy::execute, this, std::placeholders::_1));
-    _runner->start(_settings);
-    if (not isRunning())
+
+    if (not _runner->start(_settings))
         _algorithm->stop();
 
     return true;
@@ -61,5 +61,5 @@ void Strategy::execute(void*) {
 }
 
 bool Strategy::isRunning() const {
-    return _runner && _runner->isActive();
+    return _runner != nullptr;
 }
