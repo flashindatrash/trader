@@ -173,6 +173,14 @@ int Database::incr(const Key& key) {
     return 0;
 }
 
+const Value Database::incr(const Key& key, double value) {
+    if (redisReply* result = cmd("INCRBYFLOAT %s %f", key.c_str(), value)) {
+        if (result->type == REDIS_REPLY_STRING)
+            return result->str;
+    }
+    return Value::Empty;
+}
+
 bool Database::del(const Key &key) {
     if (redisReply* result = cmd("DEL %s", key.c_str())) {
         if (result->type == REDIS_REPLY_INTEGER)

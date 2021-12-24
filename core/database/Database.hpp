@@ -31,6 +31,7 @@ public: // methods
     bool hmset(const Key& key, const Object::Map& map);
     Object::Map hgetall(const Key& key);
     int incr(const Key& key);
+    const Value incr(const Key& key, double value);
     bool del(const Key& key);
     std::vector<Key> keys(const std::string& pattern);
 
