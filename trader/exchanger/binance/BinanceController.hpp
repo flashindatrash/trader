@@ -6,6 +6,7 @@
 #include <vector>
 #include "exchanger/abstract/ExchangerController.hpp"
 #include "response/BinanceSymbolData.hpp"
+#include "response/BinanceFlexibleProductData.hpp"
 
 namespace Json {
     class Value;
@@ -46,9 +47,11 @@ protected: // methods
     bool initUserListenKey();
     void keepUserDataStream();
 
-    bool loadSavings(Storage::Type_balance& container) const;
-
     double minQuantity(const std::string& symbol) const;
+
+protected: // savings
+    bool loadSavings(Storage::Type_balance& container) const;
+    bool redeemSavings(const std::string& asset, double quantity) const;
 
 protected: // callbacks
     void onUserDataStream(const Json::Value& json);

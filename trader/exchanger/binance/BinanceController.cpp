@@ -19,6 +19,7 @@
 #include "response/BinancePriceStatisticsData.hpp"
 #include "response/BinanceKlineData.hpp"
 #include "response/BinanceTickerData.hpp"
+#include "response/BinanceFlexibleProductData.hpp"
 
 static const char* CONFIG_API_KEY = "BINANCE_API_KEY";
 static const char* CONFIG_SECRET_KEY = "BINANCE_SECRET_KEY";
@@ -142,7 +143,7 @@ bool BinanceController::loadPrices(Storage::Type_price& container) const {
 
 bool BinanceController::loadBalances(Storage::Type_balance& container) const {
     Json::Value json;
-    BinaCPP::get_spot_account(_config_recv_window, json);
+    BinaCPP::get_account(_config_recv_window, json);
 
     BinanceErrorData error(json, "BinanceController::loadBalances");
     if (error.has()) {
@@ -165,7 +166,7 @@ bool BinanceController::loadBalances(Storage::Type_balance& container) const {
 
 bool BinanceController::loadSavings(Storage::Type_balance& container) const {
     Json::Value json;
-    BinaCPP::get_lending_account(_config_recv_window, json);
+    BinaCPP::get_savings(_config_recv_window, json);
 
     BinanceErrorData error(json, "BinanceController::loadSavings");
     if (error.has()) {
@@ -183,7 +184,47 @@ bool BinanceController::loadSavings(Storage::Type_balance& container) const {
         BinanceBalanceData data(balance, "asset", "amount");
         container.get("LD" + data.asset)->set(data.free, data.locked);
     }
+
     return true;
+}
+
+bool BinanceController::redeemSavings(const std::string& asset, double quantity) const {
+    if (_balances_connector != nullptr && _balances_connector->get("LD" + asset)->get() < quantity)
+        return false;
+
+    Json::Value json;
+    BinaCPP::get_flexibleProducts(asset.c_str(), _config_recv_window, json);
+
+    BinanceErrorData error(json, "BinanceController::redeemSavings");
+    if (error.has()) {
+        Logger::info(util::format("%s [%d]", error.msg.c_str(), error.code));
+        return false;
+    }
+
+    if (not json.isArray()) {
+        Logger::info(util::format("BinanceController::redeemSavings: invalid json %s", json.toStyledString().c_str()));
+        return false;
+    }
+
+    for (const auto & product : json) {
+        BinanceFlexibleProductData data(product);
+
+        if (not data.canRedeem || data.free < quantity || data.redeemingAmount > 0.0)
+            continue;
+
+        Json::Value json_redeem;
+        BinaCPP::redeem_flexibleProduct(data.productId.c_str(), quantity, "FAST", _config_recv_window, json_redeem);
+
+        BinanceErrorData error_redeem(json, "BinanceController::redeemSavings");
+        if (error_redeem.has()) {
+            Logger::info(util::format("%s [%d]", error_redeem.msg.c_str(), error_redeem.code));
+            return false;
+        }
+
+        return true;
+    }
+
+    return false;
 }
 
 bool BinanceController::loadStats(CandlestickWrapper& container) const {
