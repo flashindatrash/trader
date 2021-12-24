@@ -19,6 +19,7 @@ NS_USE
 
 static const char* BIND_PRINT = "print";
 static const char* BIND_BALANCE = "balance";
+static const char* BIND_PRICE = "price";
 static const char* BIND_TOPUP = "topup";
 static const char* BIND_DEMA = "dema";
 static const char* BIND_CHART = "chart";
@@ -53,12 +54,24 @@ int Script::bind_balance(lua_State *L) {
     int args_size = lua_gettop(L);
     if (args_size < 1) {
         Logger::info("[script] failed to call `balance`");
-        lua_pushinteger(L, 0);
+        lua_pushnumber(L, 0.0);
         return 1;
     }
 
     std::string asset = lua_tostring(L, 1);
     lua_pushnumber(L, Asset(asset).balance());
+    return 1;
+}
+
+int Script::bind_price(lua_State *L) {
+    const Context *context = Context::current;
+    if (context == nullptr) {
+        Logger::info("[script] failed to call `price`");
+        lua_pushnumber(L, 0.0);
+        return 1;
+    }
+
+    lua_pushnumber(L, context->price());
     return 1;
 }
 
@@ -77,7 +90,7 @@ int Script::bind_topup(lua_State *L) {
 
 int Script::bind_dema(lua_State *L) {
     const Context* context = Context::current;
-    if (context == nullptr || lua_gettop(L) < 2) {
+    if (lua_gettop(L) < 2 || context == nullptr) {
         Logger::info("[script] failed to call `dema`");
         lua_pushinteger(L, OrderSide::Invalid);
         lua_pushinteger(L, OrderSide::Invalid);
@@ -149,6 +162,7 @@ bool Script::init() {
 
     lua_register(lua, BIND_PRINT, bind_print);
     lua_register(lua, BIND_BALANCE, bind_balance);
+    lua_register(lua, BIND_PRICE, bind_price);
     lua_register(lua, BIND_TOPUP, bind_topup);
     lua_register(lua, BIND_DEMA, bind_dema);
     lua_register(lua, BIND_CHART, bind_chart);
@@ -210,7 +224,7 @@ bool Script::open(OrderRequest& request) {
         return false;
     }
 
-    request.quantity *= lua_tonumber(lua, -1);
+    request.quantity = lua_tonumber(lua, -1);
     lua_pop(lua,1);
     request.side = (OrderSide)lua_tointeger(lua, -1);
     lua_pop(lua,1);

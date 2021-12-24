@@ -20,6 +20,7 @@ public: // static
 private: // static
     static int bind_print(lua_State *L);
     static int bind_balance(lua_State *L);
+    static int bind_price(lua_State *L);
     static int bind_topup(lua_State *L);
     static int bind_dema(lua_State *L);
     static int bind_chart(lua_State *L);

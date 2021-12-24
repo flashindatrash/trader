@@ -132,8 +132,6 @@ bool Algorithm::tryOpen() {
     // создадим реквест
     OrderRequest request;
     request.symbol = _settings.symbol;
-    request.quantity = Exchanger().roundQuantity(0.0, request.symbol);
-
     if (not _script->open(request))
         return false;
 
