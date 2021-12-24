@@ -30,10 +30,6 @@ Quantity OrderWrapper::quoteQuantity() const {
     return _data.quote_quantity;
 }
 
-Quantity OrderRequest::balance() const {
-    return OrderUtil::usedQuantity(side, symbol.baseAsset().balance(), symbol.quoteAsset().balance());
-}
-
 Quantity OrderRequest::required() const {
     return OrderUtil::usedQuantity(side, quantity, symbol.price(side) * quantity * 1.01);
 }

@@ -423,12 +423,14 @@ const OrderWrapper* BinanceController::createOrder(BookWrapper& container, Order
     request.quantity = roundQuantity(request.quantity, request.symbol, std::round);
 
     // check is enough to create order
-    Quantity balance = request.balance();
-    Quantity required = request.required();
-    if (balance < required) {
+    const Asset& asset = OrderUtil::usedAsset(request.side, request.symbol);
+    if (asset.balance() < request.required()) {
         // try to redeem from savings
-        const Asset& asset = OrderUtil::usedAsset(request.side, request.symbol);
-        if (not redeemSavings(asset, required - balance))
+        if (not redeemSavings(asset, request.required() - asset.balance()))
+            return nullptr;
+
+        // check one more time after redeeming
+        if (asset.balance() < request.required())
             return nullptr;
     }
 
@@ -444,8 +446,7 @@ const OrderWrapper* BinanceController::createOrder(BookWrapper& container, Order
                          binance::serialize(request.side).c_str(),
                          request.quantity,
                          request.symbol.baseAsset().c_str(),
-                         OrderUtil::usedQuantity(request.side, request.symbol.baseAsset().balance(),
-                                                 request.symbol.quoteAsset().balance())));
+                         OrderUtil::usedAsset(request.side, request.symbol).balance()));
         }
         return nullptr;
     }

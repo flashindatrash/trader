@@ -45,7 +45,7 @@ int Script::bind_print(lua_State *L) {
     }
 
     std::string value = lua_tostring(L, 1);
-    Logger::info(util::format("[script] %s", value.c_str()));
+    Logger::info(util::format("%s%s%s", CYAN, value.c_str(), RESET));
     return 0;
 }
 

@@ -155,7 +155,8 @@ bool Algorithm::createOrder(OrderRequest& request, Position& result) const {
         return false;
 
     if (not _settings.isRelease()) {
-        if (request.balance() < request.required())
+        const Asset& asset = OrderUtil::usedAsset(request.side, request.symbol);
+        if (asset.balance() + Asset("LD" + asset.id()).balance() < request.required())
             return false;
 
         result.setSymbol(request.symbol);

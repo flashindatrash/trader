@@ -21,7 +21,6 @@ struct OrderRequest {
     Quantity quantity = 0.0;
     OrderType type = Market;
 
-    Quantity balance() const;
     Quantity required() const;
 };
 

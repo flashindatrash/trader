@@ -76,10 +76,10 @@ end
 
 function average(position)
     if position.side == 1 then
-        balance_quantity = balance(position.quoteAsset);
+        balance_quantity = balance(position.quoteAsset) + balance("LD" .. position.quoteAsset);
         position_quantity = position.quoteQuantity;
     elseif position.side == 2 then
-        balance_quantity = balance(position.baseAsset);
+        balance_quantity = balance(position.baseAsset) + balance("LD" .. position.baseAsset);
         position_quantity = position.baseQuantity;
     else
         return false;
