@@ -6,7 +6,7 @@
 #include "strategy/Strategy.hpp"
 #include "util/StringUtil.hpp"
 
-core::Version TraderApp::sVersion = core::Version(1, 3, 1);
+core::Version TraderApp::sVersion = core::Version(1, 4, 0);
 
 TraderApp::TraderApp(const core::Config& config)
     : core::App(config)
