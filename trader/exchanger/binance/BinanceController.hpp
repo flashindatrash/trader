@@ -46,6 +46,8 @@ protected: // methods
     bool initUserListenKey();
     void keepUserDataStream();
 
+    bool loadSavings(Storage::Type_balance& container) const;
+
     double minQuantity(const std::string& symbol) const;
 
 protected: // callbacks

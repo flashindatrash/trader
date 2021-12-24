@@ -1,11 +1,12 @@
 #include "BinanceBalanceData.hpp"
 #include <json/json.h>
 
-BinanceBalanceData::BinanceBalanceData(const Json::Value& json, bool minimized)
+BinanceBalanceData::BinanceBalanceData(const Json::Value& json, const std::string& asset_key, const std::string& amount_key, const std::string& locked_key)
 {
-    asset = json[minimized ? "a" : "asset"].asString();
-    free = atof(json[minimized ? "f" : "free"].asString().c_str());
-    locked = atof(json[minimized ? "l" : "locked"].asString().c_str());
+    asset = json[asset_key].asString();
+    free = atof(json[amount_key].asString().c_str());
+    if (not locked_key.empty())
+        locked = atof(json[locked_key].asString().c_str());
 }
 
 BinanceBalanceData::BinanceBalanceData(std::string a, double f)

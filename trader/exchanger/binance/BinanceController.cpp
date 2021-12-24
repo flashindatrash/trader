@@ -142,7 +142,7 @@ bool BinanceController::loadPrices(Storage::Type_price& container) const {
 
 bool BinanceController::loadBalances(Storage::Type_balance& container) const {
     Json::Value json;
-    BinaCPP::get_account(_config_recv_window, json);
+    BinaCPP::get_spot_account(_config_recv_window, json);
 
     BinanceErrorData error(json, "BinanceController::loadBalances");
     if (error.has()) {
@@ -157,8 +157,31 @@ bool BinanceController::loadBalances(Storage::Type_balance& container) const {
     }
 
     for (const auto & balance : balances) {
-        BinanceBalanceData data(balance, false);
+        BinanceBalanceData data(balance, "asset", "free", "locked");
         container.get(data.asset)->set(data.free, data.locked);
+    }
+    return true;
+}
+
+bool BinanceController::loadSavings(Storage::Type_balance& container) const {
+    Json::Value json;
+    BinaCPP::get_lending_account(_config_recv_window, json);
+
+    BinanceErrorData error(json, "BinanceController::loadSavings");
+    if (error.has()) {
+        Logger::info(util::format("%s [%d]", error.msg.c_str(), error.code));
+        return false;
+    }
+
+    const Json::Value& balances = json["positionAmountVos"];
+    if (not balances.isArray()) {
+        Logger::info(util::format("BinanceController::loadSavings: invalid json %s", json.toStyledString().c_str()));
+        return false;
+    }
+
+    for (const auto & balance : balances) {
+        BinanceBalanceData data(balance, "asset", "amount");
+        container.get("LD" + data.asset)->set(data.free, data.locked);
     }
     return true;
 }
@@ -241,6 +264,7 @@ void BinanceController::connectPrices(Storage::Type_price& container) {
 
 void BinanceController::connectBalances(Storage::Type_balance& container) {
     loadBalances(container);
+    loadSavings(container);
     _balances_connector = &container;
 }
 
@@ -307,7 +331,7 @@ void BinanceController::onUserDataStream(const Json::Value& json) {
         }
     } else if (action == "outboundAccountPosition") {
         for (const auto &i : json["B"]) {
-            BinanceBalanceData data(i, true);
+            BinanceBalanceData data(i, "a", "f", "l");
             if (_balances_connector != nullptr)
                 _balances_connector->get(data.asset)->set(data.free, data.locked);
         }
@@ -346,6 +370,11 @@ const OrderWrapper* BinanceController::createOrder(BookWrapper& container, Order
     const BinanceSymbolData& info = it->second;
     if (not info.hasOrderType(type)) {
         Logger::info("BinanceController::createOrder symbol doesn't supported for this type");
+        return nullptr;
+    }
+
+    if (not info.isSpotTradingAllowed) {
+        Logger::info("BinanceController::createOrder spot trading is not allowed");
         return nullptr;
     }
 

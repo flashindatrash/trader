@@ -43,8 +43,8 @@ function __main__(settings)
 
     if settings.mode == "backtest" then
         days = 31;
-        topup(settings.baseAsset, 1000);
-        topup(settings.quoteAsset, 1000);
+        topup(settings.baseAsset, 100);
+        topup(settings.quoteAsset, 100);
     end
 
     return chart(settings.baseAsset, settings.quoteAsset, 0, days);
@@ -67,7 +67,7 @@ function close(position)
         return false;
     end
 
-    if position.change < 0.003 then
+    if position.change < 0.01 then
         return false;
     end
 
