@@ -18,7 +18,7 @@ public: // methods
     const Asset& baseAsset() const;
     const Asset& quoteAsset() const;
 
-    const Price& price() const;
+    const Price& price(const OrderSide& side) const;
     Quantity balance(const Asset& asset = Asset::USDT) const;
 
     const char* c_str() const;

@@ -11,6 +11,7 @@ typedef double Change;
 typedef double Quantity;
 
 class Symbol;
+class Asset;
 
 enum OrderSide : unsigned int {
     Invalid,
@@ -38,8 +39,8 @@ public: // methods
 class OrderUtil {
 public:
     static Price distance(OrderSide side, Price first, Price second);
+    static const Asset& usedAsset(OrderSide side, const Symbol& symbol);
     static Quantity usedQuantity(OrderSide side, Quantity first, Quantity second);
     static Price price(Quantity baseQuantity, Quantity quoteQuantity);
     static OrderSide revert(OrderSide side);
-    static bool isEnough(const Symbol& symbol, OrderSide side, Quantity quantity);
 };

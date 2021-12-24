@@ -21,7 +21,8 @@ struct OrderRequest {
     Quantity quantity = 0.0;
     OrderType type = Market;
 
-    bool isEnough() const;
+    Quantity balance() const;
+    Quantity required() const;
 };
 
 class OrderWrapper : public OrderBase {

@@ -51,6 +51,15 @@ Price OrderUtil::distance(OrderSide side, Price first, Price second) {
     return 0.0;
 }
 
+const Asset& OrderUtil::usedAsset(OrderSide side, const Symbol& symbol) {
+    switch (side) {
+        case Buy: return symbol.quoteAsset();
+        case Sell: return symbol.baseAsset();
+        case Invalid: return Asset::Empty;
+    }
+    return Asset::Empty;
+}
+
 Quantity OrderUtil::usedQuantity(OrderSide side, Quantity first, Quantity second) {
     switch (side) {
         case Buy: return second;
@@ -71,11 +80,4 @@ OrderSide OrderUtil::revert(OrderSide side) {
         case Invalid: return Invalid;
     }
     return Invalid;
-}
-
-bool OrderUtil::isEnough(const Symbol& symbol, OrderSide side, Quantity quantity) {
-    Price price = Exchanger().price(symbol)->get(side);
-    Quantity balance = usedQuantity(side, symbol.baseAsset().balance(), symbol.quoteAsset().balance());
-    Quantity cost = usedQuantity(side, quantity, price * quantity);
-    return balance >= cost;
 }

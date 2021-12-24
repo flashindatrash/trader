@@ -422,9 +422,15 @@ const OrderWrapper* BinanceController::createOrder(BookWrapper& container, Order
     // round quantity to step size and min lot
     request.quantity = roundQuantity(request.quantity, request.symbol, std::round);
 
-    // enough to create order
-    if (not request.isEnough())
-        return nullptr;
+    // check is enough to create order
+    Quantity balance = request.balance();
+    Quantity required = request.required();
+    if (balance < required) {
+        // try to redeem from savings
+        const Asset& asset = OrderUtil::usedAsset(request.side, request.symbol);
+        if (not redeemSavings(asset, required - balance))
+            return nullptr;
+    }
 
     Json::Value json;
     BinaCPP::send_order(request.symbol.c_str(), binance::serialize(request.side).c_str(), type.c_str(), "GTC", request.quantity , 0, "", 0, 0, _config_recv_window, json);

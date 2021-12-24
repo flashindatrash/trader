@@ -37,8 +37,8 @@ const Asset& Symbol::quoteAsset() const {
     return _quote;
 }
 
-const Price& Symbol::price() const {
-    return Exchanger().price(*this)->get();
+const Price& Symbol::price(const OrderSide& side) const {
+    return Exchanger().price(*this)->get(side);
 }
 
 Quantity Symbol::balance(const Asset& asset/* = Asset::USDT*/) const {

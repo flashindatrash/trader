@@ -151,13 +151,13 @@ bool Algorithm::tryOpen() {
 }
 
 bool Algorithm::createOrder(OrderRequest& request, Position& result) const {
-    if (Context::current == nullptr)
-        return false;
-
-    if (request.side == OrderSide::Invalid || not request.isEnough())
+    if (request.side == OrderSide::Invalid)
         return false;
 
     if (not _settings.isRelease()) {
+        if (request.balance() < request.required())
+            return false;
+
         result.setSymbol(request.symbol);
         result.setSide(request.side);
         result.setBaseQuantity(Exchanger().roundQuantity(request.quantity, request.symbol));
