@@ -8,6 +8,7 @@
     # API methods:
         - void print(string.format(text)): print log
         - number balance(string asset): get account balance
+        - number price(): get current price
         - void topup(string asset, number quantity): top up test balance
         - trend, signal = dema(int fast, int slow): get trend side and signal side of double ema
         - bool chart(string baseAsset, string quoteAsset, Enum interval, int days = 1): load & listen chart
@@ -38,36 +39,47 @@
             3: 1 day
 ]]
 
+-- variables
+function indicator() return dema(20, 30); end
+percent_lot = 0.25;
+percent_profit = 0.01;
+percent_average = 0.25;
+
 function __main__(settings)
-    days = 1;
+    local days = 1;
 
     if settings.mode == "backtest" then
-        days = 31;
-        topup(settings.baseAsset, 100);
-        topup(settings.quoteAsset, 100);
+        days = 30;
+        -- topup(settings.baseAsset, 100);
+        -- topup(settings.quoteAsset, 100);
     end
+
+    baseAsset = settings.baseAsset;
+    quoteAsset = settings.quoteAsset;
 
     return chart(settings.baseAsset, settings.quoteAsset, 0, days);
 end
 
 function open()
-    trend, signal = dema(20, 30);
+    local trend, signal = indicator();
 
     if signal == 0 or signal == 2 then
         return 0, 0;
     end
 
-    return signal, 2.0;
+    local balance = balance(quoteAsset) + balance("LD" .. quoteAsset);
+    local lot = balance * percent_lot / price();
+    return signal, lot;
 end
 
 function close(position)
-    trend, signal = dema(20, 30);
+    local trend, signal = indicator();
 
     if trend == 0 or trend == position.side then
         return false;
     end
 
-    if position.change < 0.01 then
+    if position.change < percent_profit then
         return false;
     end
 
@@ -96,7 +108,7 @@ function average(position)
         return false;
     end
 
-    percent = -0.25;
+    local percent = -percent_average;
     for i = 1, averages do
         percent = percent / 2.0;
     end
