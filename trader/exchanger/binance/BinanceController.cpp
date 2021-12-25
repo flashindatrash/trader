@@ -1,13 +1,5 @@
 #include "BinanceController.hpp"
 #include "BinanceWebsocket.hpp"
-#include <cmath>
-#include "binacpp.h"
-#include "binacpp_websocket.h"
-#include "binacpp_logger.h"
-#include "Config.hpp"
-#include "Logger.hpp"
-#include "util/StringUtil.hpp"
-#include "Time.hpp"
 #include "exchanger/wrapper/ChartWrapper.hpp"
 #include "exchanger/wrapper/BalanceWrapper.hpp"
 #include "exchanger/wrapper/BookWrapper.hpp"
@@ -20,11 +12,21 @@
 #include "response/BinanceKlineData.hpp"
 #include "response/BinanceTickerData.hpp"
 #include "response/BinanceFlexibleProductData.hpp"
+#include "response/BinanceSpotAccountData.hpp"
+#include "binacpp.h"
+#include "binacpp_websocket.h"
+#include "binacpp_logger.h"
+#include "Config.hpp"
+#include "Logger.hpp"
+#include "util/StringUtil.hpp"
+#include "Time.hpp"
+#include <cmath>
 
 static const char* CONFIG_API_KEY = "BINANCE_API_KEY";
 static const char* CONFIG_SECRET_KEY = "BINANCE_SECRET_KEY";
 static const char* CONFIG_RECV_WINDOW = "BINANCE_RECV_WINDOW";
-static const char* CONFIG_FEE = "BINANCE_FEE";
+
+double BinanceController::_commission = 0.0;
 
 BinanceController::~BinanceController() {
     for (BinanceWebsocket* websocket : _websockets)
@@ -50,9 +52,6 @@ bool BinanceController::init(const core::Config& config) {
 
     if (config.has(CONFIG_RECV_WINDOW))
         _config_recv_window = config.asInt(CONFIG_RECV_WINDOW);
-
-    if (config.has(CONFIG_FEE))
-        _config_fee = config.asDouble(CONFIG_FEE) / 100.0;
 
     // init binance api
     if (not BinaCPP::init(api_key, secret_key))
@@ -151,16 +150,17 @@ bool BinanceController::loadBalances(Storage::Type_balance& container) const {
         return false;
     }
 
-    const Json::Value& balances = json["balances"];
-    if (not balances.isArray()) {
-        Logger::info(util::format("BinanceController::loadBalances: invalid json %s", json.toStyledString().c_str()));
+    BinanceSpotAccountData account(json);
+    if (not account.canTrade) {
+        Logger::info("BinanceController::loadBalances: can't trade on spot account");
         return false;
     }
 
-    for (const auto & balance : balances) {
-        BinanceBalanceData data(balance, "asset", "free", "locked");
-        container.get(data.asset)->set(data.free, data.locked);
-    }
+    _commission = account.takerCommission / 100.0;
+
+    for (const BinanceBalanceData& balance : account.balances)
+        container.get(balance.asset)->set(balance.free, balance.locked);
+
     return true;
 }
 
@@ -345,20 +345,23 @@ bool BinanceController::initUserListenKey() {
 
     BinanceWebsocket* websocket = BinanceWebsocket::create();
     websocket->setPath(json["listenKey"].asString());
+    websocket->setType(BinanceWebsocket::UserStream);
     websocket->setCallback(std::bind(&BinanceController::onUserDataStream, this, std::placeholders::_1));
     _websockets.push_back(websocket);
     return true;
 }
 
 void BinanceController::keepUserDataStream() {
-    if (_websockets.empty())
-        return;
+    for (BinanceWebsocket* websocket : _websockets) {
+        if (websocket->type() != BinanceWebsocket::UserStream)
+            continue;
 
-    BinanceWebsocket* userstream = _websockets.front();
-    if (not userstream->isConnected())
-        return;
+        if (not websocket->isConnected())
+            continue;
 
-    BinaCPP::keep_userDataStream(userstream->path().c_str());
+        BinaCPP::keep_userDataStream(websocket->path().c_str());
+        break;
+    }
 }
 
 void BinanceController::onUserDataStream(const Json::Value& json) {
@@ -507,7 +510,13 @@ double BinanceController::roundQuantity(double quantity, const std::string& symb
 }
 
 double BinanceController::fee() const {
-    return _config_fee;
+    double commission = _commission;
+
+    // Using BNB to pay for fees ( 25% discount )
+    if (_balances_connector != nullptr && _balances_connector->get("BNB")->get() > 0.0)
+        commission -= commission * 0.25;
+
+    return commission / 100.0;
 }
 
 std::unordered_map<std::string, BinanceSymbolData> BinanceController::_symbols;

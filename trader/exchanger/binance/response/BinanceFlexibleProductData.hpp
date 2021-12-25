@@ -6,7 +6,7 @@
 
 #include "BinanceBalanceData.hpp"
 
-class BinanceFlexibleProductData : public BinanceBalanceData {
+struct BinanceFlexibleProductData : public BinanceBalanceData {
 public: // methods
     BinanceFlexibleProductData() = default;
     BinanceFlexibleProductData(const Json::Value& json);

@@ -19,12 +19,20 @@ void BinanceWebsocket::setCallback(SignalT::Fn callback) {
     _callback.connect(std::move(callback));
 }
 
+void BinanceWebsocket::setType(Type type) {
+    _type = type;
+}
+
 bool BinanceWebsocket::isConnected() const {
     return _connected;
 }
 
 const std::string& BinanceWebsocket::path() const {
     return _path;
+}
+
+const BinanceWebsocket::Type& BinanceWebsocket::type() const {
+    return _type;
 }
 
 void BinanceWebsocket::connect() {

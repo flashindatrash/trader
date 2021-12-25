@@ -9,6 +9,10 @@ namespace Json {
 
 class BinanceWebsocket {
 public: // static
+    enum Type {
+        Default,
+        UserStream
+    };
 
     typedef Json::Value SignalV;
     typedef Signal<SignalV> SignalT;
@@ -18,11 +22,13 @@ public: // static
 public: // methods
     void setPath(std::string path);
     void setCallback(SignalT::Fn callback);
+    void setType(Type type);
 
     void connect();
 
     bool isConnected() const;
     const std::string& path() const;
+    const Type& type() const;
 
 protected: // methods
     BinanceWebsocket() = default;
@@ -32,6 +38,7 @@ protected: // methods
 protected: // vars
     SignalT _callback;
     bool _connected = false;
+    Type _type = Default;
     std::string _path;
 };
 

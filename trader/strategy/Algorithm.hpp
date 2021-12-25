@@ -18,7 +18,6 @@ public: // methods
     virtual ~Algorithm();
 
     bool init();
-    void start();
     void stop();
 
     bool tryOpen();

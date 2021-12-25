@@ -60,6 +60,7 @@ protected: // callbacks
 
 private: // static vars
     static std::unordered_map<std::string, BinanceSymbolData> _symbols;
+    static double _commission;
 
 private: // vars
     std::thread _thread;
@@ -67,8 +68,6 @@ private: // vars
 
     // number of milliseconds after timestamp the request is valid
     unsigned int _config_recv_window = 5000;
-    // order fee percentage
-    double _config_fee = 0.0;
 
     Storage::Type_price* _prices_connector = nullptr;
     Storage::Type_balance* _balances_connector = nullptr;
