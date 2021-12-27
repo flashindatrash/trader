@@ -446,7 +446,7 @@ const OrderWrapper* BinanceController::createOrder(BookWrapper& container, Order
     if (error.has()) {
         Logger::info(util::format("%s [%d]", error.msg.c_str(), error.code));
         if (error.code == BinanceErrorData::NEW_ORDER_REJECTED) {
-            Logger::info(util::format("BinanceController::create order: not enough to %s %f %s with balance %f",
+            Logger::error(util::format("BinanceController::create order: not enough to %s %f %s with balance %f",
                          binance::serialize(request.side).c_str(),
                          request.quantity,
                          request.symbol.baseAsset().c_str(),

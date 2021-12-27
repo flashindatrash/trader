@@ -49,6 +49,7 @@ void Logger::erase() {
 }
 
 void Logger::error(const std::string& value) {
+    info(value);
     std::raise(SIGSEGV);
 }
 
