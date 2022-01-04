@@ -55,5 +55,6 @@ subdirs(
 	protocol
 	binacpp
 	trader
+	staker
 	telegram
 )

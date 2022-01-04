@@ -5,9 +5,9 @@
 #include <unistd.h>
 
 #include "argparser/ArgumentParser.hpp"
+#include "util/StringUtil.hpp"
 #include "Logger.hpp"
 #include "app/TraderApp.hpp"
-#include "util/StringUtil.hpp"
 
 void handler(int sig) {
   void *array[10];

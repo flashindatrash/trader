@@ -1,5 +1,5 @@
 set(Boost_USE_MULTITHREADED ON)
-file(GLOB_RECURSE EVENT_MANAGER_SRC *.hpp *.cpp)
+file(GLOB_RECURSE TELEGRAM_SRC *.hpp *.cpp)
 
 find_package(Threads REQUIRED)
 find_package(OpenSSL REQUIRED)
@@ -23,11 +23,11 @@ list(APPEND ALL_LIBS ${HIREDIS_LIBRARY})
 include_directories(${PROJECT_SOURCE_DIR}/core)
 include_directories(${PROJECT_SOURCE_DIR}/protocol)
 
-add_executable(event_manager ${EVENT_MANAGER_SRC})
-target_link_libraries(event_manager protocol ${ALL_LIBS})
+add_executable(telegram ${TELEGRAM_SRC})
+target_link_libraries(telegram protocol ${ALL_LIBS})
 
 install(
-        TARGETS event_manager
+        TARGETS telegram
         DESTINATION bin
         PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
 )
