@@ -55,5 +55,5 @@ subdirs(
 	protocol
 	binacpp
 	trader
-	event_manager
+	telegram
 )
