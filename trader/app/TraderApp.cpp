@@ -4,12 +4,14 @@
 #include "database/Database.hpp"
 #include "exchanger/Exchanger.hpp"
 #include "strategy/Strategy.hpp"
-#include "util/StringUtil.hpp"
 
-core::Version TraderApp::sVersion = core::Version(1, 4, 0);
+TraderApp* TraderApp::create(const core::Config& config) {
+    auto* app = new TraderApp(config);
+    return app;
+}
 
 TraderApp::TraderApp(const core::Config& config)
-    : core::App(config)
+    : core::App(config, core::Version(1, 4, 0))
 {
 }
 
@@ -18,13 +20,8 @@ TraderApp::~TraderApp() {
     _strategy = nullptr;
 }
 
-TraderApp* TraderApp::create(const core::Config& config) {
-    auto* app = new TraderApp(config);
-    return app;
-}
-
 int TraderApp::run() {
-    Logger::info(util::format("TraderBot version: %s", sVersion.toString().c_str()));
+    Logger::info(util::format("TraderBot %s", _version.toString().c_str()));
 
     // init database
     if (not DB().init(_config))

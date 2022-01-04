@@ -12,7 +12,6 @@
 #include "exchanger/wrapper/BalanceWrapper.hpp"
 #include "exchanger/wrapper/OrderWrapper.hpp"
 #include "exchanger/indicator/DEMA.hpp"
-#include "util/StringUtil.hpp"
 #include "lua.hpp"
 
 NS_USE

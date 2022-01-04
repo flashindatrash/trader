@@ -2,6 +2,9 @@
 
 #include <string>
 
+// helper for format
+#include "util/StringUtil.hpp"
+
 //the following are UBUNTU/LINUX, and MacOS ONLY terminal color codes.
 #define RESET   "\033[0m"
 #define BLACK   "\033[30m"      /* Black */

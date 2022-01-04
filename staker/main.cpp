@@ -3,9 +3,8 @@
 //
 
 #include "argparser/ArgumentParser.hpp"
-#include "util/StringUtil.hpp"
 #include "Logger.hpp"
-#include "Config.hpp"
+#include "app/StakerApp.hpp"
 
 int main(int argc, char** argv) {
     std::string config_file;
@@ -27,5 +26,5 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-    return EXIT_FAILURE;
+    return StakerApp::create(cfg)->run();
 }

@@ -5,7 +5,6 @@
 #include <unistd.h>
 
 #include "argparser/ArgumentParser.hpp"
-#include "util/StringUtil.hpp"
 #include "Logger.hpp"
 #include "app/TraderApp.hpp"
 

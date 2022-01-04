@@ -1,7 +1,6 @@
 #include "Database.hpp"
 #include "Config.hpp"
 #include "Logger.hpp"
-#include "util/StringUtil.hpp"
 #include "hiredis/hiredis.h"
 
 using namespace db;

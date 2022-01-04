@@ -18,7 +18,6 @@
 #include "binacpp_logger.h"
 #include "Config.hpp"
 #include "Logger.hpp"
-#include "util/StringUtil.hpp"
 #include "Time.hpp"
 #include <cmath>
 

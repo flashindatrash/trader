@@ -4,7 +4,6 @@
 #include "Storage.hpp"
 #include "exchanger/Exchanger.hpp"
 #include "exchanger/base/OrderBase.hpp"
-#include "util/StringUtil.hpp"
 
 NS_USE
 

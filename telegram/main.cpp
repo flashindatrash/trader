@@ -1,7 +1,6 @@
 #include "argparser/ArgumentParser.hpp"
 #include "Logger.hpp"
 #include "app/EventManagerApp.hpp"
-#include "util/StringUtil.hpp"
 
 int main(int argc, char** argv) {
     std::string cfg_file;

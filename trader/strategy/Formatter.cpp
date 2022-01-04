@@ -8,9 +8,7 @@
 #include "Report.hpp"
 #include "Settings.hpp"
 #include "Logger.hpp"
-#include "exchanger/Exchanger.hpp"
 #include "util/MathUtil.hpp"
-#include "util/StringUtil.hpp"
 #include <utility>
 
 NS_USE

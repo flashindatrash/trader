@@ -4,7 +4,6 @@
 
 #include "Messenger.hpp"
 #include "Logger.hpp"
-#include "util/StringUtil.hpp"
 #include <functional>
 #include "Command.hpp"
 #include "Event.hpp"
