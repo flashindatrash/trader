@@ -14,7 +14,7 @@ bool ExchangerProxy::init(const core::Config& config) {
     if (not _controller->init(config))
         return false;
 
-    if (not _controller->loadPairs(_pairs))
+    if (not loadPairs())
         return false;
 
     _controller->connectPrices(_prices);
@@ -38,6 +38,10 @@ void ExchangerProxy::stop() {
 
 void ExchangerProxy::tick(time_t now) {
     _controller->tick(now);
+}
+
+bool ExchangerProxy::loadPairs() {
+    return _controller->loadPairs(_pairs);
 }
 
 bool ExchangerProxy::loadOrders(const std::string& key) {

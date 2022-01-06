@@ -2,11 +2,13 @@
 
 #include "Identifier.hpp"
 #include "Asset.hpp"
+#include "Signal.hpp"
 
 class PriceWrapper;
 
 class Symbol : public Identifier {
 public: // static
+    static Signal<Symbol> onAdded;
     static Symbol* create();
 
 public: // methods

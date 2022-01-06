@@ -1,15 +1,15 @@
 #pragma once
 
-#include "App.hpp"
+#include "BaseApp.hpp"
 
 class Strategy;
 
-class TraderApp : public core::App {
+class TraderApp : public BaseApp {
 public: // static
     static TraderApp* create(const core::Config& config);
 
 public: // methods
-    int run();
+    int run() override;
 
 protected: // methods
     explicit TraderApp(const core::Config& config);

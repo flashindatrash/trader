@@ -35,7 +35,7 @@ int StakerApp::run() {
         return EXIT_FAILURE;
 
     Json::Value response;
-    BinaCPP::get_fixedProjects("", "CUSTOMIZED_FIXED", "ALL", "true", "START_TIME", 1, 10, _config.asInt("BINANCE_RECV_WINDOW"), response);
+    BinaCPP::get_fixedProjects("", "ACTIVITY", "ALL", "true", "START_TIME", 1, 10, _config.asInt("BINANCE_RECV_WINDOW"), response);
 
     if (not response.isArray())
         return EXIT_FAILURE;
@@ -53,7 +53,7 @@ int StakerApp::run() {
         double lots_up_limit = atof(project["lotsUpLimit"].asString().c_str());
         double max_lots_per_user = atof(project["maxLotsPerUser"].asString().c_str());
         bool need_kys = project["needKyc"].asBool();
-        Logger::info(util::format("project: %s\n\tstatus: %s\n\tduration: %d\n\tinterest_rate: %f\n\tinterest_per_lot: %f\n", project_name, status, duration, interest_rate, interest_per_lot));
+        Logger::info(util::format("project: %s (%s)\n\tstatus: %s\n\tduration: %d\n\tinterest_rate: %f\n\tinterest_per_lot: %f\n", project_name, asset, status, duration, interest_rate, interest_per_lot));
     }
 
     return EXIT_SUCCESS;

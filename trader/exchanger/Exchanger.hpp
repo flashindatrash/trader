@@ -23,6 +23,7 @@ public: // methods
     void run();
     void stop();
 
+    bool loadPairs();
     bool loadOrders(const std::string& key);
     bool loadStats(const std::string& key);
     bool loadCharts(const std::string& key, ChartRequest& request);

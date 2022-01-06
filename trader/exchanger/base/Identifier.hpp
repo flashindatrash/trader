@@ -10,6 +10,8 @@ public: // methods
     void setId(Id id);
     const Id& id() const;
 
+    bool empty() const;
+
 protected: // methods
     Identifier() = default;
 

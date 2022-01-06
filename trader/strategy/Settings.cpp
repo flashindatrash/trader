@@ -32,7 +32,7 @@ bool Settings::isValid() const {
         return false;
     }
 
-    if (Exchanger().pair(symbol) == nullptr) {
+    if (symbol.empty() || Exchanger().pair(symbol) == nullptr) {
         Logger::info(util::format("Settings: %s(%s) doesn't exist", SYMBOL, symbol.c_str()));
         return false;
     }

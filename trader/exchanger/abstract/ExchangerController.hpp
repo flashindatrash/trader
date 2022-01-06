@@ -38,7 +38,7 @@ public: // virtual
 
     virtual const OrderWrapper* createOrder(BookWrapper& container, OrderRequest& request) = 0;
 
-    virtual double roundQuantity(double quantity, const std::string& symbol, double(*fn)(double) = std::round) const = 0;
+    virtual double roundQuantity(double quantity, const std::string& symbol, double(*fn)(double)) const = 0;
     virtual double fee() const = 0;
 
 protected: // methods

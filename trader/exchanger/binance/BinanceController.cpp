@@ -107,9 +107,15 @@ bool BinanceController::loadPairs(Storage::Type_pair& container) const {
     _symbols.clear();
     for (const auto & it : symbols) {
         BinanceSymbolData data(it);
-        if (Symbol* symbol = container.get(data.symbol))
-            symbol->set(data.baseAsset, data.quoteAsset);
         _symbols[data.symbol] = data;
+
+        if (Symbol* symbol = container.get(data.symbol)) {
+            if (not symbol->baseAsset().empty() && not symbol->quoteAsset().empty())
+                continue;
+
+            symbol->set(data.baseAsset, data.quoteAsset);
+            Symbol::onAdded.emmit(*symbol);
+        }
     }
 
     return true;

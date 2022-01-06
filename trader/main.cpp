@@ -7,6 +7,7 @@
 #include "argparser/ArgumentParser.hpp"
 #include "Logger.hpp"
 #include "app/TraderApp.hpp"
+#include "app/ListingApp.hpp"
 
 void handler(int sig) {
   void *array[10];
@@ -28,19 +29,28 @@ int main(int argc, char** argv) {
     std::string config_file;
     std::string script_file;
     std::string symbol;
+    bool listing = false;
 
     cppargparser::ArgumentParser args;
     try {
         args.addArgument(cppargparser::Argument("-c", "--config", "config", 1, true));
-        args.addArgument(cppargparser::Argument("-s", "--script", "script", 1, true));
-        args.addArgument(cppargparser::Argument("-p", "--pair", "pair", 2, true));
+        args.addArgument(cppargparser::Argument("-s", "--script", "script", 1, false));
+        args.addArgument(cppargparser::Argument("-p", "--pair", "pair", 2, false));
+        args.addArgument(cppargparser::Argument("-l", "--listing", "listing", 0, false));
 
         auto parsed = args.parse(argc, argv);
         config_file = parsed.getValue("--config");
-        script_file = parsed.getValue("--script");
-        symbol = parsed.getValues("--pair").at(0) + parsed.getValues("--pair").at(1);
+
+        if (parsed.hasArgument("--script"))
+            script_file = parsed.getValue("--script");
+
+        if (parsed.hasArgument("--pair"))
+            symbol = parsed.getValues("--pair").at(0) + parsed.getValues("--pair").at(1);
+
+        listing = parsed.hasArgument("--listing");
+
     } catch(...) {
-        args.showHelp("trader -c default.cfg -s script.lua -p btc usdt");
+        args.showHelp("trader -c default.cfg -s script.lua -p btc usdt | trader -c default.cfg --listing");
         return EXIT_FAILURE;
     }
 
@@ -50,8 +60,11 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
+    if (listing) {
+        return ListingApp::create(cfg)->run();
+    }
+
     cfg.set("SCRIPT", script_file);
     cfg.set("SYMBOL", symbol);
-
     return TraderApp::create(cfg)->run();
 }

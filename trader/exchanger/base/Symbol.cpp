@@ -2,6 +2,8 @@
 #include "exchanger/Exchanger.hpp"
 #include "exchanger/wrapper/PriceWrapper.hpp"
 
+Signal<Symbol> Symbol::onAdded;
+
 Symbol* Symbol::create() {
     auto* wrapper = new Symbol();
     return wrapper;

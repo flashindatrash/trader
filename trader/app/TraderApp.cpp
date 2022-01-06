@@ -11,7 +11,7 @@ TraderApp* TraderApp::create(const core::Config& config) {
 }
 
 TraderApp::TraderApp(const core::Config& config)
-    : core::App(config, core::Version(1, 4, 0))
+    : BaseApp(config, core::Version(1, 4, 0))
 {
 }
 

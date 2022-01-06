@@ -7,3 +7,7 @@ void Identifier::setId(std::string id) {
 const std::string& Identifier::id() const {
     return _identifier;
 }
+
+bool Identifier::empty() const {
+    return _identifier.empty();
+}
