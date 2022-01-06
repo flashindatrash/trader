@@ -4,7 +4,7 @@
 
 #include "EventManagerApp.hpp"
 #include "Logger.hpp"
-#include "Messenger.hpp"
+#include "../messenger/Messenger.hpp"
 #include "database/Database.hpp"
 
 EventManagerApp* EventManagerApp::create(const core::Config& config) {
