@@ -43,10 +43,10 @@ int ListingApp::run() {
     while (true) {
         sleep_ms(60000);
 
+        Time().tick();
+
         if (not Exchanger().loadPairs())
             break;
-
-        Time().tick();
     }
 
     // stop exchanger thread
@@ -56,6 +56,10 @@ int ListingApp::run() {
 }
 
 void ListingApp::onSymbolAdded(const Symbol& symbol) {
+    // interesting pairs with usd
+    if (not symbol.quoteAsset().isUSD())
+        return;
+
     std::string text = util::format("New listing %s", symbol.c_str());
     Logger::info(text);
 
