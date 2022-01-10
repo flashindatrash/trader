@@ -5,6 +5,7 @@
 #include "ListingApp.hpp"
 #include "Logger.hpp"
 #include "Event.hpp"
+#include "Time.hpp"
 #include "database/Database.hpp"
 #include "exchanger/Exchanger.hpp"
 #include "exchanger/base/Symbol.hpp"
@@ -44,6 +45,8 @@ int ListingApp::run() {
 
         if (not Exchanger().loadPairs())
             break;
+
+        Time().tick();
     }
 
     // stop exchanger thread
