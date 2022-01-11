@@ -3,11 +3,12 @@
 //
 
 #include "Strategy.hpp"
-#include "Logger.hpp"
-#include "Time.hpp"
-#include "Event.hpp"
+#include "core/Logger.hpp"
+#include "core/Time.hpp"
+#include "protocol/Event.hpp"
 #include "exchanger/base/Symbol.hpp"
 #include "exchanger/Exchanger.hpp"
+#include "base/Position.hpp"
 
 using namespace listing;
 
@@ -39,10 +40,20 @@ void Strategy::tryOpen(const Symbol& symbol) {
     if (_position != nullptr)
         return;
 
+    std::string username = _config.asString("REDIS_USERNAME");
+
+    _position = Position::create(Position::key(username, symbol.id()));
+    _position->setSymbol(symbol);
+    _position->setSide(OrderSide::Buy);
+    /*_position->setBaseQuantity(Exchanger().roundQuantity(request.quantity, request.symbol));
+    _position->setQuoteQuantity(result.baseQuantity() * Context::current->price(request.side));*/
+    _position->operate();
+
+    // write log
     std::string text = util::format("New listing %s", symbol.c_str());
     Logger::info(text);
 
-    std::string username = _config.asString("REDIS_USERNAME");
+    // send log
     protocol::Event::add(username, text);
 }
 

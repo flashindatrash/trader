@@ -3,10 +3,10 @@
 //
 
 #include "Messenger.hpp"
-#include "Logger.hpp"
+#include "core/Logger.hpp"
+#include "protocol/Command.hpp"
+#include "protocol/Event.hpp"
 #include <functional>
-#include "Command.hpp"
-#include "Event.hpp"
 
 static TgBot::CurlHttpClient http_client;
 

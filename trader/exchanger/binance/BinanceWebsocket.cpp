@@ -3,7 +3,7 @@
 #include <json/json.h>
 #include <functional>
 #include <utility>
-#include "Logger.hpp"
+#include "core/Logger.hpp"
 #include "response/BinanceErrorData.hpp"
 
 BinanceWebsocket* BinanceWebsocket::create() {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Signal.hpp"
+#include "core/Signal.hpp"
 
 class ChartWrapper;
 

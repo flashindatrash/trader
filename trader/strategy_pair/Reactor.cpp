@@ -4,10 +4,10 @@
 
 #include "Reactor.hpp"
 #include "Context.hpp"
-#include "Command.hpp"
 #include "Algorithm.hpp"
 #include "Formatter.hpp"
-#include "Event.hpp"
+#include "protocol/Command.hpp"
+#include "protocol/Event.hpp"
 #include "base/Position.hpp"
 
 using namespace pair;

@@ -1,6 +1,6 @@
 #include "TraderApp.hpp"
-#include "Time.hpp"
-#include "Logger.hpp"
+#include "core/Time.hpp"
+#include "core/Logger.hpp"
 #include "database/Database.hpp"
 #include "exchanger/Exchanger.hpp"
 #include "strategy_pair/Strategy.hpp"

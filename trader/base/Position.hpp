@@ -2,10 +2,11 @@
 
 #include "database/Array.hpp"
 #include "exchanger/base/OrderBase.hpp"
+#include "protocol/Position.hpp"
 
 struct OrderRequest;
 
-class Position : public db::Object, public OrderBase {
+class Position : public db::Object, public OrderBase, public protocol::Position {
 public: // static
     static Position* create(const db::Key& key);
 

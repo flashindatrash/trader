@@ -6,7 +6,7 @@
 
 #include "Settings.hpp"
 #include "Report.hpp"
-#include "Trader.hpp"
+#include "protocol/Trader.hpp"
 
 class Position;
 

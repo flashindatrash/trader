@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Proxy.hpp"
-#include "Signal.hpp"
+#include "core/Proxy.hpp"
+#include "core/Signal.hpp"
 
 class Timer : public core::Proxy<Timer> {
 public: // static

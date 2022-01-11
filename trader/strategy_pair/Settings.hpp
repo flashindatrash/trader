@@ -12,8 +12,6 @@ public: // methods
     Settings() = default;
     explicit Settings(const core::Config& config);
 
-    std::string storage(const std::string& key) const;
-
     bool isValid() const;
     bool isRelease() const;
     bool isDevelop() const;

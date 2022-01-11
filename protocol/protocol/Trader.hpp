@@ -15,9 +15,6 @@ public: // methods
     void setProfit(double value);
     double profit() const;
 
-    void setChange(double value);
-    double change() const;
-
     void setEarnBase(double value);
     double earnBase() const;
 

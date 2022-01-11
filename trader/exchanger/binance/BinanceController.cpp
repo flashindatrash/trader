@@ -16,9 +16,9 @@
 #include "binacpp.h"
 #include "binacpp_websocket.h"
 #include "binacpp_logger.h"
-#include "Config.hpp"
-#include "Logger.hpp"
-#include "Time.hpp"
+#include "core/Config.hpp"
+#include "core/Logger.hpp"
+#include "core/Time.hpp"
 #include <cmath>
 
 static const char* CONFIG_API_KEY = "BINANCE_API_KEY";

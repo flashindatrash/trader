@@ -2,7 +2,7 @@
 
 #include "Identifier.hpp"
 #include "Asset.hpp"
-#include "Signal.hpp"
+#include "core/Signal.hpp"
 
 class PriceWrapper;
 

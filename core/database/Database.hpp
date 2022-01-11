@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Proxy.hpp"
+#include "core/Proxy.hpp"
 #include "Types.hpp"
 #include "Value.hpp"
 #include "Object.hpp"

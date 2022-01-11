@@ -3,7 +3,7 @@
 //
 
 #include "EventManagerApp.hpp"
-#include "Logger.hpp"
+#include "core/Logger.hpp"
 #include "../messenger/Messenger.hpp"
 #include "database/Database.hpp"
 

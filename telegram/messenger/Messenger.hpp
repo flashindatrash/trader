@@ -5,7 +5,7 @@
 #pragma once
 
 #include <tgbot/tgbot.h>
-#include "User.hpp"
+#include "protocol/User.hpp"
 
 class Messenger {
 public: // methods

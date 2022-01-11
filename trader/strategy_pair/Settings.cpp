@@ -1,7 +1,6 @@
 #include "Settings.hpp"
-#include "Config.hpp"
-#include "Logger.hpp"
-#include "Storage.hpp"
+#include "core/Config.hpp"
+#include "core/Logger.hpp"
 #include "exchanger/Exchanger.hpp"
 #include "exchanger/base/OrderBase.hpp"
 
@@ -59,8 +58,4 @@ bool Settings::isBackTest() const {
 
 bool Settings::logEnabled() const {
     return true || not isBackTest();
-}
-
-std::string Settings::storage(const std::string& key) const {
-    return protocol::Storage::key(username, symbol.id(), key);
 }

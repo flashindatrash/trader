@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include "Signal.hpp"
+#include "core/Signal.hpp"
 
 namespace Json {
     class Value;

@@ -3,11 +3,11 @@
 //
 
 #include "Script.hpp"
-#include "Logger.hpp"
-#include "base/Position.hpp"
 #include "Settings.hpp"
 #include "Context.hpp"
-#include "Time.hpp"
+#include "core/Logger.hpp"
+#include "core/Time.hpp"
+#include "base/Position.hpp"
 #include "exchanger/Exchanger.hpp"
 #include "exchanger/wrapper/BalanceWrapper.hpp"
 #include "exchanger/wrapper/OrderWrapper.hpp"

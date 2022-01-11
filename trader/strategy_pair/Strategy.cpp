@@ -1,9 +1,9 @@
 #include "Strategy.hpp"
-#include "Config.hpp"
 #include "Runner.hpp"
 #include "Algorithm.hpp"
 #include "Listener.hpp"
 #include "Reactor.hpp"
+#include "core/Config.hpp"
 
 using namespace pair;
 

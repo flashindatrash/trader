@@ -5,7 +5,7 @@
 #include <unistd.h>
 
 #include "argparser/ArgumentParser.hpp"
-#include "Logger.hpp"
+#include "core/Logger.hpp"
 #include "app/TraderApp.hpp"
 
 void handler(int sig) {

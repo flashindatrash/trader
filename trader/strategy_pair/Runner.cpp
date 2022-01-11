@@ -3,8 +3,8 @@
 #include <utility>
 #include "Settings.hpp"
 #include "Context.hpp"
-#include "Time.hpp"
-#include "Logger.hpp"
+#include "core/Time.hpp"
+#include "core/Logger.hpp"
 #include "exchanger/Exchanger.hpp"
 #include "exchanger/wrapper/CandlestickWrapper.hpp"
 #include "exchanger/wrapper/PriceWrapper.hpp"

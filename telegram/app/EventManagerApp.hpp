@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "App.hpp"
+#include "core/App.hpp"
 
 class EventManagerApp : public core::App {
 public: // static

@@ -3,11 +3,11 @@
 //
 
 #include "Formatter.hpp"
-#include "base/Position.hpp"
 #include "Context.hpp"
 #include "Report.hpp"
 #include "Settings.hpp"
-#include "Logger.hpp"
+#include "core/Logger.hpp"
+#include "base/Position.hpp"
 #include "util/MathUtil.hpp"
 #include <utility>
 

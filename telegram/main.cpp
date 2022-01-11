@@ -1,5 +1,5 @@
 #include "argparser/ArgumentParser.hpp"
-#include "Logger.hpp"
+#include "core/Logger.hpp"
 #include "app/EventManagerApp.hpp"
 
 int main(int argc, char** argv) {
