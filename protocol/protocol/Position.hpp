@@ -4,13 +4,18 @@
 
 #pragma once
 
-#include <string>
+#include "database/Object.hpp"
 
 namespace protocol {
 
-class Position {
-public: // static
+class Position : public db::Object {
+private: // static
     static std::string key(const std::string& username, const std::string& symbol);
+
+public: // methods
+    Position(const std::string& username, const std::string& symbol);
+    Position() = default;
+
 };
 
 }

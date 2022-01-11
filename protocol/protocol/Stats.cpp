@@ -2,7 +2,7 @@
 // Created by Вадим Проскурин on 28.08.2021.
 //
 
-#include "Trader.hpp"
+#include "Stats.hpp"
 #include "Storage.hpp"
 
 static const char* FIELD_VERSION = "version";
@@ -12,39 +12,43 @@ static const char* FIELD_QUOTE = "quote";
 
 using namespace protocol;
 
-Trader::Trader(const std::string& username, const std::string& symbol)
-    : db::Object(Storage::key(username, symbol, "stats"))
+std::string Stats::key(const std::string& username, const std::string& symbol) {
+    return Storage::key(username, symbol, "stats");
+}
+
+Stats::Stats(const std::string& username, const std::string& symbol)
+    : db::Object(key(username, symbol))
 {
 }
 
-void Trader::setProfit(double value) {
+void Stats::setProfit(double value) {
     inc(FIELD_PROFIT, value);
 }
 
-double Trader::profit() const {
+double Stats::profit() const {
     return get(FIELD_PROFIT).asDouble();
 }
 
-void Trader::setEarnBase(double value) {
+void Stats::setEarnBase(double value) {
     inc(FIELD_BASE, value);
 }
 
-void Trader::setEarnQuote(double value) {
+void Stats::setEarnQuote(double value) {
     inc(FIELD_QUOTE, value);
 }
 
-std::string Trader::version() const {
+std::string Stats::version() const {
     return get(FIELD_VERSION).asString();
 }
 
-double Trader::earnBase() const {
+double Stats::earnBase() const {
     return get(FIELD_BASE).asDouble();
 }
 
-double Trader::earnQuote() const {
+double Stats::earnQuote() const {
     return get(FIELD_QUOTE).asDouble();
 }
 
-void Trader::setVersion(std::string value) {
+void Stats::setVersion(std::string value) {
     set(FIELD_VERSION, std::move(value));
 }

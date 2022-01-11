@@ -42,7 +42,7 @@ void Strategy::tryOpen(const Symbol& symbol) {
 
     std::string username = _config.asString("REDIS_USERNAME");
 
-    _position = Position::create(Position::key(username, symbol.id()));
+    _position = Position::create(username, symbol.id());
     _position->setSymbol(symbol);
     _position->setSide(OrderSide::Buy);
     /*_position->setBaseQuantity(Exchanger().roundQuantity(request.quantity, request.symbol));

@@ -25,7 +25,7 @@ Algorithm::~Algorithm() {
 }
 
 bool Algorithm::init() {
-    _position = Position::create(Position::key(_settings.username, _settings.symbol.id()));
+    _position = Position::create(_settings.username, _settings.symbol.id());
     _script = Script::create(_settings.script);
     return _position != nullptr && _script != nullptr && _script->main(_settings);
 }

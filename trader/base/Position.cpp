@@ -9,13 +9,13 @@ static const char* FIELD_QUOTE_QUANTITY = "quote_quantity";
 static const char* FIELD_TIME = "time";
 static const char* FIELD_COUNT = "count";
 
-Position* Position::create(const db::Key& key) {
-    auto* position = new Position(key);
+Position* Position::create(const std::string& username, const std::string& symbol) {
+    auto* position = new Position(username, symbol);
     return position;
 }
 
-Position::Position(const db::Key& key)
-    : db::Object(key)
+Position::Position(const std::string& username, const std::string& symbol)
+    : protocol::Position(username, symbol)
 {
 }
 

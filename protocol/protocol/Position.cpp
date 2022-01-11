@@ -10,3 +10,8 @@ using namespace protocol;
 std::string Position::key(const std::string& username, const std::string& symbol) {
     return Storage::key(username, symbol, "position");
 }
+
+Position::Position(const std::string& username, const std::string& symbol)
+    : db::Object(key(username, symbol))
+{
+}

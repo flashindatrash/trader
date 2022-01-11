@@ -1,14 +1,13 @@
 #pragma once
 
-#include "database/Array.hpp"
 #include "exchanger/base/OrderBase.hpp"
 #include "protocol/Position.hpp"
 
 struct OrderRequest;
 
-class Position : public db::Object, public OrderBase, public protocol::Position {
+class Position : public protocol::Position, public OrderBase {
 public: // static
-    static Position* create(const db::Key& key);
+    static Position* create(const std::string& username, const std::string& symbol);
 
 public: // methods
     Position() = default;
@@ -41,7 +40,7 @@ public: // methods
     bool has() const;
 
 protected: // methods
-    Position(const db::Key& key);
+    Position(const std::string& username, const std::string& symbol);
 
 };
 

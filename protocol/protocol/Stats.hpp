@@ -8,9 +8,12 @@
 
 namespace protocol {
 
-class Trader : public db::Object {
+class Stats : public db::Object {
+private: // static
+    static std::string key(const std::string& username, const std::string& symbol);
+
 public: // methods
-    Trader(const std::string& username, const std::string& symbol);
+    Stats(const std::string& username, const std::string& symbol);
 
     void setProfit(double value);
     double profit() const;

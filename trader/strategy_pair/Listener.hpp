@@ -6,7 +6,7 @@
 
 #include "Settings.hpp"
 #include "Report.hpp"
-#include "protocol/Trader.hpp"
+#include "protocol/Stats.hpp"
 
 class Position;
 
@@ -31,7 +31,7 @@ protected: // methods
 protected: // vars
     const Settings& _settings;
     Report _report;
-    protocol::Trader _stats;
+    protocol::Stats _stats;
 };
 }
 
