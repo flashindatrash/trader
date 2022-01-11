@@ -8,9 +8,10 @@
 #include "Report.hpp"
 #include "Trader.hpp"
 
-NS_BEGIN
-class Algorithm;
 class Position;
+
+namespace pair {
+class Algorithm;
 
 class Listener {
 public: // static
@@ -32,5 +33,5 @@ protected: // vars
     Report _report;
     protocol::Trader _stats;
 };
-NS_END
+}
 

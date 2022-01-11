@@ -7,7 +7,6 @@
 #include "argparser/ArgumentParser.hpp"
 #include "Logger.hpp"
 #include "app/TraderApp.hpp"
-#include "app/ListingApp.hpp"
 
 void handler(int sig) {
   void *array[10];
@@ -26,31 +25,32 @@ int main(int argc, char** argv) {
     signal(SIGSEGV, handler);
     srand(time(NULL));
 
+    std::string type;
     std::string config_file;
-    std::string script_file;
+    std::string lua_file;
     std::string symbol;
-    bool listing = false;
 
     cppargparser::ArgumentParser args;
     try {
-        args.addArgument(cppargparser::Argument("-c", "--config", "config", 1, true));
-        args.addArgument(cppargparser::Argument("-s", "--script", "script", 1, false));
-        args.addArgument(cppargparser::Argument("-p", "--pair", "pair", 2, false));
+        args.addArgument(cppargparser::Argument("-c", "--config", "config file", 1, true));
+        args.addArgument(cppargparser::Argument("-t", "--type", "type", 1, true));
+        args.addArgument(cppargparser::Argument("-l", "--lua", "lua file", 1, false));
+        args.addArgument(cppargparser::Argument("-s", "--symbol", "symbol", 2, false));
         args.addArgument(cppargparser::Argument("-l", "--listing", "listing", 0, false));
 
         auto parsed = args.parse(argc, argv);
+
+        type = parsed.getValue("--type");
         config_file = parsed.getValue("--config");
 
-        if (parsed.hasArgument("--script"))
-            script_file = parsed.getValue("--script");
+        if (parsed.hasArgument("--lua"))
+            lua_file = parsed.getValue("--lua");
 
-        if (parsed.hasArgument("--pair"))
-            symbol = parsed.getValues("--pair").at(0) + parsed.getValues("--pair").at(1);
-
-        listing = parsed.hasArgument("--listing");
+        if (parsed.hasArgument("--symbol"))
+            symbol = parsed.getValues("--symbol").at(0) + parsed.getValues("--symbol").at(1);
 
     } catch(...) {
-        args.showHelp("trader -c default.cfg -s script.lua -p btc usdt | trader -c default.cfg --listing");
+        args.showHelp("trader -t pair -c default.cfg -l script.lua -s btc usdt | trader -t listing -c default.cfg");
         return EXIT_FAILURE;
     }
 
@@ -60,11 +60,13 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-    if (listing) {
-        return ListingApp::create(cfg)->run();
+    // todo
+    cfg.set("SCRIPT", lua_file);
+    cfg.set("SYMBOL", symbol);
+
+    if (TraderApp* app = TraderApp::create(type, cfg)) {
+        return app->run();
     }
 
-    cfg.set("SCRIPT", script_file);
-    cfg.set("SYMBOL", symbol);
-    return TraderApp::create(cfg)->run();
+    return EXIT_FAILURE;
 }

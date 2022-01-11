@@ -4,10 +4,11 @@
 
 #pragma once
 
-#include "Defines.hpp"
+#include "exchanger/base/Symbol.hpp"
 
-NS_BEGIN
 class Position;
+
+namespace pair {
 class Context;
 struct Report;
 struct Settings;
@@ -36,4 +37,4 @@ private: // methods
 private: // vars
     std::string _text;
 };
-NS_END
+}

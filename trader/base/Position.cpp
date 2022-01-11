@@ -1,7 +1,6 @@
 #include "Position.hpp"
+#include "exchanger/base/Symbol.hpp"
 #include "exchanger/wrapper/PriceWrapper.hpp"
-
-NS_USE
 
 static const char* FIELD_SIDE = "side";
 static const char* FIELD_SYMBOL = "symbol";

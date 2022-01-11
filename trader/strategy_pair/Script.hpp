@@ -4,13 +4,13 @@
 
 #pragma once
 
-#include "Defines.hpp"
+#include <string>
 
+class Position;
 class lua_State;
 struct OrderRequest;
 
-NS_BEGIN
-class Position;
+namespace pair {
 class Settings;
 
 class Script {
@@ -44,4 +44,4 @@ private: // vars
     lua_State* lua = nullptr;
 
 };
-NS_END
+}

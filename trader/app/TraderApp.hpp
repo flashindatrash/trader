@@ -1,21 +1,23 @@
 #pragma once
 
-#include "BaseApp.hpp"
+#include "App.hpp"
 
-class Strategy;
+class BaseStrategy;
 
-class TraderApp : public BaseApp {
+class TraderApp : public core::App {
 public: // static
-    static TraderApp* create(const core::Config& config);
+    static TraderApp* create(const std::string& type, const core::Config& config);
 
 public: // methods
-    int run() override;
+    int run();
 
 protected: // methods
     explicit TraderApp(const core::Config& config);
     ~TraderApp() override;
 
+    bool init(const std::string& type);
+
 protected: // vars
-    Strategy* _strategy = nullptr;
+    BaseStrategy* _strategy = nullptr;
 };
 

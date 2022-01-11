@@ -4,10 +4,11 @@
 
 #pragma once
 
-#include "Defines.hpp"
+#include "exchanger/base/OrderBase.hpp"
 
-NS_BEGIN
 class Position;
+
+namespace pair {
 
 struct Report {
     Report() = default;
@@ -37,4 +38,4 @@ struct Report {
     void add(const Report& report);
     Change apy() const;
 };
-NS_END
+}

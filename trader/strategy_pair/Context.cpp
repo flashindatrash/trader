@@ -4,7 +4,7 @@
 #include "exchanger/wrapper/PriceWrapper.hpp"
 #include "exchanger/indicator/BaseIndicator.hpp"
 
-NS_USE
+using namespace pair;
 
 const Context* Context::current = nullptr;
 

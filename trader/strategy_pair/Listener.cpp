@@ -7,13 +7,13 @@
 #include <utility>
 #include "Formatter.hpp"
 #include "Algorithm.hpp"
-#include "Position.hpp"
+#include "base/Position.hpp"
 #include "Logger.hpp"
 #include "Event.hpp"
 #include "User.hpp"
 #include "Context.hpp"
 
-NS_USE
+using namespace pair;
 
 Listener* Listener::create(const Settings& settings) {
     auto* listener = new Listener(settings);

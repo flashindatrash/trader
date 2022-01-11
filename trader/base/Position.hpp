@@ -1,10 +1,10 @@
 #pragma once
 
-#include "Defines.hpp"
 #include "database/Array.hpp"
 #include "exchanger/base/OrderBase.hpp"
 
-NS_BEGIN
+struct OrderRequest;
+
 class Position : public db::Object, public OrderBase {
 public: // static
     static Position* create(const db::Key& key);
@@ -43,6 +43,4 @@ protected: // methods
     Position(const db::Key& key);
 
 };
-
-NS_END
 

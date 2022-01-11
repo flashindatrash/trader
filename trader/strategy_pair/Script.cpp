@@ -4,7 +4,7 @@
 
 #include "Script.hpp"
 #include "Logger.hpp"
-#include "Position.hpp"
+#include "base/Position.hpp"
 #include "Settings.hpp"
 #include "Context.hpp"
 #include "Time.hpp"
@@ -14,7 +14,7 @@
 #include "exchanger/indicator/DEMA.hpp"
 #include "lua.hpp"
 
-NS_USE
+using namespace pair;
 
 static const char* BIND_PRINT = "print";
 static const char* BIND_BALANCE = "balance";

@@ -1,13 +1,13 @@
 #include "Algorithm.hpp"
 
-#include "Position.hpp"
+#include "base/Position.hpp"
 #include "Script.hpp"
 #include "Context.hpp"
 #include "Report.hpp"
 #include "exchanger/wrapper/OrderWrapper.hpp"
 #include "exchanger/Exchanger.hpp"
 
-NS_USE
+using namespace pair;
 
 Algorithm* Algorithm::create(const Settings& settings) {
     auto* algorithm = new Algorithm(settings);

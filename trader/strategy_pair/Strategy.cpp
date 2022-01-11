@@ -5,13 +5,7 @@
 #include "Listener.hpp"
 #include "Reactor.hpp"
 
-NS_USE
-
-Strategy* Strategy::create(const core::Config& config) {
-    auto* strategy = new Strategy();
-    strategy->init(config);
-    return strategy;
-}
+using namespace pair;
 
 Strategy::~Strategy() {
     delete _runner;

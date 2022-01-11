@@ -3,21 +3,36 @@
 #include "Logger.hpp"
 #include "database/Database.hpp"
 #include "exchanger/Exchanger.hpp"
-#include "strategy/Strategy.hpp"
+#include "strategy_pair/Strategy.hpp"
+#include "strategy_listing/Strategy.hpp"
 
-TraderApp* TraderApp::create(const core::Config& config) {
+TraderApp* TraderApp::create(const std::string& type, const core::Config& config) {
     auto* app = new TraderApp(config);
-    return app;
+    if (app->init(type)) {
+        return app;
+    }
+
+    delete app;
+    return nullptr;
 }
 
 TraderApp::TraderApp(const core::Config& config)
-    : BaseApp(config, core::Version(1, 4, 0))
+    : core::App(config, core::Version(1, 4, 0))
 {
 }
 
 TraderApp::~TraderApp() {
     delete _strategy;
     _strategy = nullptr;
+}
+
+bool TraderApp::init(const std::string& type) {
+    if (type == "pair")
+        _strategy = new pair::Strategy();
+    else if (type == "listing")
+        _strategy = new listing::Strategy();
+
+    return _strategy != nullptr;
 }
 
 int TraderApp::run() {
@@ -31,9 +46,8 @@ int TraderApp::run() {
     if (not Exchanger().init(_config))
         return EXIT_FAILURE;
 
-    // create strategy
-    _strategy = Strategy::create(_config);
-    if (_strategy == nullptr)
+    // init strategy
+    if (not _strategy->init(_config))
         return EXIT_FAILURE;
 
     // run exchanger thread

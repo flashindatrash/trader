@@ -5,7 +5,7 @@
 #include "exchanger/Exchanger.hpp"
 #include "exchanger/base/OrderBase.hpp"
 
-NS_USE
+using namespace pair;
 
 static const char* MODE = "MODE";
 static const char* USERNAME = "REDIS_USERNAME";

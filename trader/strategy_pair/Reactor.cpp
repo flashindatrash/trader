@@ -8,9 +8,9 @@
 #include "Algorithm.hpp"
 #include "Formatter.hpp"
 #include "Event.hpp"
-#include "Position.hpp"
+#include "base/Position.hpp"
 
-NS_USE
+using namespace pair;
 
 Reactor* Reactor::create(Algorithm& algorithm, const Settings& settings) {
     auto* reactor = new Reactor(algorithm, settings);

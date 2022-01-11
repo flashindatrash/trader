@@ -3,10 +3,10 @@
 #include "Signal.hpp"
 #include "Settings.hpp"
 
+class Position;
 struct OrderRequest;
 
-NS_BEGIN
-class Position;
+namespace pair {
 class Script;
 class Report;
 
@@ -48,4 +48,4 @@ protected: // vars
     Script* _script = nullptr;
     Position* _position = nullptr;
 };
-NS_END
+}

@@ -6,7 +6,7 @@
 
 #include "Settings.hpp"
 
-NS_BEGIN
+namespace pair {
 class Algorithm;
 
 class Reactor {
@@ -26,4 +26,4 @@ protected: // vars
     const Settings& _settings;
 
 };
-NS_END
+}

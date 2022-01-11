@@ -1,12 +1,12 @@
 #pragma once
 
-#include "Defines.hpp"
+#include "exchanger/base/Symbol.hpp"
 
 namespace core {
     class Config;
 }
 
-NS_BEGIN
+namespace pair {
 struct Settings {
 public: // methods
     Settings() = default;
@@ -30,4 +30,4 @@ public: // vars
 
     double profit_ratio = 0.0;
 };
-NS_END
+}

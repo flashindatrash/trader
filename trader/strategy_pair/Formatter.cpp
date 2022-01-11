@@ -3,7 +3,7 @@
 //
 
 #include "Formatter.hpp"
-#include "Position.hpp"
+#include "base/Position.hpp"
 #include "Context.hpp"
 #include "Report.hpp"
 #include "Settings.hpp"
@@ -11,7 +11,7 @@
 #include "util/MathUtil.hpp"
 #include <utility>
 
-NS_USE
+using namespace pair;
 
 static const char* sImportantBegin = "[*]";
 static const char* sImportantEnd = "[/*]";

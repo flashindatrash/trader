@@ -1,11 +1,10 @@
 #pragma once
 
-#include "Defines.hpp"
 #include "Signal.hpp"
 
 class ChartWrapper;
 
-NS_BEGIN
+namespace pair {
 class Settings;
 class Context;
 
@@ -29,5 +28,5 @@ protected: // vars
     Callback _dispatcher;
     ChartWrapper* _chart = nullptr;
 };
-NS_END
+}
 

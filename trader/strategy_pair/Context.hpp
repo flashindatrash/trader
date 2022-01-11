@@ -1,12 +1,12 @@
 #pragma once
 
 #include "exchanger/wrapper/ChartWrapper.hpp"
-#include "Defines.hpp"
 
 class CandlestickWrapper;
+class PriceWrapper;
 class BaseIndicator;
 
-NS_BEGIN
+namespace pair {
 class Context {
 public: // static
     static const Context* current;
@@ -25,6 +25,5 @@ protected: // vars
     ChartWrapper::ConstIterator _it;
     const PriceWrapper& _price;
 };
-
-NS_END
+}
 
