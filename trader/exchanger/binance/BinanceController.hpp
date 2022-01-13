@@ -1,12 +1,8 @@
 #pragma once
 
 #include <thread>
-#include <string>
-#include <unordered_map>
-#include <vector>
 #include "exchanger/abstract/ExchangerController.hpp"
-#include "response/BinanceSymbolData.hpp"
-#include "response/BinanceFlexibleProductData.hpp"
+#include "response/BinanceExchangeData.hpp"
 
 namespace Json {
     class Value;
@@ -30,6 +26,7 @@ public: // virtual
 
     bool loadPairs(Storage::Type_pair& container) const override;
     bool loadPrices(Storage::Type_price& container) const override;
+    bool loadPrice(PriceWrapper& container) const override;
     bool loadBalances(Storage::Type_balance& container) const override;
     bool loadOrders(BookWrapper& container) const override;
     bool loadStats(CandlestickWrapper& container) const override;
@@ -45,7 +42,9 @@ public: // virtual
 
 protected: // methods
     bool initUserListenKey();
-    void keepUserDataStream();
+    bool keepUserDataStream();
+
+    bool checkRateLimits() const;
 
     double minQuantity(const std::string& symbol) const;
 
@@ -59,7 +58,7 @@ protected: // callbacks
     void onTickerDataStream(const Json::Value& json);
 
 private: // static vars
-    static std::unordered_map<std::string, BinanceSymbolData> _symbols;
+    static BinanceExchangeData _exchange_info;
     static double _commission;
 
 private: // vars

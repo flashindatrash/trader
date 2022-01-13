@@ -24,6 +24,8 @@ public: // methods
     void stop();
 
     bool loadPairs();
+    bool loadPrices();
+    bool loadPrice(const std::string& key);
     bool loadOrders(const std::string& key);
     bool loadStats(const std::string& key);
     bool loadCharts(const std::string& key, ChartRequest& request);

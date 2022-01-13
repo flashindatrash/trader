@@ -9,6 +9,7 @@ namespace Json {
 struct BinanceErrorData {
 public: // static
     static const int DISCONNECTED;
+    static const int TOO_MANY_REQUESTS;
     static const int INVALID_TIMESTAMP;
     static const int NEW_ORDER_REJECTED;
 

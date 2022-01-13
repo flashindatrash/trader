@@ -28,6 +28,7 @@ public: // virtual
 
     virtual bool loadPairs(Storage::Type_pair& container) const = 0;
     virtual bool loadPrices(Storage::Type_price& container) const = 0;
+    virtual bool loadPrice(PriceWrapper& container) const = 0;
     virtual bool loadBalances(Storage::Type_balance& container) const = 0;
     virtual bool loadOrders(BookWrapper& container) const = 0;
     virtual bool loadStats(CandlestickWrapper& container) const = 0;

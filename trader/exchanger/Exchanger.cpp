@@ -44,6 +44,14 @@ bool ExchangerProxy::loadPairs() {
     return _controller->loadPairs(_pairs);
 }
 
+bool ExchangerProxy::loadPrices() {
+    return _controller->loadPrices(_prices);
+}
+
+bool ExchangerProxy::loadPrice(const std::string& key) {
+    return _controller->loadPrices(_prices);
+}
+
 bool ExchangerProxy::loadOrders(const std::string& key) {
     return _controller->loadOrders(*_books.get(key));
 }

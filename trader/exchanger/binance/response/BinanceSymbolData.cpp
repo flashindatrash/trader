@@ -20,8 +20,8 @@ BinanceSymbolData::BinanceSymbolData(const Json::Value& json)
     ocoAllowed                  = json["ocoAllowed"].asBool();
 
     if (json["orderTypes"].isArray()) {
-        for (uint i = 0; i < json["orderTypes"].size(); ++i)
-            _orderTypes.push_back(json["orderTypes"][i].asString());
+        for (const auto &orderType : json["orderTypes"])
+            _orderTypes.push_back(orderType.asString());
     }
 
     if (json["filters"].isArray()) {

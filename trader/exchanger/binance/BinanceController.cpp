@@ -13,6 +13,7 @@
 #include "response/BinanceTickerData.hpp"
 #include "response/BinanceFlexibleProductData.hpp"
 #include "response/BinanceSpotAccountData.hpp"
+#include "response/BinancePriceData.hpp"
 #include "binacpp.h"
 #include "binacpp_websocket.h"
 #include "binacpp_logger.h"
@@ -83,12 +84,15 @@ void BinanceController::tick(time_t now) {
         _time_keep_userstream = Time().ms();
 
     if (now > _time_keep_userstream + Timer::sMinute * 30) {
-        keepUserDataStream();
-        _time_keep_userstream = Time().ms();
+        if (keepUserDataStream())
+            _time_keep_userstream = Time().ms();
     }
 }
 
 bool BinanceController::loadPairs(Storage::Type_pair& container) const {
+    if (not checkRateLimits())
+        return false;
+
     Json::Value json;
     BinaCPP::get_exchangeInfo(json);
 
@@ -98,22 +102,19 @@ bool BinanceController::loadPairs(Storage::Type_pair& container) const {
         return false;
     }
 
-    const Json::Value& symbols = json["symbols"];
-    if (not symbols.isArray()) {
+    BinanceExchangeData data(json);
+    if (data.symbols.empty()) {
         Logger::info(util::format("BinanceController::loadPairs: invalid json %s", json.toStyledString().c_str()));
         return false;
     }
 
-    _symbols.clear();
-    for (const auto & it : symbols) {
-        BinanceSymbolData data(it);
-        _symbols[data.symbol] = data;
-
-        if (Symbol* symbol = container.get(data.symbol)) {
+    _exchange_info = std::move(data);
+    for (auto& it : _exchange_info.symbols) {
+        if (Symbol* symbol = container.get(it.first)) {
             if (not symbol->baseAsset().empty() && not symbol->quoteAsset().empty())
                 continue;
 
-            symbol->set(data.baseAsset, data.quoteAsset);
+            symbol->set(it.second.baseAsset, it.second.quoteAsset);
             Symbol::onAdded.emmit(*symbol);
         }
     }
@@ -122,8 +123,11 @@ bool BinanceController::loadPairs(Storage::Type_pair& container) const {
 }
 
 bool BinanceController::loadPrices(Storage::Type_price& container) const {
+    if (not checkRateLimits())
+        return false;
+
     Json::Value json;
-    BinaCPP::get_allPrices(json);
+    BinaCPP::get_prices("", json);
 
     BinanceErrorData error(json, "BinanceController::loadPrices");
     if (error.has()) {
@@ -136,16 +140,49 @@ bool BinanceController::loadPrices(Storage::Type_price& container) const {
         return false;
     }
 
-    for (auto & data : json) {
-        std::string symbol = data["symbol"].asString();
-        Price price = atof(data["price"].asString().c_str());
-        container.get(symbol)->set(price);
+    for (auto & it : json) {
+        BinancePriceData data(it);
+        container.get(data.symbol)->set(data.price);
+    }
+
+    return true;
+}
+
+bool BinanceController::loadPrice(PriceWrapper& container) const {
+    if (not checkRateLimits())
+        return false;
+
+    Json::Value json;
+    BinaCPP::get_prices("", json);
+
+    BinanceErrorData error(json, "BinanceController::loadPrice");
+    if (error.has()) {
+        Logger::info(util::format("%s [%d]", error.msg.c_str(), error.code));
+        return false;
+    }
+
+    if (not json.isArray()) {
+        Logger::info(util::format("BinanceController::loadPrice: invalid json %s", json.toStyledString().c_str()));
+        return false;
+    }
+
+    for (auto & it : json) {
+        BinancePriceData data(it);
+        if (container.id() != data.symbol) {
+            Logger::info(util::format("BinanceController::loadPrice: invalid container %s for symbol %s", container.id().c_str(), data.symbol.c_str()));
+            return false;
+        }
+
+        container.set(data.price);
     }
 
     return true;
 }
 
 bool BinanceController::loadBalances(Storage::Type_balance& container) const {
+    if (not checkRateLimits())
+        return false;
+
     Json::Value json;
     BinaCPP::get_account(_config_recv_window, json);
 
@@ -170,6 +207,9 @@ bool BinanceController::loadBalances(Storage::Type_balance& container) const {
 }
 
 bool BinanceController::loadSavings(Storage::Type_balance& container) const {
+    if (not checkRateLimits())
+        return false;
+
     Json::Value json;
     BinaCPP::get_savings(_config_recv_window, json);
 
@@ -194,6 +234,9 @@ bool BinanceController::loadSavings(Storage::Type_balance& container) const {
 }
 
 bool BinanceController::redeemSavings(const std::string& asset, double quantity) const {
+    if (not checkRateLimits())
+        return false;
+
     if (_balances_connector != nullptr && _balances_connector->get("LD" + asset)->get() < quantity)
         return false;
 
@@ -233,6 +276,9 @@ bool BinanceController::redeemSavings(const std::string& asset, double quantity)
 }
 
 bool BinanceController::loadStats(CandlestickWrapper& container) const {
+    if (not checkRateLimits())
+        return false;
+
     Json::Value json;
     BinaCPP::get_24hr(container.id().c_str(), json);
 
@@ -247,6 +293,9 @@ bool BinanceController::loadStats(CandlestickWrapper& container) const {
 }
 
 bool BinanceController::loadCharts(ChartWrapper& container, ChartRequest& request) const {
+    if (not checkRateLimits())
+        return false;
+
     const std::string& interval_converted = binance::serialize(request.interval);
     if (interval_converted.empty()) {
         Logger::info("BinanceController::loadCharts: unknown chart interval");
@@ -279,6 +328,9 @@ bool BinanceController::loadCharts(ChartWrapper& container, ChartRequest& reques
 }
 
 bool BinanceController::loadOrders(BookWrapper& container) const {
+    if (not checkRateLimits())
+        return false;
+
     Json::Value json;
     BinaCPP::get_allOrders(container.id().c_str(), 0, 0, _config_recv_window, json);
 
@@ -333,8 +385,10 @@ void BinanceController::listenTicker(PriceWrapper& container) {
 }
 
 bool BinanceController::initUserListenKey() {
-    Json::Value json;
+    if (not checkRateLimits())
+        return false;
 
+    Json::Value json;
     BinaCPP::start_userDataStream(json);
     BinanceErrorData error(json, "BinanceController::initUserListenKey");
     if (error.has()) {
@@ -356,7 +410,10 @@ bool BinanceController::initUserListenKey() {
     return true;
 }
 
-void BinanceController::keepUserDataStream() {
+bool BinanceController::keepUserDataStream() {
+    if (not checkRateLimits())
+        return false;
+
     for (BinanceWebsocket* websocket : _websockets) {
         if (websocket->type() != BinanceWebsocket::UserStream)
             continue;
@@ -367,6 +424,7 @@ void BinanceController::keepUserDataStream() {
         BinaCPP::keep_userDataStream(websocket->path().c_str());
         break;
     }
+    return true;
 }
 
 void BinanceController::onUserDataStream(const Json::Value& json) {
@@ -406,13 +464,16 @@ void BinanceController::onTickerDataStream(const Json::Value& json) {
 }
 
 const OrderWrapper* BinanceController::createOrder(BookWrapper& container, OrderRequest& request) {
+    if (not checkRateLimits())
+        return nullptr;
+
     if (request.side == OrderSide::Invalid)
         return nullptr;
 
     std::string type = binance::serialize(request.type);
 
-    auto it = _symbols.find(request.symbol);
-    if (it == _symbols.end()) {
+    auto it = _exchange_info.symbols.find(request.symbol);
+    if (it == _exchange_info.symbols.end()) {
         Logger::info("BinanceController::createOrder unknown symbol");
         return nullptr;
     }
@@ -478,8 +539,8 @@ const OrderWrapper* BinanceController::createOrder(BookWrapper& container, Order
 }
 
 double BinanceController::minQuantity(const std::string& symbol) const {
-    auto it = _symbols.find(symbol);
-    if (it == _symbols.end())
+    auto it = _exchange_info.symbols.find(symbol);
+    if (it == _exchange_info.symbols.end())
         return 0.0;
 
     const BinanceSymbolData& info = it->second;
@@ -503,8 +564,8 @@ double BinanceController::minQuantity(const std::string& symbol) const {
 }
 
 double BinanceController::roundQuantity(double quantity, const std::string& symbol, double(*fn)(double)) const {
-    auto it = _symbols.find(symbol);
-    if (it == _symbols.end())
+    auto it = _exchange_info.symbols.find(symbol);
+    if (it == _exchange_info.symbols.end())
         return 0.0;
 
     const BinanceSymbolData& info = it->second;
@@ -525,4 +586,22 @@ double BinanceController::fee() const {
     return commission / 100.0;
 }
 
-std::unordered_map<std::string, BinanceSymbolData> BinanceController::_symbols;
+bool BinanceController::checkRateLimits() const {
+    for (BinanceRateLimitData& rateLimit : _exchange_info.rateLimits) {
+        if (rateLimit.type == "REQUEST_WEIGHT") {
+            std::string key = std::to_string(rateLimit.intervalNum) + rateLimit.interval.front();
+
+            int limit = rateLimit.limit;
+            int used = BinaCPP::get_usedWeight(util::lowercase(key.c_str()));
+
+            if (used + 20 > limit) {
+                Logger::error(util::format("BinanceController::checkRateLimits used %d in %d %s (limit: %d)", used, rateLimit.intervalNum, rateLimit.interval.c_str(), limit));
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+BinanceExchangeData BinanceController::_exchange_info;
