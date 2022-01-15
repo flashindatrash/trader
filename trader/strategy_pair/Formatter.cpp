@@ -10,6 +10,7 @@
 #include "base/Position.hpp"
 #include "util/MathUtil.hpp"
 #include <utility>
+#include <limits>
 
 using namespace pair;
 
