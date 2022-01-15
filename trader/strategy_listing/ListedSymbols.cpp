@@ -37,17 +37,25 @@ const ListedSymbols::Data& ListedSymbols::vector() const {
 void ListedSymbols::proceed() {
     static time_t _last = 0;
 
+    time_t time_passed = Time().ms() - _last;
+
     // antispam
-    if (_last + 2000 > Time().ms())
+    if (time_passed < 2000)
         return;
 
     // connect before request
     connect();
 
     // request new pairs
-    if (Exchanger().loadPairs())
-        _status = _symbols.empty() ? Empty : Ok;
-    else
+    if (Exchanger().loadPairs()) {
+        if (_symbols.empty()) {
+            _status = Empty;
+        } else if (time_passed > Timer::sMinute) {
+            _status = Failed;
+        } else {
+            _status = Ok;
+        }
+    } else
         _status = Failed;
 
     // disconnect handler

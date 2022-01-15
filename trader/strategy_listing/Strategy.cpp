@@ -25,17 +25,17 @@ bool Strategy::isRunning() const {
 
 void Strategy::tick(time_t ms) {
     ListedSymbols symbols = ListedSymbols::find();
+
+    for (const Symbol& symbol : symbols.vector())
+        Logger::info(util::format("New listed symbol: %s", symbol.c_str()));
+
     switch (symbols.status()) {
-        case ListedSymbols::Ok: {
-            for (const Symbol& symbol : symbols.vector())
-                Logger::info(util::format("New listed symbol: %s", symbol.c_str()));
-            break;
-        }
+        case ListedSymbols::Ok:
+        case ListedSymbols::Empty: break;
         case ListedSymbols::Failed: {
             Logger::error(util::format("Failed to get listed symbols"));
             break;
         }
-        case ListedSymbols::Empty: break;
     }
 }
 
