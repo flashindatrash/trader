@@ -3,19 +3,18 @@
 //
 
 #include "Strategy.hpp"
+#include "ListedSymbols.hpp"
 #include "core/Logger.hpp"
 #include "core/Time.hpp"
-#include "protocol/Event.hpp"
-#include "exchanger/base/Symbol.hpp"
-#include "exchanger/Exchanger.hpp"
-#include "base/Position.hpp"
 
 using namespace listing;
+
+Strategy::~Strategy() {
+}
 
 bool Strategy::init(const core::Config& config) {
     _config = config;
 
-    Symbol::onAdded.connect(std::bind(&Strategy::tryOpen, this, std::placeholders::_1));
     Time().onTick.connect(std::bind(&Strategy::tick, this, std::placeholders::_1));
     return true;
 }
@@ -25,38 +24,91 @@ bool Strategy::isRunning() const {
 }
 
 void Strategy::tick(time_t ms) {
-    tryClose();
-
-    // refresh trading pairs
-    Exchanger().loadPairs();
+    ListedSymbols symbols = ListedSymbols::find();
+    switch (symbols.status()) {
+        case ListedSymbols::Ok: {
+            for (const Symbol& symbol : symbols.vector())
+                Logger::info(util::format("New listed symbol: %s", symbol.c_str()));
+            break;
+        }
+        case ListedSymbols::Failed: {
+            Logger::error(util::format("Failed to get listed symbols"));
+            break;
+        }
+        case ListedSymbols::Empty: break;
+    }
 }
 
-void Strategy::tryOpen(const Symbol& symbol) {
-    // interesting pairs with usd
-    if (not symbol.quoteAsset().isUSD())
-        return;
+std::string Strategy::username() const {
+    return _config.asString("REDIS_USERNAME");
+}
 
-    // for test with single position
+/*bool Strategy::tryOpen() {
+    if (_new_symbols.empty())
+        return false;
+
+    // !for test: with single position
     if (_position != nullptr)
-        return;
+        return false;
 
-    std::string username = _config.asString("REDIS_USERNAME");
+    // !for test: pick first symbol
+    const Symbol& symbol = _new_symbols.front();
 
-    _position = Position::create(username, symbol.id());
+    // refresh prices
+    if (not Exchanger().loadPrice(symbol))
+        return false;
+
+    // get price
+    const PriceWrapper* price = Exchanger().price(symbol);
+    if (price == nullptr)
+        return false;
+
+    _max_price = price->get(OrderSide::Buy);
+    if (_max_price <= std::numeric_limits<double>::epsilon())
+        return false;
+
+    const std::string user = username();
+
+    _position = Position::create(user, symbol);
     _position->setSymbol(symbol);
     _position->setSide(OrderSide::Buy);
-    /*_position->setBaseQuantity(Exchanger().roundQuantity(request.quantity, request.symbol));
-    _position->setQuoteQuantity(result.baseQuantity() * Context::current->price(request.side));*/
+    _position->setBaseQuantity(Exchanger().roundQuantity(0, symbol));
+    _position->setQuoteQuantity(_position->baseQuantity() * _max_price);
     _position->operate();
 
+    // listen ticker, todo: disconnect
+    Exchanger().listenTickers(symbol);
+
     // write log
-    std::string text = util::format("New listing %s", symbol.c_str());
+    std::string text = util::format("Buy new listed %s for price %f", symbol.c_str(), _position->price());
     Logger::info(text);
 
     // send log
-    protocol::Event::add(username, text);
+    // protocol::Event::add(user, text);
+    return true;
 }
 
-void Strategy::tryClose() {
+bool Strategy::tryClose() {
+    if (_position == nullptr)
+        return false;
 
-}
+    // get price
+    const PriceWrapper* price = Exchanger().price(_position->symbol());
+    if (price == nullptr)
+        return false;
+
+    Price current_price = price->get(OrderSide::Sell);
+    _max_price = std::max(_max_price, current_price);
+
+    Price k = (_max_price - current_price) / (_max_price - _position->price());
+    if (k < 0.3)
+        return false;
+
+    // write log
+    std::string text = util::format("Sell new listed %s for price %f (profit %f)", _position->symbol().c_str(), _position->price(), _position->profit(current_price));
+    Logger::info(text);
+
+    delete _position;
+    _position = nullptr;
+    return true;
+}*/

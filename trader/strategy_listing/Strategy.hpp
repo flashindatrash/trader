@@ -6,13 +6,12 @@
 
 #include "base/BaseStrategy.hpp"
 
-class Symbol;
-class Position;
-
 namespace listing {
+
 class Strategy : public BaseStrategy {
 public: // methods
     Strategy() = default;
+    ~Strategy() override;
 
     bool init(const core::Config &config) override;
     bool isRunning() const override;
@@ -21,12 +20,10 @@ protected: // methods
 
     void tick(time_t ms);
 
-    void tryOpen(const Symbol& symbol);
-    void tryClose();
+    std::string username() const;
 
 protected: // vars
     core::Config _config;
-    Position* _position = nullptr;
 
 };
 }
