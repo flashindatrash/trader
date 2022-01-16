@@ -4,11 +4,11 @@
 
 class Position;
 struct Settings;
+struct Report;
 struct OrderRequest;
 
 namespace pair {
 class Script;
-class Report;
 
 class Algorithm {
 public: // static

@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "Report.hpp"
+#include "base/Report.hpp"
 #include "protocol/Stats.hpp"
 
 class Position;

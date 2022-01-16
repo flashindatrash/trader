@@ -7,6 +7,7 @@
 #include "core/Time.hpp"
 #include "base/Position.hpp"
 #include "base/Settings.hpp"
+#include "base/Report.hpp"
 #include "exchanger/Exchanger.hpp"
 #include "exchanger/base/Symbol.hpp"
 #include "exchanger/wrapper/PriceWrapper.hpp"
@@ -73,11 +74,11 @@ bool Algorithm::tryOpen() {
         request.quantity = Exchanger().roundQuantity(0, symbol);
 
         // создадим заказ
-        Position position;
-        if (not createOrder(request, position))
+        Position open;
+        if (not createOrder(request, open))
             return false;
 
-        _position->copy(position);
+        _position->copy(open);
     }
 
     // сохраним позицию
@@ -127,14 +128,17 @@ bool Algorithm::tryClose() {
     request.quantity = _position->baseQuantity();
 
     // создадим заказ
-    Position position;
-    if (not createOrder(request, position))
+    Position close;
+    if (not createOrder(request, close))
         return false;
+
+    // создадим отчет
+    Report report(*_position, close);
 
     // удалим позицию
     _position->remove(_settings.isRelease());
 
-    Logger::info(util::format("closed with profit %f", _position->profit(position.price())));
+    Logger::info(util::format("closed with profit %f", report.profit));
     return true;
 }
 

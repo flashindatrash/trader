@@ -8,8 +8,6 @@
 
 class Position;
 
-namespace pair {
-
 struct Report {
     Report() = default;
     Report(const Position& open, const Position& close);
@@ -38,4 +36,3 @@ struct Report {
     void add(const Report& report);
     Change apy() const;
 };
-}

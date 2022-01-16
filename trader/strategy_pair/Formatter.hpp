@@ -8,10 +8,10 @@
 
 class Position;
 struct Settings;
+struct Report;
 
 namespace pair {
 class Context;
-struct Report;
 
 class Formatter {
 public: // static

@@ -1,9 +1,9 @@
 #include "Algorithm.hpp"
 #include "Script.hpp"
 #include "Context.hpp"
-#include "Report.hpp"
 #include "base/Position.hpp"
 #include "base/Settings.hpp"
+#include "base/Report.hpp"
 #include "exchanger/wrapper/OrderWrapper.hpp"
 #include "exchanger/Exchanger.hpp"
 
@@ -136,15 +136,15 @@ bool Algorithm::tryOpen() {
         return false;
 
     // создадим заказ
-    Position position;
-    if (not createOrder(request, position))
+    Position open;
+    if (not createOrder(request, open))
         return false;
 
-    _position->copy(position);
+    _position->copy(open);
     _position->setTime(Context::current->time());
     _position->save(_settings.isRelease());
 
-    onOpen.emmit(position);
+    onOpen.emmit(open);
     return true;
 }
 

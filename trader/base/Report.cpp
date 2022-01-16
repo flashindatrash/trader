@@ -3,10 +3,8 @@
 //
 
 #include "Report.hpp"
-#include "base/Position.hpp"
+#include "Position.hpp"
 #include "exchanger/base/Symbol.hpp"
-
-using namespace pair;
 
 Report::Report(const Position& open, const Position& close) {
     // берем пару из любой позиции

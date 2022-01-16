@@ -4,10 +4,10 @@
 
 #include "Formatter.hpp"
 #include "Context.hpp"
-#include "Report.hpp"
 #include "core/Logger.hpp"
 #include "base/Position.hpp"
 #include "base/Settings.hpp"
+#include "base/Report.hpp"
 #include "util/MathUtil.hpp"
 #include <utility>
 #include <limits>
