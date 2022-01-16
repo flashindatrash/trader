@@ -8,38 +8,28 @@
 
 namespace listing {
 
-class ListedSymbols {
+class SymbolUpdater {
 public: // static
     typedef std::vector<Symbol> Data;
 
-    enum Status : unsigned int {
-        Ok,
-        Failed,
-        Empty
-    };
-
-    static ListedSymbols find();
-
 public: // methods
-    ~ListedSymbols();
+    SymbolUpdater() = default;
+    ~SymbolUpdater();
 
-    Status status() const;
+    bool request();
+
     const Data& vector() const;
 
 protected: // methods
-    ListedSymbols() = default;
 
     void connect();
     void disconnect();
-
-    void proceed();
 
     void found(const Symbol& symbol);
 
 protected: // vars
     std::vector<Symbol> _symbols;
 
-    Status _status = Empty;
     size_t _connector = -1;
 };
 

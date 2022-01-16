@@ -5,8 +5,10 @@
 #pragma once
 
 #include "base/BaseStrategy.hpp"
+#include <vector>
 
 namespace listing {
+class Algorithm;
 
 class Strategy : public BaseStrategy {
 public: // methods
@@ -17,14 +19,15 @@ public: // methods
     bool isRunning() const override;
 
 protected: // methods
-
     void tick(time_t ms);
 
-    std::string username() const;
+    void update();
+    void execute();
 
 protected: // vars
     core::Config _config;
-
+    std::vector<Algorithm*> _algorithms;
 };
+
 }
 
