@@ -4,9 +4,12 @@
 
 #include "Algorithm.hpp"
 #include "core/Config.hpp"
+#include "core/Logger.hpp"
+#include "core/Time.hpp"
 #include "base/Position.hpp"
 #include "exchanger/Exchanger.hpp"
 #include "exchanger/base/Symbol.hpp"
+#include "exchanger/wrapper/PriceWrapper.hpp"
 
 using namespace listing;
 
@@ -26,16 +29,77 @@ Algorithm::~Algorithm() {
 }
 
 bool Algorithm::init(const Symbol& symbol) {
-    // maybe not needed
     if (not Exchanger().loadPrice(symbol))
         return false;
+
+    // todo: unhandle
+    Exchanger().listenTickers(symbol);
 
     _position = Position::create(_config.asString("REDIS_USERNAME"), symbol.id());
     return true;
 }
 
 bool Algorithm::execute() {
-    return false;
+    if (tryOpen())
+        return false;
+
+    return tryClose();
+}
+
+bool Algorithm::tryOpen() {
+    if (_position->has())
+        return false;
+
+    const Symbol symbol = _position->symbol();
+
+    // get price and balance
+    const Price price = symbol.price(Buy);
+    const Quantity& balance = symbol.baseAsset().balance();
+
+    if (price == 0.0)
+        return false;
+
+    // already have coins
+    if (balance > 0) {
+        _position->setSide(Buy);
+        _position->setBaseQuantity(balance);
+        _position->setQuoteQuantity(balance * price);
+        Logger::info(util::format("opened on price %f", price));
+    }
+
+    _position->save(false);
+    return true;
+}
+
+bool Algorithm::tryClose() {
+    if (not _position->has())
+        return false;
+
+    const Symbol symbol = _position->symbol();
+
+    // get price wrapper
+    PriceWrapper* wrapper = Exchanger().price(symbol);
+    if (wrapper == nullptr)
+        return false;
+
+    // get actual ticker
+    const Ticker& ticker = wrapper->ticker();
+    if (ticker.time < Time().ms() - Timer::sSecond * 5)
+        return false;
+
+    // price must exist
+    Price price = ticker.bestBidPrice;
+    if (price == 0.0)
+        return false;
+
+    // close with profit
+    Quantity profit = _position->profit(price);
+    if (profit < 0)
+        return false;
+
+    Logger::info(util::format("closed with profit %f", profit));
+    _position->remove(false);
+    return true;
 }
 
 

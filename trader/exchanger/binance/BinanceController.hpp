@@ -44,6 +44,8 @@ protected: // methods
     bool initUserListenKey();
     bool keepUserDataStream();
 
+    BinanceWebsocket* findWebsocket(const std::string& path) const;
+
     bool checkRateLimits() const;
 
     double minQuantity(const std::string& symbol) const;

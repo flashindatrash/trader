@@ -25,6 +25,8 @@ public: // methods
     const Price& get() const;
     const Price& get(const OrderSide& side) const;
 
+    const Ticker& ticker() const;
+
 protected: // vars
     Price _price = 0.0;
     Ticker _ticker;

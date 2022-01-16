@@ -29,3 +29,7 @@ const Price& PriceWrapper::get(const OrderSide& side) const {
     }
     return get();
 }
+
+const Ticker& PriceWrapper::ticker() const {
+    return _ticker;
+}

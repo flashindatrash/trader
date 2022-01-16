@@ -371,15 +371,23 @@ void BinanceController::connectCharts(Storage::Type_chart& container) {
 }
 
 void BinanceController::listenCharts(ChartWrapper& container, ChartInterval interval) {
+    const std::string& path = util::lowercase(container.id().c_str()) + "@kline_" + binance::serialize(interval);
+    if (findWebsocket(path))
+        return;
+
     BinanceWebsocket* websocket = BinanceWebsocket::create();
-    websocket->setPath(util::lowercase(container.id().c_str()) + "@kline_" + binance::serialize(interval));
+    websocket->setPath(path);
     websocket->setCallback(std::bind(&BinanceController::onKlineDataStream, this, std::placeholders::_1));
     _websockets.push_back(websocket);
 }
 
 void BinanceController::listenTicker(PriceWrapper& container) {
+    const std::string& path = util::lowercase(container.id().c_str()) + "@bookTicker";
+    if (findWebsocket(path))
+        return;
+
     BinanceWebsocket* websocket = BinanceWebsocket::create();
-    websocket->setPath(util::lowercase(container.id().c_str()) + "@bookTicker");
+    websocket->setPath(path);
     websocket->setCallback(std::bind(&BinanceController::onTickerDataStream, this, std::placeholders::_1));
     _websockets.push_back(websocket);
 }
@@ -425,6 +433,13 @@ bool BinanceController::keepUserDataStream() {
         break;
     }
     return true;
+}
+
+BinanceWebsocket* BinanceController::findWebsocket(const std::string& path) const {
+    auto it = std::find_if(_websockets.begin(), _websockets.end(), [path](BinanceWebsocket* i) { return i->path() == path; });
+    if (it == _websockets.end())
+        return nullptr;
+    return *it;
 }
 
 void BinanceController::onUserDataStream(const Json::Value& json) {
@@ -598,6 +613,8 @@ bool BinanceController::checkRateLimits() const {
                 Logger::error(util::format("BinanceController::checkRateLimits used %d in %d %s (limit: %d)", used, rateLimit.intervalNum, rateLimit.interval.c_str(), limit));
                 return false;
             }
+
+            // Logger::info(util::format("BinanceController::checkRateLimits used %d in %d %s (limit: %d)", used, rateLimit.intervalNum, rateLimit.interval.c_str(), limit));
         }
     }
 

@@ -51,6 +51,7 @@ void Strategy::update() {
                 continue;
             }
 
+            Logger::info(util::format("Create algorithm"));
             _algorithms.push_back(algorithm);
         }
     }

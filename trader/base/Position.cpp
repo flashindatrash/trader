@@ -11,6 +11,7 @@ static const char* FIELD_COUNT = "count";
 
 Position* Position::create(const std::string& username, const std::string& symbol) {
     auto* position = new Position(username, symbol);
+    position->setSymbol(symbol);
     return position;
 }
 

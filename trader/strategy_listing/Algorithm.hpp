@@ -25,6 +25,9 @@ public: // methods
 protected: // methods
     explicit Algorithm(const core::Config& config);
 
+    bool tryOpen();
+    bool tryClose();
+
 protected: // vars
     const core::Config& _config;
 

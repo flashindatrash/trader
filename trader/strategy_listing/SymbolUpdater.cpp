@@ -26,6 +26,9 @@ const SymbolUpdater::Data& SymbolUpdater::vector() const {
 }
 
 bool SymbolUpdater::request() {
+    _symbols.emplace_back(Symbol("QIUSDT"));
+    return true;
+
     static time_t _last = 0;
 
     time_t time_passed = Time().ms() - _last;
