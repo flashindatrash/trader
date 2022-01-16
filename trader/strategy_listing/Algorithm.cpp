@@ -29,12 +29,6 @@ Algorithm::~Algorithm() {
 }
 
 bool Algorithm::init(const Symbol& symbol) {
-    if (not Exchanger().loadPrice(symbol))
-        return false;
-
-    // todo: unhandle
-    Exchanger().listenTickers(symbol);
-
     _position = Position::create(_settings.username, symbol.id());
     return true;
 }
@@ -52,6 +46,10 @@ bool Algorithm::tryOpen() {
 
     const Symbol symbol = _position->symbol();
 
+    // update price
+    if (not Exchanger().loadPrice(symbol))
+        return false;
+
     // get price and balance
     const Price price = symbol.price(Buy);
     const Quantity& balance = symbol.baseAsset().balance();
@@ -68,6 +66,11 @@ bool Algorithm::tryOpen() {
     }
 
     _position->save(_settings.isRelease());
+
+    // todo: unhandle
+    // listen tickers
+    Exchanger().listenTickers(symbol);
+
     return true;
 }
 
