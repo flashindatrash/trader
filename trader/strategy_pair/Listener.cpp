@@ -3,12 +3,12 @@
 //
 
 #include "Listener.hpp"
-
 #include "Context.hpp"
 #include "Formatter.hpp"
 #include "Algorithm.hpp"
-#include "base/Position.hpp"
 #include "core/Logger.hpp"
+#include "base/Position.hpp"
+#include "base/Settings.hpp"
 #include "protocol/Event.hpp"
 #include "protocol/User.hpp"
 

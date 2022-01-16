@@ -1,9 +1,9 @@
 #pragma once
 
 #include "core/Signal.hpp"
-#include "Settings.hpp"
 
 class Position;
+struct Settings;
 struct OrderRequest;
 
 namespace pair {

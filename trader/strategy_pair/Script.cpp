@@ -3,11 +3,11 @@
 //
 
 #include "Script.hpp"
-#include "Settings.hpp"
 #include "Context.hpp"
 #include "core/Logger.hpp"
 #include "core/Time.hpp"
 #include "base/Position.hpp"
+#include "base/Settings.hpp"
 #include "exchanger/Exchanger.hpp"
 #include "exchanger/wrapper/BalanceWrapper.hpp"
 #include "exchanger/wrapper/OrderWrapper.hpp"
@@ -191,10 +191,12 @@ bool Script::main(const Settings& settings) {
 
     lua_newtable(lua);
 
-    lua_pushstring(lua, settings.symbol.baseAsset().c_str());
+    const Symbol symbol(settings.symbol);
+
+    lua_pushstring(lua, symbol.baseAsset().c_str());
     lua_setfield(lua, -2, "baseAsset");
 
-    lua_pushstring(lua, settings.symbol.quoteAsset().c_str());
+    lua_pushstring(lua, symbol.quoteAsset().c_str());
     lua_setfield(lua, -2, "quoteAsset");
 
     lua_pushstring(lua, settings.mode.c_str());

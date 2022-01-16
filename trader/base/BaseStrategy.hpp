@@ -4,11 +4,15 @@
 
 #pragma once
 
-#include "core/Config.hpp"
+#include "Settings.hpp"
 
 class BaseStrategy {
 public: // abstract
     virtual ~BaseStrategy() = default;
-    virtual bool init(const core::Config& config) = 0;
     virtual bool isRunning() const = 0;
+    virtual bool init(const Settings& settings) = 0;
+
+protected: // vars
+    Settings _settings;
+
 };

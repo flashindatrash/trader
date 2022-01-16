@@ -1,9 +1,9 @@
 #include "Algorithm.hpp"
-
-#include "base/Position.hpp"
 #include "Script.hpp"
 #include "Context.hpp"
 #include "Report.hpp"
+#include "base/Position.hpp"
+#include "base/Settings.hpp"
 #include "exchanger/wrapper/OrderWrapper.hpp"
 #include "exchanger/Exchanger.hpp"
 
@@ -25,7 +25,7 @@ Algorithm::~Algorithm() {
 }
 
 bool Algorithm::init() {
-    _position = Position::create(_settings.username, _settings.symbol.id());
+    _position = Position::create(_settings.username, _settings.symbol);
     _script = Script::create(_settings.script);
     return _position != nullptr && _script != nullptr && _script->main(_settings);
 }

@@ -3,9 +3,9 @@
 #include "core/Signal.hpp"
 
 class ChartWrapper;
+struct Settings;
 
 namespace pair {
-class Settings;
 class Context;
 
 class Runner {

@@ -3,23 +3,23 @@
 //
 
 #include "Algorithm.hpp"
-#include "core/Config.hpp"
 #include "core/Logger.hpp"
 #include "core/Time.hpp"
 #include "base/Position.hpp"
+#include "base/Settings.hpp"
 #include "exchanger/Exchanger.hpp"
 #include "exchanger/base/Symbol.hpp"
 #include "exchanger/wrapper/PriceWrapper.hpp"
 
 using namespace listing;
 
-Algorithm* Algorithm::create(const core::Config& config) {
-    auto algorithm = new Algorithm(config);
+Algorithm* Algorithm::create(const Settings& settings) {
+    auto algorithm = new Algorithm(settings);
     return algorithm;
 }
 
-Algorithm::Algorithm(const core::Config& config)
-    : _config(config)
+Algorithm::Algorithm(const Settings& settings)
+    : _settings(settings)
 {
 }
 
@@ -35,7 +35,7 @@ bool Algorithm::init(const Symbol& symbol) {
     // todo: unhandle
     Exchanger().listenTickers(symbol);
 
-    _position = Position::create(_config.asString("REDIS_USERNAME"), symbol.id());
+    _position = Position::create(_settings.username, symbol.id());
     return true;
 }
 
@@ -67,7 +67,7 @@ bool Algorithm::tryOpen() {
         Logger::info(util::format("opened on price %f", price));
     }
 
-    _position->save(false);
+    _position->save(_settings.isRelease());
     return true;
 }
 
@@ -98,7 +98,7 @@ bool Algorithm::tryClose() {
         return false;
 
     Logger::info(util::format("closed with profit %f", profit));
-    _position->remove(false);
+    _position->remove(_settings.isRelease());
     return true;
 }
 

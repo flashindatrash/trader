@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "Settings.hpp"
+struct Settings;
 
 namespace pair {
 class Algorithm;

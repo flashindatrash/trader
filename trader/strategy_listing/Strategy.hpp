@@ -15,7 +15,7 @@ public: // methods
     Strategy() = default;
     ~Strategy() override;
 
-    bool init(const core::Config &config) override;
+    bool init(const Settings& settings) override;
     bool isRunning() const override;
 
 protected: // methods
@@ -25,7 +25,6 @@ protected: // methods
     void execute();
 
 protected: // vars
-    core::Config _config;
     std::vector<Algorithm*> _algorithms;
 };
 

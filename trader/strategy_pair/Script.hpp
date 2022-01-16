@@ -8,10 +8,10 @@
 
 class Position;
 class lua_State;
+struct Settings;
 struct OrderRequest;
 
 namespace pair {
-class Settings;
 
 class Script {
 public: // static

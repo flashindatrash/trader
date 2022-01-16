@@ -47,7 +47,7 @@ int TraderApp::run() {
         return EXIT_FAILURE;
 
     // init strategy
-    if (not _strategy->init(_config))
+    if (not _strategy->init(Settings(_config)))
         return EXIT_FAILURE;
 
     // run exchanger thread

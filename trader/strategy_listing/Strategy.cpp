@@ -17,8 +17,8 @@ Strategy::~Strategy() {
     _algorithms.clear();
 }
 
-bool Strategy::init(const core::Config& config) {
-    _config = config;
+bool Strategy::init(const Settings& settings) {
+    _settings = settings;
 
     Time().onTick.connect(std::bind(&Strategy::tick, this, std::placeholders::_1));
     return true;
@@ -44,7 +44,7 @@ void Strategy::update() {
     }
 
     for (const Symbol &symbol: symbols.vector()) {
-        if (Algorithm *algorithm = Algorithm::create(_config)) {
+        if (Algorithm *algorithm = Algorithm::create(_settings)) {
             if (not algorithm->init(symbol)) {
                 Logger::info(util::format("Failed to init algorithm %s", symbol.c_str()));
                 delete algorithm;

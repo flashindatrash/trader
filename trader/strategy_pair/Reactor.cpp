@@ -9,6 +9,7 @@
 #include "protocol/Command.hpp"
 #include "protocol/Event.hpp"
 #include "base/Position.hpp"
+#include "base/Settings.hpp"
 
 using namespace pair;
 

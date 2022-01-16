@@ -4,11 +4,11 @@
 
 #pragma once
 
-#include "Settings.hpp"
 #include "Report.hpp"
 #include "protocol/Stats.hpp"
 
 class Position;
+struct Settings;
 
 namespace pair {
 class Algorithm;

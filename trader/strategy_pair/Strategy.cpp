@@ -4,6 +4,7 @@
 #include "Listener.hpp"
 #include "Reactor.hpp"
 #include "core/Config.hpp"
+#include "exchanger/Exchanger.hpp"
 
 using namespace pair;
 
@@ -19,9 +20,17 @@ Strategy::~Strategy() {
     _reactor = nullptr;
 }
 
-bool Strategy::init(const core::Config& config) {
-    _settings = Settings(config);
-    if (not _settings.isValid())
+bool Strategy::init(const Settings& settings) {
+    _settings = settings;
+
+    // check settings
+    if (_settings.script.empty())
+        return false;
+
+    if (_settings.symbol.empty() || Exchanger().pair(_settings.symbol) == nullptr)
+        return false;
+
+    if (_settings.profit_ratio < 0.0 || _settings.profit_ratio > 1.0)
         return false;
 
     // create algorithm

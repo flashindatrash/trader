@@ -1,11 +1,6 @@
 #pragma once
 
 #include "base/BaseStrategy.hpp"
-#include "Settings.hpp"
-
-namespace core {
-    class Config;
-}
 
 namespace pair {
 class Runner;
@@ -19,14 +14,12 @@ public: // methods
     Strategy() = default;
     ~Strategy() override;
 
-    bool init(const core::Config& config) override;
+    bool init(const Settings& settings) override;
     bool isRunning() const override;
 
 protected: // methods
     void execute(void*);
 
-protected: // vars
-    Settings _settings;
     Runner* _runner = nullptr;
     Algorithm* _algorithm = nullptr;
     Listener* _listener = nullptr;

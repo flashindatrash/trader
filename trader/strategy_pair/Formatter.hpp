@@ -7,11 +7,11 @@
 #include "exchanger/base/Symbol.hpp"
 
 class Position;
+struct Settings;
 
 namespace pair {
 class Context;
 struct Report;
-struct Settings;
 
 class Formatter {
 public: // static

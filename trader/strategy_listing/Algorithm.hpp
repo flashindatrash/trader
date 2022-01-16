@@ -6,15 +6,13 @@
 
 class Symbol;
 class Position;
-namespace core {
-    class Config;
-}
+struct Settings;
 
 namespace listing {
 
 class Algorithm {
 public: // static
-    static Algorithm* create(const core::Config& config);
+    static Algorithm* create(const Settings& config);
 
 public: // methods
     ~Algorithm();
@@ -23,13 +21,13 @@ public: // methods
     bool execute();
 
 protected: // methods
-    explicit Algorithm(const core::Config& config);
+    explicit Algorithm(const Settings& config);
 
     bool tryOpen();
     bool tryClose();
 
 protected: // vars
-    const core::Config& _config;
+    const Settings& _settings;
 
     Position* _position = nullptr;
 
