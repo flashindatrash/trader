@@ -7,6 +7,7 @@
 class Symbol;
 class Position;
 struct Settings;
+struct OrderRequest;
 
 namespace listing {
 
@@ -25,6 +26,8 @@ protected: // methods
 
     bool tryOpen();
     bool tryClose();
+
+    bool createOrder(OrderRequest& request, Position& result) const;
 
 protected: // vars
     const Settings& _settings;

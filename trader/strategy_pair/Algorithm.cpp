@@ -135,7 +135,7 @@ bool Algorithm::tryOpen() {
     if (not _script->open(request))
         return false;
 
-    // создание заказа
+    // создадим заказ
     Position position;
     if (not createOrder(request, position))
         return false;

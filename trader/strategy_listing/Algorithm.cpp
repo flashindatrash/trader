@@ -10,6 +10,7 @@
 #include "exchanger/Exchanger.hpp"
 #include "exchanger/base/Symbol.hpp"
 #include "exchanger/wrapper/PriceWrapper.hpp"
+#include "exchanger/wrapper/OrderWrapper.hpp"
 
 using namespace listing;
 
@@ -34,9 +35,11 @@ bool Algorithm::init(const Symbol& symbol) {
 }
 
 bool Algorithm::execute() {
+    // создадим позицию и выйдем
     if (tryOpen())
         return false;
 
+    // закроем позицию, если успешно тогда алгоритм удалится
     return tryClose();
 }
 
@@ -46,31 +49,46 @@ bool Algorithm::tryOpen() {
 
     const Symbol symbol = _position->symbol();
 
-    // update price
+    // получение актуальной цены
     if (not Exchanger().loadPrice(symbol))
         return false;
 
-    // get price and balance
     const Price price = symbol.price(Buy);
     const Quantity& balance = symbol.baseAsset().balance();
 
+    // проверим, что средняя цена нам уже известна
     if (price == 0.0)
         return false;
 
-    // already have coins
+    // если уже имеем эту монету, просто создаем позицию
     if (balance > 0) {
         _position->setSide(Buy);
         _position->setBaseQuantity(balance);
         _position->setQuoteQuantity(balance * price);
-        Logger::info(util::format("opened on price %f", price));
+    } else {
+        // создадим реквест
+        OrderRequest request;
+        request.symbol = symbol;
+        request.side = Buy;
+        request.quantity = Exchanger().roundQuantity(0, symbol);
+
+        // создадим заказ
+        Position position;
+        if (not createOrder(request, position))
+            return false;
+
+        _position->copy(position);
     }
 
+    // сохраним позицию
+    _position->setTime(Time().ms());
     _position->save(_settings.isRelease());
 
-    // todo: unhandle
-    // listen tickers
+    // todo: поддержать отписку
+    // подписываемся на тикеры
     Exchanger().listenTickers(symbol);
 
+    Logger::info(util::format("opened on price %f", price));
     return true;
 }
 
@@ -80,98 +98,67 @@ bool Algorithm::tryClose() {
 
     const Symbol symbol = _position->symbol();
 
-    // get price wrapper
+    // получим врапер с ценой
     PriceWrapper* wrapper = Exchanger().price(symbol);
     if (wrapper == nullptr)
         return false;
 
-    // get actual ticker
+    // достанем последний тикер
     const Ticker& ticker = wrapper->ticker();
     if (ticker.time < Time().ms() - Timer::sSecond * 5)
         return false;
 
-    // price must exist
+    // тикер должен существовать
     Price price = ticker.bestBidPrice;
     if (price == 0.0)
         return false;
 
-    // close with profit
+    // проверим, что мы в профите
     Quantity profit = _position->profit(price);
     if (profit < 0)
         return false;
 
-    Logger::info(util::format("closed with profit %f", profit));
+    // todo: проверить что цена выше минимальной
+
+    // созданим реквест
+    OrderRequest request;
+    request.symbol = _position->symbol();
+    request.side = _position->revert();
+    request.quantity = _position->baseQuantity();
+
+    // создадим заказ
+    Position position;
+    if (not createOrder(request, position))
+        return false;
+
+    // удалим позицию
     _position->remove(_settings.isRelease());
+
+    Logger::info(util::format("closed with profit %f", _position->profit(position.price())));
     return true;
 }
 
-
-/*bool Strategy::tryOpen() {
-    if (_new_symbols.empty())
+bool Algorithm::createOrder(OrderRequest& request, Position& result) const {
+    if (request.side == OrderSide::Invalid)
         return false;
 
-    // !for test: with single position
-    if (_position != nullptr)
+    if (not _settings.isRelease()) {
+        const Asset& asset = OrderUtil::usedAsset(request.side, request.symbol);
+        if (asset.balance() < request.required())
+            return false;
+
+        result.setSide(request.side);
+        result.setBaseQuantity(Exchanger().roundQuantity(request.quantity, request.symbol));
+        result.setQuoteQuantity(result.baseQuantity() * request.symbol.price(request.side));
+        result.operate();
+        return true;
+    }
+
+    // создание заказа
+    const OrderWrapper* order = Exchanger().createOrder(request);
+    if (order == nullptr)
         return false;
 
-    // !for test: pick first symbol
-    const Symbol& symbol = _new_symbols.front();
-
-    // refresh prices
-    if (not Exchanger().loadPrice(symbol))
-        return false;
-
-    // get price
-    const PriceWrapper* price = Exchanger().price(symbol);
-    if (price == nullptr)
-        return false;
-
-    _max_price = price->get(OrderSide::Buy);
-    if (_max_price <= std::numeric_limits<double>::epsilon())
-        return false;
-
-    const std::string user = username();
-
-    _position = Position::create(user, symbol);
-    _position->setSymbol(symbol);
-    _position->setSide(OrderSide::Buy);
-    _position->setBaseQuantity(Exchanger().roundQuantity(0, symbol));
-    _position->setQuoteQuantity(_position->baseQuantity() * _max_price);
-    _position->operate();
-
-    // listen ticker, todo: disconnect
-    Exchanger().listenTickers(symbol);
-
-    // write log
-    std::string text = util::format("Buy new listed %s for price %f", symbol.c_str(), _position->price());
-    Logger::info(text);
-
-    // send log
-    // protocol::Event::add(user, text);
+    result.copy(*order);
     return true;
 }
-
-bool Strategy::tryClose() {
-    if (_position == nullptr)
-        return false;
-
-    // get price
-    const PriceWrapper* price = Exchanger().price(_position->symbol());
-    if (price == nullptr)
-        return false;
-
-    Price current_price = price->get(OrderSide::Sell);
-    _max_price = std::max(_max_price, current_price);
-
-    Price k = (_max_price - current_price) / (_max_price - _position->price());
-    if (k < 0.3)
-        return false;
-
-    // write log
-    std::string text = util::format("Sell new listed %s for price %f (profit %f)", _position->symbol().c_str(), _position->price(), _position->profit(current_price));
-    Logger::info(text);
-
-    delete _position;
-    _position = nullptr;
-    return true;
-}*/
