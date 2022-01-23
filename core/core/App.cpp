@@ -4,14 +4,8 @@
 
 using namespace core;
 
-App::App(Config config)
-    : _config(std::move(config))
-{
-}
-
-App::App(Config config, Version version)
-    : _config(std::move(config))
-    , _version(version)
+App::App(Version version)
+    : _version(version)
 {
 }
 

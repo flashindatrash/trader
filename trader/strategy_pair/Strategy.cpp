@@ -3,8 +3,6 @@
 #include "Algorithm.hpp"
 #include "Listener.hpp"
 #include "Reactor.hpp"
-#include "core/Config.hpp"
-#include "exchanger/Exchanger.hpp"
 
 using namespace pair;
 
@@ -24,13 +22,13 @@ bool Strategy::init(const Settings& settings) {
     _settings = settings;
 
     // check settings
-    if (_settings.script.empty())
+    if (_settings.script().empty())
         return false;
 
-    if (_settings.symbol.empty() || Exchanger().pair(_settings.symbol) == nullptr)
+    if (_settings.symbol().empty())
         return false;
 
-    if (_settings.profit_ratio < 0.0 || _settings.profit_ratio > 1.0)
+    if (_settings.profitRatio() < 0.0 || _settings.profitRatio() > 1.0)
         return false;
 
     // create algorithm

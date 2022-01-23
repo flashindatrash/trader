@@ -1,4 +1,5 @@
 #include "TraderApp.hpp"
+
 #include "core/Time.hpp"
 #include "core/Logger.hpp"
 #include "database/Database.hpp"
@@ -6,9 +7,9 @@
 #include "strategy_pair/Strategy.hpp"
 #include "strategy_listing/Strategy.hpp"
 
-TraderApp* TraderApp::create(const std::string& type, const core::Config& config) {
-    auto* app = new TraderApp(config);
-    if (app->init(type)) {
+TraderApp* TraderApp::create(const Settings& settings) {
+    auto* app = new TraderApp();
+    if (app->init(settings)) {
         return app;
     }
 
@@ -16,8 +17,8 @@ TraderApp* TraderApp::create(const std::string& type, const core::Config& config
     return nullptr;
 }
 
-TraderApp::TraderApp(const core::Config& config)
-    : core::App(config, core::Version(1, 4, 0))
+TraderApp::TraderApp()
+    : core::App(core::Version(1, 4, 0))
 {
 }
 
@@ -26,10 +27,12 @@ TraderApp::~TraderApp() {
     _strategy = nullptr;
 }
 
-bool TraderApp::init(const std::string& type) {
-    if (type == "pair")
+bool TraderApp::init(const Settings& settings) {
+    _settings = settings;
+
+    if (_settings.type() == "pair")
         _strategy = new pair::Strategy();
-    else if (type == "listing")
+    else if (_settings.type() == "listing")
         _strategy = new listing::Strategy();
 
     return _strategy != nullptr;
@@ -39,15 +42,15 @@ int TraderApp::run() {
     Logger::info(util::format("TraderBot %s", _version.toString().c_str()));
 
     // init database
-    if (not DB().init(_config))
+    if (not DB().init(_settings.config()))
         return EXIT_FAILURE;
 
     // init exchanger
-    if (not Exchanger().init(_config))
+    if (not Exchanger().init(_settings.config()))
         return EXIT_FAILURE;
 
     // init strategy
-    if (not _strategy->init(Settings(_config)))
+    if (not _strategy->init(_settings))
         return EXIT_FAILURE;
 
     // run exchanger thread

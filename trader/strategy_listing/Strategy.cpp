@@ -25,12 +25,27 @@ bool Strategy::init(const Settings& settings) {
 }
 
 bool Strategy::isRunning() const {
-    return true;
+    return _running;
 }
 
 void Strategy::tick(time_t ms) {
    update();
    execute();
+}
+
+bool Strategy::add(const Symbol& symbol) {
+    Algorithm* algorithm = Algorithm::create(_settings);
+    if (algorithm == nullptr)
+        return false;
+
+    if (not algorithm->init(symbol)) {
+        delete algorithm;
+        return false;
+    }
+
+    Logger::info(util::format("Create algorithm"));
+    _algorithms.push_back(algorithm);
+    return true;
 }
 
 void Strategy::update() {
@@ -43,17 +58,18 @@ void Strategy::update() {
         return;
     }
 
-    for (const Symbol &symbol: symbols.vector()) {
-        if (Algorithm *algorithm = Algorithm::create(_settings)) {
-            if (not algorithm->init(symbol)) {
-                Logger::info(util::format("Failed to init algorithm %s", symbol.c_str()));
-                delete algorithm;
-                continue;
-            }
+    for (const Symbol& symbol: symbols.vector()) {
+        bool interested = symbol.id() == _settings.symbol().id();
 
-            Logger::info(util::format("Create algorithm"));
-            _algorithms.push_back(algorithm);
-        }
+        // interested symbol from arguments
+        if (not _settings.symbol().empty() && not interested)
+            continue;
+
+        // interested USDT pairs
+        interested |= symbol.quoteAsset().id() == Asset::USDT.id();
+
+        if (interested)
+            add(symbol);
     }
 }
 
@@ -63,9 +79,15 @@ void Strategy::execute() {
 
     for (auto it = _algorithms.begin(); it != _algorithms.end();) {
         Algorithm* algorithm = *it;
-        if (algorithm->execute())
+        if (algorithm->execute()) {
             it = _algorithms.erase(it);
-        else
+            delete algorithm;
+        } else {
             ++it;
+        }
     }
+
+    // stop running
+    if (_algorithms.empty() && not _settings.symbol().empty())
+        _running = false;
 }

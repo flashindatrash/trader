@@ -17,7 +17,7 @@ Runner* Runner::create() {
 }
 
 bool Runner::start(const Settings& settings) {
-    _chart = Exchanger().chart(settings.symbol);
+    _chart = Exchanger().chart(settings.symbol());
     if (settings.isBackTest()) {
         PriceWrapper price;
 

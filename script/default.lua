@@ -49,7 +49,7 @@ function __main__(settings)
     local days = 1;
 
     if settings.mode == "backtest" then
-        days = 30;
+        days = 7;
         -- topup(settings.baseAsset, 100);
         -- topup(settings.quoteAsset, 100);
     end

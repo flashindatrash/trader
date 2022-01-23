@@ -31,7 +31,7 @@ Algorithm::~Algorithm() {
 }
 
 bool Algorithm::init(const Symbol& symbol) {
-    _position = Position::create(_settings.username, symbol.id());
+    _position = Position::create(_settings.username(), symbol.id());
     return true;
 }
 

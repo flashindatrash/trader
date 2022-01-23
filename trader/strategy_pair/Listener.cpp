@@ -21,7 +21,7 @@ Listener* Listener::create(const Settings& settings) {
 
 Listener::Listener(const Settings& settings)
     : _settings(settings)
-    , _stats(settings.username, settings.symbol)
+    , _stats(settings.username(), settings.symbol())
 {
 }
 
@@ -33,7 +33,7 @@ bool Listener::init(Algorithm& algorithm) {
     algorithm.onTick.connect(std::bind(&Listener::handleTick, this, std::placeholders::_1));
     algorithm.onReport.connect(std::bind(&Listener::handleReport, this, std::placeholders::_1));
 
-    Logger::title(Formatter::title(_settings.symbol).terminal());
+    Logger::title(Formatter::title(_settings.symbol()).terminal());
     return true;
 }
 
@@ -41,7 +41,7 @@ void Listener::handleStop(void*) {
     if (_report.positions == 0)
         return;
 
-    Formatter event = Formatter::report(_report, _settings.symbol);
+    Formatter event = Formatter::report(_report, _settings.symbol());
     Logger::info(event.terminal());
 
     _report = Report();
@@ -54,7 +54,7 @@ void Listener::handlePosition(const Position& position) {
         Logger::info(event.terminal());
 
     if (_settings.isRelease())
-        protocol::Event::add(_settings.username, event.html());
+        protocol::Event::add(_settings.username(), event.html());
 }
 
 void Listener::handleTick(const Position& position) {
@@ -73,13 +73,13 @@ void Listener::handleReport(const Report& report) {
     _report.add(report);
 
     // формируем эвент
-    Formatter event = Formatter::profit(report, _settings.symbol);
+    Formatter event = Formatter::profit(report, _settings.symbol());
 
     if (_settings.logEnabled())
         Logger::info(event.terminal());
 
     if (_settings.isRelease()) {
-        protocol::Event::add(_settings.username, event.html());
+        protocol::Event::add(_settings.username(), event.html());
 
         // сохраняем статистику пары
         _stats.setProfit(report.profit);
@@ -88,7 +88,7 @@ void Listener::handleReport(const Report& report) {
         _stats.save();
 
         // сохраняем статистику пользователя
-        protocol::User user(_settings.username);
+        protocol::User user(_settings.username());
         user.setProfit(report.profit);
         user.save();
     }

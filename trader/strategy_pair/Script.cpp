@@ -191,7 +191,7 @@ bool Script::main(const Settings& settings) {
 
     lua_newtable(lua);
 
-    const Symbol symbol(settings.symbol);
+    const Symbol symbol(settings.symbol());
 
     lua_pushstring(lua, symbol.baseAsset().c_str());
     lua_setfield(lua, -2, "baseAsset");
@@ -199,7 +199,7 @@ bool Script::main(const Settings& settings) {
     lua_pushstring(lua, symbol.quoteAsset().c_str());
     lua_setfield(lua, -2, "quoteAsset");
 
-    lua_pushstring(lua, settings.mode.c_str());
+    lua_pushstring(lua, settings.mode().c_str());
     lua_setfield(lua, -2, "mode");
 
     if (lua_pcall(lua, 1, 1, 0)) {

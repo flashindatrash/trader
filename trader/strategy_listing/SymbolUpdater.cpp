@@ -26,9 +26,6 @@ const SymbolUpdater::Data& SymbolUpdater::vector() const {
 }
 
 bool SymbolUpdater::request() {
-    _symbols.emplace_back(Symbol("QIUSDT"));
-    return true;
-
     static time_t _last = 0;
 
     time_t time_passed = Time().ms() - _last;
@@ -52,8 +49,5 @@ bool SymbolUpdater::request() {
 
 void SymbolUpdater::found(const Symbol& symbol) {
     Logger::info(util::format("New listed symbol: %s", symbol.c_str()));
-
-    // interesting pairs with usdt
-    if (symbol.quoteAsset().id() == Asset::USDT.id())
-        _symbols.push_back(symbol);
+    _symbols.push_back(symbol);
 }

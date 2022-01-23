@@ -3,18 +3,30 @@
 //
 
 #include "EventManagerApp.hpp"
+
+#include <utility>
 #include "core/Logger.hpp"
 #include "../messenger/Messenger.hpp"
 #include "database/Database.hpp"
 
 EventManagerApp* EventManagerApp::create(const core::Config& config) {
-    auto* app = new EventManagerApp(config);
-    return app;
+    auto* app = new EventManagerApp();
+    if (app->init(config)) {
+        return app;
+    }
+
+    delete app;
+    return nullptr;
 }
 
-EventManagerApp::EventManagerApp(const core::Config& config)
-    : core::App(config)
+EventManagerApp::EventManagerApp()
+    : core::App(core::Version(1, 0, 0))
 {
+}
+
+bool EventManagerApp::init(const core::Config& config) {
+    _config = config;
+    return true;
 }
 
 int EventManagerApp::run() {

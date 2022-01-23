@@ -3,7 +3,7 @@
 #include "core/Signal.hpp"
 
 class Position;
-struct Settings;
+class Settings;
 struct Report;
 struct OrderRequest;
 

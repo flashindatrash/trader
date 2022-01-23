@@ -32,13 +32,13 @@ void Reactor::execute() const {
     if (not _settings.isRelease() || Context::current == nullptr)
         return;
 
-    std::vector<protocol::Command> commands = protocol::Command::get(_settings.username, _settings.symbol);
+    std::vector<protocol::Command> commands = protocol::Command::get(_settings.username(), _settings.symbol());
     for (const protocol::Command& command : commands) {
         switch (command.action()) {
             case protocol::Command::Status: {
                 if (_algorithm.position().has()) {
                     Formatter event = Formatter::update(_algorithm.position(), *Context::current, _settings);
-                    protocol::Event::add(_settings.username, event.html());
+                    protocol::Event::add(_settings.username(), event.html());
                 }
                 break;
             }

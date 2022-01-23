@@ -49,7 +49,7 @@ bool ExchangerProxy::loadPrices() {
 }
 
 bool ExchangerProxy::loadPrice(const std::string& key) {
-    return _controller->loadPrices(_prices);
+    return _controller->loadPrice(*_prices.get(key));
 }
 
 bool ExchangerProxy::loadOrders(const std::string& key) {

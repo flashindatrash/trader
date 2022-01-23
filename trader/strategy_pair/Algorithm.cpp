@@ -25,8 +25,8 @@ Algorithm::~Algorithm() {
 }
 
 bool Algorithm::init() {
-    _position = Position::create(_settings.username, _settings.symbol);
-    _script = Script::create(_settings.script);
+    _position = Position::create(_settings.username(), _settings.symbol());
+    _script = Script::create(_settings.script());
     return _position != nullptr && _script != nullptr && _script->main(_settings);
 }
 
@@ -89,7 +89,7 @@ bool Algorithm::close() {
     // определим размер лота, для закрытия позиции
     // он может быть тот же, или отличаться на размер профита
     Price price = Context::current->price(_position->revert());
-    Quantity profit_base = _position->profit(price) / price * _settings.profit_ratio;
+    Quantity profit_base = _position->profit(price) / price * _settings.profitRatio();
 
     Quantity additional = 0.0;
     double (*round)(double) = std::round;
@@ -131,7 +131,7 @@ bool Algorithm::tryOpen() {
 
     // создадим реквест
     OrderRequest request;
-    request.symbol = _settings.symbol;
+    request.symbol = _settings.symbol();
     if (not _script->open(request))
         return false;
 

@@ -1,15 +1,22 @@
 #pragma once
 
+#include "core/Config.hpp"
+#include "exchanger/base/Symbol.hpp"
 #include <string>
 
-namespace core {
-    class Config;
-}
-
-struct Settings {
+class Settings {
 public: // methods
     Settings() = default;
-    explicit Settings(const core::Config& config);
+
+    bool parse(int argc, char** argv);
+
+    const core::Config& config() const;
+    const std::string& type() const;
+    const std::string& mode() const;
+    const std::string& script() const;
+    const std::string& username() const;
+    const Symbol& symbol() const;
+    double profitRatio() const;
 
     bool isRelease() const;
     bool isBackTest() const;
@@ -17,10 +24,11 @@ public: // methods
 
     bool logEnabled() const;
 
-public: // vars
-    std::string mode;
-    std::string username;
-    std::string script;
-    std::string symbol;
-    double profit_ratio = 0.0;
+protected: // vars
+    core::Config _config;
+    std::string _type;
+    std::string _mode;
+    std::string _script;
+    Symbol _symbol;
+    double _profit_ratio = 0.0;
 };

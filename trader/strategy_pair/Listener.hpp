@@ -8,7 +8,7 @@
 #include "protocol/Stats.hpp"
 
 class Position;
-struct Settings;
+class Settings;
 
 namespace pair {
 class Algorithm;

@@ -153,7 +153,7 @@ bool BinanceController::loadPrice(PriceWrapper& container) const {
         return false;
 
     Json::Value json;
-    BinaCPP::get_prices("", json);
+    BinaCPP::get_prices(container.id().c_str(), json);
 
     BinanceErrorData error(json, "BinanceController::loadPrice");
     if (error.has()) {

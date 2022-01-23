@@ -11,7 +11,7 @@ namespace core {
 
 class HttpApp : public App {
 public: // methods
-    HttpApp(const Config& config);
+    HttpApp() = default;
 
 };
 

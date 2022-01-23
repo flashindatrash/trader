@@ -8,7 +8,7 @@
 
 class Position;
 class lua_State;
-struct Settings;
+class Settings;
 struct OrderRequest;
 
 namespace pair {

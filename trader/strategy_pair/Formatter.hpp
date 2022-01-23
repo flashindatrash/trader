@@ -7,7 +7,7 @@
 #include "exchanger/base/Symbol.hpp"
 
 class Position;
-struct Settings;
+class Settings;
 struct Report;
 
 namespace pair {

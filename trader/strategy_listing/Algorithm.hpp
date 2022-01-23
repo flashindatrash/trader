@@ -6,7 +6,7 @@
 
 class Symbol;
 class Position;
-struct Settings;
+class Settings;
 struct OrderRequest;
 
 namespace listing {

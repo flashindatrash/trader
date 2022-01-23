@@ -4,7 +4,7 @@
 
 #pragma once
 
-struct Settings;
+class Settings;
 
 namespace pair {
 class Algorithm;

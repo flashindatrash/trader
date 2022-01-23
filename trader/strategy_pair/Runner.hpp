@@ -3,7 +3,7 @@
 #include "core/Signal.hpp"
 
 class ChartWrapper;
-struct Settings;
+class Settings;
 
 namespace pair {
 class Context;
