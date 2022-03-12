@@ -21,6 +21,7 @@
 #include "core/Logger.hpp"
 #include "core/Time.hpp"
 #include <cmath>
+#include <algorithm>
 
 static const char* CONFIG_API_KEY = "BINANCE_API_KEY";
 static const char* CONFIG_SECRET_KEY = "BINANCE_SECRET_KEY";
