@@ -85,7 +85,7 @@ bool Algorithm::tryOpen() {
     _position->setTime(Time().ms());
     _position->save(_settings.isRelease());
 
-    // todo: поддержать отписку
+    // TODO: поддержать отписку
     // подписываемся на тикеры
     Exchanger().listenTickers(symbol);
 
@@ -119,7 +119,7 @@ bool Algorithm::tryClose() {
     if (profit < 0)
         return false;
 
-    // todo: проверить что цена выше минимальной
+    // TODO: проверить что цена выше минимальной
 
     // созданим реквест
     OrderRequest request;

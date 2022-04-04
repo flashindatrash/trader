@@ -19,7 +19,7 @@ void Object::set(const Key& field, const Value& value) {
 }
 
 Value Object::inc(const Key& field, const Value& value) {
-    // todo: check if there were any changes
+    // TODO: check if there were any changes
     auto it = _map.find(field);
     if (it == _map.end()) {
         _map[field] = value;
@@ -70,6 +70,6 @@ void Object::load() {
     if (_key.empty())
         return;
 
-    // todo: overwrite only the fields you need
+    // TODO: overwrite only the fields you need
     _map = DB().hgetall(_key);
 }

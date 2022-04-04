@@ -570,7 +570,7 @@ double BinanceController::minQuantity(const std::string& symbol) const {
     const BinanceSymbolData::MinNotional& min_notional = info.minNotional;
     const BinanceSymbolData::LotSize& lot_size = info.lotSize;
 
-    // todo: price average
+    // TODO: price average
     // Price price_avg = wrapper->getPriceAverage(min_notional.avgPriceMins * Timer::sMinute);
     Price price_avg = wrapper->get();
     double quantity = std::max(lot_size.minQty, min_notional.minNotional / price_avg) *  1.3;
