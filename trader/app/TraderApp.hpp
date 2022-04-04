@@ -3,7 +3,7 @@
 #include "core/App.hpp"
 #include "base/Settings.hpp"
 
-class BaseStrategy;
+class Processor;
 
 class TraderApp : public core::App {
 public: // static
@@ -20,6 +20,6 @@ protected: // methods
 
 protected: // vars
     Settings _settings;
-    BaseStrategy* _strategy = nullptr;
+    Processor* _strategy = nullptr;
 };
 

@@ -4,7 +4,7 @@
 #include "exchanger/wrapper/PriceWrapper.hpp"
 #include "exchanger/indicator/BaseIndicator.hpp"
 
-using namespace pair;
+using namespace trader;
 
 const Context* Context::current = nullptr;
 

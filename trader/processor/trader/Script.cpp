@@ -14,7 +14,7 @@
 #include "exchanger/indicator/DEMA.hpp"
 #include "lua.hpp"
 
-using namespace pair;
+using namespace trader;
 
 static const char* BIND_PRINT = "print";
 static const char* BIND_BALANCE = "balance";

@@ -1,18 +1,18 @@
 #pragma once
 
-#include "base/BaseStrategy.hpp"
+#include "processor/Processor.hpp"
 
-namespace pair {
+namespace trader {
 class Runner;
 class Context;
 class Algorithm;
 class Listener;
 class Reactor;
 
-class Strategy : public BaseStrategy {
+class Trader : public Processor {
 public: // methods
-    Strategy() = default;
-    ~Strategy() override;
+    Trader() = default;
+    ~Trader() override;
 
     bool init(const Settings& settings) override;
     bool isRunning() const override;

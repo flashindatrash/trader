@@ -9,7 +9,7 @@
 #include "exchanger/wrapper/CandlestickWrapper.hpp"
 #include "exchanger/wrapper/PriceWrapper.hpp"
 
-using namespace pair;
+using namespace trader;
 
 Runner* Runner::create() {
     auto* runner = new Runner();

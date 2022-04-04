@@ -11,7 +11,7 @@
 #include "base/Position.hpp"
 #include "base/Settings.hpp"
 
-using namespace pair;
+using namespace trader;
 
 Reactor* Reactor::create(Algorithm& algorithm, const Settings& settings) {
     auto* reactor = new Reactor(algorithm, settings);

@@ -7,7 +7,7 @@ class Settings;
 struct Report;
 struct OrderRequest;
 
-namespace pair {
+namespace trader {
 class Script;
 
 class Algorithm {

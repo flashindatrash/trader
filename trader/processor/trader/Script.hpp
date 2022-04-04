@@ -11,7 +11,7 @@ class lua_State;
 class Settings;
 struct OrderRequest;
 
-namespace pair {
+namespace trader {
 
 class Script {
 public: // static

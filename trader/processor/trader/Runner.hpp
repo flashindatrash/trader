@@ -5,7 +5,7 @@
 class ChartWrapper;
 class Settings;
 
-namespace pair {
+namespace trader {
 class Context;
 
 class Runner {

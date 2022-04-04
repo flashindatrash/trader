@@ -10,7 +10,7 @@
 class Position;
 class Settings;
 
-namespace pair {
+namespace trader {
 class Algorithm;
 
 class Listener {

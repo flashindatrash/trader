@@ -2,7 +2,7 @@
 // Created by Вадим Проскурин on 11.01.2022.
 //
 
-#include "Strategy.hpp"
+#include "Listing.hpp"
 #include "Algorithm.hpp"
 #include "SymbolUpdater.hpp"
 #include "core/Logger.hpp"
@@ -10,30 +10,30 @@
 
 using namespace listing;
 
-Strategy::~Strategy() {
+Listing::~Listing() {
     for (Algorithm* algorithm : _algorithms)
         delete algorithm;
 
     _algorithms.clear();
 }
 
-bool Strategy::init(const Settings& settings) {
+bool Listing::init(const Settings& settings) {
     _settings = settings;
 
-    Time().onTick.connect(std::bind(&Strategy::tick, this, std::placeholders::_1));
+    Time().onTick.connect(std::bind(&Listing::tick, this, std::placeholders::_1));
     return true;
 }
 
-bool Strategy::isRunning() const {
+bool Listing::isRunning() const {
     return _running;
 }
 
-void Strategy::tick(time_t ms) {
+void Listing::tick(time_t ms) {
    update();
    execute();
 }
 
-bool Strategy::add(const Symbol& symbol) {
+bool Listing::add(const Symbol& symbol) {
     Algorithm* algorithm = Algorithm::create(_settings);
     if (algorithm == nullptr)
         return false;
@@ -48,7 +48,7 @@ bool Strategy::add(const Symbol& symbol) {
     return true;
 }
 
-void Strategy::update() {
+void Listing::update() {
     if (not _algorithms.empty())
         return;
 
@@ -73,7 +73,7 @@ void Strategy::update() {
     }
 }
 
-void Strategy::execute() {
+void Listing::execute() {
     if (_algorithms.empty())
         return;
 

@@ -1,12 +1,12 @@
-#include "Strategy.hpp"
+#include "Trader.hpp"
 #include "Runner.hpp"
 #include "Algorithm.hpp"
 #include "Listener.hpp"
 #include "Reactor.hpp"
 
-using namespace pair;
+using namespace trader;
 
-Strategy::~Strategy() {
+Trader::~Trader() {
     delete _runner;
     delete _algorithm;
     delete _listener;
@@ -18,7 +18,7 @@ Strategy::~Strategy() {
     _reactor = nullptr;
 }
 
-bool Strategy::init(const Settings& settings) {
+bool Trader::init(const Settings& settings) {
     _settings = settings;
 
     // check settings
@@ -48,7 +48,7 @@ bool Strategy::init(const Settings& settings) {
 
     // create & start runner
     _runner = Runner::create();
-    _runner->setCallback(std::bind(&Strategy::execute, this, std::placeholders::_1));
+    _runner->setCallback(std::bind(&Trader::execute, this, std::placeholders::_1));
 
     if (not _runner->start(_settings)) {
         delete _runner;
@@ -59,11 +59,11 @@ bool Strategy::init(const Settings& settings) {
     return true;
 }
 
-void Strategy::execute(void*) {
+void Trader::execute(void*) {
     _algorithm->execute();
     _reactor->execute();
 }
 
-bool Strategy::isRunning() const {
+bool Trader::isRunning() const {
     return _runner != nullptr;
 }

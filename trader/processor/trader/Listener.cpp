@@ -12,7 +12,7 @@
 #include "protocol/Event.hpp"
 #include "protocol/User.hpp"
 
-using namespace pair;
+using namespace trader;
 
 Listener* Listener::create(const Settings& settings) {
     auto* listener = new Listener(settings);

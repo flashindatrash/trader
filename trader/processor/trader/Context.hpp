@@ -6,7 +6,7 @@ class CandlestickWrapper;
 class PriceWrapper;
 class BaseIndicator;
 
-namespace pair {
+namespace trader {
 class Context {
 public: // static
     static const Context* current;

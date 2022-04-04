@@ -10,7 +10,7 @@ class Position;
 class Settings;
 struct Report;
 
-namespace pair {
+namespace trader {
 class Context;
 
 class Formatter {

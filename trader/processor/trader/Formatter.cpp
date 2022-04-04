@@ -12,7 +12,7 @@
 #include <utility>
 #include <limits>
 
-using namespace pair;
+using namespace trader;
 
 static const char* sImportantBegin = "[*]";
 static const char* sImportantEnd = "[/*]";

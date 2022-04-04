@@ -4,11 +4,14 @@
 
 #pragma once
 
-#include "Settings.hpp"
+#include "base/Settings.hpp"
 
-class BaseStrategy {
+class Processor {
+public: // static
+    static Processor* create(const std::string& type);
+
 public: // abstract
-    virtual ~BaseStrategy() = default;
+    virtual ~Processor() = default;
     virtual bool isRunning() const = 0;
     virtual bool init(const Settings& settings) = 0;
 

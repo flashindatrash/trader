@@ -7,7 +7,7 @@
 #include "exchanger/wrapper/OrderWrapper.hpp"
 #include "exchanger/Exchanger.hpp"
 
-using namespace pair;
+using namespace trader;
 
 Algorithm* Algorithm::create(const Settings& settings) {
     auto* algorithm = new Algorithm(settings);

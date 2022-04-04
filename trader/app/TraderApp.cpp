@@ -4,8 +4,7 @@
 #include "core/Logger.hpp"
 #include "database/Database.hpp"
 #include "exchanger/Exchanger.hpp"
-#include "strategy_pair/Strategy.hpp"
-#include "strategy_listing/Strategy.hpp"
+#include "processor/Processor.hpp"
 
 TraderApp* TraderApp::create(const Settings& settings) {
     auto* app = new TraderApp();
@@ -29,12 +28,7 @@ TraderApp::~TraderApp() {
 
 bool TraderApp::init(const Settings& settings) {
     _settings = settings;
-
-    if (_settings.type() == "pair")
-        _strategy = new pair::Strategy();
-    else if (_settings.type() == "listing")
-        _strategy = new listing::Strategy();
-
+    _strategy = Processor::create(settings.type());
     return _strategy != nullptr;
 }
 

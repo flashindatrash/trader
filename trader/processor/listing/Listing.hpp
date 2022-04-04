@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "base/BaseStrategy.hpp"
+#include "processor/Processor.hpp"
 #include <vector>
 
 class Symbol;
@@ -12,10 +12,10 @@ class Symbol;
 namespace listing {
 class Algorithm;
 
-class Strategy : public BaseStrategy {
+class Listing : public Processor {
 public: // methods
-    Strategy() = default;
-    ~Strategy() override;
+    Listing() = default;
+    ~Listing() override;
 
     bool init(const Settings& settings) override;
     bool isRunning() const override;
