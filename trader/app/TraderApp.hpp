@@ -20,6 +20,6 @@ protected: // methods
 
 protected: // vars
     Settings _settings;
-    Processor* _strategy = nullptr;
+    Processor* _processor = nullptr;
 };
 

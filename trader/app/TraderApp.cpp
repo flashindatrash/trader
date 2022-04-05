@@ -22,14 +22,14 @@ TraderApp::TraderApp()
 }
 
 TraderApp::~TraderApp() {
-    delete _strategy;
-    _strategy = nullptr;
+    delete _processor;
+    _processor = nullptr;
 }
 
 bool TraderApp::init(const Settings& settings) {
     _settings = settings;
-    _strategy = Processor::create(settings.type());
-    return _strategy != nullptr;
+    _processor = Processor::create(settings.type());
+    return _processor != nullptr;
 }
 
 int TraderApp::run() {
@@ -44,14 +44,14 @@ int TraderApp::run() {
         return EXIT_FAILURE;
 
     // init strategy
-    if (not _strategy->init(_settings))
+    if (not _processor->init(_settings))
         return EXIT_FAILURE;
 
     // run exchanger thread
     Exchanger().run();
 
     // run main thread
-    while (_strategy->isRunning()) {
+    while (_processor->isRunning()) {
         sleep_ms(100);
         Time().tick();
     }
