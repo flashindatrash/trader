@@ -379,7 +379,7 @@ void BinanceController::listenCharts(ChartWrapper& container, ChartInterval inte
     BinanceWebsocket* websocket = BinanceWebsocket::create();
     websocket->setPath(path);
     websocket->setCallback(std::bind(&BinanceController::onKlineDataStream, this, std::placeholders::_1));
-    _websockets.push_back(websocket);
+    addWebsocket(websocket);
 }
 
 void BinanceController::listenTicker(PriceWrapper& container) {
@@ -390,7 +390,7 @@ void BinanceController::listenTicker(PriceWrapper& container) {
     BinanceWebsocket* websocket = BinanceWebsocket::create();
     websocket->setPath(path);
     websocket->setCallback(std::bind(&BinanceController::onTickerDataStream, this, std::placeholders::_1));
-    _websockets.push_back(websocket);
+    addWebsocket(websocket);
 }
 
 void BinanceController::unlistenTicker(PriceWrapper& container) {
@@ -428,7 +428,7 @@ bool BinanceController::initUserListenKey() {
     websocket->setPath(json["listenKey"].asString());
     websocket->setType(BinanceWebsocket::UserStream);
     websocket->setCallback(std::bind(&BinanceController::onUserDataStream, this, std::placeholders::_1));
-    _websockets.push_back(websocket);
+    addWebsocket(websocket);
     return true;
 }
 
@@ -445,6 +445,11 @@ bool BinanceController::keepUserDataStream() {
         BinaCPP::keep_userDataStream(websocket->path().c_str());
 
     return websocket->isConnected();
+}
+
+bool BinanceController::addWebsocket(BinanceWebsocket* websocket) {
+    _websockets.push_back(websocket);
+    return websocket->connect();
 }
 
 std::vector<BinanceWebsocket*>::iterator BinanceController::findWebsocket(const std::string& path) {

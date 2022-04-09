@@ -45,6 +45,7 @@ protected: // methods
     bool initUserListenKey();
     bool keepUserDataStream();
 
+    bool addWebsocket(BinanceWebsocket* websocket);
     std::vector<BinanceWebsocket*>::iterator findWebsocket(const std::string& path);
 
     bool checkRateLimits() const;
