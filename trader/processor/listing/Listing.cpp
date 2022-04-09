@@ -57,16 +57,16 @@ void Listing::update() {
         return;
 
     for (const Symbol& symbol: symbols.vector()) {
-        bool interested = symbol.id() == _settings.symbol().id();
-
         // interested symbol from arguments
-        if (not _settings.symbol().empty() && not interested)
-            continue;
+        if (not _settings.symbol().empty()) {
+            if (symbol.id() == _settings.symbol().id()) {
+                add(symbol);
+                break;
+            } else continue;
+        }
 
         // interested USDT pairs
-        interested |= symbol.quoteAsset().id() == Asset::USDT.id();
-
-        if (interested)
+        if (symbol.quoteAsset().id() == Asset::USDT.id())
             add(symbol);
     }
 }
