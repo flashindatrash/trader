@@ -16,11 +16,18 @@ struct OrderStructure {
 };
 
 struct OrderRequest {
+    enum Policy : unsigned int {
+        CheckBalance,
+        RedeemSavings
+    };
+
     Symbol symbol;
     OrderSide side = Invalid;
     Quantity quantity = 0.0;
     OrderType type = Market;
+    unsigned int policy = CheckBalance | RedeemSavings;
 
+    bool mask(Policy policy) const;
     Quantity required() const;
 };
 

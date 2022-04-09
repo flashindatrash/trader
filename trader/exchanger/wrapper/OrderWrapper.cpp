@@ -30,6 +30,10 @@ Quantity OrderWrapper::quoteQuantity() const {
     return _data.quote_quantity;
 }
 
+bool OrderRequest::mask(Policy bit) const {
+    return 0 != (policy & bit);
+}
+
 Quantity OrderRequest::required() const {
     return OrderUtil::usedQuantity(side, quantity, symbol.price(side) * quantity * 1.01);
 }

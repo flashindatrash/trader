@@ -520,7 +520,11 @@ const OrderWrapper* BinanceController::createOrder(BookWrapper& container, Order
 
     // check is enough to create order
     const Asset& asset = OrderUtil::usedAsset(request.side, request.symbol);
-    if (asset.balance() < request.required()) {
+    if (request.mask(OrderRequest::CheckBalance) && asset.balance() < request.required()) {
+        // policy do not allow redeeming
+        if (not request.mask(OrderRequest::RedeemSavings))
+            return nullptr;
+
         // try to redeem from savings
         if (not redeemSavings(asset, request.required() - asset.balance()))
             return nullptr;
