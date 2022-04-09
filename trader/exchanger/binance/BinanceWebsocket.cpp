@@ -24,7 +24,7 @@ void BinanceWebsocket::setType(Type type) {
 }
 
 bool BinanceWebsocket::isConnected() const {
-    return _connected;
+    return _connection != nullptr;
 }
 
 const std::string& BinanceWebsocket::path() const {
@@ -35,13 +35,23 @@ const BinanceWebsocket::Type& BinanceWebsocket::type() const {
     return _type;
 }
 
-void BinanceWebsocket::connect() {
-    if (_connected)
-        return;
+bool BinanceWebsocket::connect() {
+    if (isConnected())
+        return true;
 
     std::string endpoint = "/ws/" + _path;
-    if (BinaCPP_websocket::connect_endpoint(std::bind(&BinanceWebsocket::handler, this, std::placeholders::_1), endpoint.c_str()))
-        _connected = true;
+    _connection = BinaCPP_websocket::connect_endpoint(std::bind(&BinanceWebsocket::handler, this, std::placeholders::_1), endpoint.c_str());
+    return isConnected();
+}
+
+bool BinanceWebsocket::disconnect() {
+    if (not isConnected())
+        return true;
+
+    if (BinaCPP_websocket::disconnect_endpoint(static_cast<lws*>(_connection)))
+        _connection = nullptr;
+
+    return not isConnected();
 }
 
 int BinanceWebsocket::handler(Json::Value& json) {
@@ -49,7 +59,7 @@ int BinanceWebsocket::handler(Json::Value& json) {
     if (error.has()) {
         Logger::info(error.msg.c_str());
         if (error.code == BinanceErrorData::DISCONNECTED)
-            _connected = false;
+            _connection = nullptr;
         return 0;
     }
 

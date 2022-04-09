@@ -14,6 +14,10 @@ public: // methods
 
     bool init(const Settings& settings) override;
     bool isRunning() const override;
+
+protected: // methods
+    void tick(time_t ms);
+
 };
 
 }

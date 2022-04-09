@@ -72,6 +72,10 @@ void ExchangerProxy::listenTickers(const std::string& key) {
     _controller->listenTicker(*_prices.get(key));
 }
 
+void ExchangerProxy::unlistenTickers(const std::string& key) {
+    _controller->unlistenTicker(*_prices.get(key));
+}
+
 const OrderWrapper* ExchangerProxy::createOrder(OrderRequest& request) {
     return _controller->createOrder(*_books.get(request.symbol), request);
 }

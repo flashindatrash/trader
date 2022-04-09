@@ -34,6 +34,7 @@ public: // virtual
 
     void listenCharts(ChartWrapper& container, ChartInterval interval) override;
     void listenTicker(PriceWrapper& container) override;
+    void unlistenTicker(PriceWrapper& container) override;
 
     const OrderWrapper* createOrder(BookWrapper& container, OrderRequest& request) override;
 
@@ -44,7 +45,7 @@ protected: // methods
     bool initUserListenKey();
     bool keepUserDataStream();
 
-    BinanceWebsocket* findWebsocket(const std::string& path) const;
+    std::vector<BinanceWebsocket*>::iterator findWebsocket(const std::string& path);
 
     bool checkRateLimits() const;
 

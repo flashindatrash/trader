@@ -36,6 +36,7 @@ public: // virtual
 
     virtual void listenCharts(ChartWrapper& container, ChartInterval interval) = 0;
     virtual void listenTicker(PriceWrapper& container) = 0;
+    virtual void unlistenTicker(PriceWrapper& container) = 0;
 
     virtual const OrderWrapper* createOrder(BookWrapper& container, OrderRequest& request) = 0;
 

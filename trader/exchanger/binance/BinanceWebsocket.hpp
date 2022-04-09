@@ -24,7 +24,8 @@ public: // methods
     void setCallback(SignalT::Fn callback);
     void setType(Type type);
 
-    void connect();
+    bool connect();
+    bool disconnect();
 
     bool isConnected() const;
     const std::string& path() const;
@@ -36,8 +37,8 @@ protected: // methods
     int handler(SignalV& json);
 
 protected: // vars
+    void* _connection = nullptr;
     SignalT _callback;
-    bool _connected = false;
     Type _type = Default;
     std::string _path;
 };

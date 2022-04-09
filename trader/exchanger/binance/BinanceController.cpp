@@ -373,7 +373,7 @@ void BinanceController::connectCharts(Storage::Type_chart& container) {
 
 void BinanceController::listenCharts(ChartWrapper& container, ChartInterval interval) {
     const std::string& path = util::lowercase(container.id().c_str()) + "@kline_" + binance::serialize(interval);
-    if (findWebsocket(path))
+    if (findWebsocket(path) != _websockets.end())
         return;
 
     BinanceWebsocket* websocket = BinanceWebsocket::create();
@@ -384,13 +384,26 @@ void BinanceController::listenCharts(ChartWrapper& container, ChartInterval inte
 
 void BinanceController::listenTicker(PriceWrapper& container) {
     const std::string& path = util::lowercase(container.id().c_str()) + "@bookTicker";
-    if (findWebsocket(path))
+    if (findWebsocket(path) != _websockets.end())
         return;
 
     BinanceWebsocket* websocket = BinanceWebsocket::create();
     websocket->setPath(path);
     websocket->setCallback(std::bind(&BinanceController::onTickerDataStream, this, std::placeholders::_1));
     _websockets.push_back(websocket);
+}
+
+void BinanceController::unlistenTicker(PriceWrapper& container) {
+    const std::string &path = util::lowercase(container.id().c_str()) + "@bookTicker";
+    auto it = findWebsocket(path);
+    if (it == _websockets.end())
+        return;
+
+    BinanceWebsocket* websocket = *it;
+    if (websocket->disconnect()) {
+        _websockets.erase(it);
+        delete websocket;
+    }
 }
 
 bool BinanceController::initUserListenKey() {
@@ -423,24 +436,19 @@ bool BinanceController::keepUserDataStream() {
     if (not checkRateLimits())
         return false;
 
-    for (BinanceWebsocket* websocket : _websockets) {
-        if (websocket->type() != BinanceWebsocket::UserStream)
-            continue;
+    auto it = std::find_if(_websockets.begin(), _websockets.end(), [](BinanceWebsocket* i) { return i->type() == BinanceWebsocket::UserStream; });
+    if (it == _websockets.end())
+        return false;
 
-        if (not websocket->isConnected())
-            continue;
-
+    BinanceWebsocket* websocket = *it;
+    if (not websocket->isConnected())
         BinaCPP::keep_userDataStream(websocket->path().c_str());
-        break;
-    }
-    return true;
+
+    return websocket->isConnected();
 }
 
-BinanceWebsocket* BinanceController::findWebsocket(const std::string& path) const {
-    auto it = std::find_if(_websockets.begin(), _websockets.end(), [path](BinanceWebsocket* i) { return i->path() == path; });
-    if (it == _websockets.end())
-        return nullptr;
-    return *it;
+std::vector<BinanceWebsocket*>::iterator BinanceController::findWebsocket(const std::string& path) {
+    return std::find_if(_websockets.begin(), _websockets.end(), [path](BinanceWebsocket* i) { return i->path() == path; });
 }
 
 void BinanceController::onUserDataStream(const Json::Value& json) {
@@ -474,6 +482,8 @@ void BinanceController::onKlineDataStream(const Json::Value& json) {
 
 void BinanceController::onTickerDataStream(const Json::Value& json) {
     BinanceTickerData data(json);
+
+    //Logger::info(util::format("bestAskPrice: %f", data.bestAskPrice));
 
     if (_prices_connector != nullptr)
         _prices_connector->get(data.symbol)->set(data);
