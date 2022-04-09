@@ -30,7 +30,7 @@ bool Listing::isRunning() const {
 
 void Listing::tick(time_t ms) {
    update();
-   //execute();
+   execute();
 }
 
 bool Listing::add(const Symbol& symbol) {
@@ -51,6 +51,12 @@ bool Listing::add(const Symbol& symbol) {
 void Listing::update() {
     if (not _algorithms.empty())
         return;
+
+    // for test: check if already exist pair
+    if (_settings.isDevelop() && not _settings.symbol().empty() && _settings.symbol().exists()) {
+        add(_settings.symbol());
+        return;
+    }
 
     SymbolUpdater symbols;
     if (not symbols.request())

@@ -32,16 +32,28 @@ Algorithm::~Algorithm() {
 
 bool Algorithm::init(const Symbol& symbol) {
     _position = Position::create(_settings.username(), symbol.id());
+    Exchanger().listenTickers(symbol);
     return true;
 }
 
 bool Algorithm::execute() {
+    const Symbol symbol = _position->symbol();
+
+    const PriceWrapper* price = Exchanger().price(symbol);
+    const Ticker& ticker = price->ticker();
+    if (ticker.time > Time().ms() - Timer::sMinute) {
+        Logger::info(util::format("ticker(%s) ask(%f) bid(%f)", ticker.symbol.c_str(), ticker.bestAskPrice, ticker.bestBidPrice));
+        Exchanger().unlistenTickers(symbol);
+        return true;
+    }
+
+    return false;
     // создадим позицию и выйдем
-    if (tryOpen())
-        return false;
+    // if (tryOpen())
+    //    return false;
 
     // закроем позицию, если успешно тогда алгоритм удалится
-    return tryClose();
+    // return tryClose();
 }
 
 bool Algorithm::tryOpen() {

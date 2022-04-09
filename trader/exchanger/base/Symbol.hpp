@@ -23,6 +23,8 @@ public: // methods
     const Price& price(const OrderSide& side) const;
     Quantity balance(const Asset& asset = Asset::USDT) const;
 
+    bool exists() const;
+
     const char* c_str() const;
     operator std::string() const;
 

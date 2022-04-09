@@ -31,8 +31,10 @@ bool SymbolUpdater::request() {
     time_t time_passed = Time().ms() - _last;
 
     // antispam
-    if (time_passed < 2000)
+    if (time_passed < Timer::sSecond * 15)
         return true;
+    //if (time_passed < 2000)
+    //    return true;
 
     // connect before request
     connect();

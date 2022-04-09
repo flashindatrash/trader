@@ -47,6 +47,10 @@ Quantity Symbol::balance(const Asset& asset/* = Asset::USDT*/) const {
     return baseAsset().balance(asset) + quoteAsset().balance(asset);
 }
 
+bool Symbol::exists() const {
+    return Exchanger().pair(*this) != nullptr;
+}
+
 const char* Symbol::c_str() const {
     return _identifier.c_str();
 }
