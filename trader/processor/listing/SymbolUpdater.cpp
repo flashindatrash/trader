@@ -3,7 +3,7 @@
 //
 
 #include "SymbolUpdater.hpp"
-#include "core/Time.hpp"
+#include "SymbolFrequency.hpp"
 #include "core/Logger.hpp"
 #include "exchanger/Exchanger.hpp"
 
@@ -26,27 +26,16 @@ const SymbolUpdater::Data& SymbolUpdater::vector() const {
 }
 
 bool SymbolUpdater::request() {
-    static time_t _last = 0;
+    // how often
+    if (not SymbolFrequency::request())
+        return false;
 
-    time_t time_passed = Time().ms() - _last;
-
-    // antispam
-    if (time_passed < Timer::sSecond * 15)
-        return true;
-    //if (time_passed < 2000)
-    //    return true;
-
-    // connect before request
+    // connect & request & disconnect
     connect();
-
-    // request new pairs
-    bool loaded = Exchanger().loadPairs();
-    _last = Time().ms();
-
-    // disconnect handler
+    bool status = Exchanger().loadPairs();
     disconnect();
 
-    return loaded && time_passed < Timer::sMinute;
+    return status;
 }
 
 void SymbolUpdater::found(const Symbol& symbol) {
