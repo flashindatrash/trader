@@ -5,30 +5,48 @@
 
 template<class T>class Signal {
 public:
+    typedef unsigned int SlotId;
     typedef std::function<void(const T&)> Fn;
 
 public:
     ~Signal() {
-        _listeners.clear();
+        _slots.clear();
     }
 
-    size_t connect(Fn listener) {
-        _listeners.push_back(listener);
-        return _listeners.size() - 1;
+    SlotId connect(Fn listener) {
+        static SlotId id = 1;
+
+        Slot slot;
+        slot.id = id++;
+        slot.callback = listener;
+
+        _slots.emplace_back(slot);
+        return slot.id;
     }
 
-    size_t disconnect(size_t index) {
-        // TODO: багоопасно, index смещается
-        if (index > 0 && index < _listeners.size())
-            _listeners.erase(_listeners.begin() + index);
-        return -1;
+    SlotId disconnect(SlotId id) {
+        if (id == 0)
+            return 0;
+
+        for (auto it = _slots.begin(); it < _slots.end(); ++it) {
+            if (it->id == id) {
+                _slots.erase(it);
+                break;
+            }
+        }
+        return 0;
     }
 
     void emmit(const T& data) {
-        for (Fn& listener : _listeners)
-            listener(data);
+        for (Slot& slot : _slots)
+            slot.callback(data);
     }
 
 protected:
-    std::vector<Fn> _listeners;
+    struct Slot {
+        SlotId id = 0;
+        Fn callback;
+    };
+
+    std::vector<Slot> _slots;
 };

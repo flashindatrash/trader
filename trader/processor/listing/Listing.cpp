@@ -30,7 +30,7 @@ bool Listing::isRunning() const {
 
 void Listing::tick(time_t ms) {
    update();
-   execute();
+   //execute();
 }
 
 bool Listing::add(const Symbol& symbol) {
@@ -53,10 +53,8 @@ void Listing::update() {
         return;
 
     SymbolUpdater symbols;
-    if (not symbols.request()) {
-        Logger::info(util::format("Failed to get listed symbols"));
+    if (not symbols.request())
         return;
-    }
 
     for (const Symbol& symbol: symbols.vector()) {
         bool interested = symbol.id() == _settings.symbol().id();

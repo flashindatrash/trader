@@ -30,7 +30,7 @@ protected: // methods
 protected: // vars
     std::vector<Symbol> _symbols;
 
-    size_t _connector = -1;
+    unsigned int _connector = 0;
 };
 
 }
