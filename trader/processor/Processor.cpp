@@ -8,7 +8,7 @@
 #include "processor/staking/Staking.hpp"
 
 Processor* Processor::create(const std::string& type) {
-    if (type == "pair")
+    if (type == "trader")
         return new trader::Trader();
     else if (type == "listing")
         return new listing::Listing();

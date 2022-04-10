@@ -163,6 +163,7 @@ bool Algorithm::createOrder(OrderRequest& request, Position& result) const {
         if (asset.balance() < request.required())
             return false;
 
+        result.setSymbol(request.symbol);
         result.setSide(request.side);
         result.setBaseQuantity(Exchanger().roundQuantity(request.quantity, request.symbol));
         result.setQuoteQuantity(result.baseQuantity() * request.symbol.price(request.side));

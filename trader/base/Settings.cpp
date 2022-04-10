@@ -29,7 +29,7 @@ bool Settings::parse(int argc, char** argv) {
             _mode = parsed.getValue("--mode");
 
     } catch(...) {
-        args.showHelp("trader -t pair -c default.cfg -l script.lua -s btc usdt | trader -t listing -c default.cfg");
+        args.showHelp("trader -t trader -c default.cfg -l script.lua -s btc usdt | trader -t listing -c default.cfg");
         return false;
     }
 
