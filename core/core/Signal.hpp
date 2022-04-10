@@ -13,12 +13,10 @@ public:
         _slots.clear();
     }
 
-    SlotId connect(Fn listener) {
-        static SlotId id = 1;
-
+    SlotId connect(Fn callback) {
         Slot slot;
-        slot.id = id++;
-        slot.callback = listener;
+        slot.id = ++counter;
+        slot.callback = callback;
 
         _slots.emplace_back(slot);
         return slot.id;
@@ -48,5 +46,6 @@ protected:
         Fn callback;
     };
 
+    SlotId counter = 0;
     std::vector<Slot> _slots;
 };
