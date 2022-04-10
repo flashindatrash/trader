@@ -40,7 +40,12 @@ const Asset& Symbol::quoteAsset() const {
 }
 
 const Price& Symbol::price(const OrderSide& side) const {
-    return Exchanger().price(*this)->get(side);
+    static const Price zero = 0.0;
+    const PriceWrapper* price = Exchanger().price(*this);
+    if (price == nullptr)
+        return zero;
+
+    return price->get(side);
 }
 
 Quantity Symbol::balance(const Asset& asset/* = Asset::USDT*/) const {
