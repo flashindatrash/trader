@@ -26,12 +26,18 @@ Algorithm::Algorithm(const Settings& settings)
 }
 
 Algorithm::~Algorithm() {
-    delete _position;
-    _position = nullptr;
+    if (_position != nullptr) {
+        const Symbol symbol = _position->symbol();
+
+        Exchanger().unlistenTickers(symbol);
+
+        delete _position;
+        _position = nullptr;
+    }
 }
 
 bool Algorithm::init(const Symbol& symbol) {
-    _position = Position::create(_settings.username(), symbol.id());
+    _position = Position::create(_settings.username(), symbol);
     Exchanger().listenTickers(symbol);
     return true;
 }
@@ -46,7 +52,6 @@ bool Algorithm::execute() {
     const Ticker& ticker = price->ticker();
     if (ticker.time > Time().ms() - Timer::sMinute) {
         Logger::info(util::format("ticker(%s) ask(%f) bid(%f)", ticker.symbol.c_str(), ticker.bestAskPrice, ticker.bestBidPrice));
-        Exchanger().unlistenTickers(symbol);
         return true;
     }
 
@@ -65,18 +70,13 @@ bool Algorithm::tryOpen() {
 
     const Symbol symbol = _position->symbol();
 
-    // получение актуальной цены
-    if (not Exchanger().loadPrice(symbol))
-        return false;
-
+    // цена для открытии позиции должна быть известна
     const Price price = symbol.price(Buy);
-    const Quantity& balance = symbol.baseAsset().balance();
-
-    // проверим, что средняя цена нам уже известна
     if (price == 0.0)
         return false;
 
     // если уже имеем эту монету, просто создаем позицию
+    const Quantity& balance = symbol.baseAsset().balance();
     if (balance > 0) {
         _position->setSide(Buy);
         _position->setBaseQuantity(balance);
@@ -87,6 +87,7 @@ bool Algorithm::tryOpen() {
         request.symbol = symbol;
         request.side = Buy;
         request.quantity = Exchanger().roundQuantity(0, symbol);
+        request.policy = OrderRequest::None;
 
         // создадим заказ
         Position open;
@@ -99,10 +100,6 @@ bool Algorithm::tryOpen() {
     // сохраним позицию
     _position->setTime(Time().ms());
     _position->save(_settings.isRelease());
-
-    // TODO: поддержать отписку
-    // подписываемся на тикеры
-    Exchanger().listenTickers(symbol);
 
     Logger::info(util::format("opened on price %f", price));
     return true;
