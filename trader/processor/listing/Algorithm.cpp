@@ -40,6 +40,9 @@ bool Algorithm::execute() {
     const Symbol symbol = _position->symbol();
 
     const PriceWrapper* price = Exchanger().price(symbol);
+    if (price == nullptr)
+        return false;
+
     const Ticker& ticker = price->ticker();
     if (ticker.time > Time().ms() - Timer::sMinute) {
         Logger::info(util::format("ticker(%s) ask(%f) bid(%f)", ticker.symbol.c_str(), ticker.bestAskPrice, ticker.bestBidPrice));
