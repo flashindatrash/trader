@@ -17,6 +17,7 @@
 #include "binacpp.h"
 #include "binacpp_websocket.h"
 #include "binacpp_logger.h"
+#include "binacpp_utils.h"
 #include "core/Config.hpp"
 #include "core/Logger.hpp"
 #include "core/Time.hpp"
@@ -62,7 +63,15 @@ bool BinanceController::init(const core::Config& config) {
     if (not BinaCPP_websocket::init())
         return false;
 
-    return initUserListenKey();
+    // check time sync
+    if (not checkServerTime())
+        return false;
+
+    // init user data stream
+    if (not initUserListenKey())
+        return false;
+
+    return true;
 }
 
 void BinanceController::run() {
@@ -619,6 +628,37 @@ double BinanceController::fee() const {
         commission -= commission * 0.25;
 
     return commission / 100.0;
+}
+
+bool BinanceController::checkServerTime() const {
+    if (not checkRateLimits())
+        return false;
+
+    Json::Value json;
+    BinaCPP::get_serverTime(json);
+
+    BinanceErrorData error(json, "BinanceController::checkServerTime");
+    if (error.has()) {
+        Logger::info(util::format("%s [%d]", error.msg.c_str(), error.code));
+        return false;
+    }
+
+    if (not json.isObject() || not json["serverTime"] || not json["serverTime"].isInt64()) {
+        Logger::info("BinanceController::checkServerTime invalid response");
+        return false;
+    }
+
+    unsigned long server_time = json["serverTime"].asInt64();
+    unsigned long local_time = get_current_ms_epoch();
+    long shift_time = (long)(server_time - local_time);
+
+    if (local_time >= (server_time + 1000) || shift_time > _config_recv_window) {
+        Logger::info(util::format("BinanceController::checkServerTime time out of sync (shift %l)", shift_time));
+        BinaCPP_time::shift = shift_time;
+        return true;
+    }
+
+    return true;
 }
 
 bool BinanceController::checkRateLimits() const {

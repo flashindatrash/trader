@@ -48,6 +48,7 @@ protected: // methods
     bool addWebsocket(BinanceWebsocket* websocket);
     std::vector<BinanceWebsocket*>::iterator findWebsocket(const std::string& path);
 
+    bool checkServerTime() const;
     bool checkRateLimits() const;
 
     double minQuantity(const std::string& symbol) const;
