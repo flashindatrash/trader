@@ -14,7 +14,7 @@ public: // static
     static const int NEW_ORDER_REJECTED;
 
 public: // methods
-    BinanceErrorData(const Json::Value& json, std::string context = "");
+    BinanceErrorData(const Json::Value& json);
 
     bool has() const;
 

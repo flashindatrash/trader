@@ -106,15 +106,12 @@ bool BinanceController::loadPairs(Storage::Type_pair& container) const {
     Json::Value json;
     BinaCPP::get_exchangeInfo(json);
 
-    BinanceErrorData error(json, "BinanceController::loadPairs");
-    if (error.has()) {
-        Logger::info(util::format("%s [%d]", error.msg.c_str(), error.code));
+    if (checkError(json, __func__))
         return false;
-    }
 
     BinanceExchangeData data(json);
     if (data.symbols.empty()) {
-        Logger::info(util::format("BinanceController::loadPairs: invalid json %s", json.toStyledString().c_str()));
+        Logger::info(util::format("%s: invalid json %s", __func__, json.toStyledString().c_str()));
         return false;
     }
 
@@ -139,14 +136,11 @@ bool BinanceController::loadPrices(Storage::Type_price& container) const {
     Json::Value json;
     BinaCPP::get_prices("", json);
 
-    BinanceErrorData error(json, "BinanceController::loadPrices");
-    if (error.has()) {
-        Logger::info(util::format("%s [%d]", error.msg.c_str(), error.code));
+    if (checkError(json, __func__))
         return false;
-    }
 
     if (not json.isArray()) {
-        Logger::info(util::format("BinanceController::loadPrices: invalid json %s", json.toStyledString().c_str()));
+        Logger::info(util::format("%s: invalid json %s", __func__, json.toStyledString().c_str()));
         return false;
     }
 
@@ -165,21 +159,18 @@ bool BinanceController::loadPrice(PriceWrapper& container) const {
     Json::Value json;
     BinaCPP::get_prices(container.id().c_str(), json);
 
-    BinanceErrorData error(json, "BinanceController::loadPrice");
-    if (error.has()) {
-        Logger::info(util::format("%s [%d]", error.msg.c_str(), error.code));
+    if (checkError(json, __func__))
         return false;
-    }
 
     if (not json.isArray()) {
-        Logger::info(util::format("BinanceController::loadPrice: invalid json %s", json.toStyledString().c_str()));
+        Logger::info(util::format("%s: invalid json %s", __func__, json.toStyledString().c_str()));
         return false;
     }
 
     for (auto & it : json) {
         BinancePriceData data(it);
         if (container.id() != data.symbol) {
-            Logger::info(util::format("BinanceController::loadPrice: invalid container %s for symbol %s", container.id().c_str(), data.symbol.c_str()));
+            Logger::info(util::format("%s: invalid container %s for symbol %s", __func__, container.id().c_str(), data.symbol.c_str()));
             return false;
         }
 
@@ -196,15 +187,12 @@ bool BinanceController::loadBalances(Storage::Type_balance& container) const {
     Json::Value json;
     BinaCPP::get_account(_config_recv_window, json);
 
-    BinanceErrorData error(json, "BinanceController::loadBalances");
-    if (error.has()) {
-        Logger::info(util::format("%s [%d]", error.msg.c_str(), error.code));
+    if (checkError(json, __func__))
         return false;
-    }
 
     BinanceSpotAccountData account(json);
     if (not account.canTrade) {
-        Logger::info("BinanceController::loadBalances: can't trade on spot account");
+        Logger::info(util::format("%s: can't trade on spot account", __func__));
         return false;
     }
 
@@ -223,15 +211,12 @@ bool BinanceController::loadSavings(Storage::Type_balance& container) const {
     Json::Value json;
     BinaCPP::get_savings(_config_recv_window, json);
 
-    BinanceErrorData error(json, "BinanceController::loadSavings");
-    if (error.has()) {
-        Logger::info(util::format("%s [%d]", error.msg.c_str(), error.code));
+    if (checkError(json, __func__))
         return false;
-    }
 
     const Json::Value& balances = json["positionAmountVos"];
     if (not balances.isArray()) {
-        Logger::info(util::format("BinanceController::loadSavings: invalid json %s", json.toStyledString().c_str()));
+        Logger::info(util::format("%s: invalid json %s", __func__, json.toStyledString().c_str()));
         return false;
     }
 
@@ -253,14 +238,11 @@ bool BinanceController::redeemSavings(const std::string& asset, double quantity)
     Json::Value json;
     BinaCPP::get_flexibleProducts(asset.c_str(), _config_recv_window, json);
 
-    BinanceErrorData error(json, "BinanceController::redeemSavings");
-    if (error.has()) {
-        Logger::info(util::format("%s [%d]", error.msg.c_str(), error.code));
+    if (checkError(json, __func__))
         return false;
-    }
 
     if (not json.isArray()) {
-        Logger::info(util::format("BinanceController::redeemSavings: invalid json %s", json.toStyledString().c_str()));
+        Logger::info(util::format("%s: invalid json %s", __func__, json.toStyledString().c_str()));
         return false;
     }
 
@@ -273,11 +255,8 @@ bool BinanceController::redeemSavings(const std::string& asset, double quantity)
         Json::Value json_redeem;
         BinaCPP::redeem_flexibleProduct(data.productId.c_str(), quantity, "FAST", _config_recv_window, json_redeem);
 
-        BinanceErrorData error_redeem(json, "BinanceController::redeemSavings");
-        if (error_redeem.has()) {
-            Logger::info(util::format("%s [%d]", error_redeem.msg.c_str(), error_redeem.code));
+        if (checkError(json_redeem, __func__))
             return false;
-        }
 
         return true;
     }
@@ -292,11 +271,8 @@ bool BinanceController::loadStats(CandlestickWrapper& container) const {
     Json::Value json;
     BinaCPP::get_24hr(container.id().c_str(), json);
 
-    BinanceErrorData error(json, "BinanceController::loadStats");
-    if (error.has()) {
-        Logger::info(util::format("%s [%d]", error.msg.c_str(), error.code));
+    if (checkError(json, __func__))
         return false;
-    }
 
     container.set(BinancePriceStatisticsData(json));
     return true;
@@ -308,21 +284,18 @@ bool BinanceController::loadCharts(ChartWrapper& container, ChartRequest& reques
 
     const std::string& interval_converted = binance::serialize(request.interval);
     if (interval_converted.empty()) {
-        Logger::info("BinanceController::loadCharts: unknown chart interval");
+        Logger::info(util::format("%s: unknown chart interval", __func__));
         return false;
     }
 
     Json::Value json;
     BinaCPP::get_klines(container.id().c_str(), interval_converted.c_str(), 0, request.time_start, request.time_end, json);
 
-    BinanceErrorData error(json, "BinanceController::loadCharts");
-    if (error.has()) {
-        Logger::info(util::format("%s [%d]", error.msg.c_str(), error.code));
+    if (checkError(json, __func__))
         return false;
-    }
 
     if (not json.isArray()) {
-        Logger::info(util::format("BinanceController::loadCharts: invalid json %s", json.toStyledString().c_str()));
+        Logger::info(util::format("%s: invalid json %s", __func__, json.toStyledString().c_str()));
         return false;
     }
 
@@ -331,7 +304,7 @@ bool BinanceController::loadCharts(ChartWrapper& container, ChartRequest& reques
         data.symbol = container.id();
 
         if (container.add(data) == nullptr)
-            Logger::info(util::format("BinanceController::loadCharts: invalid kline %s", item.toStyledString().c_str()));
+            Logger::info(util::format("%s: invalid kline %s", __func__, item.toStyledString().c_str()));
     }
 
     return true;
@@ -344,22 +317,17 @@ bool BinanceController::loadOrders(BookWrapper& container) const {
     Json::Value json;
     BinaCPP::get_allOrders(container.id().c_str(), 0, 0, _config_recv_window, json);
 
-    std::vector<BinanceOrderData> vec;
-
-    BinanceErrorData error(json, "BinanceController::loadOrders");
-    if (error.has()) {
-        Logger::info(util::format("%s [%d]", error.msg.c_str(), error.code));
+    if (checkError(json, __func__))
         return false;
-    }
 
     if (not json.isArray()) {
-        Logger::info(util::format("BinanceController::loadOrders: invalid json %s", json.toStyledString().c_str()));
+        Logger::info(util::format("%s: invalid json %s", __func__, json.toStyledString().c_str()));
         return false;
     }
 
     for (const auto& item : json) {
         if (not container.add(BinanceOrderData(item, false)))
-            Logger::info(util::format("BinanceController::loadOrders: invalid order: %s", item.toStyledString().c_str()));
+            Logger::info(util::format("%s: invalid order: %s", __func__, item.toStyledString().c_str()));
     }
 
     return true;
@@ -421,15 +389,12 @@ bool BinanceController::initUserListenKey() {
 
     Json::Value json;
     BinaCPP::start_userDataStream(json);
-    BinanceErrorData error(json, "BinanceController::initUserListenKey");
-    if (error.has()) {
-        Logger::info(util::format("%s [%d]", error.msg.c_str(), error.code));
-        return false;
-    }
 
-    if (!json["listenKey"] || !json["listenKey"].isString()) {
-        Logger::info(util::format("%s", json.toStyledString().c_str()));
-        Logger::info("BinanceController::initUserListenKey: can't get listenKey for stream account");
+    if (checkError(json, __func__))
+        return false;
+
+    if (not json["listenKey"] || not json["listenKey"].isString()) {
+        Logger::info(util::format("%s: invalid json %s", __func__, json.toStyledString().c_str()));
         return false;
     }
 
@@ -497,8 +462,6 @@ void BinanceController::onKlineDataStream(const Json::Value& json) {
 void BinanceController::onTickerDataStream(const Json::Value& json) {
     BinanceTickerData data(json);
 
-    //Logger::info(util::format("bestAskPrice: %f", data.bestAskPrice));
-
     if (_prices_connector != nullptr)
         _prices_connector->get(data.symbol)->set(data);
 }
@@ -514,18 +477,18 @@ const OrderWrapper* BinanceController::createOrder(BookWrapper& container, Order
 
     auto it = _exchange_info.symbols.find(request.symbol);
     if (it == _exchange_info.symbols.end()) {
-        Logger::info("BinanceController::createOrder unknown symbol");
+        Logger::info(util::format("%s: unknown symbol", __func__));
         return nullptr;
     }
 
     const BinanceSymbolData& info = it->second;
     if (not info.hasOrderType(type)) {
-        Logger::info("BinanceController::createOrder symbol doesn't supported for this type");
+        Logger::info(util::format("%s: symbol doesn't supported for this type", __func__));
         return nullptr;
     }
 
     if (not info.isSpotTradingAllowed) {
-        Logger::info("BinanceController::createOrder spot trading is not allowed");
+        Logger::info(util::format("%s: spot trading is not allowed", __func__));
         return nullptr;
     }
 
@@ -551,24 +514,13 @@ const OrderWrapper* BinanceController::createOrder(BookWrapper& container, Order
     Json::Value json;
     BinaCPP::send_order(request.symbol.c_str(), binance::serialize(request.side).c_str(), type.c_str(), "GTC", request.quantity , 0, "", 0, 0, _config_recv_window, json);
 
-    // check errors
-    BinanceErrorData error(json, "BinanceController::createOrder");
-    if (error.has()) {
-        Logger::info(util::format("%s [%d]", error.msg.c_str(), error.code));
-        if (error.code == BinanceErrorData::NEW_ORDER_REJECTED) {
-            Logger::error(util::format("BinanceController::create order: not enough to %s %f %s with balance %f",
-                         binance::serialize(request.side).c_str(),
-                         request.quantity,
-                         request.symbol.baseAsset().c_str(),
-                         OrderUtil::usedAsset(request.side, request.symbol).balance()));
-        }
+    if (checkError(json, __func__))
         return nullptr;
-    }
 
     // parse binance structure
     BinanceOrderData data(json, false);
     if (data.status.empty()) {
-        Logger::info("BinanceController::createOrder empty response");
+        Logger::info(util::format("%s: empty response", __func__));
         return nullptr;
     }
 
@@ -630,6 +582,22 @@ double BinanceController::fee() const {
     return commission / 100.0;
 }
 
+bool BinanceController::checkError(const Json::Value& json, const std::string& context) const {
+    BinanceErrorData error(json);
+    if (not error.has())
+        return false;
+
+    Logger::info(util::format("%s: %s [%d]", context.c_str(), error.msg.c_str(), error.code));
+
+    if (error.code == BinanceErrorData::INVALID_TIMESTAMP)
+        checkServerTime();
+
+    if (error.code == BinanceErrorData::TOO_MANY_REQUESTS)
+        Logger::error(error.msg);
+
+    return true;
+}
+
 bool BinanceController::checkServerTime() const {
     if (not checkRateLimits())
         return false;
@@ -637,14 +605,11 @@ bool BinanceController::checkServerTime() const {
     Json::Value json;
     BinaCPP::get_serverTime(json);
 
-    BinanceErrorData error(json, "BinanceController::checkServerTime");
-    if (error.has()) {
-        Logger::info(util::format("%s [%d]", error.msg.c_str(), error.code));
+    if (checkError(json, __func__))
         return false;
-    }
 
     if (not json.isObject() || not json["serverTime"] || not json["serverTime"].isInt64()) {
-        Logger::info("BinanceController::checkServerTime invalid response");
+        Logger::info(util::format("%s: invalid json %s", __func__, json.toStyledString().c_str()));
         return false;
     }
 
@@ -653,7 +618,7 @@ bool BinanceController::checkServerTime() const {
     long shift_time = (long)(server_time - local_time);
 
     if (local_time >= (server_time + 1000) || shift_time > _config_recv_window) {
-        Logger::info(util::format("BinanceController::checkServerTime time out of sync (shift %l)", shift_time));
+        Logger::info(util::format("%s: time out of sync (shift %l)", __func__, shift_time));
         BinaCPP_time::shift = shift_time;
         return true;
     }
@@ -670,11 +635,10 @@ bool BinanceController::checkRateLimits() const {
             int used = BinaCPP::get_usedWeight(util::lowercase(key.c_str()));
 
             if (used + 20 > limit) {
-                Logger::error(util::format("BinanceController::checkRateLimits used %d in %d %s (limit: %d)", used, rateLimit.intervalNum, rateLimit.interval.c_str(), limit));
+                Logger::error(util::format("%s: used %d in %d %s (limit: %d)", __func__, used, rateLimit.intervalNum, rateLimit.interval.c_str(), limit));
                 return false;
             }
 
-            // Logger::info(util::format("BinanceController::checkRateLimits used %d in %d %s (limit: %d)", used, rateLimit.intervalNum, rateLimit.interval.c_str(), limit));
         }
     }
 

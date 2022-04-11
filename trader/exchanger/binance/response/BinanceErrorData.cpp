@@ -7,13 +7,10 @@ const int BinanceErrorData::TOO_MANY_REQUESTS = -1003;
 const int BinanceErrorData::INVALID_TIMESTAMP = -1021;
 const int BinanceErrorData::NEW_ORDER_REJECTED = -2010;
 
-BinanceErrorData::BinanceErrorData(const Json::Value& json, std::string context) {
-    if (not context.empty())
-        context = context + ": ";
-
+BinanceErrorData::BinanceErrorData(const Json::Value& json) {
     if (json.isNull()) {
         code = -1;
-        msg = context + "empty json";
+        msg = "empty json";
         return;
     }
 
@@ -21,11 +18,7 @@ BinanceErrorData::BinanceErrorData(const Json::Value& json, std::string context)
         return;
 
     code = json["code"].asInt();
-    msg = context + json["msg"].asString();
-
-    // fixme
-    if (code == TOO_MANY_REQUESTS)
-        Logger::error(msg);
+    msg = json["msg"].asString();
 }
 
 bool BinanceErrorData::has() const {
