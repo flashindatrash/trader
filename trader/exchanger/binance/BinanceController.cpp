@@ -619,6 +619,8 @@ bool BinanceController::checkServerTime() const {
 
     if (local_time >= (server_time + 1000) || shift_time > _config_recv_window)
         Logger::info(util::format("%s: time out of sync (shift %l)", __func__, shift_time));
+    else
+        Logger::info(util::format("%s: synced server time (%lu) local time (%lu) shift (%l)", __func__, server_time, local_time, shift_time));
 
     BinaCPP_time::shift = shift_time;
     return true;
