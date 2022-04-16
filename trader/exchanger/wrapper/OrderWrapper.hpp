@@ -18,6 +18,7 @@ struct OrderStructure {
 struct OrderRequest {
     enum Policy : unsigned int {
         None,
+        TestMode,
         CheckBalance,
         RedeemSavings
     };

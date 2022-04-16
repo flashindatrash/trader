@@ -54,6 +54,8 @@ protected: // methods
 
     double minQuantity(const std::string& symbol) const;
 
+    void print(const std::string& context, const std::string& msg) const;
+
 protected: // savings
     bool loadSavings(Storage::Type_balance& container) const;
     bool redeemSavings(const std::string& asset, double quantity) const;
