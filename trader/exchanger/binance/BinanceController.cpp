@@ -503,8 +503,11 @@ const OrderWrapper* BinanceController::createOrder(BookWrapper& container, Order
             return nullptr;
 
         // try to redeem from savings
-        if (not redeemSavings(asset, request.required() - asset.balance()))
+        double redeem_quantity = request.required() - asset.balance();
+        if (not redeemSavings(asset, redeem_quantity)) {
+            print(__func__, util::format("failed to redeem %f %s", redeem_quantity, asset.c_str()));
             return nullptr;
+        }
 
         // check one more time after redeeming
         if (asset.balance() < request.required())
