@@ -43,7 +43,6 @@ bool Listing::add(const Symbol& symbol) {
         return false;
     }
 
-    Logger::info(util::format("Create algorithm"));
     _algorithms.push_back(algorithm);
     return true;
 }
@@ -72,7 +71,7 @@ void Listing::update() {
         }
 
         // interested USDT pairs
-        if (symbol.quoteAsset().id() == Asset::USDT.id())
+        //if (symbol.quoteAsset().id() == Asset::USDT.id())
             add(symbol);
     }
 }
