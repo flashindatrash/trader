@@ -11,8 +11,7 @@ BinanceSpotAccountData::BinanceSpotAccountData(const Json::Value& json) {
     canTrade = json["canTrade"].asBool();
 
     if (json["balances"].isArray()) {
-        for (const auto &balance: json["balances"]) {
-            balances.push_back(BinanceBalanceData(balance, "asset", "free", "locked"));
-        }
+        for (const auto &balance: json["balances"])
+            balances.emplace_back(balance, "asset", "free", "locked");
     }
 }

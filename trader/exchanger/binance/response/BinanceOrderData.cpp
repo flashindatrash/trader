@@ -10,6 +10,11 @@ BinanceOrderData::BinanceOrderData(const Json::Value& json, bool minimized) {
     side                = binance::deserialize_side(json[minimized ? "S" : "side"].asString());
     status              = json[minimized ? "X" : "status"].asString();
     symbol              = json[minimized ? "s" : "symbol"].asString();
+
+    if (not minimized && json["fills"].isArray()) {
+        for (const auto &fill: json["fills"])
+            fills.emplace_back(fill);
+    }
 }
 
 bool BinanceOrderData::isRejected() const {

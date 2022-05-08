@@ -1,6 +1,6 @@
 #pragma once
 
-#include <string>
+#include "BinanceOrderFillData.hpp"
 #include "exchanger/wrapper/OrderWrapper.hpp"
 
 namespace Json {
@@ -16,7 +16,8 @@ public: // methods
 
 public: // vars
     long orderId = 0;
-    std::string status = "";
+    std::string status;
+    std::vector<BinanceOrderFillData> fills;
 };
 
 
