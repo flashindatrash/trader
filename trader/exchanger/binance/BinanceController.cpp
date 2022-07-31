@@ -594,6 +594,10 @@ bool BinanceController::stake(StakingWrapper& container, StakingRequest& request
     if (not checkRateLimits())
         return false;
 
+    // round amount
+    double cent = container.minimum() / 10.0;
+    request.amount = std::round(request.amount / cent) * cent;
+
     // check is enough to stake
     if (not checkWalletRequest(request, container.asset(), request.amount))
         return false;
