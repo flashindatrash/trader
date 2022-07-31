@@ -9,6 +9,7 @@
 	sudo apt -y install libhiredis-dev  
 	sudo apt -y install libjsoncpp-dev  
 	sudo apt -y install redis  
+	sudo apt -y install lua5.1-dev
 
 ##### запускаем сервис редиса  
 	sudo /etc/init.d/redis-server start  
