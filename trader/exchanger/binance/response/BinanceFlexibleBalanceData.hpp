@@ -6,10 +6,10 @@
 
 #include "BinanceBalanceData.hpp"
 
-struct BinanceFlexibleProductData : public BinanceBalanceData {
+struct BinanceFlexibleBalanceData : public BinanceBalanceData {
 public: // methods
-    BinanceFlexibleProductData() = default;
-    BinanceFlexibleProductData(const Json::Value& json);
+    BinanceFlexibleBalanceData() = default;
+    BinanceFlexibleBalanceData(const Json::Value& json);
 
 public: // vars
     std::string productId = "";

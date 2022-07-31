@@ -6,6 +6,8 @@
 
 #include "processor/Processor.hpp"
 
+class StakingWrapper;
+
 namespace staking {
 
 class Staking : public Processor {
@@ -18,6 +20,8 @@ public: // methods
 protected: // methods
     void tick(time_t ms);
 
+    StakingWrapper* findStaking(bool use_flexible_balance) const;
+    static std::vector<StakingWrapper*> findStaking(const Asset& asset) ;
 };
 
 }

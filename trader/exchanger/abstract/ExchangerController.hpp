@@ -10,6 +10,7 @@ namespace core {
 class OrderWrapper;
 struct ChartRequest;
 struct OrderRequest;
+struct StakingRequest;
 enum ChartInterval : unsigned int;
 
 class ExchangerController {
@@ -28,6 +29,7 @@ public: // virtual
 
     virtual bool loadPairs(Storage::Type_pair& container) const = 0;
     virtual bool loadPrices(Storage::Type_price& container) const = 0;
+	virtual bool loadStakings(Storage::Type_staking& container) const = 0;
     virtual bool loadPrice(PriceWrapper& container) const = 0;
     virtual bool loadBalances(Storage::Type_balance& container) const = 0;
     virtual bool loadOrders(BookWrapper& container) const = 0;
@@ -39,7 +41,9 @@ public: // virtual
     virtual void unlistenTicker(PriceWrapper& container) = 0;
 
     virtual const OrderWrapper* createOrder(BookWrapper& container, OrderRequest& request) = 0;
+    virtual bool stake(StakingWrapper& container, StakingRequest& request) = 0;
 
+    virtual bool updateStaking(StakingWrapper& container) const = 0;
     virtual double roundQuantity(double quantity, const std::string& symbol, double(*fn)(double)) const = 0;
     virtual double fee() const = 0;
 

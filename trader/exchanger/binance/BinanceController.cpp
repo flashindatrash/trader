@@ -4,6 +4,7 @@
 #include "exchanger/wrapper/BalanceWrapper.hpp"
 #include "exchanger/wrapper/BookWrapper.hpp"
 #include "exchanger/wrapper/PriceWrapper.hpp"
+#include "exchanger/wrapper/StakingWrapper.hpp"
 #include "response/BinanceEnums.hpp"
 #include "response/BinanceErrorData.hpp"
 #include "response/BinanceBalanceData.hpp"
@@ -11,9 +12,10 @@
 #include "response/BinancePriceStatisticsData.hpp"
 #include "response/BinanceKlineData.hpp"
 #include "response/BinanceTickerData.hpp"
-#include "response/BinanceFlexibleProductData.hpp"
+#include "response/BinanceFlexibleBalanceData.hpp"
 #include "response/BinanceSpotAccountData.hpp"
 #include "response/BinancePriceData.hpp"
+#include "response/BinanceStakingProductData.hpp"
 #include "binacpp.h"
 #include "binacpp_websocket.h"
 #include "binacpp_logger.h"
@@ -152,6 +154,38 @@ bool BinanceController::loadPrices(Storage::Type_price& container) const {
     return true;
 }
 
+bool BinanceController::loadStakings(Storage::Type_staking& container) const {
+    for (StakingProduct product : { Locked, DeFiLocked, DeFiFlexible }) {
+        long current = 1; long size = 100;
+        while (true) {
+            if (not checkRateLimits())
+                return false;
+
+            Json::Value json;
+            BinaCPP::get_stakingProjects(binance::serialize(product).c_str(), "", current, size, _config_recv_window, json);
+
+            if (checkError(json, __func__))
+                return false;
+
+            if (not json.isArray()) {
+                print(__func__, util::format("invalid json %s", json.toStyledString().c_str()));
+                return false;
+            }
+
+            for (auto &it: json) {
+                BinanceStakingProductData data(it);
+                container.get(data.projectId)->set(product, data.detail, data.quota);
+            }
+
+            if (json.size() < size)
+                break;
+            else ++current;
+        }
+    }
+
+    return true;
+}
+
 bool BinanceController::loadPrice(PriceWrapper& container) const {
     if (not checkRateLimits())
         return false;
@@ -247,7 +281,7 @@ bool BinanceController::redeemSavings(const std::string& asset, double quantity)
     }
 
     for (const auto & product : json) {
-        BinanceFlexibleProductData data(product);
+        BinanceFlexibleBalanceData data(product);
 
         if (not data.canRedeem || data.free < quantity || data.redeemingAmount > 0.0)
             continue;
@@ -466,6 +500,27 @@ void BinanceController::onTickerDataStream(const Json::Value& json) {
         _prices_connector->get(data.symbol)->set(data);
 }
 
+bool BinanceController::checkWalletRequest(WalletRequest& request, const std::string& asset, double quantity) const {
+    if (request.mask(OrderRequest::CheckBalance) && Asset(asset).balance() < quantity) {
+        // policy do not allow redeeming
+        if (not request.mask(OrderRequest::RedeemSavings))
+            return false;
+
+        // try to redeem from savings
+        double redeem_quantity = quantity - Asset(asset).balance();
+        if (not redeemSavings(asset, redeem_quantity)) {
+            print(__func__, util::format("failed to redeem %f %s", redeem_quantity, asset.c_str()));
+            return false;
+        }
+
+        // check one more time after redeeming
+        if (Asset(asset).balance() < quantity)
+            return false;
+    }
+
+    return true;
+}
+
 const OrderWrapper* BinanceController::createOrder(BookWrapper& container, OrderRequest& request) {
     if (not checkRateLimits())
         return nullptr;
@@ -497,22 +552,8 @@ const OrderWrapper* BinanceController::createOrder(BookWrapper& container, Order
 
     // check is enough to create order
     const Asset& asset = OrderUtil::usedAsset(request.side, request.symbol);
-    if (request.mask(OrderRequest::CheckBalance) && asset.balance() < request.required()) {
-        // policy do not allow redeeming
-        if (not request.mask(OrderRequest::RedeemSavings))
-            return nullptr;
-
-        // try to redeem from savings
-        double redeem_quantity = request.required() - asset.balance();
-        if (not redeemSavings(asset, redeem_quantity)) {
-            print(__func__, util::format("failed to redeem %f %s", redeem_quantity, asset.c_str()));
-            return nullptr;
-        }
-
-        // check one more time after redeeming
-        if (asset.balance() < request.required())
-            return nullptr;
-    }
+    if (not checkWalletRequest(request, asset, request.required()))
+        return nullptr;
 
     Json::Value json;
     BinaCPP::send_order(request.symbol.c_str(), binance::serialize(request.side).c_str(), type.c_str(), "GTC", request.quantity , 0, "", 0, 0, request.mask(OrderRequest::TestMode), _config_recv_window, json);
@@ -549,6 +590,32 @@ const OrderWrapper* BinanceController::createOrder(BookWrapper& container, Order
     return wrapper;
 }
 
+bool BinanceController::stake(StakingWrapper& container, StakingRequest& request) {
+    if (not checkRateLimits())
+        return false;
+
+    // check is enough to stake
+    if (not checkWalletRequest(request, container.asset(), request.amount))
+        return false;
+
+    if (request.mask(StakingRequest::TestMode)) {
+
+    } else {
+        Json::Value json;
+        BinaCPP::stake(binance::serialize(container.product()).c_str(), container.id().c_str(), request.amount, _config_recv_window, json);
+
+        if (checkError(json, __func__))
+            return false;
+
+        if (json["success"] != true)
+            return false;
+    }
+
+    // update personal quota
+    container.updateQuota(container.quota() - request.amount);
+    return true;
+}
+
 double BinanceController::minQuantity(const std::string& symbol) const {
     auto it = _exchange_info.symbols.find(symbol);
     if (it == _exchange_info.symbols.end())
@@ -572,6 +639,21 @@ double BinanceController::minQuantity(const std::string& symbol) const {
     if (info.lotSize.stepSize > 0.0)
         quantity = std::round(quantity / info.lotSize.stepSize) * info.lotSize.stepSize;
     return quantity;
+}
+
+bool BinanceController::updateStaking(StakingWrapper& container) const {
+    if (not checkRateLimits())
+        return false;
+
+    Json::Value json;
+    BinaCPP::get_stakingLeftQuota(binance::serialize(container.product()).c_str(), container.id().c_str(), _config_recv_window, json);
+
+    if (checkError(json, __func__))
+        return false;
+
+    double quota = atof(json["leftPersonalQuota"].asString().c_str());
+    container.updateQuota(quota);
+    return true;
 }
 
 double BinanceController::roundQuantity(double quantity, const std::string& symbol, double(*fn)(double)) const {

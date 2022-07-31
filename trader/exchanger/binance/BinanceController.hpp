@@ -9,6 +9,7 @@ namespace Json {
 }
 
 class BinanceWebsocket;
+class WalletRequest;
 
 class BinanceController : public ExchangerController {
 public: // methods
@@ -26,7 +27,8 @@ public: // virtual
 
     bool loadPairs(Storage::Type_pair& container) const override;
     bool loadPrices(Storage::Type_price& container) const override;
-    bool loadPrice(PriceWrapper& container) const override;
+    bool loadStakings(Storage::Type_staking& container) const override;
+	bool loadPrice(PriceWrapper& container) const override;
     bool loadBalances(Storage::Type_balance& container) const override;
     bool loadOrders(BookWrapper& container) const override;
     bool loadStats(CandlestickWrapper& container) const override;
@@ -37,7 +39,9 @@ public: // virtual
     void unlistenTicker(PriceWrapper& container) override;
 
     const OrderWrapper* createOrder(BookWrapper& container, OrderRequest& request) override;
+    bool stake(StakingWrapper& container, StakingRequest& request) override;
 
+    bool updateStaking(StakingWrapper& container) const override;
     double roundQuantity(double quantity, const std::string& symbol, double(*fn)(double)) const override;
     double fee() const override;
 
@@ -51,6 +55,7 @@ protected: // methods
     bool checkError(const Json::Value& json, const std::string& context) const;
     bool checkServerTime() const;
     bool checkRateLimits() const;
+    bool checkWalletRequest(WalletRequest& request, const std::string& asset, double quantity) const;
 
     double minQuantity(const std::string& symbol) const;
 

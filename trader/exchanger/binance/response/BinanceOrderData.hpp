@@ -3,11 +3,7 @@
 #include "BinanceOrderFillData.hpp"
 #include "exchanger/wrapper/OrderWrapper.hpp"
 
-namespace Json {
-    class Value;
-}
-
-struct BinanceOrderData : public OrderStructure {
+struct BinanceOrderData : public OrderDetail {
 public: // methods
     BinanceOrderData() = default;
     BinanceOrderData(const Json::Value& json, bool minimized);

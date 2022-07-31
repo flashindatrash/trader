@@ -5,7 +5,7 @@
 #include <cassert>
 #include "exchanger/base/Storage-macros.hpp"
 
-template<class T> class StorageMap : protected std::unordered_map<std::string, T*> {
+template<class T> class StorageMap : public std::unordered_map<std::string, T*> {
     typedef std::unordered_map<std::string, T*> BaseClass;
 
 public: // methods
@@ -15,6 +15,7 @@ public: // methods
 public: // methods
     const T* get(const std::string& key) const;
     T* get(const std::string& key);
+
 };
 
 class Symbol;
@@ -23,6 +24,7 @@ class BalanceWrapper;
 class CandlestickWrapper;
 class ChartWrapper;
 class BookWrapper;
+class StakingWrapper;
 
 class Storage {
     STORAGE_PUBLIC(Symbol, pair)
@@ -31,5 +33,6 @@ class Storage {
     STORAGE_PUBLIC(CandlestickWrapper, stat)
     STORAGE_PUBLIC(ChartWrapper, chart)
     STORAGE_PUBLIC(BookWrapper, book)
+    STORAGE_PUBLIC(StakingWrapper, staking)
 };
 

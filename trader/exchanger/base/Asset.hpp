@@ -13,9 +13,15 @@ public: // methods
     Asset() = default;
     Asset(const std::string& asset);
 
+    // balance
     const Quantity& balance() const;
+
+    // balance in asset
     Quantity balance(const Asset& asset) const;
+
+    // price in asset
     Quantity convert(Quantity quantity, const Asset& asset = Asset::USDT) const;
+
     bool isUSD() const;
 
     const char* c_str() const;

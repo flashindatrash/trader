@@ -4,6 +4,7 @@
 #include "exchanger/abstract/ExchangerController.hpp"
 #include "exchanger/wrapper/OrderWrapper.hpp"
 #include "exchanger/wrapper/ChartWrapper.hpp"
+#include "exchanger/wrapper/StakingWrapper.hpp"
 
 ExchangerProxy::~ExchangerProxy() {
     stop();
@@ -48,6 +49,10 @@ bool ExchangerProxy::loadPrices() {
     return _controller->loadPrices(_prices);
 }
 
+bool ExchangerProxy::loadStakings() {
+    return _controller->loadStakings(_stakings);
+}
+
 bool ExchangerProxy::loadPrice(const std::string& key) {
     return _controller->loadPrice(*_prices.get(key));
 }
@@ -76,8 +81,16 @@ void ExchangerProxy::unlistenTickers(const std::string& key) {
     _controller->unlistenTicker(*_prices.get(key));
 }
 
+bool ExchangerProxy::updateStaking(const std::string& key) {
+    return _controller->updateStaking(*_stakings.get(key));
+}
+
 const OrderWrapper* ExchangerProxy::createOrder(OrderRequest& request) {
     return _controller->createOrder(*_books.get(request.symbol), request);
+}
+
+bool ExchangerProxy::stake(StakingRequest& request) {
+    return _controller->stake(*_stakings.get(request.projectId), request);
 }
 
 double ExchangerProxy::roundQuantity(double quantity, const std::string& key, double(*fn)(double)) const {

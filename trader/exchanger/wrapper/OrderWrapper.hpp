@@ -2,12 +2,13 @@
 
 #include "exchanger/base/Symbol.hpp"
 #include "exchanger/base/OrderBase.hpp"
+#include "exchanger/base/Wallet.hpp"
 
 enum OrderType : unsigned int {
     Market
 };
 
-struct OrderStructure {
+struct OrderDetail {
     OrderBase::Id id;
     Symbol symbol;
     OrderSide side = Invalid;
@@ -15,21 +16,12 @@ struct OrderStructure {
     Quantity base_quantity = 0.0;
 };
 
-struct OrderRequest {
-    enum Policy : unsigned int {
-        None,
-        TestMode,
-        CheckBalance,
-        RedeemSavings
-    };
-
+struct OrderRequest : public WalletRequest {
     Symbol symbol;
     OrderSide side = Invalid;
     Quantity quantity = 0.0;
     OrderType type = Market;
-    unsigned int policy = CheckBalance | RedeemSavings;
 
-    bool mask(Policy policy) const;
     Quantity required() const;
 };
 
@@ -38,7 +30,7 @@ public: // static
     static OrderWrapper* create();
 
 public: // methods
-    void set(OrderStructure data);
+    void set(OrderDetail data);
 
     Id id() const override;
     Symbol symbol() const override;
@@ -50,6 +42,6 @@ protected: // methods
     OrderWrapper() = default;
 
 protected: // vars
-    OrderStructure _data;
+    OrderDetail _data;
 };
 

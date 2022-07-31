@@ -6,7 +6,7 @@ OrderWrapper* OrderWrapper::create() {
     return wrapper;
 }
 
-void OrderWrapper::set(OrderStructure data) {
+void OrderWrapper::set(OrderDetail data) {
     _data = std::move(data);
 }
 
@@ -28,10 +28,6 @@ Quantity OrderWrapper::baseQuantity() const {
 
 Quantity OrderWrapper::quoteQuantity() const {
     return _data.quote_quantity;
-}
-
-bool OrderRequest::mask(Policy bit) const {
-    return 0 != (policy & bit);
 }
 
 Quantity OrderRequest::required() const {

@@ -34,6 +34,7 @@ T* StorageMap<T>::get(const std::string& key) {
 #include "exchanger/wrapper/CandlestickWrapper.hpp"
 #include "exchanger/wrapper/ChartWrapper.hpp"
 #include "exchanger/wrapper/BookWrapper.hpp"
+#include "exchanger/wrapper/StakingWrapper.hpp"
 
 template class StorageMap<Symbol>;
 template class StorageMap<PriceWrapper>;
@@ -41,3 +42,4 @@ template class StorageMap<BalanceWrapper>;
 template class StorageMap<CandlestickWrapper>;
 template class StorageMap<ChartWrapper>;
 template class StorageMap<BookWrapper>;
+template class StorageMap<StakingWrapper>;
