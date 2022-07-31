@@ -10,6 +10,7 @@
 	sudo apt -y install libjsoncpp-dev  
 	sudo apt -y install redis  
 	sudo apt -y install lua5.1-dev
+	sudo apt -y install libboost-all-dev
 
 ##### запускаем сервис редиса  
 	sudo /etc/init.d/redis-server start  

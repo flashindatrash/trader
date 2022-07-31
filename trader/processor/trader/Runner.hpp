@@ -1,6 +1,7 @@
 #pragma once
 
 #include "core/Signal.hpp"
+#include <ctime>
 
 class ChartWrapper;
 class Settings;

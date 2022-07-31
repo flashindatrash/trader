@@ -3,6 +3,7 @@
 //
 
 #include <binacpp.h>
+#include <algorithm>
 #include <core/Logger.hpp>
 #include "Staking.hpp"
 #include "core/Time.hpp"

@@ -2,6 +2,7 @@
 
 #include "core/Proxy.hpp"
 #include "core/Signal.hpp"
+#include <ctime>
 
 class Timer : public core::Proxy<Timer> {
 public: // static
