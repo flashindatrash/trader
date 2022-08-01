@@ -35,6 +35,8 @@ void Staking::tick(time_t ms) {
     static time_t stakeProject = 0;
     if (ms > stakeProject + Timer::sMinute * 10) {
         StakingRequest request;
+        // fixme: support RedeemSavings
+        request.policy = StakingRequest::CheckBalance;
 
         // find suitable staking project
         if (StakingWrapper* staking = findStaking(request.mask(StakingRequest::RedeemSavings))) {
@@ -74,6 +76,9 @@ StakingWrapper* Staking::findStaking(bool use_flexible_balance) const {
 
         // todo: skip BNB
         if (asset.rfind("BNB", 0) == 0)
+            continue;
+
+        if (asset.rfind("SOL", 0) != 0)
             continue;
 
         // find all projects by staking asset
