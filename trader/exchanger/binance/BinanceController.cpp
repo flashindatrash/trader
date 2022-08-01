@@ -595,7 +595,7 @@ bool BinanceController::stake(StakingWrapper& container, StakingRequest& request
         return false;
 
     // round amount
-    static const double cent = 0.00000001;
+    double cent = container.minimum() / 10.0;
     request.amount = std::floor(request.amount / cent) * cent;
 
     // check is enough to stake
