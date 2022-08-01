@@ -37,18 +37,22 @@ void Staking::tick(time_t ms) {
         StakingRequest request;
 
         // find suitable staking project
-        StakingWrapper* staking = findStaking(request.mask(StakingRequest::RedeemSavings));
+        if (StakingWrapper* staking = findStaking(request.mask(StakingRequest::RedeemSavings))) {
+            request.projectId = staking->id();
+            request.amount = staking->asset().balance();
 
-        request.projectId = staking->id();
-        request.amount = staking->asset().balance();
+            // add flexible balance
+            if (request.mask(StakingRequest::RedeemSavings))
+                request.amount += Asset("LD" + staking->asset().id()).balance();
 
-        if (request.mask(StakingRequest::RedeemSavings))
-            request.amount += Asset("LD" + staking->asset().id()).balance();
+            // not more than quota
+            request.amount = std::min(request.amount, staking->quota());
 
-        if (Exchanger().stake(request)) {
-            Logger::info(util::format("Staked %f %s with %d%% APY on %d days", request.amount, staking->asset().c_str(), int(staking->apy() * 100), staking->duration()));
-        } else {
-            Logger::error(util::format("Failed to stake %f %s with %d%% APY on %d days", request.amount, staking->asset().c_str(), int(staking->apy() * 100), staking->duration()));
+            if (Exchanger().stake(request)) {
+                Logger::info(util::format("Staked %f %s with %d%% APY on %d days", request.amount, staking->asset().c_str(), int(staking->apy() * 100), staking->duration()));
+            } else {
+                Logger::error(util::format("Failed to stake %f %s with %d%% APY on %d days", request.amount, staking->asset().c_str(), int(staking->apy() * 100), staking->duration()));
+            }
         }
 
         stakeProject = ms;
