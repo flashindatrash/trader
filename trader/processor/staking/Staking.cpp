@@ -78,9 +78,6 @@ StakingWrapper* Staking::findStaking(bool use_flexible_balance) const {
         if (asset.rfind("BNB", 0) == 0)
             continue;
 
-        if (asset.rfind("SOL", 0) != 0)
-            continue;
-
         // find all projects by staking asset
         std::vector<StakingWrapper*> stakings = findStaking(balance.first);
         std::sort(stakings.begin(), stakings.end(), [](StakingWrapper* lhs, StakingWrapper* rhs) {
