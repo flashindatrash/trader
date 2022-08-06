@@ -1,9 +1,9 @@
 #include "Algorithm.hpp"
 #include "Script.hpp"
 #include "Context.hpp"
-#include "base/Position.hpp"
 #include "base/Settings.hpp"
-#include "base/Report.hpp"
+#include "exchanger/base/Position.hpp"
+#include "exchanger/base/Report.hpp"
 #include "exchanger/wrapper/OrderWrapper.hpp"
 #include "exchanger/Exchanger.hpp"
 

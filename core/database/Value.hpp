@@ -34,9 +34,6 @@ public: // methods
     Double          asDouble() const;
     Bool            asBool() const;
 
-    bool isString() const;
-    bool isNumeric() const;
-
     size_t size() const;
 
 public: // operators

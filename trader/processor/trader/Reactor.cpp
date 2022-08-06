@@ -8,7 +8,7 @@
 #include "Formatter.hpp"
 #include "protocol/Command.hpp"
 #include "protocol/Event.hpp"
-#include "base/Position.hpp"
+#include "exchanger/base/Position.hpp"
 #include "base/Settings.hpp"
 
 using namespace trader;

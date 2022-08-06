@@ -61,14 +61,6 @@ Value::Bool Value::asBool() const {
     return asInt() == 1;
 }
 
-bool Value::isString() const {
-    return _type == TypeString;
-}
-
-bool Value::isNumeric() const {
-    return _type == TypeInt || _type == TypeDouble;
-}
-
 size_t Value::size() const {
     return _value.str.size();
 }

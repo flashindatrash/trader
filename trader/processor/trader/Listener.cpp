@@ -7,10 +7,10 @@
 #include "Formatter.hpp"
 #include "Algorithm.hpp"
 #include "core/Logger.hpp"
-#include "base/Position.hpp"
 #include "base/Settings.hpp"
 #include "protocol/Event.hpp"
 #include "protocol/User.hpp"
+#include "exchanger/base/Position.hpp"
 
 using namespace trader;
 

@@ -65,17 +65,19 @@ StakingWrapper* Staking::findStaking(bool use_flexible_balance) const {
         if (pair.second->get() <= 0)
             continue;
 
-        std::string asset = pair.first;
-        if (asset.rfind("LD", 0) == 0) {
-            asset = asset.substr(2);
-            if (Exchanger().balance(asset) == nullptr) {
-                Logger::info(util::format("Unknown asset %s (flexible %s)", asset.c_str(), pair.first.c_str()));
+        std::string ticker = pair.first;
+        if (ticker.rfind("LD", 0) == 0) {
+            ticker = ticker.substr(2);
+            if (Exchanger().balance(ticker) == nullptr) {
+                Logger::info(util::format("Unknown asset %s (flexible %s)", ticker.c_str(), pair.first.c_str()));
                 continue;
             }
         }
 
-        // todo: skip BNB
-        if (asset.rfind("BNB", 0) == 0)
+        Asset asset(ticker);
+
+        // skip bnb and usd
+        if (asset.id() == "BNB" || asset.isUSD())
             continue;
 
         // find all projects by staking asset
@@ -84,9 +86,9 @@ StakingWrapper* Staking::findStaking(bool use_flexible_balance) const {
             return lhs->apy() > rhs->apy();
         });
 
-        Quantity quantity = Asset(asset).balance();
+        Quantity quantity = asset.balance();
         if (use_flexible_balance)
-            quantity += Asset("LD" + asset).balance();
+            quantity += Asset("LD" + ticker).balance();
 
         for (StakingWrapper* staking : stakings) {
             // check enough for minimum

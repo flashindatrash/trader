@@ -5,11 +5,11 @@
 #include "Algorithm.hpp"
 #include "core/Logger.hpp"
 #include "core/Time.hpp"
-#include "base/Position.hpp"
 #include "base/Settings.hpp"
-#include "base/Report.hpp"
 #include "exchanger/Exchanger.hpp"
+#include "exchanger/base/Report.hpp"
 #include "exchanger/base/Symbol.hpp"
+#include "exchanger/base/Position.hpp"
 #include "exchanger/wrapper/PriceWrapper.hpp"
 #include "exchanger/wrapper/OrderWrapper.hpp"
 

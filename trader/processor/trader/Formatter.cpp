@@ -5,10 +5,9 @@
 #include "Formatter.hpp"
 #include "Context.hpp"
 #include "core/Logger.hpp"
-#include "base/Position.hpp"
 #include "base/Settings.hpp"
-#include "base/Report.hpp"
-#include "util/MathUtil.hpp"
+#include "exchanger/base/Position.hpp"
+#include "exchanger/base/Report.hpp"
 #include <utility>
 #include <limits>
 
