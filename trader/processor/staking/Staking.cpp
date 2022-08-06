@@ -111,7 +111,16 @@ std::vector<StakingWrapper*> Staking::findStaking(const Asset& asset) {
 
     // loop over stakings
     for (auto& staking : Exchanger().stakings()) {
-        if (staking.second->asset().id() == asset.id())
+        const StakingProduct& product = staking.second->product();
+        const Asset& staking_asset = staking.second->asset();
+
+        if (product == Unknown)
+            continue;
+
+        if ((staking_asset.id() == "ETH" || staking_asset.id() == "BTC") && product == DeFiFlexible)
+            continue;
+
+        if (staking_asset.id() == asset.id())
             result.push_back(staking.second);
     }
 
