@@ -16,7 +16,7 @@ BinanceStakingProductData::BinanceStakingProductData(const Json::Value& json) {
     }
 
     if (json["quota"]) {
-        quota.personal  = atof(json["quota"]["totalPersonalQuota"].asString().c_str());
-        quota.minimum   = atof(json["quota"]["minimum"].asString().c_str());
+        quota.personal  = Decimal::deserialize(json["quota"]["totalPersonalQuota"].asString());
+        quota.minimum   = Decimal::deserialize(json["quota"]["minimum"].asString());
     }
 }

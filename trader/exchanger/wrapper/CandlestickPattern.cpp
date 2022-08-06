@@ -2,12 +2,12 @@
 #include "CandlestickWrapper.hpp"
 
 bool CandlestickPattern::isHammerLike(const CandlestickWrapper& candlestick) {
-    return candlestick.tailLen() > (candlestick.bodyLen() * 2) &&
+    return candlestick.tailLen() > (candlestick.bodyLen() * 2.0) &&
            candlestick.wickLen() < candlestick.bodyLen();
 }
 
 bool CandlestickPattern::isInvertedHammerLike(const CandlestickWrapper& candlestick) {
-    return candlestick.wickLen() > (candlestick.bodyLen() * 2) &&
+    return candlestick.wickLen() > (candlestick.bodyLen() * 2.0) &&
            candlestick.tailLen() < candlestick.bodyLen();
 }
 

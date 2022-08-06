@@ -21,32 +21,32 @@ Stats::Stats(const std::string& username, const std::string& symbol)
 {
 }
 
-void Stats::setProfit(double value) {
-    inc(FIELD_PROFIT, value);
+void Stats::setProfit(int64_t value) {
+    inc(FIELD_PROFIT, (int)value);
 }
 
-double Stats::profit() const {
-    return get(FIELD_PROFIT).asDouble();
+int64_t Stats::profit() const {
+    return get(FIELD_PROFIT).asInt();
 }
 
-void Stats::setEarnBase(double value) {
-    inc(FIELD_BASE, value);
+void Stats::setEarnBase(int64_t value) {
+    inc(FIELD_BASE, (int)value);
 }
 
-void Stats::setEarnQuote(double value) {
-    inc(FIELD_QUOTE, value);
+void Stats::setEarnQuote(int64_t value) {
+    inc(FIELD_QUOTE, (int)value);
 }
 
 std::string Stats::version() const {
     return get(FIELD_VERSION).asString();
 }
 
-double Stats::earnBase() const {
-    return get(FIELD_BASE).asDouble();
+int64_t Stats::earnBase() const {
+    return get(FIELD_BASE).asInt();
 }
 
-double Stats::earnQuote() const {
-    return get(FIELD_QUOTE).asDouble();
+int64_t Stats::earnQuote() const {
+    return get(FIELD_QUOTE).asInt();
 }
 
 void Stats::setVersion(std::string value) {

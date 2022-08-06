@@ -6,8 +6,8 @@
 #include <json/json.h>
 
 BinanceOrderFillData::BinanceOrderFillData(const Json::Value& json) {
-    price = atof(json["price"].asString().c_str());
-    qty = atof(json["qty"].asString().c_str());
-    commission = atof(json["commission"].asString().c_str());
+    price = Decimal::deserialize(json["price"].asString());
+    qty = Decimal::deserialize(json["qty"].asString());
+    commission = Decimal::deserialize(json["commission"].asString());
     commissionAsset = json["commissionAsset"].asString();
 }

@@ -11,10 +11,10 @@ BinanceKlineData::BinanceKlineData(const Json::Value& json)
 
     time_open               = (is_array ? kline[0] : kline["t"]).asInt64();
     time_close              = (is_array ? kline[6] : kline["T"]).asInt64();
-    price_open              = atof((is_array ? kline[1] : kline["o"]).asString().c_str());
-    price_close             = atof((is_array ? kline[4] : kline["c"]).asString().c_str());
-    price_high              = atof((is_array ? kline[2] : kline["h"]).asString().c_str());
-    price_low               = atof((is_array ? kline[3] : kline["l"]).asString().c_str());
+    price_open              = Decimal::deserialize((is_array ? kline[1] : kline["o"]).asString());
+    price_close             = Decimal::deserialize((is_array ? kline[4] : kline["c"]).asString());
+    price_high              = Decimal::deserialize((is_array ? kline[2] : kline["h"]).asString());
+    price_low               = Decimal::deserialize((is_array ? kline[3] : kline["l"]).asString());
     baseAssetVolume         = atof((is_array ? kline[5] : kline["v"]).asString().c_str());
     quoteAssetVolume        = atof((is_array ? kline[7] : kline["q"]).asString().c_str());
     takerBaseAssetVolume    = atof((is_array ? kline[9] : kline["V"]).asString().c_str());

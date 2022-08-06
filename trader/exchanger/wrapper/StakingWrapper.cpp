@@ -33,21 +33,21 @@ const uint16_t& StakingWrapper::duration() const {
     return _detail.duration;
 }
 
-const double& StakingWrapper::minimum() const {
+const Decimal& StakingWrapper::minimum() const {
     return _quota.minimum;
 }
 
-const double& StakingWrapper::quota() {
-    static double error = 0.0;
+const Decimal& StakingWrapper::quota() {
+    static const Decimal zero;
     if (not _personal_quota_actualized) {
         if (not Exchanger().updateStaking(id()))
-            return error;
+            return zero;
         _personal_quota_actualized = true;
     }
 
     return _quota.personal;
 }
 
-void StakingWrapper::updateQuota(double quota) {
+void StakingWrapper::updateQuota(Decimal quota) {
     _quota.personal = quota;
 }

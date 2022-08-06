@@ -42,7 +42,7 @@ public: // virtual
     bool stake(StakingWrapper& container, StakingRequest& request) override;
 
     bool updateStaking(StakingWrapper& container) const override;
-    double roundQuantity(double quantity, const std::string& symbol, double(*fn)(double)) const override;
+    Decimal roundQuantity(Decimal quantity, const std::string& symbol, double(*fn)(double)) const override;
     double fee() const override;
 
 protected: // methods
@@ -55,15 +55,15 @@ protected: // methods
     bool checkError(const Json::Value& json, const std::string& context) const;
     bool checkServerTime() const;
     bool checkRateLimits() const;
-    bool checkWalletRequest(WalletRequest& request, const std::string& asset, double quantity) const;
+    bool checkWalletRequest(WalletRequest& request, const std::string& asset, Decimal quantity) const;
 
-    double minQuantity(const std::string& symbol) const;
+    Decimal minQuantity(const std::string& symbol) const;
 
     void print(const std::string& context, const std::string& msg) const;
 
 protected: // savings
     bool loadSavings(Storage::Type_balance& container) const;
-    bool redeemSavings(const std::string& asset, double quantity) const;
+    bool redeemSavings(const std::string& asset, Decimal quantity) const;
 
 protected: // callbacks
     void onUserDataStream(const Json::Value& json);

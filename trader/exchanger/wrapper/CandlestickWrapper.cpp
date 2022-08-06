@@ -27,7 +27,9 @@ Price CandlestickWrapper::priceMax() const {
 }
 
 Price CandlestickWrapper::bodyLen() const {
-    return std::abs(_data.price_open - _data.price_close);
+    if (_data.price_open > _data.price_close)
+        return _data.price_open - _data.price_close;
+    return _data.price_close - _data.price_open;
 }
 
 Price CandlestickWrapper::wickLen() const {

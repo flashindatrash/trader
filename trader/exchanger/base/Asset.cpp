@@ -21,7 +21,7 @@ Asset::operator std::string() const {
 }
 
 const Quantity& Asset::balance() const {
-    static Quantity zero_balance = 0;
+    static Quantity zero_balance;
 
     const BalanceWrapper* wrapper = Exchanger().balance(*this);
     if (wrapper == nullptr)
@@ -41,7 +41,7 @@ Quantity Asset::convert(Quantity quantity, const Asset& asset/* = Asset::USDT*/)
     if (const PriceWrapper* price = Exchanger().price(id() + asset.id()))
         return price->get() * quantity;
 
-    return 0.0;
+    return {};
 }
 
 bool Asset::isUSD() const {

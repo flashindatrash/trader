@@ -15,9 +15,9 @@ struct BinanceOrderFillData {
     BinanceOrderFillData() = default;
     BinanceOrderFillData(const Json::Value& json);
 
-    Price price = 0.0;
-    Quantity qty = 0.0;
-    Quantity commission = 0.0;
+    Price price;
+    Quantity qty;
+    Quantity commission;
     std::string commissionAsset;
 };
 

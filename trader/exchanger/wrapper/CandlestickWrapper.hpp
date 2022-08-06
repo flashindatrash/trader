@@ -5,8 +5,8 @@
 
 struct Candlestick {
     std::string symbol;
-    Price price_open, price_high, price_low, price_close = 0.0;
-    time_t time_open, time_close = 0;
+    Price price_open, price_high, price_low, price_close;
+    time_t time_open, time_close;
     bool closed = false;
 };
 

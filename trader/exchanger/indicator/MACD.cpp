@@ -24,7 +24,7 @@ OrderSide MACD::trend() const {
     if (empty())
         return Invalid;
 
-    return _signal.last() > 0.0 ? Buy : _signal.last() < 0.0 ? Sell : Invalid;
+    return _signal.last() > 0 ? Buy : _signal.last() < 0 ? Sell : Invalid;
 }
 
 OrderSide MACD::signal() const {

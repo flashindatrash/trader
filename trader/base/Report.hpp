@@ -13,20 +13,20 @@ struct Report {
     Report(const Position& open, const Position& close);
 
     // фактический заработок в Quote (уже с вычетом комиссии)
-    Quantity profit = 0.0;
+    Quantity profit;
 
     // количество аработанных ассетов (без учета комиссии)
-    Quantity earn_base = 0.0;
-    Quantity earn_quote = 0.0;
+    Quantity earn_base;
+    Quantity earn_quote;
 
     // количество используем ассетов
-    Quantity use_base = 0.0;
-    Quantity use_quote = 0.0;
-    Quantity use_total = 0.0;
+    Quantity use_base;
+    Quantity use_quote;
+    Quantity use_total;
 
     // сумарный оборот ассетов
-    Quantity volume_base = 0.0;
-    Quantity volume_quote = 0.0;
+    Quantity volume_base;
+    Quantity volume_quote;
 
     // количество угаданных открытий позиции
     int success = 0;

@@ -6,10 +6,10 @@
 struct Ticker {
     std::string symbol;
     time_t time = 0;
-    double bestBidPrice = 0.0;
-    double bestBidQty = 0.0;
-    double bestAskPrice = 0.0;
-    double bestAskQty = 0.0;
+    Decimal bestBidPrice;
+    Decimal bestBidQty;
+    Decimal bestAskPrice;
+    Decimal bestAskQty;
 };
 
 class PriceWrapper : public Identifier {
@@ -28,7 +28,7 @@ public: // methods
     const Ticker& ticker() const;
 
 protected: // vars
-    Price _price = 0.0;
+    Price _price;
     Ticker _ticker;
 };
 

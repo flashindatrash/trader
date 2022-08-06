@@ -93,7 +93,7 @@ bool ExchangerProxy::stake(StakingRequest& request) {
     return _controller->stake(*_stakings.get(request.projectId), request);
 }
 
-double ExchangerProxy::roundQuantity(double quantity, const std::string& key, double(*fn)(double)) const {
+Decimal ExchangerProxy::roundQuantity(Decimal quantity, const std::string& key, double(*fn)(double)) const {
     return _controller->roundQuantity(quantity, key, fn);
 }
 

@@ -18,7 +18,7 @@ protected: // methods
     BalanceWrapper() = default;
 
 protected: // vars
-    Quantity _free = 0.0;
-    Quantity _locked = 0.0;
+    Quantity _free;
+    Quantity _locked;
 };
 

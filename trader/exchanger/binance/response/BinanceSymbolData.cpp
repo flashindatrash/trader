@@ -31,13 +31,13 @@ BinanceSymbolData::BinanceSymbolData(const Json::Value& json)
                 minNotional.has             = true;
                 minNotional.applyToMarket   = filter["applyToMarket"].asBool();
                 minNotional.avgPriceMins    = filter["avgPriceMins"].asInt();
-                minNotional.minNotional     = atof(filter["minNotional"].asString().c_str());
+                minNotional.minNotional     = Decimal::deserialize(filter["minNotional"].asString());
             }
             else if (filter["filterType"].asString() == "LOT_SIZE") {
                 lotSize.has                 = true;
-                lotSize.minQty              = atof(filter["minQty"].asString().c_str());
-                lotSize.maxQty              = atof(filter["maxQty"].asString().c_str());
-                lotSize.stepSize            = atof(filter["stepSize"].asString().c_str());
+                lotSize.minQty              = Decimal::deserialize(filter["minQty"].asString());
+                lotSize.maxQty              = Decimal::deserialize(filter["maxQty"].asString());
+                lotSize.stepSize            = Decimal::deserialize(filter["stepSize"].asString());
             }
         }
     }

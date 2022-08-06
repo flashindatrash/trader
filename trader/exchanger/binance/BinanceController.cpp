@@ -30,8 +30,6 @@ static const char* CONFIG_API_KEY = "BINANCE_API_KEY";
 static const char* CONFIG_SECRET_KEY = "BINANCE_SECRET_KEY";
 static const char* CONFIG_RECV_WINDOW = "BINANCE_RECV_WINDOW";
 
-double BinanceController::_commission = 0.0;
-
 BinanceController::~BinanceController() {
     for (BinanceWebsocket* websocket : _websockets)
         delete websocket;
@@ -262,7 +260,7 @@ bool BinanceController::loadSavings(Storage::Type_balance& container) const {
     return true;
 }
 
-bool BinanceController::redeemSavings(const std::string& asset, double quantity) const {
+bool BinanceController::redeemSavings(const std::string& asset, Decimal quantity) const {
     if (not checkRateLimits())
         return false;
 
@@ -287,7 +285,7 @@ bool BinanceController::redeemSavings(const std::string& asset, double quantity)
             continue;
 
         Json::Value json_redeem;
-        BinaCPP::redeem_flexibleProduct(data.productId.c_str(), quantity, "FAST", _config_recv_window, json_redeem);
+        BinaCPP::redeem_flexibleProduct(data.productId.c_str(), quantity.c_str(), "FAST", _config_recv_window, json_redeem);
 
         if (checkError(json_redeem, __func__))
             return false;
@@ -500,14 +498,14 @@ void BinanceController::onTickerDataStream(const Json::Value& json) {
         _prices_connector->get(data.symbol)->set(data);
 }
 
-bool BinanceController::checkWalletRequest(WalletRequest& request, const std::string& asset, double quantity) const {
+bool BinanceController::checkWalletRequest(WalletRequest& request, const std::string& asset, Decimal quantity) const {
     if (request.mask(OrderRequest::CheckBalance) && Asset(asset).balance() < quantity) {
         // policy do not allow redeeming
         if (not request.mask(OrderRequest::RedeemSavings))
             return false;
 
         // try to redeem from savings
-        double redeem_quantity = quantity - Asset(asset).balance();
+        Decimal redeem_quantity = quantity - Asset(asset).balance();
         if (not redeemSavings(asset, redeem_quantity)) {
             print(__func__, util::format("failed to redeem %f %s", redeem_quantity, asset.c_str()));
             return false;
@@ -556,7 +554,7 @@ const OrderWrapper* BinanceController::createOrder(BookWrapper& container, Order
         return nullptr;
 
     Json::Value json;
-    BinaCPP::send_order(request.symbol.c_str(), binance::serialize(request.side).c_str(), type.c_str(), "GTC", request.quantity , 0, "", 0, 0, request.mask(OrderRequest::TestMode), _config_recv_window, json);
+    BinaCPP::send_order(request.symbol.c_str(), binance::serialize(request.side).c_str(), type.c_str(), "GTC", request.quantity.c_str(), {}, "", 0, 0, request.mask(OrderRequest::TestMode), _config_recv_window, json);
 
     BinanceOrderData data;
     if (json.empty() && request.mask(OrderRequest::TestMode)) {
@@ -594,10 +592,6 @@ bool BinanceController::stake(StakingWrapper& container, StakingRequest& request
     if (not checkRateLimits())
         return false;
 
-    // round amount
-    double cent = container.minimum() / 10.0;
-    request.amount = std::floor(request.amount / cent) * cent;
-
     // check is enough to stake
     if (not checkWalletRequest(request, container.asset(), request.amount))
         return false;
@@ -606,7 +600,7 @@ bool BinanceController::stake(StakingWrapper& container, StakingRequest& request
 
     } else {
         Json::Value json;
-        BinaCPP::stake(binance::serialize(container.product()).c_str(), container.id().c_str(), request.amount, _config_recv_window, json);
+        BinaCPP::stake(binance::serialize(container.product()).c_str(), container.id().c_str(), request.amount.c_str(), _config_recv_window, json);
 
         if (checkError(json, __func__))
             return false;
@@ -620,18 +614,18 @@ bool BinanceController::stake(StakingWrapper& container, StakingRequest& request
     return true;
 }
 
-double BinanceController::minQuantity(const std::string& symbol) const {
+Decimal BinanceController::minQuantity(const std::string& symbol) const {
     auto it = _exchange_info.symbols.find(symbol);
     if (it == _exchange_info.symbols.end())
-        return 0.0;
+        return {};
 
     const BinanceSymbolData& info = it->second;
     if (_prices_connector == nullptr)
-        return 0.0;
+        return {};
 
     const PriceWrapper* wrapper = _prices_connector->get(info.symbol);
     if (wrapper == nullptr)
-        return 0.0;
+        return {};
 
     const BinanceSymbolData::MinNotional& min_notional = info.minNotional;
     const BinanceSymbolData::LotSize& lot_size = info.lotSize;
@@ -639,9 +633,9 @@ double BinanceController::minQuantity(const std::string& symbol) const {
     // TODO: price average
     // Price price_avg = wrapper->getPriceAverage(min_notional.avgPriceMins * Timer::sMinute);
     Price price_avg = wrapper->get();
-    double quantity = std::max(lot_size.minQty, min_notional.minNotional / price_avg) *  1.3;
-    if (info.lotSize.stepSize > 0.0)
-        quantity = std::round(quantity / info.lotSize.stepSize) * info.lotSize.stepSize;
+    Decimal quantity = std::max(lot_size.minQty, min_notional.minNotional / price_avg) *  1.3;
+    if (info.lotSize.stepSize > 0)
+        quantity = Decimal((int64_t)std::round((int64_t)quantity / (int64_t)info.lotSize.stepSize)) * info.lotSize.stepSize;
     return quantity;
 }
 
@@ -655,20 +649,20 @@ bool BinanceController::updateStaking(StakingWrapper& container) const {
     if (checkError(json, __func__))
         return false;
 
-    double quota = atof(json["leftPersonalQuota"].asString().c_str());
+    Decimal quota = Decimal::deserialize(json["leftPersonalQuota"].asString());
     container.updateQuota(quota);
     return true;
 }
 
-double BinanceController::roundQuantity(double quantity, const std::string& symbol, double(*fn)(double)) const {
+Decimal BinanceController::roundQuantity(Decimal quantity, const std::string& symbol, double(*fn)(double)) const {
     auto it = _exchange_info.symbols.find(symbol);
     if (it == _exchange_info.symbols.end())
-        return 0.0;
+        return {};
 
     const BinanceSymbolData& info = it->second;
 
-    if (info.lotSize.stepSize > 0.0)
-        quantity = fn(quantity / info.lotSize.stepSize) * info.lotSize.stepSize;
+    if (info.lotSize.stepSize > 0)
+        quantity = fn(quantity / info.lotSize.stepSize) * (int64_t)info.lotSize.stepSize;
 
     return std::max(quantity, minQuantity(symbol));
 }
@@ -677,7 +671,7 @@ double BinanceController::fee() const {
     double commission = _commission;
 
     // Using BNB to pay for fees ( 25% discount )
-    if (_balances_connector != nullptr && _balances_connector->get("BNB")->get() > 0.0)
+    if (_balances_connector != nullptr && _balances_connector->get("BNB")->get() > 0)
         commission -= commission * 0.25;
 
     return commission / 100.0;
@@ -749,3 +743,4 @@ bool BinanceController::checkRateLimits() const {
 }
 
 BinanceExchangeData BinanceController::_exchange_info;
+double BinanceController::_commission;

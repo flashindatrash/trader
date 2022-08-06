@@ -72,7 +72,7 @@ bool Algorithm::tryOpen() {
 
     // цена для открытии позиции должна быть известна
     const Price price = symbol.price(Buy);
-    if (price == 0.0)
+    if (price == 0)
         return false;
 
     // если уже имеем эту монету, просто создаем позицию
@@ -123,7 +123,7 @@ bool Algorithm::tryClose() {
 
     // тикер должен существовать
     Price price = ticker.bestBidPrice;
-    if (price == 0.0)
+    if (price == 0)
         return false;
 
     // проверим, что мы в профите

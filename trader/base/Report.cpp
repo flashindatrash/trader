@@ -13,8 +13,8 @@ Report::Report(const Position& open, const Position& close) {
     success = open.count() == 1 ? 1 : 0;
     earn_base = OrderUtil::distance(close.side(), open.baseQuantity(), close.baseQuantity());
     earn_quote = OrderUtil::distance(open.side(), open.quoteQuantity(), close.quoteQuantity());
-    use_base = OrderUtil::usedQuantity(open.side(), open.baseQuantity(), 0.0);
-    use_quote = OrderUtil::usedQuantity(open.side(), 0.0, open.quoteQuantity());
+    use_base = OrderUtil::usedQuantity(open.side(), open.baseQuantity(), {});
+    use_quote = OrderUtil::usedQuantity(open.side(), {}, open.quoteQuantity());
     use_total = symbol.baseAsset().convert(use_base) + symbol.quoteAsset().convert(use_quote);
     volume_base = open.baseQuantity() + close.baseQuantity();
     volume_quote = open.quoteQuantity() + close.quoteQuantity();
@@ -37,5 +37,5 @@ void Report::add(const Report& report) {
 }
 
 Change Report::apy() const {
-    return profit / use_total;
+    return double(profit / use_total);
 }

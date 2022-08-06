@@ -17,8 +17,8 @@ public: // methods
     void setId(int value);
     int id() const;
 
-    void setProfit(double value);
-    double profit() const;
+    void setProfit(std::string value);
+    std::string profit() const;
 
 };
 

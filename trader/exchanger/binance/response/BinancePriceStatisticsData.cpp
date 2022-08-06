@@ -12,9 +12,9 @@ BinancePriceStatisticsData::BinancePriceStatisticsData(const Json::Value& json)
     lastQty             = atof(json["lastQty"].asString().c_str());
     bidPrice            = atof(json["bidPrice"].asString().c_str());
     askPrice            = atof(json["askPrice"].asString().c_str());
-    price_open          = atof(json["openPrice"].asString().c_str());
-    price_high          = atof(json["highPrice"].asString().c_str());
-    price_low           = atof(json["lowPrice"].asString().c_str());
+    price_open          = Decimal::deserialize(json["openPrice"].asString());
+    price_high          = Decimal::deserialize(json["highPrice"].asString());
+    price_low           = Decimal::deserialize(json["lowPrice"].asString());
     volume              = atof(json["volume"].asString().c_str());
     quoteVolume         = atof(json["quoteVolume"].asString().c_str());
     time_open           = json["openTime"].asInt64();

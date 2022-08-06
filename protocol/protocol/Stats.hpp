@@ -15,17 +15,17 @@ private: // static
 public: // methods
     Stats(const std::string& username, const std::string& symbol);
 
-    void setProfit(double value);
-    double profit() const;
+    void setProfit(int64_t value);
+    int64_t profit() const;
 
-    void setEarnBase(double value);
-    double earnBase() const;
+    void setEarnBase(int64_t value);
+    int64_t earnBase() const;
 
-    void setEarnQuote(double value);
-    double earnQuote() const;
+    void setEarnQuote(int64_t value);
+    int64_t earnQuote() const;
 
-    std::string version() const;
     void setVersion(std::string value);
+    std::string version() const;
 };
 
 }

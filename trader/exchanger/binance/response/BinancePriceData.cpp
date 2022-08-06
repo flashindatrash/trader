@@ -7,5 +7,5 @@
 
 BinancePriceData::BinancePriceData(const Json::Value& json) {
     symbol = json["symbol"].asString();
-    price = atof(json["price"].asString().c_str());
+    price = Decimal::deserialize(json["price"].asString());
 }

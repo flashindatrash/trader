@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include <string>
+#include "exchanger/base/Decimal.hpp"
 
 namespace Json {
     class Value;
@@ -16,13 +16,13 @@ public: // struct
     struct MinNotional : public BaseFilter {
         bool applyToMarket = false;
         int avgPriceMins = 0;
-        double minNotional = 0.0;
+        Decimal minNotional;
     };
 
     struct LotSize : public BaseFilter {
-        double maxQty = 0.0;
-        double minQty = 0.0;
-        double stepSize = 0.0;
+        Decimal maxQty;
+        Decimal minQty;
+        Decimal stepSize;
     };
 
 public: // methods
@@ -32,11 +32,11 @@ public: // methods
     bool hasOrderType(const std::string& type) const;
 
 public: // vars
-    std::string symbol = "";
-    std::string status = "";
+    std::string symbol;
+    std::string status;
 
-    std::string baseAsset = "";
-    std::string quoteAsset = "";
+    std::string baseAsset;
+    std::string quoteAsset;
 
     int baseAssetPrecision = 0;
     int baseCommissionPrecision = 0;

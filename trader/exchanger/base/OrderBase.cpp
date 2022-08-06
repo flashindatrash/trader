@@ -46,9 +46,9 @@ Price OrderUtil::distance(OrderSide side, Price first, Price second) {
     switch (side) {
         case Buy: return second - first;
         case Sell: return first - second;
-        case Invalid: return 0.0;
+        case Invalid: return {};
     }
-    return 0.0;
+    return {};
 }
 
 const Asset& OrderUtil::usedAsset(OrderSide side, const Symbol& symbol) {
@@ -64,9 +64,9 @@ Quantity OrderUtil::usedQuantity(OrderSide side, Quantity first, Quantity second
     switch (side) {
         case Buy: return second;
         case Sell: return first;
-        case Invalid: return 0.0;
+        case Invalid: return {};
     }
-    return 0.0;
+    return {};
 }
 
 Price OrderUtil::price(Quantity baseQuantity, Quantity quoteQuantity) {

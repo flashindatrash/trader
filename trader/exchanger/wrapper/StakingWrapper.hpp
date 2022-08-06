@@ -8,6 +8,7 @@
 #include "exchanger/base/Wallet.hpp"
 
 enum StakingProduct : unsigned int {
+    Unknown,
 	Locked,
 	DeFiLocked,
 	DeFiFlexible
@@ -21,13 +22,13 @@ struct StakingDetail {
 };
 
 struct StakingQuota {
-    double personal = 0.0;
-    double minimum = 0.0;
+    Decimal personal;
+    Decimal minimum;
 };
 
 struct StakingRequest : public WalletRequest {
     std::string projectId;
-    double amount = 0.0;
+    Decimal amount;
 };
 
 class StakingWrapper : public Identifier {
@@ -43,13 +44,13 @@ public: // methods
     const Asset& asset() const;
     const double& apy() const;
     const uint16_t& duration() const;
-    const double& minimum() const;
-    const double& quota();
+    const Decimal& minimum() const;
+    const Decimal& quota();
 
-    void updateQuota(double quota);
+    void updateQuota(Decimal quota);
 
 protected: // vars
-    StakingProduct _product;
+    StakingProduct _product = Unknown;
     StakingDetail _detail;
     StakingQuota _quota;
     bool _personal_quota_actualized = false;

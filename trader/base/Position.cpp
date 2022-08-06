@@ -44,19 +44,19 @@ void Position::setSide(OrderSide value) {
 }
 
 Quantity Position::baseQuantity() const {
-    return get(FIELD_BASE_QUANTITY).asDouble();
+    return Decimal::deserialize(get(FIELD_BASE_QUANTITY).asString());
 }
 
 void Position::setBaseQuantity(Quantity value) {
-    set(FIELD_BASE_QUANTITY, value);
+    set(FIELD_BASE_QUANTITY, value.c_str());
 }
 
 Quantity Position::quoteQuantity() const {
-    return get(FIELD_QUOTE_QUANTITY).asDouble();
+    return Decimal::deserialize(get(FIELD_QUOTE_QUANTITY).asString());
 }
 
 void Position::setQuoteQuantity(Quantity value) {
-    set(FIELD_QUOTE_QUANTITY, value);
+    set(FIELD_QUOTE_QUANTITY, value.c_str());
 }
 
 time_t Position::time() const {
@@ -91,7 +91,7 @@ Price Position::distance(Price current) const {
 }
 
 Change Position::change(Price current) const {
-    return distance(current) / price();
+    return double(distance(current) / price());
 }
 
 void Position::copy(const OrderBase& ref) {
@@ -123,5 +123,5 @@ bool Position::save(bool release) {
 }
 
 bool Position::has() const {
-    return side() != Invalid && baseQuantity() > 0.0 && quoteQuantity() > 0.0;
+    return side() != Invalid && baseQuantity() != 0 && quoteQuantity() != 0;
 }

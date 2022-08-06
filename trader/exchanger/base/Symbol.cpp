@@ -40,7 +40,7 @@ const Asset& Symbol::quoteAsset() const {
 }
 
 const Price& Symbol::price(const OrderSide& side) const {
-    static const Price zero = 0.0;
+    static const Price zero;
     const PriceWrapper* price = Exchanger().price(*this);
     if (price == nullptr)
         return zero;

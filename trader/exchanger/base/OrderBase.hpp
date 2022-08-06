@@ -4,11 +4,11 @@
 
 #pragma once
 
-#include <string>
+#include "Decimal.hpp"
 
-typedef double Price;
 typedef double Change;
-typedef double Quantity;
+typedef Decimal Price;
+typedef Decimal Quantity;
 
 class Symbol;
 class Asset;

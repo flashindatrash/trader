@@ -13,6 +13,7 @@
 
 using namespace staking;
 
+#include "exchanger/base/Decimal.hpp"
 bool Staking::init(const Settings& settings) {
     _settings = settings;
     Time().onTick.connect(std::bind(&Staking::tick, this, std::placeholders::_1));
@@ -66,7 +67,7 @@ StakingWrapper* Staking::findStaking(bool use_flexible_balance) const {
 
     // loop over balances (spot + flexible staking)
     for (auto& balance : Exchanger().balances()) {
-        if (balance.second->get() <= 0.0)
+        if (balance.second->get() <= 0)
             continue;
 
         // todo: skip flexible staking

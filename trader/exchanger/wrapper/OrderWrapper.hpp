@@ -12,14 +12,14 @@ struct OrderDetail {
     OrderBase::Id id;
     Symbol symbol;
     OrderSide side = Invalid;
-    Quantity quote_quantity = 0.0;
-    Quantity base_quantity = 0.0;
+    Quantity quote_quantity;
+    Quantity base_quantity;
 };
 
 struct OrderRequest : public WalletRequest {
     Symbol symbol;
     OrderSide side = Invalid;
-    Quantity quantity = 0.0;
+    Quantity quantity;
     OrderType type = Market;
 
     Quantity required() const;

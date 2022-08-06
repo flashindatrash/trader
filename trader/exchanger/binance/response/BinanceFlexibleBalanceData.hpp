@@ -12,7 +12,7 @@ public: // methods
     BinanceFlexibleBalanceData(const Json::Value& json);
 
 public: // vars
-    std::string productId = "";
+    std::string productId;
     bool canRedeem = false;
     double redeemingAmount = 0.0;
 };

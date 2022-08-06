@@ -26,12 +26,12 @@ int User::id() const {
     return get(FIELD_ID).asInt();
 }
 
-void User::setProfit(double value) {
+void User::setProfit(std::string value) {
     inc(FIELD_PROFIT, value);
 }
 
-double User::profit() const {
-    return get(FIELD_PROFIT).asDouble();
+std::string User::profit() const {
+    return get(FIELD_PROFIT).asString();
 }
 
 Users::Users(const db::Key& key)
