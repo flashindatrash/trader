@@ -51,7 +51,7 @@ void Staking::tick(time_t ms) {
             if (Exchanger().stake(request)) {
                 Logger::info(util::format("%sStaked %s %s with %d%% APY on %d days%s", GREEN, request.amount.c_str(), staking->asset().c_str(), int(staking->apy() * 100), staking->duration(), RESET));
             } else {
-                Logger::info(util::format("%sFailed to stake %s %s with %d%% APY on %d days$s", RED, request.amount.c_str(), staking->asset().c_str(), int(staking->apy() * 100), staking->duration(), RESET));
+                Logger::info(util::format("%sFailed to stake %s %s with %d%% APY on %d days%s", RED, request.amount.c_str(), staking->asset().c_str(), int(staking->apy() * 100), staking->duration(), RESET));
             }
         }
 
