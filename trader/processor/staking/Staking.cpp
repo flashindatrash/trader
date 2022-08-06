@@ -13,7 +13,6 @@
 
 using namespace staking;
 
-#include "exchanger/base/Decimal.hpp"
 bool Staking::init(const Settings& settings) {
     _settings = settings;
     Time().onTick.connect(std::bind(&Staking::tick, this, std::placeholders::_1));
@@ -50,9 +49,9 @@ void Staking::tick(time_t ms) {
             request.amount = std::min(request.amount, staking->quota());
 
             if (Exchanger().stake(request)) {
-                Logger::info(util::format("Staked %s %s with %d%% APY on %d days", request.amount.c_str(), staking->asset().c_str(), int(staking->apy() * 100), staking->duration()));
+                Logger::info(util::format("%sStaked %s %s with %d%% APY on %d days%s", GREEN, request.amount.c_str(), staking->asset().c_str(), int(staking->apy() * 100), staking->duration(), RESET));
             } else {
-                Logger::error(util::format("Failed to stake %s %s with %d%% APY on %d days", request.amount.c_str(), staking->asset().c_str(), int(staking->apy() * 100), staking->duration()));
+                Logger::info(util::format("%sFailed to stake %s %s with %d%% APY on %d days$s", RED, request.amount.c_str(), staking->asset().c_str(), int(staking->apy() * 100), staking->duration(), RESET));
             }
         }
 
