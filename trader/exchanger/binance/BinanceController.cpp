@@ -511,9 +511,13 @@ bool BinanceController::checkWalletRequest(WalletRequest& request, const std::st
             return false;
         }
 
-        // check one more time after redeeming
-        if (Asset(asset).balance() < quantity)
-            return false;
+        // check after redeeming, in can be in progress
+        int tries = 0;
+        while(Asset(asset).balance() < quantity) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            if (++tries > 5)
+                return false;
+        }
     }
 
     return true;
