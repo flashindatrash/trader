@@ -5,11 +5,9 @@ BalanceWrapper* BalanceWrapper::create() {
     return wrapper;
 }
 
-#include "core/Logger.hpp"
 void BalanceWrapper::set(Quantity free, Quantity locked) {
     _free = free;
     _locked = locked;
-    Logger::info(util::format("%s -> %s", id().c_str(), _free.c_str()));
 }
 
 const Quantity& BalanceWrapper::get() const {

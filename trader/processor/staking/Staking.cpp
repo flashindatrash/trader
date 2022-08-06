@@ -52,9 +52,9 @@ void Staking::tick(time_t ms) {
             request.amount = std::min(request.amount, staking->quota());
 
             if (Exchanger().stake(request)) {
-                Logger::info(util::format("Staked %f %s with %d%% APY on %d days", request.amount, staking->asset().c_str(), int(staking->apy() * 100), staking->duration()));
+                Logger::info(util::format("Staked %s %s with %d%% APY on %d days", request.amount.c_str(), staking->asset().c_str(), int(staking->apy() * 100), staking->duration()));
             } else {
-                Logger::error(util::format("Failed to stake %f %s with %d%% APY on %d days", request.amount, staking->asset().c_str(), int(staking->apy() * 100), staking->duration()));
+                Logger::error(util::format("Failed to stake %s %s with %d%% APY on %d days", request.amount.c_str(), staking->asset().c_str(), int(staking->apy() * 100), staking->duration()));
             }
         }
 
