@@ -21,11 +21,11 @@ Asset::operator std::string() const {
 }
 
 const Quantity& Asset::balance() const {
-    static Quantity zero_balance;
+    static Quantity zero;
 
     const BalanceWrapper* wrapper = Exchanger().balance(*this);
     if (wrapper == nullptr)
-        return zero_balance;
+        return zero;
 
     return wrapper->get();
 }

@@ -36,8 +36,6 @@ void Staking::tick(time_t ms) {
     static time_t stakeProject = 0;
     if (ms > stakeProject + Timer::sMinute * 10) {
         StakingRequest request;
-        // fixme: support RedeemSavings
-        request.policy = StakingRequest::CheckBalance;
 
         // find suitable staking project
         if (StakingWrapper* staking = findStaking(request.mask(StakingRequest::RedeemSavings))) {
@@ -63,29 +61,31 @@ void Staking::tick(time_t ms) {
 }
 
 StakingWrapper* Staking::findStaking(bool use_flexible_balance) const {
-    StakingWrapper* result = nullptr;
-
     // loop over balances (spot + flexible staking)
-    for (auto& balance : Exchanger().balances()) {
-        if (balance.second->get() <= 0)
+    for (auto& pair : Exchanger().balances()) {
+        if (pair.second->get() <= 0)
             continue;
 
-        // todo: skip flexible staking
-        const std::string& asset = balance.first;
-        if (asset.rfind("LD", 0) == 0)
-            continue;
+        std::string asset = pair.first;
+        if (asset.rfind("LD", 0) == 0) {
+            asset = asset.substr(2);
+            if (Exchanger().balance(asset) == nullptr) {
+                Logger::info(util::format("Unknown asset %s (flexible %s)", asset.c_str(), pair.first.c_str()));
+                continue;
+            }
+        }
 
         // todo: skip BNB
         if (asset.rfind("BNB", 0) == 0)
             continue;
 
         // find all projects by staking asset
-        std::vector<StakingWrapper*> stakings = findStaking(balance.first);
+        std::vector<StakingWrapper*> stakings = findStaking(asset);
         std::sort(stakings.begin(), stakings.end(), [](StakingWrapper* lhs, StakingWrapper* rhs) {
             return lhs->apy() > rhs->apy();
         });
 
-        Quantity quantity = balance.second->get();
+        Quantity quantity = Asset(asset).balance();
         if (use_flexible_balance)
             quantity += Asset("LD" + asset).balance();
 
@@ -102,7 +102,7 @@ StakingWrapper* Staking::findStaking(bool use_flexible_balance) const {
         }
     }
 
-    return result;
+    return nullptr;
 }
 
 std::vector<StakingWrapper*> Staking::findStaking(const Asset& asset) {

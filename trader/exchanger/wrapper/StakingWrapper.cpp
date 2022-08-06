@@ -15,6 +15,9 @@ void StakingWrapper::set(StakingProduct product, StakingDetail detail, StakingQu
     _product = product;
     _detail = std::move(detail);
     _quota = quota;
+
+    // after updating project we need actualize quota
+    _personal_quota_actualized = false;
 }
 
 const StakingProduct& StakingWrapper::product() const {

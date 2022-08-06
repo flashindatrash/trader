@@ -498,7 +498,7 @@ void BinanceController::onTickerDataStream(const Json::Value& json) {
         _prices_connector->get(data.symbol)->set(data);
 }
 
-bool BinanceController::checkWalletRequest(WalletRequest& request, const std::string& asset, Decimal quantity) const {
+bool BinanceController::checkWalletRequest(WalletRequest& request, const std::string& asset, const Decimal& quantity) const {
     if (request.mask(OrderRequest::CheckBalance) && Asset(asset).balance() < quantity) {
         // policy do not allow redeeming
         if (not request.mask(OrderRequest::RedeemSavings))
@@ -596,9 +596,8 @@ bool BinanceController::stake(StakingWrapper& container, StakingRequest& request
     if (not checkWalletRequest(request, container.asset(), request.amount))
         return false;
 
-    if (request.mask(StakingRequest::TestMode)) {
-
-    } else {
+    if (request.mask(StakingRequest::TestMode));
+    else {
         Json::Value json;
         BinaCPP::stake(binance::serialize(container.product()).c_str(), container.id().c_str(), request.amount.c_str(), _config_recv_window, json);
 

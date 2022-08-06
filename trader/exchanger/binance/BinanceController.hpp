@@ -55,7 +55,7 @@ protected: // methods
     bool checkError(const Json::Value& json, const std::string& context) const;
     bool checkServerTime() const;
     bool checkRateLimits() const;
-    bool checkWalletRequest(WalletRequest& request, const std::string& asset, Decimal quantity) const;
+    bool checkWalletRequest(WalletRequest& request, const std::string& asset, const Decimal& quantity) const;
 
     Decimal minQuantity(const std::string& symbol) const;
 
