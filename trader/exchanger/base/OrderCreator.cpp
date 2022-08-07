@@ -2,12 +2,12 @@
 // Created by Вадим Проскурин on 07.08.2022.
 //
 
-#include "OrderController.hpp"
+#include "OrderCreator.hpp"
 #include "exchanger/Exchanger.hpp"
 #include "exchanger/base/Position.hpp"
 #include "exchanger/wrapper/OrderWrapper.hpp"
 
-bool OrderController::create(OrderRequest& request, Position& result, bool release) {
+bool OrderCreator::create(OrderRequest& request, Position& result, bool release) {
     if (request.side == OrderSide::Invalid)
         return false;
 

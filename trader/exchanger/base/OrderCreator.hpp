@@ -8,10 +8,9 @@
 struct OrderRequest;
 class Position;
 
-class OrderController {
+class OrderCreator {
 public: // methods
     static bool create(OrderRequest& request, Position& result, bool release);
-
 };
 
 
