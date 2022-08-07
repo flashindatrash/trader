@@ -76,8 +76,8 @@ StakingWrapper* Algorithm::findStaking(bool use_flexible_balance) const {
 
         Asset asset(ticker);
 
-        // skip bnb and usd
-        if (asset.id() == "BNB" || asset.isUSD())
+        // skip bnb and usdt
+        if (asset.id() == "BNB" || asset.id() == "USDT")
             continue;
 
         // find all projects by staking asset
