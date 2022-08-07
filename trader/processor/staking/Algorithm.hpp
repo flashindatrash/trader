@@ -22,6 +22,8 @@ public: // methods
     virtual ~Algorithm();
 
     bool init();
+
+    bool tryClose();
     bool tryStake();
 
 protected: // methods
