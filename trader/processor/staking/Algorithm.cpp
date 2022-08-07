@@ -3,10 +3,12 @@
 //
 
 #include "Algorithm.hpp"
+#include <algorithm>
 #include "core/Logger.hpp"
 #include "base/Settings.hpp"
 #include "exchanger/Exchanger.hpp"
 #include "exchanger/base/Position.hpp"
+#include "exchanger/base/OrderCreator.hpp"
 #include "exchanger/wrapper/StakingWrapper.hpp"
 #include "exchanger/wrapper/BalanceWrapper.hpp"
 
@@ -31,6 +33,18 @@ Algorithm::~Algorithm() {
 
 bool Algorithm::init() {
     return true;
+}
+
+bool Algorithm::tryClose() {
+    for (Position* position : _positions) {
+        // invalid side
+        if (position->side() != Buy)
+            continue;
+
+        Decimal quantity = position->baseQuantity();
+    }
+
+    return false;
 }
 
 bool Algorithm::tryStake() {
