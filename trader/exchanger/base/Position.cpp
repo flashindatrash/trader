@@ -102,12 +102,17 @@ void Position::copy(const OrderBase& ref) {
 }
 
 void Position::merge(const OrderBase& ref) {
-    if (not has() || side() != ref.side())
+    if (not has())
         return;
 
-    setBaseQuantity(baseQuantity() + ref.baseQuantity());
-    setQuoteQuantity(quoteQuantity() + ref.quoteQuantity());
-    setCount(count() + 1);
+    if (side() == ref.side()) {
+        setBaseQuantity(baseQuantity() + ref.baseQuantity());
+        setQuoteQuantity(quoteQuantity() + ref.quoteQuantity());
+        setCount(count() + 1);
+    } else {
+        setBaseQuantity(baseQuantity() - ref.baseQuantity());
+        setQuoteQuantity(quoteQuantity() - ref.quoteQuantity());
+    }
 }
 
 bool Position::remove(bool release) {

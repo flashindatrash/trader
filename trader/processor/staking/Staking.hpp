@@ -6,13 +6,15 @@
 
 #include "processor/Processor.hpp"
 
-class StakingWrapper;
+class Position;
 
 namespace staking {
+class Algorithm;
 
 class Staking : public Processor {
 public: // methods
     Staking() = default;
+    ~Staking() override;
 
     bool init(const Settings& settings) override;
     bool isRunning() const override;
@@ -20,8 +22,8 @@ public: // methods
 protected: // methods
     void tick(time_t ms);
 
-    StakingWrapper* findStaking(bool use_flexible_balance) const;
-    static std::vector<StakingWrapper*> findStaking(const Asset& asset) ;
+protected: // vars
+    Algorithm* _algorithm = nullptr;
 };
 
 }

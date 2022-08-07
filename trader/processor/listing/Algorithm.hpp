@@ -16,7 +16,7 @@ public: // static
     static Algorithm* create(const Settings& config);
 
 public: // methods
-    ~Algorithm();
+    virtual ~Algorithm();
 
     bool init(const Symbol& symbol);
     bool execute();
