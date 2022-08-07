@@ -70,6 +70,8 @@ Quantity OrderUtil::usedQuantity(OrderSide side, Quantity first, Quantity second
 }
 
 Price OrderUtil::price(Quantity baseQuantity, Quantity quoteQuantity) {
+    if (baseQuantity == 0)
+        return 0;
     return quoteQuantity / baseQuantity;
 }
 
