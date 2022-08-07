@@ -507,7 +507,7 @@ bool BinanceController::checkWalletRequest(WalletRequest& request, const std::st
         // try to redeem from savings
         Decimal redeem_quantity = quantity - Asset(asset).balance();
         if (not redeemSavings(asset, redeem_quantity)) {
-            print(__func__, util::format("failed to redeem %f %s", redeem_quantity, asset.c_str()));
+            print(__func__, util::format("failed to redeem %s %s", redeem_quantity.c_str(), asset.c_str()));
             return false;
         }
 
