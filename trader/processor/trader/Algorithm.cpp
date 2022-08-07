@@ -4,6 +4,7 @@
 #include "base/Settings.hpp"
 #include "exchanger/base/Position.hpp"
 #include "exchanger/base/Report.hpp"
+#include "exchanger/base/OrderCreator.hpp"
 #include "exchanger/wrapper/OrderWrapper.hpp"
 #include "exchanger/Exchanger.hpp"
 
@@ -149,27 +150,6 @@ bool Algorithm::tryOpen() {
 }
 
 bool Algorithm::createOrder(OrderRequest& request, Position& result) const {
-    if (request.side == OrderSide::Invalid)
-        return false;
-
-    if (not _settings.isRelease()) {
-        const Asset& asset = OrderUtil::usedAsset(request.side, request.symbol);
-        if (asset.balance() + Asset("LD" + asset.id()).balance() < request.required())
-            return false;
-
-        result.setSymbol(request.symbol);
-        result.setSide(request.side);
-        result.setBaseQuantity(Exchanger().roundQuantity(request.quantity, request.symbol));
-        result.setQuoteQuantity(result.baseQuantity() * Context::current->price(request.side));
-        result.operate();
-        return true;
-    }
-
-    // создание заказа
-    const OrderWrapper* order = Exchanger().createOrder(request);
-    if (order == nullptr)
-        return false;
-
-    result.copy(*order);
-    return true;
+    result.setQuoteQuantity(Context::current->price(request.side));
+    return OrderCreator::create(request, result, _settings.isRelease());
 }

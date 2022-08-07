@@ -5,7 +5,6 @@
 #include "Staking.hpp"
 #include "Algorithm.hpp"
 
-#include <algorithm>
 #include "core/Time.hpp"
 #include "exchanger/Exchanger.hpp"
 
@@ -43,7 +42,7 @@ void Staking::tick(time_t ms) {
     // stake every 10 minute
     static time_t stakeProject = 0;
     if (ms > stakeProject + Timer::sMinute * 10) {
-        _algorithm->tryStake();
+        bool status = _algorithm->tryClose() || _algorithm->tryStake();
         stakeProject = ms;
     }
 }

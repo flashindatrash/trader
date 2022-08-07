@@ -10,6 +10,7 @@
 #include "exchanger/base/Report.hpp"
 #include "exchanger/base/Symbol.hpp"
 #include "exchanger/base/Position.hpp"
+#include "exchanger/base/OrderCreator.hpp"
 #include "exchanger/wrapper/PriceWrapper.hpp"
 #include "exchanger/wrapper/OrderWrapper.hpp"
 
@@ -91,7 +92,7 @@ bool Algorithm::tryOpen() {
 
         // создадим заказ
         Position open;
-        if (not createOrder(request, open))
+        if (not OrderCreator::create(request, open, _settings.isRelease()))
             return false;
 
         _position->copy(open);
@@ -141,7 +142,7 @@ bool Algorithm::tryClose() {
 
     // создадим заказ
     Position close;
-    if (not createOrder(request, close))
+    if (not OrderCreator::create(request, close, _settings.isRelease()))
         return false;
 
     // создадим отчет
@@ -151,31 +152,5 @@ bool Algorithm::tryClose() {
     _position->remove(_settings.isRelease());
 
     Logger::info(util::format("closed with profit %f", report.profit));
-    return true;
-}
-
-bool Algorithm::createOrder(OrderRequest& request, Position& result) const {
-    if (request.side == OrderSide::Invalid)
-        return false;
-
-    if (not _settings.isRelease()) {
-        const Asset& asset = OrderUtil::usedAsset(request.side, request.symbol);
-        if (asset.balance() < request.required())
-            return false;
-
-        result.setSymbol(request.symbol);
-        result.setSide(request.side);
-        result.setBaseQuantity(Exchanger().roundQuantity(request.quantity, request.symbol));
-        result.setQuoteQuantity(result.baseQuantity() * request.symbol.price(request.side));
-        result.operate();
-        return true;
-    }
-
-    // создание заказа
-    const OrderWrapper* order = Exchanger().createOrder(request);
-    if (order == nullptr)
-        return false;
-
-    result.copy(*order);
     return true;
 }
