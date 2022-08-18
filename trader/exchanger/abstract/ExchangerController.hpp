@@ -2,7 +2,6 @@
 
 #include "exchanger/base/Storage.hpp"
 #include "exchanger/base/Decimal.hpp"
-#include <cmath>
 
 namespace core {
     class Config;
@@ -45,7 +44,7 @@ public: // virtual
     virtual bool stake(StakingWrapper& container, StakingRequest& request) = 0;
 
     virtual bool updateStaking(StakingWrapper& container) const = 0;
-    virtual Decimal roundQuantity(Decimal quantity, const std::string& symbol, double(*fn)(double)) const = 0;
+    virtual Decimal roundQuantity(Decimal quantity, const std::string& symbol) const = 0;
     virtual double fee() const = 0;
 
 protected: // methods

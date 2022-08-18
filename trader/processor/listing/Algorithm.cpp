@@ -52,7 +52,7 @@ bool Algorithm::execute() {
 
     const Ticker& ticker = price->ticker();
     if (ticker.time > Time().ms() - Timer::sMinute) {
-        Logger::info(util::format("ticker(%s) ask(%f) bid(%f)", ticker.symbol.c_str(), ticker.bestAskPrice, ticker.bestBidPrice));
+        Logger::info(util::format("ticker(%s) ask(%s) bid(%s)", ticker.symbol.c_str(), ticker.bestAskPrice.c_str(), ticker.bestBidPrice.c_str()));
         return true;
     }
 
@@ -73,12 +73,12 @@ bool Algorithm::tryOpen() {
 
     // цена для открытии позиции должна быть известна
     const Price price = symbol.price(Buy);
-    if (price == 0)
+    if (price == 0LL)
         return false;
 
     // если уже имеем эту монету, просто создаем позицию
     const Quantity& balance = symbol.baseAsset().balance();
-    if (balance > 0) {
+    if (balance > 0LL) {
         _position->setSide(Buy);
         _position->setBaseQuantity(balance);
         _position->setQuoteQuantity(balance * price);
@@ -102,7 +102,7 @@ bool Algorithm::tryOpen() {
     _position->setTime(Time().ms());
     _position->save(_settings.isRelease());
 
-    Logger::info(util::format("opened on price %f", price));
+    Logger::info(util::format("opened on price %s", price.c_str()));
     return true;
 }
 
@@ -124,12 +124,12 @@ bool Algorithm::tryClose() {
 
     // тикер должен существовать
     Price price = ticker.bestBidPrice;
-    if (price == 0)
+    if (price == 0LL)
         return false;
 
     // проверим, что мы в профите
     Quantity profit = _position->profit(price);
-    if (profit < 0)
+    if (profit < 0LL)
         return false;
 
     // TODO: проверить что цена выше минимальной
@@ -151,6 +151,6 @@ bool Algorithm::tryClose() {
     // удалим позицию
     _position->remove(_settings.isRelease());
 
-    Logger::info(util::format("closed with profit %f", report.profit));
+    Logger::info(util::format("closed with profit %s", report.profit.c_str()));
     return true;
 }

@@ -128,5 +128,5 @@ bool Position::save(bool release) {
 }
 
 bool Position::has() const {
-    return side() != Invalid && baseQuantity() != 0 && quoteQuantity() != 0;
+    return side() != Invalid && baseQuantity() != 0LL && quoteQuantity() != 0LL;
 }

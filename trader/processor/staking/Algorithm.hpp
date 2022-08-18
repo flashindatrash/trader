@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include <vector>
+#include <map>
 
 class Settings;
 class Asset;
@@ -23,11 +23,14 @@ public: // methods
 
     bool init();
 
-    bool tryClose();
-    bool tryStake();
+    bool execute();
 
 protected: // methods
     explicit Algorithm(const Settings& config);
+
+    bool tryClose(const Asset& asset);
+
+    Position& findPosition(const Asset& asset);
 
     StakingWrapper* findStaking(bool use_flexible_balance) const;
     static std::vector<StakingWrapper*> findStaking(const Asset& asset);
@@ -35,7 +38,7 @@ protected: // methods
 protected: // vars
     const Settings& _settings;
 
-    std::vector<Position*> _positions;
+    std::map<std::string, Position*> _positions;
 };
 
 }

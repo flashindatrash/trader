@@ -42,7 +42,7 @@ public: // virtual
     bool stake(StakingWrapper& container, StakingRequest& request) override;
 
     bool updateStaking(StakingWrapper& container) const override;
-    Decimal roundQuantity(Decimal quantity, const std::string& symbol, double(*fn)(double)) const override;
+    Decimal roundQuantity(Decimal quantity, const std::string& symbol) const override;
     double fee() const override;
 
 protected: // methods

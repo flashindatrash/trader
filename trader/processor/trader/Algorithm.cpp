@@ -108,7 +108,7 @@ bool Algorithm::close() {
     OrderRequest request;
     request.symbol = _position->symbol();
     request.side = _position->revert();
-    request.quantity = Exchanger().roundQuantity(_position->baseQuantity() + additional, _position->symbol(), round);
+    request.quantity = Exchanger().roundQuantity(_position->baseQuantity() + additional, _position->symbol());
 
     // создадим заказ
     Position close;

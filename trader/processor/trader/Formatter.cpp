@@ -44,29 +44,29 @@ Formatter Formatter::order(const OrderBase& order) {
 
 Formatter Formatter::profit(const Report& report, const Symbol& symbol) {
     std::string result = "profit";
-    if (report.earn_base != 0)
+    if (report.earn_base != 0LL)
         result += " " + asset(report.earn_base, symbol.baseAsset(), true);
-    if (report.earn_quote != 0)
+    if (report.earn_quote != 0LL)
         result += " " + asset(report.earn_quote, symbol.quoteAsset(), true);
     return result;
 }
 
 Formatter Formatter::report(const Report& report, const Symbol& symbol) {
-    return util::format("Report:\n\tSuccess: %0.0f%% (%d of %d positions)\n\tProfit: %f (APY: %.1f%%)\n\tEarn %s: %f\n\tEarn %s: %f\n\tVolume %s: %f\n\tVolume %s: %f\n\tUse %s: %f\n\tUse %s: %f",
+    return util::format("Report:\n\tSuccess: %0.0f%% (%d of %d positions)\n\tProfit: %s (APY: %.1f%%)\n\tEarn %s: %s\n\tEarn %s: %s\n\tVolume %s: %s\n\tVolume %s: %s\n\tUse %s: %s\n\tUse %s: %s",
                  (double)report.success / (double)report.positions * 100.0, report.success, report.positions,
-                 report.profit, report.apy() * 100.0,
-                 symbol.baseAsset().c_str(), report.earn_base,
-                 symbol.quoteAsset().c_str(), report.earn_quote,
-                 symbol.baseAsset().c_str(), report.volume_base,
-                 symbol.quoteAsset().c_str(), report.volume_quote,
-                 symbol.baseAsset().c_str(), report.use_base,
-                 symbol.quoteAsset().c_str(), report.use_quote);
+                 report.profit.c_str(), report.apy() * 100.0,
+                 symbol.baseAsset().c_str(), report.earn_base.c_str(),
+                 symbol.quoteAsset().c_str(), report.earn_quote.c_str(),
+                 symbol.baseAsset().c_str(), report.volume_base.c_str(),
+                 symbol.quoteAsset().c_str(), report.volume_quote.c_str(),
+                 symbol.baseAsset().c_str(), report.use_base.c_str(),
+                 symbol.quoteAsset().c_str(), report.use_quote.c_str());
 }
 
 std::string Formatter::asset(Quantity quantity, const Asset& asset/* = Asset::Empty*/, bool change/* = false*/) {
     std::string result;
     if (change) result.append(sImportantBegin);
-    if (change && quantity > 0) result.append("+");
+    if (change && quantity > 0LL) result.append("+");
     result.append(quantity.c_str());
     if (change) result.append(sImportantEnd);
     if (not asset.id().empty()) result.append(util::format(" %s", asset.c_str()));

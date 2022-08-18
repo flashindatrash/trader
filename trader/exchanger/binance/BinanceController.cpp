@@ -550,7 +550,7 @@ const OrderWrapper* BinanceController::createOrder(BookWrapper& container, Order
     }
 
     // round quantity to step size and min lot
-    request.quantity = roundQuantity(request.quantity, request.symbol, std::round);
+    request.quantity = roundQuantity(request.quantity, request.symbol);
 
     // check is enough to create order
     const Asset& asset = OrderUtil::usedAsset(request.side, request.symbol);
@@ -637,8 +637,8 @@ Decimal BinanceController::minQuantity(const std::string& symbol) const {
     // Price price_avg = wrapper->getPriceAverage(min_notional.avgPriceMins * Timer::sMinute);
     Price price_avg = wrapper->get();
     Decimal quantity = std::max(lot_size.minQty, min_notional.minNotional / price_avg) *  1.3;
-    if (info.lotSize.stepSize > 0)
-        quantity = Decimal((int64_t)std::round((int64_t)quantity / (int64_t)info.lotSize.stepSize)) * info.lotSize.stepSize;
+    if (info.lotSize.stepSize > 0LL)
+        quantity = ((Decimal::IntType)quantity / (Decimal::IntType)info.lotSize.stepSize) * (Decimal::IntType)info.lotSize.stepSize;
     return quantity;
 }
 
@@ -657,15 +657,15 @@ bool BinanceController::updateStaking(StakingWrapper& container) const {
     return true;
 }
 
-Decimal BinanceController::roundQuantity(Decimal quantity, const std::string& symbol, double(*fn)(double)) const {
+Decimal BinanceController::roundQuantity(Decimal quantity, const std::string& symbol) const {
     auto it = _exchange_info.symbols.find(symbol);
     if (it == _exchange_info.symbols.end())
         return {};
 
     const BinanceSymbolData& info = it->second;
 
-    if (info.lotSize.stepSize > 0)
-        quantity = fn(quantity / info.lotSize.stepSize) * (int64_t)info.lotSize.stepSize;
+    if (info.lotSize.stepSize > 0LL)
+        quantity = ((Decimal::IntType)quantity / (Decimal::IntType)info.lotSize.stepSize) * (Decimal::IntType)info.lotSize.stepSize;
 
     return std::max(quantity, minQuantity(symbol));
 }
@@ -674,7 +674,7 @@ double BinanceController::fee() const {
     double commission = _commission;
 
     // Using BNB to pay for fees ( 25% discount )
-    if (_balances_connector != nullptr && _balances_connector->get("BNB")->get() > 0)
+    if (_balances_connector != nullptr && _balances_connector->get("BNB")->get() > 0LL)
         commission -= commission * 0.25;
 
     return commission / 100.0;

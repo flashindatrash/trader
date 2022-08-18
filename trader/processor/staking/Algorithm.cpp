@@ -11,6 +11,7 @@
 #include "exchanger/base/OrderCreator.hpp"
 #include "exchanger/wrapper/StakingWrapper.hpp"
 #include "exchanger/wrapper/BalanceWrapper.hpp"
+#include "exchanger/wrapper/OrderWrapper.hpp"
 
 using namespace staking;
 
@@ -25,8 +26,8 @@ Algorithm::Algorithm(const Settings& settings)
 }
 
 Algorithm::~Algorithm() {
-    for (Position* position : _positions)
-        delete position;
+    for (const auto& it : _positions)
+        delete it.second;
 
     _positions.clear();
 }
@@ -35,23 +36,14 @@ bool Algorithm::init() {
     return true;
 }
 
-bool Algorithm::tryClose() {
-    for (Position* position : _positions) {
-        // invalid side
-        if (position->side() != Buy)
-            continue;
-
-        Decimal quantity = position->baseQuantity();
-    }
-
-    return false;
-}
-
-bool Algorithm::tryStake() {
+bool Algorithm::execute() {
     StakingRequest request;
 
     // find suitable staking project
     if (StakingWrapper* staking = findStaking(request.mask(StakingRequest::RedeemSavings))) {
+        if (tryClose(staking->asset()))
+            return true;
+
         request.projectId = staking->id();
         request.amount = staking->asset().balance();
 
@@ -73,10 +65,56 @@ bool Algorithm::tryStake() {
     return false;
 }
 
+bool Algorithm::tryClose(const Asset& asset) {
+    Position& position = findPosition(asset);
+    if (not position.has() || position.side() != Buy)
+        return false;
+
+    const Decimal current = position.symbol().price(position.revert());
+    const Decimal profit = position.profit(current);
+    if (profit < 0LL)
+        return false;
+
+    Decimal quantity = position.baseQuantity();
+    Decimal balance = asset.balance() + Asset("LD" + asset.id()).balance();
+
+    // создадим реквест
+    OrderRequest request;
+    request.symbol = position.symbol();
+    request.side = position.revert();
+    request.quantity = std::min(quantity, balance);
+
+    // создадим заказ
+    Position close;
+    if (not OrderCreator::create(request, close, _settings.isRelease()))
+        return false;
+
+    position.merge(close);
+    if (position.baseQuantity() > 0LL)
+        position.save(_settings.isRelease());
+    else
+        position.remove(_settings.isRelease());
+
+    Logger::info(util::format("Sell %s %s for %s", position.baseQuantity().c_str(), position.symbol().baseAsset().c_str(), position.price().c_str()));
+    return true;
+}
+
+Position& Algorithm::findPosition(const Asset& asset) {
+    static const Asset quote = Asset::USDT;
+
+    auto it = _positions.find(asset);
+    if (it == _positions.end()) {
+        Position* position = Position::create(_settings.username(), Symbol(asset, quote));
+        _positions.insert(std::make_pair(asset, position));
+        return *position;
+    } else
+        return *it->second;
+}
+
 StakingWrapper* Algorithm::findStaking(bool use_flexible_balance) const {
     // loop over balances (spot + flexible staking)
     for (auto& pair : Exchanger().balances()) {
-        if (pair.second->get() <= 0)
+        if (pair.second->get() <= 0LL)
             continue;
 
         std::string ticker = pair.first;

@@ -3,7 +3,6 @@
 #include "core/Proxy.hpp"
 #include "exchanger/base/Storage.hpp"
 #include "exchanger/base/Decimal.hpp"
-#include <cmath>
 
 namespace core {
     class Config;
@@ -40,7 +39,7 @@ public: // methods
     const OrderWrapper* createOrder(OrderRequest& request);
     bool stake(StakingRequest& request);
 
-    Decimal roundQuantity(Decimal quantity, const std::string& key, double(*fn)(double) = std::round) const;
+    Decimal roundQuantity(Decimal quantity, const std::string& key) const;
     double fee() const;
 
 protected: // methods

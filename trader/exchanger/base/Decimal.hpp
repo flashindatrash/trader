@@ -8,11 +8,12 @@
 
 class Decimal {
 private:
+    static const size_t default_size;
+
+public:
     typedef int64_t IntType;
     typedef std::string StrType;
     typedef double FloatType;
-
-    static const size_t default_size;
 
 public:
     static IntType deserialize(const StrType& value, size_t size = default_size);
@@ -44,12 +45,12 @@ public:
     bool operator <(const Decimal& rhs) const;
     bool operator >(const Decimal& rhs) const;
 
-    bool operator ==(int rhs) const;
-    bool operator !=(int rhs) const;
-    bool operator <(int rhs) const;
-    bool operator >(int rhs) const;
-    bool operator <=(int rhs) const;
-    bool operator >=(int rhs) const;
+    bool operator ==(IntType rhs) const;
+    bool operator !=(IntType rhs) const;
+    bool operator <(IntType rhs) const;
+    bool operator >(IntType rhs) const;
+    bool operator <=(IntType rhs) const;
+    bool operator >=(IntType rhs) const;
 
 private:
     IntType _value = 0;
