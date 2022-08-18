@@ -93,15 +93,12 @@ bool Algorithm::close() {
     Quantity profit_base = _position->profit(price) / price * _settings.profitRatio();
 
     Quantity additional;
-    double (*round)(double) = std::round;
     if (_position->side() == Buy) {
         // если это лонг, то продаем чуть меньше с округлением вверх
         additional = Decimal(0) - profit_base;
-        round = std::ceil;
     } else if (_position->side() == Sell) {
         // если это шорт, то покупаем чуть больше с округлением вниз
         additional = profit_base;
-        round = std::floor;
     }
 
     // создадим реквест
