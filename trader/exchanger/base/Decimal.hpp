@@ -45,12 +45,12 @@ public:
     bool operator <(const Decimal& rhs) const;
     bool operator >(const Decimal& rhs) const;
 
-    bool operator ==(IntType rhs) const;
-    bool operator !=(IntType rhs) const;
-    bool operator <(IntType rhs) const;
-    bool operator >(IntType rhs) const;
-    bool operator <=(IntType rhs) const;
-    bool operator >=(IntType rhs) const;
+    bool operator ==(const IntType& rhs) const;
+    bool operator !=(const IntType& rhs) const;
+    bool operator <(const IntType& rhs) const;
+    bool operator >(const IntType& rhs) const;
+    bool operator <=(const IntType& rhs) const;
+    bool operator >=(const IntType& rhs) const;
 
 private:
     IntType _value = 0;

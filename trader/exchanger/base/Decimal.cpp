@@ -140,26 +140,26 @@ bool Decimal::operator >(const Decimal& rhs) const {
     return (IntType)(*this) > (IntType)rhs;
 }
 
-bool Decimal::operator ==(IntType rhs) const {
+bool Decimal::operator ==(const IntType& rhs) const {
     return *this == Decimal(rhs);
 }
 
-bool Decimal::operator !=(IntType rhs) const {
+bool Decimal::operator !=(const IntType& rhs) const {
     return *this != Decimal(rhs);
 }
 
-bool Decimal::operator <(IntType rhs) const {
+bool Decimal::operator <(const IntType& rhs) const {
     return *this < Decimal(rhs);
 }
 
-bool Decimal::operator >(IntType rhs) const {
+bool Decimal::operator >(const IntType& rhs) const {
     return *this > Decimal(rhs);
 }
 
-bool Decimal::operator <=(IntType rhs) const {
+bool Decimal::operator <=(const IntType& rhs) const {
     return *this < Decimal(rhs);
 }
 
-bool Decimal::operator >=(IntType rhs) const {
+bool Decimal::operator >=(const IntType& rhs) const {
     return *this > Decimal(rhs);
 }
