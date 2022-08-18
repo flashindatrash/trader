@@ -16,6 +16,8 @@ public:
     typedef double FloatType;
 
 public:
+    static const Decimal Zero;
+
     static IntType deserialize(const StrType& value, size_t size = default_size);
     static StrType serialize(const IntType& value, size_t size = default_size);
 
@@ -44,13 +46,8 @@ public:
     bool operator !=(const Decimal& rhs) const;
     bool operator <(const Decimal& rhs) const;
     bool operator >(const Decimal& rhs) const;
-
-    bool operator ==(const IntType& rhs) const;
-    bool operator !=(const IntType& rhs) const;
-    bool operator <(const IntType& rhs) const;
-    bool operator >(const IntType& rhs) const;
-    bool operator <=(const IntType& rhs) const;
-    bool operator >=(const IntType& rhs) const;
+    bool operator <=(const Decimal& rhs) const;
+    bool operator >=(const Decimal& rhs) const;
 
 private:
     IntType _value = 0;

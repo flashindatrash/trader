@@ -72,7 +72,7 @@ bool Algorithm::tryClose(const Asset& asset) {
 
     const Decimal current = position.symbol().price(position.revert());
     const Decimal profit = position.profit(current);
-    if (profit < 0LL) {
+    if (profit < Decimal::Zero) {
         Logger::info(util::format("Position %s with loss %s %s", asset.c_str(), profit.c_str(), position.symbol().quoteAsset().c_str()));
         return false;
     }
@@ -92,7 +92,7 @@ bool Algorithm::tryClose(const Asset& asset) {
         return false;
 
     position.merge(close);
-    if (position.baseQuantity() > 0LL)
+    if (position.baseQuantity() > Decimal::Zero)
         position.save(_settings.isRelease());
     else
         position.remove(_settings.isRelease());
@@ -116,7 +116,7 @@ Position& Algorithm::findPosition(const Asset& asset) {
 StakingWrapper* Algorithm::findStaking(bool use_flexible_balance) const {
     // loop over balances (spot + flexible staking)
     for (auto& pair : Exchanger().balances()) {
-        if (pair.second->get() <= 0LL)
+        if (pair.second->get() <= Decimal::Zero)
             continue;
 
         std::string ticker = pair.first;

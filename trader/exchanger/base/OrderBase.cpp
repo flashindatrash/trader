@@ -70,7 +70,7 @@ Quantity OrderUtil::usedQuantity(OrderSide side, Quantity first, Quantity second
 }
 
 Price OrderUtil::price(Quantity baseQuantity, Quantity quoteQuantity) {
-    if (baseQuantity == 0LL)
+    if (baseQuantity == Decimal::Zero)
         return 0;
     return quoteQuantity / baseQuantity;
 }

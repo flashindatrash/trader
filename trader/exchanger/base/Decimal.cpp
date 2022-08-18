@@ -8,6 +8,7 @@
 #include <unordered_map>
 
 const size_t Decimal::default_size = 8;
+const Decimal Decimal::Zero;
 
 Decimal::IntType Decimal::deserialize(const StrType& value, size_t size) {
     IntType result = 0;
@@ -140,26 +141,10 @@ bool Decimal::operator >(const Decimal& rhs) const {
     return (IntType)(*this) > (IntType)rhs;
 }
 
-bool Decimal::operator ==(const IntType& rhs) const {
-    return *this == Decimal(rhs);
+bool Decimal::operator <=(const Decimal& rhs) const {
+    return (IntType)(*this) <= (IntType)rhs;
 }
 
-bool Decimal::operator !=(const IntType& rhs) const {
-    return *this != Decimal(rhs);
-}
-
-bool Decimal::operator <(const IntType& rhs) const {
-    return *this < Decimal(rhs);
-}
-
-bool Decimal::operator >(const IntType& rhs) const {
-    return *this > Decimal(rhs);
-}
-
-bool Decimal::operator <=(const IntType& rhs) const {
-    return *this < Decimal(rhs);
-}
-
-bool Decimal::operator >=(const IntType& rhs) const {
-    return *this > Decimal(rhs);
+bool Decimal::operator >=(const Decimal& rhs) const {
+    return (IntType)(*this) >= (IntType)rhs;
 }

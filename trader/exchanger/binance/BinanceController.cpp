@@ -637,7 +637,7 @@ Decimal BinanceController::minQuantity(const std::string& symbol) const {
     // Price price_avg = wrapper->getPriceAverage(min_notional.avgPriceMins * Timer::sMinute);
     Price price_avg = wrapper->get();
     Decimal quantity = std::max(lot_size.minQty, min_notional.minNotional / price_avg) *  1.3;
-    if (info.lotSize.stepSize > 0LL)
+    if (info.lotSize.stepSize > Decimal::Zero)
         quantity = ((Decimal::IntType)quantity / (Decimal::IntType)info.lotSize.stepSize) * (Decimal::IntType)info.lotSize.stepSize;
     return quantity;
 }
@@ -664,7 +664,7 @@ Decimal BinanceController::roundQuantity(Decimal quantity, const std::string& sy
 
     const BinanceSymbolData& info = it->second;
 
-    if (info.lotSize.stepSize > 0LL)
+    if (info.lotSize.stepSize > Decimal::Zero)
         quantity = ((Decimal::IntType)quantity / (Decimal::IntType)info.lotSize.stepSize) * (Decimal::IntType)info.lotSize.stepSize;
 
     return std::max(quantity, minQuantity(symbol));
@@ -674,7 +674,7 @@ double BinanceController::fee() const {
     double commission = _commission;
 
     // Using BNB to pay for fees ( 25% discount )
-    if (_balances_connector != nullptr && _balances_connector->get("BNB")->get() > 0LL)
+    if (_balances_connector != nullptr && _balances_connector->get("BNB")->get() > Decimal::Zero)
         commission -= commission * 0.25;
 
     return commission / 100.0;

@@ -73,12 +73,12 @@ bool Algorithm::tryOpen() {
 
     // цена для открытии позиции должна быть известна
     const Price price = symbol.price(Buy);
-    if (price == 0LL)
+    if (price == Decimal::Zero)
         return false;
 
     // если уже имеем эту монету, просто создаем позицию
     const Quantity& balance = symbol.baseAsset().balance();
-    if (balance > 0LL) {
+    if (balance > Decimal::Zero) {
         _position->setSide(Buy);
         _position->setBaseQuantity(balance);
         _position->setQuoteQuantity(balance * price);
@@ -124,12 +124,12 @@ bool Algorithm::tryClose() {
 
     // тикер должен существовать
     Price price = ticker.bestBidPrice;
-    if (price == 0LL)
+    if (price == Decimal::Zero)
         return false;
 
     // проверим, что мы в профите
     Quantity profit = _position->profit(price);
-    if (profit < 0LL)
+    if (profit < Decimal::Zero)
         return false;
 
     // TODO: проверить что цена выше минимальной

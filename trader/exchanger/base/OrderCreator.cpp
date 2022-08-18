@@ -24,7 +24,7 @@ bool OrderCreator::create(OrderRequest& request, Position& result, bool release)
 
         // price is custom and known
         Decimal price = result.quoteQuantity();
-        if (price == 0LL)
+        if (price == Decimal::Zero)
             price = request.symbol.price(request.side);
 
         result.setSymbol(request.symbol);

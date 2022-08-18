@@ -24,7 +24,7 @@ OrderSide MACD::trend() const {
     if (empty())
         return Invalid;
 
-    return _signal.last() > 0LL ? Buy : _signal.last() < 0LL ? Sell : Invalid;
+    return _signal.last() > Decimal::Zero ? Buy : _signal.last() < Decimal::Zero ? Sell : Invalid;
 }
 
 OrderSide MACD::signal() const {
@@ -35,7 +35,7 @@ bool MACD::crossed() const {
     if (_signal.size() < 2)
         return false;
 
-    return (_signal.prev() <= 0LL && _signal.last() >= 0LL) || (_signal.prev() >= 0LL && _signal.last() <= 0LL);
+    return (_signal.prev() <= Decimal::Zero && _signal.last() >= Decimal::Zero) || (_signal.prev() >= Decimal::Zero && _signal.last() <= Decimal::Zero);
 }
 
 bool MACD::empty() const {

@@ -44,9 +44,9 @@ Formatter Formatter::order(const OrderBase& order) {
 
 Formatter Formatter::profit(const Report& report, const Symbol& symbol) {
     std::string result = "profit";
-    if (report.earn_base != 0LL)
+    if (report.earn_base != Decimal::Zero)
         result += " " + asset(report.earn_base, symbol.baseAsset(), true);
-    if (report.earn_quote != 0LL)
+    if (report.earn_quote != Decimal::Zero)
         result += " " + asset(report.earn_quote, symbol.quoteAsset(), true);
     return result;
 }
@@ -66,7 +66,7 @@ Formatter Formatter::report(const Report& report, const Symbol& symbol) {
 std::string Formatter::asset(Quantity quantity, const Asset& asset/* = Asset::Empty*/, bool change/* = false*/) {
     std::string result;
     if (change) result.append(sImportantBegin);
-    if (change && quantity > 0LL) result.append("+");
+    if (change && quantity > Decimal::Zero) result.append("+");
     result.append(quantity.c_str());
     if (change) result.append(sImportantEnd);
     if (not asset.id().empty()) result.append(util::format(" %s", asset.c_str()));
