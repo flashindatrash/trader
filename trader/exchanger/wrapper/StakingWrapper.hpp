@@ -45,7 +45,8 @@ public: // methods
     const double& apy() const;
     const uint16_t& duration() const;
     const Decimal& minimum() const;
-    const Decimal& quota();
+    Decimal staked();
+    const Decimal& left();
 
     void updateQuota(Decimal quota);
 
@@ -53,7 +54,7 @@ protected: // vars
     StakingProduct _product = Unknown;
     StakingDetail _detail;
     StakingQuota _quota;
-    bool _personal_quota_actualized = false;
+    Decimal _left;
 };
 
 

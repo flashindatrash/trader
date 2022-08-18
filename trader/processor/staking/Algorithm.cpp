@@ -52,7 +52,7 @@ bool Algorithm::execute() {
             request.amount += Asset("LD" + staking->asset().id()).balance();
 
         // not more than quota
-        request.amount = std::min(request.amount, staking->quota());
+        request.amount = std::min(request.amount, staking->left());
 
         if (Exchanger().stake(request)) {
             Logger::info(util::format("%sStaked %s %s with %d%% APY on %d days%s", GREEN, request.amount.c_str(), staking->asset().c_str(), int(staking->apy() * 100), staking->duration(), RESET));
@@ -70,27 +70,34 @@ bool Algorithm::tryClose(const Asset& asset) {
     if (not position.has() || position.side() != Buy)
         return false;
 
-    const Decimal current = position.symbol().price(position.revert());
-    const Decimal profit = position.profit(current);
-    if (profit < Decimal::Zero) {
-        Logger::info(util::format("Position %s with loss %s %s", asset.c_str(), profit.c_str(), position.symbol().quoteAsset().c_str()));
+    const Decimal balance = asset.balance() + Asset("LD" + asset.id()).balance();
+    const Decimal price = position.symbol().price(position.revert());
+
+    const Decimal position_quantity = position.baseQuantity();
+    const Decimal position_profit = position.profit(price);
+    if (position_profit < Decimal::Zero) {
+        Decimal total = balance;
+        std::vector<StakingWrapper*> stakings = findStaking(asset);
+        for (StakingWrapper* staking : stakings)
+            total += staking->staked();
+
+        Decimal stake_profit = asset.convert(total - position_quantity);
+        Logger::info(util::format("%s position loss %s stake profit %s", asset.c_str(), position_profit.c_str(), stake_profit.c_str()));
         return false;
     }
 
-    Decimal quantity = position.baseQuantity();
-    Decimal balance = asset.balance() + Asset("LD" + asset.id()).balance();
-
-    // создадим реквест
+    // create request
     OrderRequest request;
     request.symbol = position.symbol();
     request.side = position.revert();
-    request.quantity = std::min(quantity, balance);
+    request.quantity = std::min(position_quantity, balance);
 
-    // создадим заказ
+    // create order
     Position close;
     if (not OrderCreator::create(request, close, _settings.isRelease()))
         return false;
 
+    // merge and save
     position.merge(close);
     if (position.baseQuantity() > Decimal::Zero)
         position.save(_settings.isRelease());
@@ -150,7 +157,7 @@ StakingWrapper* Algorithm::findStaking(bool use_flexible_balance) const {
                 continue;
 
             // check enough for quota
-            if (staking->quota() < staking->minimum())
+            if (staking->left() < staking->minimum())
                 continue;
 
             return staking;

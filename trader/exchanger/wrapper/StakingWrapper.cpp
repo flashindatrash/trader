@@ -16,8 +16,8 @@ void StakingWrapper::set(StakingProduct product, StakingDetail detail, StakingQu
     _detail = std::move(detail);
     _quota = quota;
 
-    // after updating project we need actualize quota
-    _personal_quota_actualized = false;
+    // after setting project we need actualize quota
+    _left = -1;
 }
 
 const StakingProduct& StakingWrapper::product() const {
@@ -40,17 +40,21 @@ const Decimal& StakingWrapper::minimum() const {
     return _quota.minimum;
 }
 
-const Decimal& StakingWrapper::quota() {
-    static const Decimal zero;
-    if (not _personal_quota_actualized) {
-        if (not Exchanger().updateStaking(id()))
-            return zero;
-        _personal_quota_actualized = true;
-    }
+Decimal StakingWrapper::staked() {
+    const Decimal& quota = left();
+    if (quota < Decimal::Zero)
+        return Decimal::Zero;
 
-    return _quota.personal;
+    return _quota.personal - quota;
+}
+
+const Decimal& StakingWrapper::left() {
+    if (_left < Decimal::Zero)
+        Exchanger().updateStaking(id());
+
+    return _left;
 }
 
 void StakingWrapper::updateQuota(Decimal quota) {
-    _quota.personal = quota;
+    _left = quota;
 }

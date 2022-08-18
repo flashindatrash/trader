@@ -28,7 +28,7 @@ bool Staking::init(const Settings& settings) {
 }
 
 bool Staking::isRunning() const {
-    return true;
+    return _algorithm != nullptr;
 }
 
 void Staking::tick(time_t ms) {

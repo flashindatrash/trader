@@ -613,7 +613,7 @@ bool BinanceController::stake(StakingWrapper& container, StakingRequest& request
     }
 
     // update personal quota
-    container.updateQuota(container.quota() - request.amount);
+    container.updateQuota(container.left() - request.amount);
     return true;
 }
 
