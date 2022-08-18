@@ -72,8 +72,10 @@ bool Algorithm::tryClose(const Asset& asset) {
 
     const Decimal current = position.symbol().price(position.revert());
     const Decimal profit = position.profit(current);
-    if (profit < 0LL)
+    if (profit < 0LL) {
+        Logger::info(util::format("Position %s with loss %s %s", asset.c_str(), profit.c_str(), position.symbol().quoteAsset().c_str()));
         return false;
+    }
 
     Decimal quantity = position.baseQuantity();
     Decimal balance = asset.balance() + Asset("LD" + asset.id()).balance();
