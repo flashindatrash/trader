@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Identifier.hpp"
 #include "Asset.hpp"
 #include "core/Signal.hpp"
 
@@ -17,15 +16,16 @@ public: // methods
     Symbol(const Asset& base, const Asset& second);
 
     void set(const Asset& base, const Asset& second);
-    const Asset& baseAsset() const;
-    const Asset& quoteAsset() const;
+    [[nodiscard]] const Asset& baseAsset() const;
+    [[nodiscard]] const Asset& quoteAsset() const;
 
-    const Price& price(const OrderSide& side) const;
-    Quantity balance(const Asset& asset = Asset::USDT) const;
+    [[nodiscard]] const Price& price(const OrderSide& side) const;
+    [[nodiscard]] Quantity balance(const Asset& asset = Asset::USDT) const;
 
-    bool exists() const;
+    [[nodiscard]] bool exists() const;
 
-    const char* c_str() const;
+    [[nodiscard]] const char* c_str() const;
+
     operator std::string() const;
 
 protected: // vars

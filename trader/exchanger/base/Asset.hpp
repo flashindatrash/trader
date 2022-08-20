@@ -15,20 +15,21 @@ public: // methods
     Asset(const std::string& asset);
 
     // balance
-    const Quantity& balance() const;
+    [[nodiscard]] const Quantity& balance() const;
 
     // balance in asset
-    Quantity balance(const Asset& asset) const;
+    [[nodiscard]] Quantity balance(const Asset& asset) const;
 
     // price in asset
-    Quantity convert(Quantity quantity, const Asset& asset = Asset::USDT) const;
+    [[nodiscard]] Quantity convert(Quantity quantity, const Asset& asset = Asset::USDT) const;
 
-    bool isUSD() const;
+    [[nodiscard]] bool isUSD() const;
 
-    Asset origin() const;
-    Asset ld() const;
+    [[nodiscard]] Asset origin() const;
+    [[nodiscard]] Asset ld() const;
 
-    const char* c_str() const;
+    [[nodiscard]] const char* c_str() const;
+
     operator std::string() const;
 
     std::string operator+(const Asset& quote) const;

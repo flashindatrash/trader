@@ -8,8 +8,8 @@ ENDIF()
 
 # override compiler flags
 set(PROJ_WARNINGS "-Wno-write-strings -Wsign-compare -Wreturn-type -Wno-deprecated-declarations -Wno-deprecated-increment-bool")
-set(CMAKE_CXX_FLAGS_DEBUG "-O0 -DDEBUG -std=c++11 -g ${PROJ_WARNINGS}")
-set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG -std=c++11 ${PROJ_WARNINGS}")
+set(CMAKE_CXX_FLAGS_DEBUG "-O0 -DDEBUG -std=c++17 -g ${PROJ_WARNINGS}")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG -std=c++17 ${PROJ_WARNINGS}")
 
 find_package(OpenSSL REQUIRED)
 if(OPENSSL_FOUND)
