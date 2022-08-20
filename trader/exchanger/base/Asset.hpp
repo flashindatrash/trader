@@ -8,6 +8,7 @@ public: // static
     static const Asset Empty;
     static const Asset USDT;
     static const Asset BUSD;
+    static const Asset LD;
 
 public: // methods
     Asset() = default;
@@ -23,6 +24,9 @@ public: // methods
     Quantity convert(Quantity quantity, const Asset& asset = Asset::USDT) const;
 
     bool isUSD() const;
+
+    Asset origin() const;
+    Asset ld() const;
 
     const char* c_str() const;
     operator std::string() const;

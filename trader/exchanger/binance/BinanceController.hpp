@@ -62,7 +62,6 @@ protected: // methods
     void print(const std::string& context, const std::string& msg) const;
 
 protected: // savings
-    bool loadSavings(Storage::Type_balance& container) const;
     bool redeemSavings(const std::string& asset, Decimal quantity) const;
 
 protected: // callbacks

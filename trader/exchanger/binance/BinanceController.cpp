@@ -236,35 +236,11 @@ bool BinanceController::loadBalances(Storage::Type_balance& container) const {
     return true;
 }
 
-bool BinanceController::loadSavings(Storage::Type_balance& container) const {
-    if (not checkRateLimits())
-        return false;
-
-    Json::Value json;
-    BinaCPP::get_savings(_config_recv_window, json);
-
-    if (checkError(json, __func__))
-        return false;
-
-    const Json::Value& balances = json["positionAmountVos"];
-    if (not balances.isArray()) {
-        print(__func__, util::format("invalid json %s", json.toStyledString().c_str()));
-        return false;
-    }
-
-    for (const auto & balance : balances) {
-        BinanceBalanceData data(balance, "asset", "amount");
-        container.get("LD" + data.asset)->set(data.free, data.locked);
-    }
-
-    return true;
-}
-
 bool BinanceController::redeemSavings(const std::string& asset, Decimal quantity) const {
     if (not checkRateLimits())
         return false;
 
-    if (_balances_connector != nullptr && _balances_connector->get("LD" + asset)->get() < quantity)
+    if (Asset(asset).ld().balance() < quantity)
         return false;
 
     Json::Value json;
@@ -372,7 +348,8 @@ void BinanceController::connectPrices(Storage::Type_price& container) {
 
 void BinanceController::connectBalances(Storage::Type_balance& container) {
     loadBalances(container);
-    loadSavings(container);
+    // savings already loaded in api/v3/account
+    // loadSavings(container);
     _balances_connector = &container;
 }
 

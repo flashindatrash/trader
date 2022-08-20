@@ -7,6 +7,7 @@
 const Asset Asset::Empty = Asset("");
 const Asset Asset::USDT = Asset("USDT");
 const Asset Asset::BUSD = Asset("BUSD");
+const Asset Asset::LD = Asset("LD");
 
 Asset::Asset(const std::string& asset) {
     setId(util::uppercase(asset.c_str()));
@@ -35,7 +36,7 @@ Quantity Asset::balance(const Asset& asset) const {
 }
 
 Quantity Asset::convert(Quantity quantity, const Asset& asset/* = Asset::USDT*/) const {
-    if (id() == asset.id() || (isUSD() && asset.isUSD()))
+    if (quantity == Decimal::Zero || id() == asset.id() || (isUSD() && asset.isUSD()))
         return quantity;
 
     if (const PriceWrapper* price = Exchanger().price(id() + asset.id()))
@@ -50,4 +51,25 @@ bool Asset::isUSD() const {
 
 std::string Asset::operator+(const Asset& quote) const {
     return id() + quote.id();
+}
+
+Asset Asset::origin() const {
+    if (id().rfind(LD.id(), 0) == 0)
+        return id().substr(LD.id().size());
+
+    return *this;
+}
+
+Asset Asset::ld() const {
+    const std::string& ticker = LD.id() + id();
+
+    if (const BalanceWrapper* wrapper = Exchanger().balance(ticker))
+        return ticker;
+
+    for (auto& balance : Exchanger().balances()) {
+        if (balance.first.rfind(ticker, 0) == 0)
+            return balance.first;
+    }
+
+    return Empty;
 }

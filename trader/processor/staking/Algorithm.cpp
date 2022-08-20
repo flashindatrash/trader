@@ -49,7 +49,7 @@ bool Algorithm::execute() {
 
         // add flexible balance
         if (request.mask(StakingRequest::RedeemSavings))
-            request.amount += Asset("LD" + staking->asset().id()).balance();
+            request.amount += staking->asset().ld().balance();
 
         // not more than quota
         request.amount = std::min(request.amount, staking->left());
@@ -70,7 +70,7 @@ bool Algorithm::tryClose(const Asset& asset) {
     if (not position.has() || position.side() != Buy)
         return false;
 
-    const Decimal balance = asset.balance() + Asset("LD" + asset.id()).balance();
+    const Decimal balance = asset.balance() + asset.ld().balance();
     const Decimal price = position.symbol().price(position.revert());
 
     const Decimal position_quantity = position.baseQuantity();
@@ -126,16 +126,7 @@ StakingWrapper* Algorithm::findStaking(bool use_flexible_balance) const {
         if (pair.second->get() <= Decimal::Zero)
             continue;
 
-        std::string ticker = pair.first;
-        if (ticker.rfind("LD", 0) == 0) {
-            ticker = ticker.substr(2);
-            if (Exchanger().balance(ticker) == nullptr) {
-                Logger::info(util::format("Unknown asset %s (flexible %s)", ticker.c_str(), pair.first.c_str()));
-                continue;
-            }
-        }
-
-        Asset asset(ticker);
+        Asset asset = Asset(pair.first).origin();
 
         // skip bnb and usdt
         if (asset.id() == "BNB" || asset.id() == "USDT")
@@ -149,7 +140,7 @@ StakingWrapper* Algorithm::findStaking(bool use_flexible_balance) const {
 
         Quantity quantity = asset.balance();
         if (use_flexible_balance)
-            quantity += Asset("LD" + ticker).balance();
+            quantity += asset.ld().balance();
 
         for (StakingWrapper* staking : stakings) {
             // check enough for minimum

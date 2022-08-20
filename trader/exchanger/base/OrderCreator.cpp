@@ -16,7 +16,7 @@ bool OrderCreator::create(OrderRequest& request, Position& result, bool release)
         if (request.mask(WalletRequest::CheckBalance)) {
             Decimal balance = asset.balance();
             if (request.mask(WalletRequest::RedeemSavings))
-                balance += Asset("LD" + asset.id()).balance();
+                balance += asset.ld().balance();
 
             if (balance < request.required())
                 return false;
