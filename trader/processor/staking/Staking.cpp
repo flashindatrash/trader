@@ -24,11 +24,6 @@ bool Staking::init(const Settings& settings) {
         return false;
 
     Time().onTick.connect(std::bind(&Staking::tick, this, std::placeholders::_1));
-
-    auto t1 = Asset("BTC").ld().id();
-    auto t2 = Asset("BAKE").ld().id();
-    auto t3 = Asset("ANKR").ld().id();
-
     return true;
 }
 
