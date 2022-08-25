@@ -424,10 +424,11 @@ bool BinanceController::keepUserDataStream() {
         return false;
 
     BinanceWebsocket* websocket = *it;
-    if (not websocket->isConnected())
-        BinaCPP::keep_userDataStream(websocket->path().c_str());
+    if (not websocket->connect())
+        return false;
 
-    return websocket->isConnected();
+    BinaCPP::keep_userDataStream(websocket->path().c_str());
+    return true;
 }
 
 bool BinanceController::addWebsocket(BinanceWebsocket* websocket) {
