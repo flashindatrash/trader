@@ -24,7 +24,6 @@ public: // methods
     virtual ~Algorithm();
 
     bool init();
-
     bool execute();
 
 protected: // methods
@@ -34,7 +33,7 @@ protected: // methods
 
     Position& findPosition(const Asset& asset);
 
-    StakingWrapper* findStaking(bool use_flexible_balance) const;
+    [[nodiscard]] StakingWrapper* findStaking(bool use_flexible_balance) const;
     static std::vector<StakingWrapper*> findStaking(const Asset& asset);
 
 protected: // vars
