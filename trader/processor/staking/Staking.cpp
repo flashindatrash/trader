@@ -41,7 +41,7 @@ void Staking::tick(time_t ms) {
 
     // stake every 10 minute
     static time_t stakeProject = 0;
-    if (ms > stakeProject + Timer::sMinute * 5) {
+    if (ms > stakeProject + Timer::sMinute * 10) {
         _algorithm->execute();
         stakeProject = ms;
     }
