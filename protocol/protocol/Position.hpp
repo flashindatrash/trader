@@ -9,13 +9,16 @@
 namespace protocol {
 
 class Position : public db::Object {
-private: // static
+protected: // static
     static std::string key(const std::string& username, const std::string& symbol);
+    static std::vector<std::string> keys(const std::string& username);
 
 public: // methods
     Position(const std::string& username, const std::string& symbol);
     Position() = default;
 
+private: // methods
+    Position(const std::string& key);
 };
 
 }

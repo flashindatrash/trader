@@ -11,6 +11,8 @@ class Storage {
 public: // static
     static std::string key(const std::string& username, const std::string& key);
     static std::string key(const std::string& username, const std::string& symbol, const std::string& key);
+
+    static std::string pattern(const std::string& username, const std::string& key);
 };
 }
 

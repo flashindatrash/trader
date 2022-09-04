@@ -33,6 +33,8 @@ Algorithm::~Algorithm() {
 }
 
 bool Algorithm::init() {
+    
+
     return true;
 }
 
@@ -104,7 +106,7 @@ bool Algorithm::tryClose(const Asset& asset) {
     else
         position.remove(_settings.isRelease());
 
-    Logger::info(util::format("Sell %s %s for %s", position.baseQuantity().c_str(), position.symbol().baseAsset().c_str(), position.price().c_str()));
+    Logger::info(util::format("Sell %s %s for %s", close.baseQuantity().c_str(), close.symbol().baseAsset().c_str(), close.price().c_str()));
     return true;
 }
 
@@ -120,7 +122,7 @@ Position& Algorithm::findPosition(const Asset& asset) {
         return *it->second;
 }
 
-StakingWrapper* Algorithm::findStaking(bool use_flexible_balance) const {
+StakingWrapper* Algorithm::findStaking(bool use_flexible_balance) {
     // loop over balances (spot + flexible staking)
     for (auto& pair : Exchanger().balances()) {
         if (pair.second->get() <= Decimal::Zero)

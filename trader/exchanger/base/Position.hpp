@@ -7,6 +7,7 @@ struct OrderRequest;
 
 class Position : public protocol::Position, public OrderBase {
 public: // static
+    static std::vector<Position*> all(const std::string& username);
     static Position* create(const std::string& username, const std::string& symbol);
 
 public: // methods

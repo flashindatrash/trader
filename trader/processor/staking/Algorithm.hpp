@@ -33,7 +33,7 @@ protected: // methods
 
     Position& findPosition(const Asset& asset);
 
-    [[nodiscard]] StakingWrapper* findStaking(bool use_flexible_balance) const;
+    static StakingWrapper* findStaking(bool use_flexible_balance);
     static std::vector<StakingWrapper*> findStaking(const Asset& asset);
 
 protected: // vars

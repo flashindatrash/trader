@@ -9,6 +9,16 @@ static const char* FIELD_QUOTE_QUANTITY = "quote_quantity";
 static const char* FIELD_TIME = "time";
 static const char* FIELD_COUNT = "count";
 
+std::vector<Position*> Position::all(const std::string& username) {
+    std::vector<Position*> result;
+
+    std::vector<std::string> keys = protocol::Position::keys(username);
+    for (const std::string& key : keys) {
+    }
+
+    return result;
+}
+
 Position* Position::create(const std::string& username, const std::string& symbol) {
     auto* position = new Position(username, symbol);
     position->setSymbol(symbol);
