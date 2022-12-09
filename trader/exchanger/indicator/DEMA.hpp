@@ -6,16 +6,17 @@
 
 #include "EMA.hpp"
 
-class DEMA : public BaseIndicator {
+namespace indicator {
+class DEMA : public Base {
 public: // methods
     DEMA() = default;
     DEMA(size_t fast, size_t slow);
 
-    OrderSide trend() const;
-    OrderSide signal() const;
+    [[nodiscard]] OrderSide trend() const;
+    [[nodiscard]] OrderSide signal() const;
 
-    bool crossed() const;
-    bool empty() const;
+    [[nodiscard]] bool crossed() const;
+    [[nodiscard]] bool empty() const;
 
     bool load(ChartWrapper::ConstIterator begin, ChartWrapper::ConstIterator end) override;
 
@@ -26,5 +27,5 @@ protected: // vars
     EMA _fast;
     EMA _slow;
 };
-
+}
 

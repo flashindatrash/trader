@@ -99,7 +99,7 @@ int Script::bind_dema(lua_State *L) {
     size_t fast = lua_tointeger(L, 1);
     size_t slow = lua_tointeger(L, 2);
 
-    DEMA indicator = DEMA(fast, slow);
+    auto indicator = indicator::DEMA(fast, slow);
     Context::current->load(indicator);
 
     lua_pushinteger(L, indicator.trend());

@@ -6,6 +6,8 @@
 
 #include "exchanger/wrapper/CandlestickWrapper.hpp"
 
+using namespace indicator;
+
 EMA::EMA(size_t length)
     : _length(length)
 {

@@ -4,7 +4,7 @@
 
 class CandlestickWrapper;
 class PriceWrapper;
-class BaseIndicator;
+namespace indicator { class Base; }
 
 namespace trader {
 class Context {
@@ -19,7 +19,7 @@ public: // methods
     time_t time() const;
     const Price& price() const;
     const Price& price(const OrderSide& side) const;
-    bool load(BaseIndicator& indicator) const;
+    bool load(indicator::Base& indicator) const;
 
 protected: // vars
     ChartWrapper::ConstIterator _it;

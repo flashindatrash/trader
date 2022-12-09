@@ -6,29 +6,30 @@
 
 #include "BaseIndicator.hpp"
 
-class EMA : public BaseIndicator {
+namespace indicator {
+class EMA : public Base {
 public: // methods
     EMA() = default;
-    EMA(size_t length);
+    explicit EMA(size_t length);
 
-    bool empty() const;
-    size_t size() const;
+    [[nodiscard]] bool empty() const;
+    [[nodiscard]] size_t size() const;
 
-    Price last() const;
-    Price prev() const;
+    [[nodiscard]] Price last() const;
+    [[nodiscard]] Price prev() const;
 
     void add(Price value);
 
-    const Price& at(size_t index) const;
+    [[nodiscard]] const Price& at(size_t index) const;
 
     bool load(ChartWrapper::ConstIterator begin, ChartWrapper::ConstIterator end) override;
 
 protected: // methods
-    double multiplier() const;
+    [[nodiscard]] double multiplier() const;
 
 protected: // vars
     size_t _length = 0;
     std::vector<Price> _data;
 };
-
+}
 

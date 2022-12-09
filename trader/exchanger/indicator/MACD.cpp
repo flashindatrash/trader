@@ -4,6 +4,8 @@
 
 #include "MACD.hpp"
 
+using namespace indicator;
+
 MACD::MACD(size_t fast, size_t slow, size_t signal)
     : _fast(fast)
     , _slow(slow)

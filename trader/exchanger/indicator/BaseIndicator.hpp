@@ -6,9 +6,9 @@
 
 #include "exchanger/wrapper/ChartWrapper.hpp"
 
-class BaseIndicator {
+namespace indicator {
+class Base {
 public:
     virtual bool load(ChartWrapper::ConstIterator begin, ChartWrapper::ConstIterator end) = 0;
 };
-
-
+}

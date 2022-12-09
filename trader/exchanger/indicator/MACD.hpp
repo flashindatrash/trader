@@ -6,16 +6,17 @@
 
 #include "EMA.hpp"
 
-class MACD : public BaseIndicator {
+namespace indicator {
+class MACD : public Base {
 public: // methods
     MACD() = default;
     MACD(size_t fast, size_t slow, size_t signal);
 
-    OrderSide trend() const;
-    OrderSide signal() const;
+    [[nodiscard]] OrderSide trend() const;
+    [[nodiscard]] OrderSide signal() const;
 
-    bool crossed() const;
-    bool empty() const;
+    [[nodiscard]] bool crossed() const;
+    [[nodiscard]] bool empty() const;
 
     bool load(ChartWrapper::ConstIterator begin, ChartWrapper::ConstIterator end) override;
 
@@ -24,5 +25,5 @@ private: // vars
     EMA _slow;
     EMA _signal;
 };
-
+}
 

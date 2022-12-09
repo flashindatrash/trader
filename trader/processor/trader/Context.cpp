@@ -34,7 +34,7 @@ const Price& Context::price(const OrderSide& side) const {
     return _price.get(side);
 }
 
-bool Context::load(BaseIndicator& indicator) const {
+bool Context::load(indicator::Base& indicator) const {
     const ChartWrapper* chart = Exchanger().chart(id());
     if (chart == nullptr)
         return false;

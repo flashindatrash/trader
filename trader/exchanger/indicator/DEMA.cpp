@@ -4,6 +4,8 @@
 
 #include "DEMA.hpp"
 
+using namespace indicator;
+
 DEMA::DEMA(size_t fast, size_t slow)
     : _fast(fast)
     , _slow(slow)
