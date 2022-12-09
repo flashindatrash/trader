@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.7 FATAL_ERROR)
 project(traderbot C CXX)
 
 # set build configuration
@@ -10,6 +10,10 @@ ENDIF()
 set(PROJ_WARNINGS "-Wno-write-strings -Wsign-compare -Wreturn-type -Wno-deprecated-declarations -Wno-deprecated-increment-bool")
 set(CMAKE_CXX_FLAGS_DEBUG "-O0 -DDEBUG -std=c++17 -g ${PROJ_WARNINGS}")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG -std=c++17 ${PROJ_WARNINGS}")
+
+if(APPLE)
+	SET(OPENSSL_ROOT_DIR /usr/local/opt/openssl@1.1)
+endif()
 
 find_package(OpenSSL REQUIRED)
 if(OPENSSL_FOUND)

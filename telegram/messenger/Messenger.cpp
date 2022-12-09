@@ -114,7 +114,7 @@ void Messenger::onAnyMessage(const TgBot::Message::Ptr message) {
 
     if (command == "/stats") {
         protocol::User upd(user->name());
-        sendMessage(message->chat->id, util::format("Profit: +%f USD", upd.profit()), message->messageId);
+        sendMessage(message->chat->id, util::format("Profit: +%s USD", upd.profit().c_str()), message->messageId);
         return;
     }
 

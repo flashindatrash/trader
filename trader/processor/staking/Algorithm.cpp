@@ -33,7 +33,7 @@ Algorithm::~Algorithm() {
 }
 
 bool Algorithm::init() {
-    
+
 
     return true;
 }
@@ -131,7 +131,7 @@ StakingWrapper* Algorithm::findStaking(bool use_flexible_balance) {
         Asset asset = Asset(pair.first).origin();
 
         // skip bnb and usdt
-        if (asset.id() == "BNB" || asset.id() == "USDT")
+        if (asset.id() == "BNB" || asset.isUSD())
             continue;
 
         // find all projects by staking asset
@@ -168,7 +168,7 @@ std::vector<StakingWrapper*> Algorithm::findStaking(const Asset& asset) {
         const StakingProduct& product = staking.second->product();
         const Asset& staking_asset = staking.second->asset();
 
-        if (product == Unknown)
+        if (product == Unknown || product == DeFiFlexible)
             continue;
 
         if ((staking_asset.id() == "ETH" || staking_asset.id() == "BTC") && product == DeFiFlexible)
