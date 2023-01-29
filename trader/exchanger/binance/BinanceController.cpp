@@ -447,12 +447,12 @@ void BinanceController::onUserDataStream(const Json::Value& json) {
         if (executionType == "NEW") {
             BinanceOrderData order(json, true);
             if (order.isRejected())
-                print(__func__, util::format("order rejected %s", json["r"].asString().c_str()));
+                Logger::info( util::format("order rejected %s", json["r"].asString().c_str()));
         }
     } else if (action == "outboundAccountPosition") {
         for (const auto &i : json["B"]) {
             BinanceBalanceData data(i, "a", "f", "l");
-            print(__func__, util::format("balance %s: %s", data.asset.c_str(), data.free.c_str()));
+            Logger::info(util::format("balance %s: %s", data.asset.c_str(), data.free.c_str()));
             if (_balances_connector != nullptr)
                 _balances_connector->get(data.asset)->set(data.free, data.locked);
         }

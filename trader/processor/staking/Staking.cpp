@@ -18,12 +18,15 @@ Staking::~Staking() {
 bool Staking::init(const Settings& settings) {
     _settings = settings;
 
+    // subscribe and call to load projects
+    Time().onTick.connect(std::bind(&Staking::tick, this, std::placeholders::_1));
+    tick(Time().ms());
+
     // create algorithm
     _algorithm = Algorithm::create(_settings);
     if (not _algorithm->init())
         return false;
 
-    Time().onTick.connect(std::bind(&Staking::tick, this, std::placeholders::_1));
     return true;
 }
 
@@ -40,8 +43,8 @@ void Staking::tick(time_t ms) {
     }
 
     // stake every 10 minute
-    static time_t stakeProject = 0;
-    if (ms > stakeProject + Timer::sMinute * 10) {
+    static time_t stakeProject = ms;
+    if (ms > stakeProject + Timer::sMinute * 10 && _algorithm) {
         _algorithm->execute();
         stakeProject = ms;
     }

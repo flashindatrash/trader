@@ -33,7 +33,23 @@ Algorithm::~Algorithm() {
 }
 
 bool Algorithm::init() {
+    std::vector<StakingWrapper*> stakings;
+    for (auto& staking : Exchanger().stakings()) {
+        if (staking.second->product() == Locked)
+            stakings.push_back(staking.second);
+    }
 
+    std::sort(stakings.begin(), stakings.end(), [](StakingWrapper* lhs, StakingWrapper* rhs) {
+        return lhs->apy() > rhs->apy();
+    });
+
+    uint16_t i = 0;
+    for (const StakingWrapper* staking : stakings) {
+        if (staking->apy() < 0.15)
+            continue;
+
+        Logger::info(util::format("#%d %s with %d%% APY on %d days", ++i, staking->asset().c_str(), int(staking->apy() * 100), staking->duration()));
+    }
 
     return true;
 }
