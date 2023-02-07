@@ -4,6 +4,7 @@
 
 #include "Algorithm.hpp"
 #include <algorithm>
+#include <set>
 #include "core/Logger.hpp"
 #include "base/Settings.hpp"
 #include "exchanger/Exchanger.hpp"
@@ -44,11 +45,18 @@ bool Algorithm::init() {
     });
 
     uint16_t i = 0;
-    for (const StakingWrapper* staking : stakings) {
-        if (staking->apy() < 0.15)
+    std::set<std::string> assets;
+    for (StakingWrapper* staking : stakings) {
+        if (staking->apy() < 0.10 || assets.count(staking->asset()))
             continue;
 
-        Logger::info(util::format("#%d %s with %d%% APY on %d days", ++i, staking->asset().c_str(), int(staking->apy() * 100), staking->duration()));
+        assets.insert(staking->asset());
+
+        Decimal staked_in_usd = staking->asset().convert(staking->staked());
+        if (staked_in_usd >= Decimal(Decimal::deserialize("10")))
+            continue;
+
+        Logger::info(util::format("#%d %s with %d%% APY on %d days ($%s staked)", ++i, staking->asset().c_str(), int(staking->apy() * 100), staking->duration(), staked_in_usd.c_str()));
     }
 
     return true;
