@@ -49,19 +49,21 @@ bool Algorithm::init() {
         if (staking->product() != Locked)
             continue;
 
-        if (staking->apy() < 0.06 || assets.count(staking->asset()))
+        if (staking->apy() < 0.06)
             continue;
-        else
-            assets.insert(staking->asset());
+
+        static const std::set<std::string> active = {"SOL", "CELR", "COS", "FTM", "SKL", "CHR", "ICX", "CTK", "APE", "XTZ", "KAVA", "GLMR", "TOMO", "FRONT", "AVAX", "LEVER", "THETA", "SAND", "STMX", "LIT", "DOT", "VET", "REEF", "CAKE", "MINA", "BTTC", "ATOM", "EOS", "IOST", "ACH", "DEXE", "STX", "CHESS", "REI", "ADA", "NEO", "BSW", "DODO", "ROSE", "MC", "ALGO", "MBOX", "NEAR", "ONT", "ONE", "WAVES", "OM", "ICP", "FIO", "TKO", "ZIL", "EGLD", "OGN", "TRU", "KSM", "AXS", "FUN", "USTC"};
+        if (active.count(staking->asset()))
+            continue;
+
+        if (assets.count(staking->asset()))
+            continue;
 
         if (staking->left() < staking->minimum())
             continue;
 
-        Decimal staked_in_usd = staking->asset().convert(staking->staked());
-        if (staked_in_usd >= Decimal(Decimal::deserialize("10")))
-            continue;
-
-        Logger::info(util::format("#%d %s with %d%% APY on %d days ($%s staked)", ++i, staking->asset().c_str(), int(staking->apy() * 100), staking->duration(), staked_in_usd.c_str()));
+        assets.insert(staking->asset());
+        Logger::info(util::format("#%d %s with %d%% APY on %d days", ++i, staking->asset().c_str(), int(staking->apy() * 100), staking->duration()));
     }
 
     return true;
