@@ -36,8 +36,7 @@ Algorithm::~Algorithm() {
 bool Algorithm::init() {
     std::vector<StakingWrapper*> stakings;
     for (auto& staking : Exchanger().stakings()) {
-        if (staking.second->product() == Locked)
-            stakings.push_back(staking.second);
+        stakings.push_back(staking.second);
     }
 
     std::sort(stakings.begin(), stakings.end(), [](StakingWrapper* lhs, StakingWrapper* rhs) {
@@ -47,10 +46,16 @@ bool Algorithm::init() {
     uint16_t i = 0;
     std::set<std::string> assets;
     for (StakingWrapper* staking : stakings) {
-        if (staking->apy() < 0.10 || assets.count(staking->asset()))
+        if (staking->product() != Locked)
             continue;
 
-        assets.insert(staking->asset());
+        if (staking->apy() < 0.06 || assets.count(staking->asset()))
+            continue;
+        else
+            assets.insert(staking->asset());
+
+        if (staking->left() < staking->minimum())
+            continue;
 
         Decimal staked_in_usd = staking->asset().convert(staking->staked());
         if (staked_in_usd >= Decimal(Decimal::deserialize("10")))
