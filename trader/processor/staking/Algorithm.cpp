@@ -52,7 +52,7 @@ bool Algorithm::init() {
         if (staking->apy() < 0.06)
             continue;
 
-        static const std::set<std::string> active = {"GRT", "LPT", "BAND", "SOL", "COS", "FTM", "SKL", "CHR", "ICX", "CTK", "APE", "XTZ", "KAVA", "GLMR", "TOMO", "AVAX", "LEVER", "THETA", "SAND", "STMX", "LIT", "DOT", "VET", "REEF", "CAKE", "MINA", "BTTC", "ATOM", "EOS", "IOST", "ACH", "DEXE", "STX", "CHESS", "REI", "ADA", "NEO", "BSW", "DODO", "ROSE", "MC", "ALGO", "MBOX", "NEAR", "ONT", "ONE", "WAVES", "OM", "ICP", "FIO", "TKO", "ZIL", "EGLD", "OGN", "TRU", "KSM", "AXS", "FUN", "USTC"};
+        static const std::set<std::string> active = {"MATIC", "GRT", "LPT", "BAND", "SOL", "COS", "FTM", "SKL", "CHR", "ICX", "CTK", "APE", "XTZ", "KAVA", "GLMR", "TOMO", "AVAX", "LEVER", "THETA", "SAND", "STMX", "LIT", "DOT", "VET", "REEF", "CAKE", "MINA", "BTTC", "ATOM", "EOS", "IOST", "ACH", "DEXE", "STX", "CHESS", "REI", "ADA", "NEO", "BSW", "DODO", "ROSE", "MC", "ALGO", "MBOX", "NEAR", "ONT", "ONE", "WAVES", "OM", "ICP", "FIO", "TKO", "ZIL", "EGLD", "OGN", "TRU", "KSM", "AXS", "FUN", "USTC"};
         if (active.count(staking->asset()))
             continue;
 

@@ -6,7 +6,7 @@
 #include <json/json.h>
 
 BinanceFlexibleBalanceData::BinanceFlexibleBalanceData(const Json::Value& json)
-    : BinanceBalanceData(json, "asset", "freeAmount", "lockedAmount")
+    : BinanceBalanceData(json, "asset", "totalAmount", "lockedAmount")
 {
     productId = json["productId"].asString();
     canRedeem = json["canRedeem"].asBool();

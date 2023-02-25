@@ -246,8 +246,6 @@ bool BinanceController::redeemSavings(const std::string& asset, Decimal quantity
     Json::Value json;
     BinaCPP::get_flexibleProducts(asset.c_str(), _config_recv_window, json);
 
-    print(__func__, json.toStyledString());
-
     if (checkError(json, __func__))
         return false;
 
@@ -259,7 +257,7 @@ bool BinanceController::redeemSavings(const std::string& asset, Decimal quantity
     for (const auto & product : json) {
         BinanceFlexibleBalanceData data(product);
 
-        if (not data.canRedeem || data.free < quantity || data.redeemingAmount > 0.0)
+        if (not data.canRedeem || data.free < quantity/* || data.redeemingAmount > 0.0*/)
             continue;
 
         Json::Value json_redeem;
