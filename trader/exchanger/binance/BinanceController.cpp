@@ -246,6 +246,8 @@ bool BinanceController::redeemSavings(const std::string& asset, Decimal quantity
     Json::Value json;
     BinaCPP::get_flexibleProducts(asset.c_str(), _config_recv_window, json);
 
+    print(__func__, json.toStyledString());
+
     if (checkError(json, __func__))
         return false;
 
