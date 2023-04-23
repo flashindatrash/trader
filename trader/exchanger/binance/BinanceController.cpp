@@ -240,9 +240,6 @@ bool BinanceController::redeemSavings(const std::string& asset, Decimal quantity
     if (not checkRateLimits())
         return false;
 
-    if (Asset(asset).ld().balance() < quantity)
-        return false;
-
     Json::Value json;
     BinaCPP::get_flexibleProducts(asset.c_str(), _config_recv_window, json);
 
@@ -257,8 +254,18 @@ bool BinanceController::redeemSavings(const std::string& asset, Decimal quantity
     for (const auto & product : json) {
         BinanceFlexibleBalanceData data(product);
 
-        if (not data.canRedeem || data.free < quantity/* || data.redeemingAmount > 0.0*/)
+        if (not data.canRedeem || data.free < quantity)
             continue;
+
+        const auto asset_ld = Asset(asset).ld();
+        if (not asset_ld.empty() && asset_ld.balance() != data.free) {
+            // bug api: LD asset balance and flexible balance sometimes diverges a little
+            print(__func__, util::format("invalid flexible balance %s %s (actual %s)", asset.c_str(), asset_ld.balance().c_str(), data.free.c_str()));
+            if (_balances_connector != nullptr) {
+                _balances_connector->get(asset_ld.id())->set(data.free, data.locked);
+            }
+            continue;
+        }
 
         Json::Value json_redeem;
         BinaCPP::redeem_flexibleProduct(data.productId.c_str(), quantity.c_str(), "FAST", _config_recv_window, json_redeem);
@@ -476,22 +483,22 @@ void BinanceController::onTickerDataStream(const Json::Value& json) {
         _prices_connector->get(data.symbol)->set(data);
 }
 
-bool BinanceController::checkWalletRequest(WalletRequest& request, const std::string& asset, const Decimal& quantity) const {
-    if (request.mask(OrderRequest::CheckBalance) && Asset(asset).balance() < quantity) {
+bool BinanceController::checkWalletRequest(WalletRequest& request, const std::string& asset, const Decimal& required) const {
+    if (Decimal balance = Asset(asset).balance(); request.mask(OrderRequest::CheckBalance) && balance < required) {
         // policy do not allow redeeming
         if (not request.mask(OrderRequest::RedeemSavings))
             return false;
 
         // try to redeem from savings
-        Decimal redeem_quantity = quantity - Asset(asset).balance();
+        Decimal redeem_quantity = required - balance;
         if (not redeemSavings(asset, redeem_quantity)) {
             print(__func__, util::format("failed to redeem %s %s", redeem_quantity.c_str(), asset.c_str()));
             return false;
         }
 
-        // check after redeeming, in can be in progress
+        // check after redeeming, it can be in progress
         int tries = 0;
-        while(Asset(asset).balance() < quantity) {
+        while(Asset(asset).balance() < required) {
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
             if (++tries > 5)
                 return false;
@@ -658,20 +665,20 @@ double BinanceController::fee() const {
     return commission / 100.0;
 }
 
-bool BinanceController::checkError(const Json::Value& json, const std::string& context) const {
+int BinanceController::checkError(const Json::Value& json, const std::string& context) const {
     BinanceErrorData error(json);
-    if (not error.has())
-        return false;
 
-    print(context, util::format("%s [%d]", error.msg.c_str(), error.code));
+    if (error.has()) {
+        print(context, util::format("%s [%d]", error.msg.c_str(), error.code));
 
-    if (error.code == BinanceErrorData::INVALID_TIMESTAMP)
-        checkServerTime();
+        if (error.code == BinanceErrorData::INVALID_TIMESTAMP)
+            checkServerTime();
 
-    if (error.code == BinanceErrorData::TOO_MANY_REQUESTS)
-        Logger::error(error.msg);
+        if (error.code == BinanceErrorData::TOO_MANY_REQUESTS)
+            Logger::error(error.msg);
+    }
 
-    return true;
+    return error.code;
 }
 
 void BinanceController::print(const std::string& context, const std::string& msg) const {

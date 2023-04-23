@@ -52,7 +52,7 @@ protected: // methods
     bool addWebsocket(BinanceWebsocket* websocket);
     std::vector<BinanceWebsocket*>::iterator findWebsocket(const std::string& path);
 
-    bool checkError(const Json::Value& json, const std::string& context) const;
+    int checkError(const Json::Value& json, const std::string& context) const;
     bool checkServerTime() const;
     bool checkRateLimits() const;
     bool checkWalletRequest(WalletRequest& request, const std::string& asset, const Decimal& quantity) const;
