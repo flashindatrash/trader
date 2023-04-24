@@ -37,7 +37,7 @@ bool Staking::isRunning() const {
 void Staking::tick(time_t ms) {
     // update project list every hour
     static time_t updateProjects = 0;
-    if (ms > updateProjects + Timer::sHour) {
+    if (ms > updateProjects + Timer::sMinute * 10) {
         Exchanger().loadStakings();
         updateProjects = ms;
     }

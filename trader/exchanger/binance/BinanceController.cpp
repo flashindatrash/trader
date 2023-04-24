@@ -258,20 +258,21 @@ bool BinanceController::redeemSavings(const std::string& asset, Decimal quantity
             continue;
 
         const auto asset_ld = Asset(asset).ld();
-        if (not asset_ld.empty() && asset_ld.balance() != data.free) {
-            // bug api: LD asset balance and flexible balance sometimes diverges a little
-            print(__func__, util::format("invalid flexible balance %s %s (actual %s)", asset.c_str(), asset_ld.balance().c_str(), data.free.c_str()));
-            if (_balances_connector != nullptr) {
-                _balances_connector->get(asset_ld.id())->set(data.free, data.locked);
-            }
-            continue;
-        }
+        if (not asset_ld.empty() && asset_ld.balance() != data.free && _balances_connector != nullptr)
+            _balances_connector->get(asset_ld.id())->set(data.free, data.locked);
 
         Json::Value json_redeem;
         BinaCPP::redeem_flexibleProduct(data.productId.c_str(), quantity.c_str(), "FAST", _config_recv_window, json_redeem);
 
-        if (checkError(json_redeem, __func__))
+        if (auto code = checkError(json_redeem, __func__)) {
+            if (code == BinanceErrorData::DAILY_REDEEM_AMOUNT_ERROR) {
+                // adhock: try again and redeem total
+                BinaCPP::redeem_flexibleProduct(data.productId.c_str(), data.free.c_str(), "FAST", _config_recv_window, json_redeem);
+                return checkError(json_redeem, __func__) == 0;
+            }
+
             return false;
+        }
 
         return true;
     }

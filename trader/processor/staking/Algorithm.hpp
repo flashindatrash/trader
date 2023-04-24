@@ -29,6 +29,7 @@ public: // methods
 protected: // methods
     explicit Algorithm(const Settings& config);
 
+    bool tryOpen();
     bool tryClose(const Asset& asset);
 
     Position& findPosition(const Asset& asset);

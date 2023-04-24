@@ -12,6 +12,7 @@
 #include "exchanger/base/OrderCreator.hpp"
 #include "exchanger/wrapper/StakingWrapper.hpp"
 #include "exchanger/wrapper/BalanceWrapper.hpp"
+#include "exchanger/wrapper/PriceWrapper.hpp"
 #include "exchanger/wrapper/OrderWrapper.hpp"
 
 using namespace staking;
@@ -72,6 +73,9 @@ bool Algorithm::init() {
 bool Algorithm::execute() {
     StakingRequest request;
 
+    if (tryOpen())
+        return true;
+
     // find suitable staking project
     if (StakingWrapper* staking = findStaking(request.mask(StakingRequest::RedeemSavings))) {
         if (tryClose(staking->asset()))
@@ -93,6 +97,27 @@ bool Algorithm::execute() {
         } else {
             Logger::info(util::format("%sFailed to stake %s %s with %d%% APY on %d days%s", RED, request.amount.c_str(), staking->asset().c_str(), int(staking->apy() * 100), staking->duration(), RESET));
         }
+    }
+
+    return false;
+}
+
+bool Algorithm::tryOpen() {
+    static std::set<std::string> stakings;
+
+    bool check = not stakings.empty();
+    for (auto& it : Exchanger().stakings()) {
+        if (check && not stakings.count(it.first)) {
+            StakingWrapper* staking = it.second;
+
+            // check if pair staking asset + usdt exists
+            if (const PriceWrapper* price = Exchanger().price(staking->asset().id() + Asset::USDT.id()))
+                Logger::info(util::format("[NEW] %s with %d%% APY on %d days (price: %s)", staking->asset().c_str(), int(staking->apy() * 100), staking->duration(), price->get().c_str()));
+
+            // todo: try to buy if profitable (check apy >) and do not stake (just hold and sell a little bit later)
+        }
+
+        stakings.insert(it.first);
     }
 
     return false;
@@ -162,7 +187,7 @@ StakingWrapper* Algorithm::findStaking(bool use_flexible_balance) {
         Asset asset = Asset(pair.first).origin();
 
         // skip bnb and usdt
-        if (asset.id() == "BNB" || asset.id() != "AXS" || asset.isUSD())
+        if (asset.id() == "BNB" || asset.isUSD())
             continue;
 
         // find all projects by staking asset
