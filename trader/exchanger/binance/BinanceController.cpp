@@ -460,7 +460,7 @@ void BinanceController::onUserDataStream(const Json::Value& json) {
     } else if (action == "outboundAccountPosition") {
         for (const auto &i : json["B"]) {
             BinanceBalanceData data(i, "a", "f", "l");
-            Logger::info(util::format("balance %s: %s", data.asset.c_str(), data.free.c_str()));
+            //Logger::info(util::format("balance %s: %s", data.asset.c_str(), data.free.c_str()));
             if (_balances_connector != nullptr)
                 _balances_connector->get(data.asset)->set(data.free, data.locked);
         }
