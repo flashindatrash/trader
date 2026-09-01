@@ -258,7 +258,7 @@ void GateController::onCandle(const Json::Value& json) {
     const Json::Value& item = json["result"];
     Candlestick candle;
     candle.symbol = symbolId(item["n"].asString().substr(item["n"].asString().find('_') + 1));
-    candle.time_open = item["t"].asInt64() * 1000;
+    candle.time_open = std::stoll(jsonString(item["t"])) * 1000;
     candle.time_close = candle.time_open;
     candle.price_open = Decimal::deserialize(item["o"].asString());
     candle.price_high = Decimal::deserialize(item["h"].asString());
