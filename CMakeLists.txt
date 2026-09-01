@@ -37,7 +37,7 @@ if(APPLE)
 	list(APPEND ALL_LIBS ${JSONCPP_ROOT_DIR}/lib/libjsoncpp.dylib)
 elseif(UNIX)
 	include_directories(/usr/include/jsoncpp)
-	list(APPEND ALL_LIBS /usr/lib/x86_64-linux-gnu/libjsoncpp.so)
+	list(APPEND ALL_LIBS /usr/lib/aarch64-linux-gnu/libjsoncpp.so)
 endif()
 
 # websockets
