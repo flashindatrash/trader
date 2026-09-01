@@ -1,8 +1,7 @@
-#include "Trader.hpp"
+#include "processor/Trader.hpp"
 #include "Runner.hpp"
 #include "Algorithm.hpp"
 #include "Listener.hpp"
-#include "Reactor.hpp"
 
 using namespace trader;
 
@@ -10,12 +9,10 @@ Trader::~Trader() {
     delete _runner;
     delete _algorithm;
     delete _listener;
-    delete _reactor;
 
     _runner = nullptr;
     _algorithm = nullptr;
     _listener = nullptr;
-    _reactor = nullptr;
 }
 
 bool Trader::init(const Settings& settings) {
@@ -41,11 +38,6 @@ bool Trader::init(const Settings& settings) {
     if (not _listener->init(*_algorithm))
         return false;
 
-    // create reactor
-    _reactor = Reactor::create(*_algorithm, _settings);
-    if (not _reactor->init())
-        return false;
-
     // create & start runner
     _runner = Runner::create();
     _runner->setCallback(std::bind(&Trader::execute, this, std::placeholders::_1));
@@ -61,7 +53,6 @@ bool Trader::init(const Settings& settings) {
 
 void Trader::execute(void*) {
     _algorithm->execute();
-    _reactor->execute();
 }
 
 bool Trader::isRunning() const {

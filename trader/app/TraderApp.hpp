@@ -2,8 +2,7 @@
 
 #include "core/App.hpp"
 #include "base/Settings.hpp"
-
-class Processor;
+#include "../processor/Trader.hpp"
 
 class TraderApp : public core::App {
 public: // static
@@ -20,6 +19,5 @@ protected: // methods
 
 protected: // vars
     Settings _settings;
-    Processor* _processor = nullptr;
+    trader::Trader _trader;
 };
-

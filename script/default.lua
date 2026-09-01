@@ -49,7 +49,7 @@ function __main__(settings)
     local days = 1;
 
     if settings.mode == "backtest" then
-        days = 7;
+        days = 30;
         -- topup(settings.baseAsset, 100);
         -- topup(settings.quoteAsset, 100);
     end
@@ -67,8 +67,9 @@ function open()
         return 0, 0;
     end
 
-    local balance = balance(quoteAsset) + balance("LD" .. quoteAsset);
+    local balance = balance(quoteAsset);
     local lot = balance * percent_lot / price();
+
     return signal, lot;
 end
 
@@ -88,10 +89,10 @@ end
 
 function average(position)
     if position.side == 1 then
-        balance_quantity = balance(position.quoteAsset) + balance("LD" .. position.quoteAsset);
+        balance_quantity = balance(position.quoteAsset);
         position_quantity = position.quoteQuantity;
     elseif position.side == 2 then
-        balance_quantity = balance(position.baseAsset) + balance("LD" .. position.baseAsset);
+        balance_quantity = balance(position.baseAsset);
         position_quantity = position.baseQuantity;
     else
         return false;

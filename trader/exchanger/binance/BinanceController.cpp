@@ -4,18 +4,15 @@
 #include "exchanger/wrapper/BalanceWrapper.hpp"
 #include "exchanger/wrapper/BookWrapper.hpp"
 #include "exchanger/wrapper/PriceWrapper.hpp"
-#include "exchanger/wrapper/StakingWrapper.hpp"
 #include "response/BinanceEnums.hpp"
 #include "response/BinanceErrorData.hpp"
 #include "response/BinanceBalanceData.hpp"
 #include "response/BinanceOrderData.hpp"
-#include "response/BinancePriceStatisticsData.hpp"
 #include "response/BinanceKlineData.hpp"
 #include "response/BinanceTickerData.hpp"
 #include "response/BinanceFlexibleBalanceData.hpp"
 #include "response/BinanceSpotAccountData.hpp"
 #include "response/BinancePriceData.hpp"
-#include "response/BinanceStakingProductData.hpp"
 #include "binacpp.h"
 #include "binacpp_websocket.h"
 #include "binacpp_logger.h"
@@ -152,66 +149,6 @@ bool BinanceController::loadPrices(Storage::Type_price& container) const {
     return true;
 }
 
-bool BinanceController::loadStakings(Storage::Type_staking& container) const {
-    for (StakingProduct product : { Locked, DeFiLocked, DeFiFlexible }) {
-        long current = 1; long size = 100;
-        while (true) {
-            if (not checkRateLimits())
-                return false;
-
-            Json::Value json;
-            BinaCPP::get_stakingProjects(binance::serialize(product).c_str(), "", current, size, _config_recv_window, json);
-
-            if (checkError(json, __func__))
-                return false;
-
-            if (not json.isArray()) {
-                print(__func__, util::format("invalid json %s", json.toStyledString().c_str()));
-                return false;
-            }
-
-            for (auto &it: json) {
-                BinanceStakingProductData data(it);
-                container.get(data.projectId)->set(product, data.detail, data.quota);
-            }
-
-            if (json.size() < size)
-                break;
-            else ++current;
-        }
-    }
-
-    return true;
-}
-
-bool BinanceController::loadPrice(PriceWrapper& container) const {
-    if (not checkRateLimits())
-        return false;
-
-    Json::Value json;
-    BinaCPP::get_prices(container.id().c_str(), json);
-
-    if (checkError(json, __func__))
-        return false;
-
-    if (not json.isArray()) {
-        print(__func__, util::format("invalid json %s", json.toStyledString().c_str()));
-        return false;
-    }
-
-    for (auto & it : json) {
-        BinancePriceData data(it);
-        if (container.id() != data.symbol) {
-            print(__func__, util::format("invalid container %s for symbol %s", container.id().c_str(), data.symbol.c_str()));
-            return false;
-        }
-
-        container.set(data.price);
-    }
-
-    return true;
-}
-
 bool BinanceController::loadBalances(Storage::Type_balance& container) const {
     if (not checkRateLimits())
         return false;
@@ -257,10 +194,6 @@ bool BinanceController::redeemSavings(const std::string& asset, Decimal quantity
         if (not data.canRedeem || data.free < quantity)
             continue;
 
-        const auto asset_ld = Asset(asset).ld();
-        if (not asset_ld.empty() && asset_ld.balance() != data.free && _balances_connector != nullptr)
-            _balances_connector->get(asset_ld.id())->set(data.free, data.locked);
-
         Json::Value json_redeem;
         BinaCPP::redeem_flexibleProduct(data.productId.c_str(), quantity.c_str(), "FAST", _config_recv_window, json_redeem);
 
@@ -278,20 +211,6 @@ bool BinanceController::redeemSavings(const std::string& asset, Decimal quantity
     }
 
     return false;
-}
-
-bool BinanceController::loadStats(CandlestickWrapper& container) const {
-    if (not checkRateLimits())
-        return false;
-
-    Json::Value json;
-    BinaCPP::get_24hr(container.id().c_str(), json);
-
-    if (checkError(json, __func__))
-        return false;
-
-    container.set(BinancePriceStatisticsData(json));
-    return true;
 }
 
 bool BinanceController::loadCharts(ChartWrapper& container, ChartRequest& request) const {
@@ -321,29 +240,6 @@ bool BinanceController::loadCharts(ChartWrapper& container, ChartRequest& reques
 
         if (container.add(data) == nullptr)
             print(__func__, util::format("invalid kline %s", item.toStyledString().c_str()));
-    }
-
-    return true;
-}
-
-bool BinanceController::loadOrders(BookWrapper& container) const {
-    if (not checkRateLimits())
-        return false;
-
-    Json::Value json;
-    BinaCPP::get_allOrders(container.id().c_str(), 0, 0, _config_recv_window, json);
-
-    if (checkError(json, __func__))
-        return false;
-
-    if (not json.isArray()) {
-        print(__func__, util::format("invalid json %s", json.toStyledString().c_str()));
-        return false;
-    }
-
-    for (const auto& item : json) {
-        if (not container.add(BinanceOrderData(item, false)))
-            print(__func__, util::format("invalid order: %s", item.toStyledString().c_str()));
     }
 
     return true;
@@ -385,19 +281,6 @@ void BinanceController::listenTicker(PriceWrapper& container) {
     websocket->setPath(path);
     websocket->setCallback(std::bind(&BinanceController::onTickerDataStream, this, std::placeholders::_1));
     addWebsocket(websocket);
-}
-
-void BinanceController::unlistenTicker(PriceWrapper& container) {
-    const std::string &path = util::lowercase(container.id().c_str()) + "@bookTicker";
-    auto it = findWebsocket(path);
-    if (it == _websockets.end())
-        return;
-
-    BinanceWebsocket* websocket = *it;
-    if (websocket->disconnect()) {
-        _websockets.erase(it);
-        delete websocket;
-    }
 }
 
 bool BinanceController::initUserListenKey() {
@@ -578,31 +461,6 @@ const OrderWrapper* BinanceController::createOrder(BookWrapper& container, Order
     return wrapper;
 }
 
-bool BinanceController::stake(StakingWrapper& container, StakingRequest& request) {
-    if (not checkRateLimits())
-        return false;
-
-    // check is enough to stake
-    if (not checkWalletRequest(request, container.asset(), request.amount))
-        return false;
-
-    if (request.mask(StakingRequest::TestMode));
-    else {
-        Json::Value json;
-        BinaCPP::stake(binance::serialize(container.product()).c_str(), container.id().c_str(), request.amount.c_str(), _config_recv_window, json);
-
-        if (checkError(json, __func__))
-            return false;
-
-        if (json["success"] != true)
-            return false;
-    }
-
-    // update personal quota
-    container.updateQuota(container.left() - request.amount);
-    return true;
-}
-
 Decimal BinanceController::minQuantity(const std::string& symbol) const {
     auto it = _exchange_info.symbols.find(symbol);
     if (it == _exchange_info.symbols.end())
@@ -626,21 +484,6 @@ Decimal BinanceController::minQuantity(const std::string& symbol) const {
     if (info.lotSize.stepSize > Decimal::Zero)
         quantity = ((Decimal::IntType)quantity / (Decimal::IntType)info.lotSize.stepSize) * (Decimal::IntType)info.lotSize.stepSize;
     return quantity;
-}
-
-bool BinanceController::updateStaking(StakingWrapper& container) const {
-    if (not checkRateLimits())
-        return false;
-
-    Json::Value json;
-    BinaCPP::get_stakingLeftQuota(binance::serialize(container.product()).c_str(), container.id().c_str(), _config_recv_window, json);
-
-    if (checkError(json, __func__))
-        return false;
-
-    Decimal quota = Decimal::deserialize(json["leftPersonalQuota"].asString());
-    container.updateQuota(quota);
-    return true;
 }
 
 Decimal BinanceController::roundQuantity(Decimal quantity, const std::string& symbol) const {

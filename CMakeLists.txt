@@ -11,10 +11,6 @@ set(PROJ_WARNINGS "-Wno-write-strings -Wsign-compare -Wreturn-type -Wno-deprecat
 set(CMAKE_CXX_FLAGS_DEBUG "-O0 -DDEBUG -std=c++17 -g ${PROJ_WARNINGS}")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG -std=c++17 ${PROJ_WARNINGS}")
 
-if(APPLE)
-	SET(OPENSSL_ROOT_DIR /usr/local/opt/openssl@1.1)
-endif()
-
 find_package(OpenSSL REQUIRED)
 if(OPENSSL_FOUND)
 	include_directories(${OPENSSL_INCLUDE_DIR})
@@ -36,7 +32,7 @@ endif()
 
 # jsoncpp
 if(APPLE)
-	set(JSONCPP_ROOT_DIR "/usr/local/Cellar/jsoncpp/1.9.4_1")
+	set(JSONCPP_ROOT_DIR "/opt/homebrew/opt/jsoncpp")
 	include_directories(${JSONCPP_ROOT_DIR}/include)
 	list(APPEND ALL_LIBS ${JSONCPP_ROOT_DIR}/lib/libjsoncpp.dylib)
 elseif(UNIX)
@@ -46,7 +42,7 @@ endif()
 
 # websockets
 if(APPLE)
-	set(WEBSOCKETS_ROOT_DIR "/usr/local/Cellar/libwebsockets/4.2.1")
+	set(WEBSOCKETS_ROOT_DIR "/opt/homebrew/opt/libwebsockets")
 	include_directories(${WEBSOCKETS_ROOT_DIR}/include)
 	list(APPEND ALL_LIBS ${WEBSOCKETS_ROOT_DIR}/lib/libwebsockets.dylib)
 elseif(UNIX)
@@ -56,8 +52,6 @@ endif()
 
 subdirs(
 	core
-	protocol
 	binacpp
 	trader
-	telegram
 )

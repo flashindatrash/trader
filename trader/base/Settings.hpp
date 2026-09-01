@@ -11,7 +11,6 @@ public: // methods
     bool parse(int argc, char** argv);
 
     const core::Config& config() const;
-    const std::string& type() const;
     const std::string& mode() const;
     const std::string& script() const;
     const std::string& username() const;
@@ -26,7 +25,6 @@ public: // methods
 
 protected: // vars
     core::Config _config;
-    std::string _type;
     std::string _mode;
     std::string _script;
     Symbol _symbol;

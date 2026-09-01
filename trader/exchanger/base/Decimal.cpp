@@ -64,6 +64,11 @@ Decimal::Decimal(IntType value)
 {
 }
 
+Decimal::Decimal(FloatType value)
+    : _value(std::llround(value * std::pow(10, default_size)))
+{
+}
+
 const char* Decimal::c_str() const {
     return ((const StrType&)*this).c_str();
 }

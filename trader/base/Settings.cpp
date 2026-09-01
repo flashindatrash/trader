@@ -8,16 +8,13 @@ bool Settings::parse(int argc, char** argv) {
     cppargparser::ArgumentParser args;
     try {
         args.addArgument(cppargparser::Argument("-c", "--config", "config file", 1, true));
-        args.addArgument(cppargparser::Argument("-t", "--type", "type", 1, true));
         args.addArgument(cppargparser::Argument("-l", "--lua", "lua file", 1, false));
         args.addArgument(cppargparser::Argument("-s", "--symbol", "symbol", 2, false));
-        args.addArgument(cppargparser::Argument("-m", "--mode", "develop/release", 1, false));
+        args.addArgument(cppargparser::Argument("-m", "--mode", "develop/release/backtest", 1, false));
 
         auto parsed = args.parse(argc, argv);
 
         config_file = parsed.getValue("--config");
-
-        _type = parsed.getValue("--type");
 
         if (parsed.hasArgument("--lua"))
             _script = parsed.getValue("--lua");
@@ -29,7 +26,7 @@ bool Settings::parse(int argc, char** argv) {
             _mode = parsed.getValue("--mode");
 
     } catch(...) {
-        args.showHelp("trader -t trader -c default.cfg -l script.lua -s btc usdt | trader -t listing -c default.cfg");
+        args.showHelp("trader -c default.cfg -l script.lua -s btc usdt");
         return false;
     }
 
@@ -43,10 +40,6 @@ bool Settings::parse(int argc, char** argv) {
 
 const core::Config& Settings::config() const {
     return _config;
-}
-
-const std::string& Settings::type() const {
-    return _type;
 }
 
 const std::string& Settings::mode() const {

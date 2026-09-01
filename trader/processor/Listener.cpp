@@ -2,14 +2,12 @@
 // Created by Вадим Проскурин on 06.11.2021.
 //
 
-#include "Listener.hpp"
+#include "processor/Listener.hpp"
 #include "Context.hpp"
 #include "Formatter.hpp"
 #include "Algorithm.hpp"
 #include "core/Logger.hpp"
 #include "base/Settings.hpp"
-#include "protocol/Event.hpp"
-#include "protocol/User.hpp"
 #include "exchanger/base/Position.hpp"
 
 using namespace trader;
@@ -53,8 +51,6 @@ void Listener::handlePosition(const Position& position) {
     if (_settings.logEnabled())
         Logger::info(event.terminal());
 
-    if (_settings.isRelease())
-        protocol::Event::add(_settings.username(), event.html());
 }
 
 void Listener::handleTick(const Position& position) {
@@ -79,17 +75,11 @@ void Listener::handleReport(const Report& report) {
         Logger::info(event.terminal());
 
     if (_settings.isRelease()) {
-        protocol::Event::add(_settings.username(), event.html());
-
         // сохраняем статистику пары
         _stats.setProfit(report.profit);
         _stats.setEarnBase(report.earn_base);
         _stats.setEarnQuote(report.earn_quote);
         _stats.save();
 
-        // сохраняем статистику пользователя
-        protocol::User user(_settings.username());
-        user.setProfit(report.profit);
-        user.save();
     }
 }

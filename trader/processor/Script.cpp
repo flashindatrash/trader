@@ -2,7 +2,7 @@
 // Created by Вадим Проскурин on 12.12.2021.
 //
 
-#include "Script.hpp"
+#include "processor/Script.hpp"
 #include "Context.hpp"
 #include "core/Logger.hpp"
 #include "core/Time.hpp"
@@ -82,7 +82,7 @@ int Script::bind_topup(lua_State *L) {
     }
 
     std::string asset = lua_tostring(L, 1);
-    Quantity quantity = lua_tonumber(L, 2);
+    Quantity quantity(lua_tonumber(L, 2));
     Exchanger().balance(Asset(asset))->gain(quantity);
     return 0;
 }
@@ -225,7 +225,7 @@ bool Script::open(OrderRequest& request) {
         return false;
     }
 
-    request.quantity = lua_tonumber(lua, -1);
+    request.quantity = Quantity(lua_tonumber(lua, -1));
     lua_pop(lua,1);
     request.side = (OrderSide)lua_tointeger(lua, -1);
     lua_pop(lua,1);

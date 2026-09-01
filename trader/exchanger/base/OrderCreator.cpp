@@ -14,11 +14,7 @@ bool OrderCreator::create(OrderRequest& request, Position& result, bool release)
     if (not release) {
         const Asset& asset = OrderUtil::usedAsset(request.side, request.symbol);
         if (request.mask(WalletRequest::CheckBalance)) {
-            Decimal balance = asset.balance();
-            if (request.mask(WalletRequest::RedeemSavings))
-                balance += asset.ld().balance();
-
-            if (balance < request.required())
+            if (asset.balance() < request.required())
                 return false;
         }
 

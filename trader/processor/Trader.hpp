@@ -1,28 +1,27 @@
 #pragma once
 
-#include "processor/Processor.hpp"
+#include "base/Settings.hpp"
 
 namespace trader {
 class Runner;
 class Context;
 class Algorithm;
 class Listener;
-class Reactor;
 
-class Trader : public Processor {
+class Trader {
 public: // methods
     Trader() = default;
-    ~Trader() override;
+    ~Trader();
 
-    bool init(const Settings& settings) override;
-    bool isRunning() const override;
+    bool init(const Settings& settings);
+    bool isRunning() const;
 
 protected: // methods
     void execute(void*);
 
+    Settings _settings;
     Runner* _runner = nullptr;
     Algorithm* _algorithm = nullptr;
     Listener* _listener = nullptr;
-    Reactor* _reactor = nullptr;
 };
 }

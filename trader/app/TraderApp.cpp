@@ -4,7 +4,6 @@
 #include "core/Logger.hpp"
 #include "database/Database.hpp"
 #include "exchanger/Exchanger.hpp"
-#include "processor/Processor.hpp"
 
 TraderApp* TraderApp::create(const Settings& settings) {
     auto* app = new TraderApp();
@@ -21,15 +20,11 @@ TraderApp::TraderApp()
 {
 }
 
-TraderApp::~TraderApp() {
-    delete _processor;
-    _processor = nullptr;
-}
+TraderApp::~TraderApp() = default;
 
 bool TraderApp::init(const Settings& settings) {
     _settings = settings;
-    _processor = Processor::create(settings.type());
-    return _processor != nullptr;
+    return true;
 }
 
 int TraderApp::run() {
@@ -44,14 +39,14 @@ int TraderApp::run() {
         return EXIT_FAILURE;
 
     // init strategy
-    if (not _processor->init(_settings))
+    if (not _trader.init(_settings))
         return EXIT_FAILURE;
 
     // run exchanger thread
     Exchanger().run();
 
     // run main thread
-    while (_processor->isRunning()) {
+    while (_trader.isRunning()) {
         sleep_ms(100);
         Time().tick();
     }

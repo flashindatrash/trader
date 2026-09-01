@@ -28,16 +28,7 @@
 	cd build  
 	cmake ..
 	make && sudo make install  
-	sudo ldconfig  
-
-##### build tgbot
-	cd ~/Developer
-	git clone https://github.com/reo7sp/tgbot-cpp 
-	cd tgbot-cpp  
-	mkdir build  
-	cd build
-	cmake ..
-	sudo make install
+	sudo ldconfig
 
 ##### клонируем репозиторий и переходим  
 	cd ~/Developer  

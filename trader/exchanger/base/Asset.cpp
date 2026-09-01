@@ -7,7 +7,6 @@
 const Asset Asset::Empty = Asset("");
 const Asset Asset::USDT = Asset("USDT");
 const Asset Asset::BUSD = Asset("BUSD");
-const Asset Asset::LD = Asset("LD");
 
 Asset::Asset(const std::string& asset) {
     setId(util::uppercase(asset.c_str()));
@@ -51,25 +50,4 @@ bool Asset::isUSD() const {
 
 std::string Asset::operator+(const Asset& quote) const {
     return id() + quote.id();
-}
-
-Asset Asset::origin() const {
-    if (id().rfind(LD.id(), 0) == 0)
-        return id().substr(LD.id().size());
-
-    return *this;
-}
-
-Asset Asset::ld() const {
-    const std::string& ticker = LD.id() + id();
-
-    if (const BalanceWrapper* wrapper = Exchanger().balance(ticker))
-        return ticker;
-
-    for (auto& balance : Exchanger().balances()) {
-        if (balance.first.rfind(ticker, 0) == 0)
-            return balance.first;
-    }
-
-    return Empty;
 }

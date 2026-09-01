@@ -20,10 +20,10 @@ public:
 
     static IntType deserialize(const StrType& value, size_t size = default_size);
     static StrType serialize(const IntType& value, size_t size = default_size);
-
 public:
     Decimal() = default;
     Decimal(IntType value);
+    explicit Decimal(FloatType value);
 
     const char* c_str() const;
 
@@ -52,5 +52,3 @@ public:
 private:
     IntType _value = 0;
 };
-
-

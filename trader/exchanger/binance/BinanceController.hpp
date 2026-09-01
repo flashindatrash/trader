@@ -26,26 +26,20 @@ public: // virtual
     void connectCharts(Storage::Type_chart& container) override;
 
     bool loadPairs(Storage::Type_pair& container) const override;
-    bool loadPrices(Storage::Type_price& container) const override;
-    bool loadStakings(Storage::Type_staking& container) const override;
-	bool loadPrice(PriceWrapper& container) const override;
-    bool loadBalances(Storage::Type_balance& container) const override;
-    bool loadOrders(BookWrapper& container) const override;
-    bool loadStats(CandlestickWrapper& container) const override;
     bool loadCharts(ChartWrapper& container, ChartRequest& request) const override;
 
     void listenCharts(ChartWrapper& container, ChartInterval interval) override;
     void listenTicker(PriceWrapper& container) override;
-    void unlistenTicker(PriceWrapper& container) override;
 
     const OrderWrapper* createOrder(BookWrapper& container, OrderRequest& request) override;
-    bool stake(StakingWrapper& container, StakingRequest& request) override;
 
-    bool updateStaking(StakingWrapper& container) const override;
     Decimal roundQuantity(Decimal quantity, const std::string& symbol) const override;
     double fee() const override;
 
 protected: // methods
+    bool loadPrices(Storage::Type_price& container) const;
+    bool loadBalances(Storage::Type_balance& container) const;
+
     bool initUserListenKey();
     bool keepUserDataStream();
 
@@ -86,4 +80,3 @@ private: // vars
 
     time_t _time_keep_userstream = 0;
 };
-

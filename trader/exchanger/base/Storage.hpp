@@ -24,7 +24,6 @@ class BalanceWrapper;
 class CandlestickWrapper;
 class ChartWrapper;
 class BookWrapper;
-class StakingWrapper;
 
 class Storage {
     STORAGE_PUBLIC(Symbol, pair)
@@ -33,6 +32,4 @@ class Storage {
     STORAGE_PUBLIC(CandlestickWrapper, stat)
     STORAGE_PUBLIC(ChartWrapper, chart)
     STORAGE_PUBLIC(BookWrapper, book)
-    STORAGE_PUBLIC(StakingWrapper, staking)
 };
-

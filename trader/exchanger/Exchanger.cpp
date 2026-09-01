@@ -4,14 +4,15 @@
 #include "exchanger/abstract/ExchangerController.hpp"
 #include "exchanger/wrapper/OrderWrapper.hpp"
 #include "exchanger/wrapper/ChartWrapper.hpp"
-#include "exchanger/wrapper/StakingWrapper.hpp"
+
+ExchangerProxy::ExchangerProxy() = default;
 
 ExchangerProxy::~ExchangerProxy() {
     stop();
 }
 
 bool ExchangerProxy::init(const core::Config& config) {
-    _controller = ExchangerController::create();
+    _controller = ExchangerController::create(config);
     if (not _controller->init(config))
         return false;
 
@@ -31,10 +32,7 @@ void ExchangerProxy::run() {
 }
 
 void ExchangerProxy::stop() {
-    if (_controller != nullptr) {
-        delete _controller;
-        _controller = nullptr;
-    }
+    _controller.reset();
 }
 
 void ExchangerProxy::tick(time_t now) {
@@ -43,26 +41,6 @@ void ExchangerProxy::tick(time_t now) {
 
 bool ExchangerProxy::loadPairs() {
     return _controller->loadPairs(_pairs);
-}
-
-bool ExchangerProxy::loadPrices() {
-    return _controller->loadPrices(_prices);
-}
-
-bool ExchangerProxy::loadStakings() {
-    return _controller->loadStakings(_stakings);
-}
-
-bool ExchangerProxy::loadPrice(const std::string& key) {
-    return _controller->loadPrice(*_prices.get(key));
-}
-
-bool ExchangerProxy::loadOrders(const std::string& key) {
-    return _controller->loadOrders(*_books.get(key));
-}
-
-bool ExchangerProxy::loadStats(const std::string& key) {
-    return _controller->loadStats(*_stats.get(key));
 }
 
 bool ExchangerProxy::loadCharts(const std::string& key, ChartRequest& request) {
@@ -77,20 +55,8 @@ void ExchangerProxy::listenTickers(const std::string& key) {
     _controller->listenTicker(*_prices.get(key));
 }
 
-void ExchangerProxy::unlistenTickers(const std::string& key) {
-    _controller->unlistenTicker(*_prices.get(key));
-}
-
-bool ExchangerProxy::updateStaking(const std::string& key) {
-    return _controller->updateStaking(*_stakings.get(key));
-}
-
 const OrderWrapper* ExchangerProxy::createOrder(OrderRequest& request) {
     return _controller->createOrder(*_books.get(request.symbol), request);
-}
-
-bool ExchangerProxy::stake(StakingRequest& request) {
-    return _controller->stake(*_stakings.get(request.projectId), request);
 }
 
 Decimal ExchangerProxy::roundQuantity(Decimal quantity, const std::string& key) const {
@@ -100,4 +66,3 @@ Decimal ExchangerProxy::roundQuantity(Decimal quantity, const std::string& key) 
 double ExchangerProxy::fee() const {
     return _controller->fee();
 }
-

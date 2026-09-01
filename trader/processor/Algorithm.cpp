@@ -1,6 +1,6 @@
-#include "Algorithm.hpp"
-#include "Script.hpp"
-#include "Context.hpp"
+#include "processor/Algorithm.hpp"
+#include "processor/Script.hpp"
+#include "processor/Context.hpp"
 #include "base/Settings.hpp"
 #include "exchanger/base/Position.hpp"
 #include "exchanger/base/Report.hpp"
@@ -95,7 +95,7 @@ bool Algorithm::close() {
     Quantity additional;
     if (_position->side() == Buy) {
         // если это лонг, то продаем чуть меньше с округлением вверх
-        additional = Decimal(0) - profit_base;
+        additional = Decimal::Zero - profit_base;
     } else if (_position->side() == Sell) {
         // если это шорт, то покупаем чуть больше с округлением вниз
         additional = profit_base;
