@@ -9,27 +9,41 @@ endif()
 # libraries
 list(APPEND ALL_LIBS ${HIREDIS_LIBRARY})
 
-# lua 5.1
-set(LUA51_ROOT_DIR "/opt/local/lua51")
+# Lua 5.1
+if(APPLE)
+	set(LUA51_ROOT_DIR "/opt/local/lua51")
 
-find_path(LUA_INCLUDE_DIR
-		NAMES lua.h
-		PATHS "${LUA51_ROOT_DIR}/include"
-		NO_DEFAULT_PATH
-)
+	find_path(LUA_INCLUDE_DIR
+			NAMES lua.h
+			PATHS "${LUA51_ROOT_DIR}/include"
+			NO_DEFAULT_PATH
+	)
 
-find_library(LUA_LIBRARIES
-		NAMES lua
-		PATHS "${LUA51_ROOT_DIR}/lib"
-		NO_DEFAULT_PATH
-)
+	find_library(LUA_LIBRARIES
+			NAMES lua
+			PATHS "${LUA51_ROOT_DIR}/lib"
+			NO_DEFAULT_PATH
+	)
 
-if(NOT LUA_INCLUDE_DIR OR NOT LUA_LIBRARIES)
-	message(FATAL_ERROR "Could not find Lua 5.1 in ${LUA51_ROOT_DIR}")
+else()
+	find_path(LUA_INCLUDE_DIR
+			NAMES lua.h
+			PATHS
+			/usr/include/lua5.1
+			/usr/local/include/lua5.1
+	)
+
+	find_library(LUA_LIBRARIES
+			NAMES lua5.1 lua
+	)
 endif()
 
-message("-- Found Lua51 include: ${LUA_INCLUDE_DIR}")
-message("-- Found Lua51 library: ${LUA_LIBRARIES}")
+if(NOT LUA_INCLUDE_DIR OR NOT LUA_LIBRARIES)
+	message(FATAL_ERROR "Could not find Lua 5.1")
+endif()
+
+message(STATUS "Found Lua51 include: ${LUA_INCLUDE_DIR}")
+message(STATUS "Found Lua51 library: ${LUA_LIBRARIES}")
 
 include_directories(${LUA_INCLUDE_DIR})
 list(APPEND ALL_LIBS ${LUA_LIBRARIES})
