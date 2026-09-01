@@ -3,6 +3,7 @@
 #include <csignal>
 #include <cstdlib>
 #include <unistd.h>
+#include <ctime>
 
 #include "base/Settings.hpp"
 #include "app/TraderApp.hpp"

@@ -32,11 +32,8 @@
 
 ##### клонируем репозиторий и переходим  
 	cd ~/Developer  
-	git clone https://gitlab.com/flashindatrash/traderbot.git  
-	cd traderbot  
-
-##### обновляем сабмодули репы  
-	git submodule update --init --recursive  
+	git clone [https://gitlab.com/flashindatrash/traderbot.git ](git@github.com:flashindatrash/trader.git 
+	cd trader  
 
 ##### создаем свой конфиг  
 	cp ./config/default.cfg ./config/test.cfg  
