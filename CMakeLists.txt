@@ -52,6 +52,5 @@ endif()
 
 subdirs(
 	core
-	binacpp
 	trader
 )

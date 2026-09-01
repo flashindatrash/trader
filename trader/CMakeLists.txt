@@ -35,11 +35,10 @@ include_directories(${LUA_INCLUDE_DIR})
 list(APPEND ALL_LIBS ${LUA_LIBRARIES})
 
 # includes
-include_directories(${PROJECT_SOURCE_DIR}/binacpp/src/)
 include_directories(${PROJECT_SOURCE_DIR}/core)
 
 add_executable(trader ${TRADER_SRC})
-target_link_libraries(trader core binance ${ALL_LIBS})
+target_link_libraries(trader core ${ALL_LIBS})
 
 install(
 	TARGETS trader
