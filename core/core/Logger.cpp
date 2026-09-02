@@ -14,7 +14,7 @@
 time_t Logger::sTime = 0;
 
 void Logger::title(const std::string& value) {
-    std::cout << GREEN << value << RESET;
+    std::cout << GREEN << value << RESET << std::endl;
 }
 
 void Logger::info(const std::string& value) {
