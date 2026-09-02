@@ -23,14 +23,6 @@
 #define BOLDMAGENTA "\033[1m\033[35m"      /* Bold Magenta */
 #define BOLDCYAN    "\033[1m\033[36m"      /* Bold Cyan */
 #define BOLDWHITE   "\033[1m\033[37m"      /* Bold White */
-//escape chars
-#define ESCSTART        "\033]0;"
-#define ESCEND          "\007"
-#define CURSOR_START    "\r"
-#define CURSOR_UP       "\033[1A"
-#define CURSOR_SAVE     "\033[s"
-#define CURSOR_RESTORE  "\033[u"
-#define ERASE_LINE      "\033[0K"
 
 
 class Logger {
@@ -39,7 +31,6 @@ public: //
     static void info(const std::string& value);
     static void status(const std::string& value);
     static void error(const std::string& value);
-    static void erase();
 
     static void setTime(time_t time);
 

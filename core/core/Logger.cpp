@@ -12,40 +12,24 @@
 #include "Time.hpp"
 
 time_t Logger::sTime = 0;
-bool Logger::sStatus = false;
 
 void Logger::title(const std::string& value) {
-    if (getenv("QT_TERMINAL") != nullptr)
-        return;
-
-    std::cout << ESCSTART << value << ESCEND;
+    std::cout << GREEN << value << RESET;
 }
 
 void Logger::info(const std::string& value) {
-    if (sStatus) {
-        erase();
-        sStatus = false;
-    }
-
     std::cout << formatTime() << ": " << value << std::endl;
 }
 
 void Logger::status(const std::string& value) {
-    if (getenv("QT_TERMINAL") != nullptr)
-        return;
+    static time_t last = 0;
 
-    if (sStatus)
-        erase();
-    sStatus = true;
+    auto now = std::time(0);
+    if (now - last < 60)
+        return;
+    else last = now;
 
     std::cout << value << std::endl;
-}
-
-void Logger::erase() {
-    if (getenv("QT_TERMINAL") != nullptr)
-        return;
-
-    std::cout << CURSOR_START << CURSOR_UP << ERASE_LINE;
 }
 
 void Logger::error(const std::string& value) {
