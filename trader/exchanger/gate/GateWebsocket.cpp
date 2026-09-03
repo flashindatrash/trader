@@ -82,6 +82,8 @@ bool GateWebsocket::connect() {
     if (_impl->websocket != nullptr)
         return true;
     if (_impl->context == nullptr) {
+        lws_set_log_level(LLL_ERR | LLL_WARN, nullptr);
+
         lws_context_creation_info info{};
         info.port = CONTEXT_PORT_NO_LISTEN;
         info.protocols = Impl::protocols();
