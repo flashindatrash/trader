@@ -25,7 +25,6 @@ protected: // methods
 
     void handleStop(void*);
     void handlePosition(const Position& position);
-    void handleTick(const Position& position);
     void handleReport(const Report& report);
 
 protected: // vars
@@ -34,4 +33,3 @@ protected: // vars
     protocol::Stats _stats;
 };
 }
-

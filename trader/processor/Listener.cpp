@@ -3,7 +3,6 @@
 //
 
 #include "processor/Listener.hpp"
-#include "Context.hpp"
 #include "Formatter.hpp"
 #include "Algorithm.hpp"
 #include "core/Logger.hpp"
@@ -28,7 +27,6 @@ bool Listener::init(Algorithm& algorithm) {
     algorithm.onOpen.connect(std::bind(&Listener::handlePosition, this, std::placeholders::_1));
     algorithm.onAverage.connect(std::bind(&Listener::handlePosition, this, std::placeholders::_1));
     algorithm.onClose.connect(std::bind(&Listener::handlePosition, this, std::placeholders::_1));
-    algorithm.onTick.connect(std::bind(&Listener::handleTick, this, std::placeholders::_1));
     algorithm.onReport.connect(std::bind(&Listener::handleReport, this, std::placeholders::_1));
 
     Logger::title(Formatter::title(_settings.symbol()).terminal());
@@ -51,17 +49,6 @@ void Listener::handlePosition(const Position& position) {
     if (_settings.logEnabled())
         Logger::info(event.terminal());
 
-}
-
-void Listener::handleTick(const Position& position) {
-    if (Context::current == nullptr || not position.has())
-        return;
-
-    if (_settings.isBackTest())
-        return;
-
-    Formatter event = Formatter::update(position, *Context::current, _settings);
-    Logger::status(event.terminal());
 }
 
 void Listener::handleReport(const Report& report) {
