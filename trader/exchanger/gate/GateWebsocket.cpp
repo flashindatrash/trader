@@ -1,9 +1,8 @@
 #include "GateWebsocket.hpp"
+#include "GateSignature.hpp"
 #include "core/Logger.hpp"
 #include <json/json.h>
 #include <libwebsockets.h>
-#include <openssl/hmac.h>
-#include <iomanip>
 #include <cstring>
 #include <ctime>
 #include <sstream>
@@ -45,16 +44,9 @@ struct GateWebsocket::Impl {
         Json::parseFromStream(reader, stream, &message["payload"], &errors);
         if (!api_key.empty()) {
             const std::string input = "channel=" + channel + "&event=subscribe&time=" + std::to_string(timestamp);
-            unsigned char digest[EVP_MAX_MD_SIZE];
-            unsigned int length = 0;
-            HMAC(EVP_sha512(), secret_key.data(), static_cast<int>(secret_key.size()),
-                 reinterpret_cast<const unsigned char*>(input.data()), input.size(), digest, &length);
-            std::ostringstream signature;
-            signature << std::hex << std::setfill('0');
-            for (unsigned i = 0; i < length; ++i) signature << std::setw(2) << unsigned(digest[i]);
             message["auth"]["method"] = "api_key";
             message["auth"]["KEY"] = api_key;
-            message["auth"]["SIGN"] = signature.str();
+            message["auth"]["SIGN"] = gate::hmac512(secret_key, input);
         }
         Json::StreamWriterBuilder writer;
         writer["indentation"] = "";

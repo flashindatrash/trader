@@ -85,6 +85,7 @@ set(TRADER_SRC
 	trader/exchanger/base/Symbol.cpp
 	trader/exchanger/base/Wallet.cpp
 	trader/exchanger/gate/GateController.cpp
+	trader/exchanger/gate/GateSignature.cpp
 	trader/exchanger/gate/GateWebsocket.cpp
 	trader/exchanger/indicator/DEMA.cpp
 	trader/exchanger/indicator/EMA.cpp
