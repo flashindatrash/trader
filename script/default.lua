@@ -118,7 +118,7 @@ function average(position)
 
     local now = os.time();
     if log_time == nil or now - log_time >= 60 then
-        print(string.format("position.change=%.6f%%, percent=%.6f%%", position.change, percent));
+        print(string.format("current=%.2f%%, next=%.2f%%", position.change * 100, percent * 100));
         log_time = now;
     end
 
