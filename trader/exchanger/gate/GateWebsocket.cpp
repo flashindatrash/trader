@@ -2,14 +2,18 @@
 #include "core/Logger.hpp"
 #include <json/json.h>
 #include <libwebsockets.h>
+#include <openssl/hmac.h>
+#include <iomanip>
 #include <cstring>
 #include <ctime>
 #include <sstream>
 #include <vector>
 
 struct GateWebsocket::Impl {
-    Impl(std::string channel, std::string payload, Callback callback)
-        : channel(std::move(channel)), payload(std::move(payload)), callback(std::move(callback)) {}
+    Impl(std::string channel, std::string payload, Callback callback,
+         std::string api_key, std::string secret_key, std::string url)
+        : channel(std::move(channel)), payload(std::move(payload)), callback(std::move(callback)),
+          api_key(std::move(api_key)), secret_key(std::move(secret_key)), url(std::move(url)) {}
 
     ~Impl() {
         if (context != nullptr)
@@ -30,8 +34,31 @@ struct GateWebsocket::Impl {
     }
 
     std::string subscription() const {
-        return "{\"time\":" + std::to_string(std::time(nullptr)) + ",\"channel\":\"" + channel +
-               "\",\"event\":\"subscribe\",\"payload\":" + payload + "}";
+        const auto timestamp = std::time(nullptr);
+        Json::Value message;
+        message["time"] = Json::Int64(timestamp);
+        message["channel"] = channel;
+        message["event"] = "subscribe";
+        Json::CharReaderBuilder reader;
+        std::string errors;
+        std::istringstream stream(payload);
+        Json::parseFromStream(reader, stream, &message["payload"], &errors);
+        if (!api_key.empty()) {
+            const std::string input = "channel=" + channel + "&event=subscribe&time=" + std::to_string(timestamp);
+            unsigned char digest[EVP_MAX_MD_SIZE];
+            unsigned int length = 0;
+            HMAC(EVP_sha512(), secret_key.data(), static_cast<int>(secret_key.size()),
+                 reinterpret_cast<const unsigned char*>(input.data()), input.size(), digest, &length);
+            std::ostringstream signature;
+            signature << std::hex << std::setfill('0');
+            for (unsigned i = 0; i < length; ++i) signature << std::setw(2) << unsigned(digest[i]);
+            message["auth"]["method"] = "api_key";
+            message["auth"]["KEY"] = api_key;
+            message["auth"]["SIGN"] = signature.str();
+        }
+        Json::StreamWriterBuilder writer;
+        writer["indentation"] = "";
+        return Json::writeString(writer, message);
     }
 
     int handle(lws* socket, lws_callback_reasons reason, void* input, size_t length) {
@@ -51,8 +78,13 @@ struct GateWebsocket::Impl {
                 Json::CharReaderBuilder builder;
                 std::string errors;
                 std::istringstream stream(std::string(static_cast<char*>(input), length));
-                if (Json::parseFromStream(builder, stream, &json, &errors) && json["event"].asString() == "update")
-                    callback(json);
+                if (Json::parseFromStream(builder, stream, &json, &errors)) {
+                    if (!json["error"].isNull())
+                        Logger::info("GateWebsocket: subscription error for " + channel + ": " + json["error"].toStyledString());
+                    else if (json["event"].asString() == "update" ||
+                             (channel == "spot.balances" && json["event"].asString() == "subscribe"))
+                        callback(json);
+                }
                 break;
             }
             case LWS_CALLBACK_CLIENT_CONNECTION_ERROR:
@@ -71,10 +103,13 @@ struct GateWebsocket::Impl {
     std::string channel;
     std::string payload;
     Callback callback;
+    std::string api_key, secret_key, url;
 };
 
-GateWebsocket::GateWebsocket(std::string channel, std::string payload, Callback callback)
-    : _impl(std::make_unique<Impl>(std::move(channel), std::move(payload), std::move(callback))) {}
+GateWebsocket::GateWebsocket(std::string channel, std::string payload, Callback callback,
+                           std::string api_key, std::string secret_key, std::string url)
+    : _impl(std::make_unique<Impl>(std::move(channel), std::move(payload), std::move(callback),
+                                 std::move(api_key), std::move(secret_key), std::move(url))) {}
 
 GateWebsocket::~GateWebsocket() = default;
 
@@ -96,10 +131,17 @@ bool GateWebsocket::connect() {
         return false;
 
     lws_client_connect_info info{};
+    std::vector<char> url(_impl->url.begin(), _impl->url.end());
+    url.push_back('\0');
+    const char *protocol, *address, *path;
+    int port;
+    if (lws_parse_uri(url.data(), &protocol, &address, &port, &path) || std::string(protocol) != "wss")
+        return false;
+    const std::string request_path = "/" + std::string(path);
     info.context = _impl->context;
-    info.address = "api.gateio.ws";
-    info.port = 443;
-    info.path = "/ws/v4/";
+    info.address = address;
+    info.port = port;
+    info.path = request_path.c_str();
     info.host = info.address;
     info.origin = info.address;
     info.protocol = Impl::protocols()[0].name;

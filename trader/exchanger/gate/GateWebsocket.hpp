@@ -10,7 +10,9 @@ class GateWebsocket {
 public:
     using Callback = std::function<void(const Json::Value&)>;
 
-    GateWebsocket(std::string channel, std::string payload, Callback callback);
+    GateWebsocket(std::string channel, std::string payload, Callback callback,
+                  std::string api_key = {}, std::string secret_key = {},
+                  std::string url = "wss://api.gateio.ws/ws/v4/");
     ~GateWebsocket();
 
     bool connect();

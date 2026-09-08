@@ -69,6 +69,12 @@ bool GateController::init(const core::Config& config) {
         _api_url = config.asString("GATE_API_URL");
     while (!_api_url.empty() && _api_url.back() == '/')
         _api_url.pop_back();
+    if (config.has("GATE_WS_URL") && !config.asString("GATE_WS_URL").empty())
+        _websocket_url = config.asString("GATE_WS_URL");
+    else if (_api_url != "https://api.gateio.ws/api/v4") {
+        _balance_websocket_enabled = false;
+        print(__func__, "set GATE_WS_URL matching GATE_API_URL to enable private balance subscriptions");
+    }
     return curl_global_init(CURL_GLOBAL_DEFAULT) == CURLE_OK;
 }
 
@@ -87,10 +93,24 @@ void GateController::run() {
 void GateController::tick(time_t) {
     for (GateWebsocket* websocket : _websockets)
         websocket->connect();
+    const auto now = std::chrono::steady_clock::now();
+    if (_balances != nullptr && now >= _next_balance_refresh) {
+        // Run REST and publish balances on the strategy thread, not in a websocket callback.
+        std::lock_guard<std::mutex> lock(_order_mutex);
+        _balances_dirty = false;
+        const bool loaded = loadBalances(*_balances);
+        _next_balance_refresh = std::chrono::steady_clock::now() + std::chrono::seconds(loaded ? 30 : 5);
+    }
+    if (_balances_dirty.exchange(false)) {
+        // Coalesce transfer events and allow spot and Earn to settle before taking a snapshot.
+        _next_balance_refresh = std::min(_next_balance_refresh,
+                                        std::chrono::steady_clock::now() + std::chrono::seconds(2));
+    }
 }
 
 bool GateController::request(const std::string& method, const std::string& path, const std::string& query,
-                             const std::string& body, bool authenticated, Json::Value& result) const {
+                             const std::string& body, bool authenticated, Json::Value& result, long* response_status) const {
+    if (response_status) *response_status = 0;
     CURL* curl = curl_easy_init();
     if (curl == nullptr)
         return false;
@@ -130,6 +150,7 @@ bool GateController::request(const std::string& method, const std::string& path,
         print(__func__, curl_easy_strerror(status));
         return false;
     }
+    if (response_status) *response_status = http_status;
     Json::CharReaderBuilder builder;
     std::string errors;
     std::istringstream stream(response);
@@ -189,13 +210,128 @@ bool GateController::loadBalances(Storage::Type_balance& container) const {
     Json::Value json;
     if (!request("GET", "/spot/accounts", {}, {}, true, json) || !json.isArray())
         return false;
-    for (const Json::Value& item : json)
-        container.get(item["currency"].asString())->set(Decimal::deserialize(item["available"].asString()), Decimal::deserialize(item["locked"].asString()));
+    std::unordered_map<std::string, Decimal> earn;
+    if (!loadEarnBalances(earn))
+        return false;
+    std::unordered_map<std::string, BalanceSnapshot> snapshot;
+    for (const auto& entry : earn)
+        snapshot[entry.first].earn = entry.second;
+    for (const Json::Value& item : json) {
+        auto& balance = snapshot[item["currency"].asString()];
+        balance.spot = Decimal::deserialize(item["available"].asString());
+        balance.locked = Decimal::deserialize(item["locked"].asString());
+    }
+    // Include currencies omitted by the API so a withdrawal to zero is logged too.
+    for (const auto& entry : container)
+        snapshot.try_emplace(entry.first);
+    for (const auto& entry : _last_balance_snapshot)
+        snapshot.try_emplace(entry.first);
+    for (const auto& entry : snapshot) {
+        const auto& balance = entry.second;
+        const auto previous = _last_balance_snapshot.find(entry.first);
+        const BalanceSnapshot old = previous == _last_balance_snapshot.end() ? BalanceSnapshot{} : previous->second;
+        const Decimal available = balance.spot + balance.earn;
+        container.get(entry.first)->set(available, balance.locked);
+        if (balance.spot != old.spot || balance.earn != old.earn || balance.locked != old.locked) {
+            print(__func__, util::format("%s: spot=%s earn=%s locked=%s available=%s total=%s%s",
+                  entry.first.c_str(), balance.spot.c_str(), balance.earn.c_str(), balance.locked.c_str(),
+                  available.c_str(), (available + balance.locked).c_str(),
+                  previous == _last_balance_snapshot.end() ? " (initial)" : ""));
+        }
+    }
+    _last_balance_snapshot = std::move(snapshot);
+    return true;
+}
+
+bool GateController::loadEarnBalances(std::unordered_map<std::string, Decimal>& balances) const {
+    // amount is the total principal; lent_amount is a subset, not an extra balance.
+    for (unsigned page = 1; ; ++page) {
+        Json::Value json;
+        if (!request("GET", "/earn/uni/lends", "limit=100&page=" + std::to_string(page), {}, true, json) || !json.isArray())
+            return false;
+        for (const auto& item : json) {
+            if (!item["currency"].isString() || !item["amount"].isString()) {
+                print(__func__, "invalid Simple Earn balance response");
+                return false;
+            }
+            balances[item["currency"].asString()] = Decimal::deserialize(item["amount"].asString());
+        }
+        if (json.size() < 100) return true;
+    }
+}
+
+bool GateController::spotAvailable(const std::string& currency, Decimal& available) const {
+    Json::Value json;
+    if (!request("GET", "/spot/accounts", {}, {}, true, json) || !json.isArray())
+        return false;
+    available = Decimal::Zero;
+    for (const auto& item : json) {
+        if (item["currency"].asString() == currency) {
+            if (!item["available"].isString()) return false;
+            available = Decimal::deserialize(item["available"].asString());
+            break;
+        }
+    }
+    return true;
+}
+
+bool GateController::ensureSpotFunds(const std::string& currency, Decimal required) {
+    auto waitForFunds = [&](Decimal target) {
+        const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(60);
+        do {
+            Decimal available;
+            if (spotAvailable(currency, available) && available >= target)
+                return true;
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+        } while (std::chrono::steady_clock::now() < deadline);
+        print(__func__, "timed out waiting for Simple Earn redemption: " + currency);
+        return false;
+    };
+    const auto pending = _pending_redemptions.find(currency);
+    if (pending != _pending_redemptions.end()) {
+        if (!waitForFunds(pending->second)) return false;
+        _pending_redemptions.erase(pending);
+    }
+    Decimal available;
+    if (!spotAvailable(currency, available)) return false;
+    if (available >= required) return true;
+    const Decimal shortfall = required - available;
+    std::unordered_map<std::string, Decimal> earn;
+    if (!loadEarnBalances(earn)) return false;
+    if (earn[currency] < shortfall) {
+        print(__func__, "insufficient spot + Simple Earn funds: " + currency);
+        return false;
+    }
+    Json::Value body, response;
+    body["currency"] = currency;
+    body["amount"] = static_cast<const std::string&>(shortfall);
+    body["type"] = "redeem";
+    Json::StreamWriterBuilder writer;
+    writer["indentation"] = "";
+    // Keep this guard even on a transport error: the server may have accepted the redeem.
+    _pending_redemptions[currency] = required;
+    long status = 0;
+    if (!request("POST", "/earn/uni/lends", {}, Json::writeString(writer, body), true, response, &status)) {
+        if (status >= 400 && status < 500 && status != 408) {
+            _pending_redemptions.erase(currency);
+            return false;
+        }
+        print(__func__, "redeem unconfirmed; subsequent orders will wait for spot funds: " + currency);
+        return false;
+    }
+    if (!waitForFunds(required)) return false;
+    _pending_redemptions.erase(currency);
     return true;
 }
 
 void GateController::connectPrices(Storage::Type_price& container) { loadPrices(container); _prices = &container; }
-void GateController::connectBalances(Storage::Type_balance& container) { loadBalances(container); _balances = &container; }
+void GateController::connectBalances(Storage::Type_balance& container) {
+    _balances = &container;
+    const bool loaded = loadBalances(container);
+    _next_balance_refresh = std::chrono::steady_clock::now() + std::chrono::seconds(loaded ? 30 : 5);
+    if (_balance_websocket_enabled && !_api_key.empty() && !_secret_key.empty())
+        addWebsocket("spot.balances", "[]", [this](const Json::Value&) { _balances_dirty = true; });
+}
 void GateController::connectCharts(Storage::Type_chart& container) { _charts = &container; }
 
 bool GateController::loadCharts(ChartWrapper& container, ChartRequest& chart) const {
@@ -235,7 +371,9 @@ void GateController::addWebsocket(const std::string& channel, const std::string&
                                   std::function<void(const Json::Value&)> callback) {
     if (std::any_of(_websockets.begin(), _websockets.end(), [&](GateWebsocket* item) { return item->matches(channel, payload); }))
         return;
-    auto* websocket = new GateWebsocket(channel, payload, std::move(callback));
+    const bool authenticated = channel == "spot.balances";
+    auto* websocket = new GateWebsocket(channel, payload, std::move(callback),
+                                      authenticated ? _api_key : "", authenticated ? _secret_key : "", _websocket_url);
     _websockets.push_back(websocket);
     websocket->connect();
 }
@@ -270,11 +408,12 @@ void GateController::onCandle(const Json::Value& json) {
 }
 
 const OrderWrapper* GateController::createOrder(BookWrapper& container, OrderRequest& order) {
+    std::lock_guard<std::mutex> lock(_order_mutex);
     const auto found = _pairs.find(order.symbol);
     if (found == _pairs.end() || !found->second.tradable || order.side == OrderSide::Invalid)
         return nullptr;
     order.quantity = roundQuantity(order.quantity, order.symbol);
-    if (order.mask(OrderRequest::CheckBalance) && OrderUtil::usedAsset(order.side, order.symbol).balance() < order.required())
+    if (order.mask(OrderRequest::TestMode) && order.mask(OrderRequest::CheckBalance) && OrderUtil::usedAsset(order.side, order.symbol).balance() < order.required())
         return nullptr;
     OrderDetail detail;
     detail.symbol = order.symbol;
@@ -291,6 +430,10 @@ const OrderWrapper* GateController::createOrder(BookWrapper& container, OrderReq
         body_json["side"] = order.side == OrderSide::Buy ? "buy" : "sell";
         body_json["time_in_force"] = "ioc";
         const Decimal amount = order.side == OrderSide::Buy ? order.quantity * order.symbol.price(order.side) : order.quantity;
+        if (amount <= Decimal::Zero) return nullptr;
+        const std::string currency = order.side == OrderSide::Buy ? found->second.quote : found->second.base;
+        // Freeze the market-buy quote budget before waiting; prices may change during redeem.
+        if (!ensureSpotFunds(currency, amount)) return nullptr;
         body_json["amount"] = static_cast<const std::string&>(amount);
         Json::StreamWriterBuilder writer;
         writer["indentation"] = "";

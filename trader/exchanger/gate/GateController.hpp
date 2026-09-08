@@ -2,7 +2,9 @@
 
 #include "exchanger/abstract/ExchangerController.hpp"
 #include <atomic>
+#include <chrono>
 #include <functional>
+#include <mutex>
 #include <thread>
 #include <unordered_map>
 #include <vector>
@@ -30,6 +32,10 @@ public:
     double fee() const override;
 
 private:
+    struct BalanceSnapshot {
+        Decimal spot, earn, locked;
+    };
+
     struct PairInfo {
         std::string id, base, quote;
         Decimal min_base;
@@ -38,9 +44,12 @@ private:
     };
 
     bool request(const std::string& method, const std::string& path, const std::string& query,
-                 const std::string& body, bool authenticated, Json::Value& result) const;
+                 const std::string& body, bool authenticated, Json::Value& result, long* response_status = nullptr) const;
     bool loadPrices(Storage::Type_price& container) const;
     bool loadBalances(Storage::Type_balance& container) const;
+    bool loadEarnBalances(std::unordered_map<std::string, Decimal>& balances) const;
+    bool spotAvailable(const std::string& currency, Decimal& available) const;
+    bool ensureSpotFunds(const std::string& currency, Decimal required);
     std::string pairId(const std::string& symbol) const;
     static std::string symbolId(const std::string& pair);
     static std::string interval(ChartInterval value);
@@ -51,6 +60,10 @@ private:
     void print(const std::string& context, const std::string& message) const;
 
     std::string _api_key, _secret_key, _api_url = "https://api.gateio.ws/api/v4";
+    std::string _websocket_url = "wss://api.gateio.ws/ws/v4/";
+    bool _balance_websocket_enabled = true;
+    std::atomic_bool _balances_dirty{false};
+    std::chrono::steady_clock::time_point _next_balance_refresh{};
     mutable std::unordered_map<std::string, PairInfo> _pairs;
     mutable double _commission = 0.002;
     Storage::Type_price* _prices = nullptr;
@@ -59,4 +72,7 @@ private:
     std::vector<GateWebsocket*> _websockets;
     std::thread _thread;
     std::atomic_bool _running{false};
+    std::mutex _order_mutex;
+    std::unordered_map<std::string, Decimal> _pending_redemptions;
+    mutable std::unordered_map<std::string, BalanceSnapshot> _last_balance_snapshot;
 };
