@@ -44,6 +44,7 @@ function indicator() return dema(20, 30); end
 percent_lot = 0.25;
 percent_profit = 0.01;
 percent_average = 0.25;
+local last_average_log_time = nil;
 
 function __main__(settings)
     local days = 1;
@@ -112,6 +113,12 @@ function average(position)
     local percent = -percent_average;
     for i = 1, averages do
         percent = percent / 2.0;
+    end
+
+    local now = os.time();
+    if last_average_log_time == nil or now - last_average_log_time >= 60 then
+        print(string.format("position.change=%.6f%%, percent=%.6f%%", position.change, percent));
+        last_average_log_time = now;
     end
 
     return position.change <= percent;
