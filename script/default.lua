@@ -40,7 +40,6 @@
 ]]
 
 -- variables
-function indicator() return dema(20, 30); end
 percent_lot = 0.25;
 percent_profit = 0.01;
 percent_average = 0.25;
