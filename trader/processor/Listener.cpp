@@ -30,6 +30,14 @@ bool Listener::init(Algorithm& algorithm) {
     algorithm.onReport.connect(std::bind(&Listener::handleReport, this, std::placeholders::_1));
 
     Logger::title(Formatter::title(_settings.symbol()).terminal());
+    if (_settings.isRelease()) {
+        const Symbol& symbol = _settings.symbol();
+        Logger::info(util::format("Stats:\n\tProfit: %s %s\n\tEarnBase: %s %s\n\tEarnQuote: %s %s",
+            Quantity(_stats.profit()).c_str(), symbol.quoteAsset().c_str(),
+            Quantity(_stats.earnBase()).c_str(), symbol.baseAsset().c_str(),
+            Quantity(_stats.earnQuote()).c_str(), symbol.quoteAsset().c_str()
+        ));
+    }
     return true;
 }
 
@@ -67,6 +75,5 @@ void Listener::handleReport(const Report& report) {
         _stats.setEarnBase(report.earn_base);
         _stats.setEarnQuote(report.earn_quote);
         _stats.save();
-
     }
 }

@@ -63,9 +63,10 @@ function __main__(settings)
 end
 
 function open()
-    local trend, signal = indicator();
+    local _, signal = dema(20, 30);
+    local trend, _ = dema(200, 300);
 
-    if signal == 0 or signal == 2 then
+    if signal == 0 or signal ~= trend then
         return 0, 0;
     end
 
@@ -76,7 +77,7 @@ function open()
 end
 
 function close(position)
-    local trend, signal = indicator();
+    local trend, signal = dema(20, 30);
 
     if trend == 0 or trend == position.side then
         return false;
