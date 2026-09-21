@@ -32,7 +32,7 @@ bool Listener::init(Algorithm& algorithm) {
     Logger::title(Formatter::title(_settings.symbol()).terminal());
     if (_settings.isRelease()) {
         const Symbol& symbol = _settings.symbol();
-        Logger::title(util::format("Stats:\n\tProfit: %s %s\n\tEarnBase: %s %s\n\tEarnQuote: %s %s",
+        Logger::title(util::format("Profit: %s %s\nEarnBase: %s %s\nEarnQuote: %s %s",
             Quantity(_stats.profit()).c_str(), symbol.quoteAsset().c_str(),
             Quantity(_stats.earnBase()).c_str(), symbol.baseAsset().c_str(),
             Quantity(_stats.earnQuote()).c_str(), symbol.quoteAsset().c_str()
