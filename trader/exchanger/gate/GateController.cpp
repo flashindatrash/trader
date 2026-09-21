@@ -18,6 +18,7 @@
 #include <chrono>
 #include <iomanip>
 #include <sstream>
+#include <string_view>
 
 namespace {
 size_t receive(char* data, size_t size, size_t count, void* target) {
@@ -51,6 +52,30 @@ std::string jsonString(const Json::Value& value) {
     if (value.isString()) return value.asString();
     if (value.isNumeric()) return value.asString();
     return {};
+}
+
+std::string responsePreview(const std::string& response) {
+    constexpr size_t MaxLength = 2048;
+    if (response.empty()) return "<empty>";
+    std::string result;
+    result.reserve(std::min(response.size(), MaxLength));
+    bool truncated = false;
+    for (char character : response) {
+        std::string_view escaped;
+        switch (character) {
+        case '\r': escaped = "\\r"; break;
+        case '\n': escaped = "\\n"; break;
+        case '\t': escaped = "\\t"; break;
+        default: escaped = std::string_view(&character, 1); break;
+        }
+        if (result.size() + escaped.size() > MaxLength) {
+            truncated = true;
+            break;
+        }
+        result += escaped;
+    }
+    if (truncated) result += "... <truncated>";
+    return result;
 }
 }
 
@@ -144,6 +169,9 @@ bool GateController::request(const std::string& method, const std::string& path,
     const CURLcode status = curl_easy_perform(curl);
     long http_status = 0;
     curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_status);
+    char* raw_content_type = nullptr;
+    curl_easy_getinfo(curl, CURLINFO_CONTENT_TYPE, &raw_content_type);
+    const std::string content_type = raw_content_type != nullptr ? raw_content_type : "<none>";
     curl_slist_free_all(headers);
     curl_easy_cleanup(curl);
     if (status != CURLE_OK) {
@@ -155,7 +183,8 @@ bool GateController::request(const std::string& method, const std::string& path,
     std::string errors;
     std::istringstream stream(response);
     if (!Json::parseFromStream(builder, stream, &result, &errors)) {
-        print(__func__, "invalid JSON: " + errors);
+        print(__func__, "invalid JSON (HTTP " + std::to_string(http_status) + ", Content-Type: " + content_type +
+                        "): " + errors + "; response: " + responsePreview(response));
         return false;
     }
     if (http_status < 200 || http_status >= 300) {
