@@ -265,6 +265,12 @@ bool Script::call_position(const char* fn, const Position& position) {
     lua_pushnumber(lua, position.price());
     lua_setfield(lua, -2, "price");
 
+    lua_pushinteger(lua, position.time());
+    lua_setfield(lua, -2, "time");
+
+    lua_pushinteger(lua, Context::current->time());
+    lua_setfield(lua, -2, "currentTime");
+
     lua_pushnumber(lua, position.distance(Context::current->price(position.revert())));
     lua_setfield(lua, -2, "distance");
 

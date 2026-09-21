@@ -25,6 +25,8 @@
             .baseQuantity: total base quantity
             .quoteQuantity: total quote quantity
             .price: average price position
+            .time: opening time in Unix milliseconds
+            .currentTime: current time in Unix milliseconds
             .distance: different between current price
             .change: change to current price in percent
             .profit: profit includes fee
@@ -76,13 +78,18 @@ function open()
 end
 
 function close(position)
-    local trend, signal = dema(20, 30);
-
-    if trend == 0 or trend == position.side then
+    if position.change < percent_profit then
         return false;
     end
 
-    if position.change < percent_profit then
+    local day = 24 * 60 * 60 * 1000;
+    if position.time > 0 and position.currentTime - position.time >= day then
+        return true;
+    end
+
+    local trend, signal = dema(20, 30);
+
+    if trend == 0 or trend == position.side then
         return false;
     end
 
