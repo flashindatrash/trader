@@ -53,14 +53,14 @@ function __main__(settings)
 
     if settings.mode == "backtest" then
         days = 30;
-        -- topup(settings.baseAsset, 100);
-        -- topup(settings.quoteAsset, 100);
+        -- topup(settings.baseAsset, 1);
+        -- topup(settings.quoteAsset, 80000);
     end
 
     baseAsset = settings.baseAsset;
     quoteAsset = settings.quoteAsset;
 
-    return chart(settings.baseAsset, settings.quoteAsset, 0, days);
+    return chart(baseAsset, quoteAsset, 0, days);
 end
 
 function open()
@@ -71,10 +71,13 @@ function open()
         return 0, 0;
     end
 
-    local balance = balance(quoteAsset);
-    local lot = balance * percent_lot / price();
+    if signal == 1 then
+        local quote_balance = balance(quoteAsset);
+        return signal, quote_balance * percent_lot / price();
+    end
 
-    return signal, lot;
+    local base_balance = balance(baseAsset);
+    return signal, base_balance * percent_lot;
 end
 
 function close(position)
