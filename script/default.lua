@@ -10,7 +10,8 @@
         - number balance(string asset): get account balance
         - number price(): get current price
         - void topup(string asset, number quantity): top up test balance
-        - trend, signal = dema(int fast, int slow): get trend side and signal side of double ema
+        - trend, signal = dema(int fast, int slow, number threshold): get trend side and signal side of double ema
+            threshold: minimum relative difference between EMA values for a valid trend
         - bool chart(string baseAsset, string quoteAsset, Enum interval, int days = 1): load & listen chart
 
     # Structures
@@ -53,8 +54,8 @@ function __main__(settings)
 
     if settings.mode == "backtest" then
         days = 30;
-        -- topup(settings.baseAsset, 1);
-        -- topup(settings.quoteAsset, 80000);
+        topup(settings.baseAsset, 1);
+        topup(settings.quoteAsset, 80000);
     end
 
     baseAsset = settings.baseAsset;
@@ -64,8 +65,8 @@ function __main__(settings)
 end
 
 function open()
-    local _, signal = dema(20, 30);
-    local trend, _ = dema(200, 300);
+    local _, signal = dema(20, 30, 0);
+    local trend, _ = dema(200, 300, 0.001);
 
     if signal == 0 or signal ~= trend then
         return 0, 0;
@@ -90,7 +91,7 @@ function close(position)
         return true;
     end
 
-    local trend, signal = dema(20, 30);
+    local trend, signal = dema(20, 30, 0);
 
     if trend == 0 or trend == position.side then
         return false;

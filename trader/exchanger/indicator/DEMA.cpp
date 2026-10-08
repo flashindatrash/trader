@@ -6,9 +6,10 @@
 
 using namespace indicator;
 
-DEMA::DEMA(size_t fast, size_t slow)
+DEMA::DEMA(size_t fast, size_t slow, Decimal threshold)
     : _fast(fast)
     , _slow(slow)
+    , _threshold(threshold)
 {
 }
 
@@ -20,7 +21,18 @@ OrderSide DEMA::trend() const {
     if (empty())
         return Invalid;
 
-    return compare(_fast.last(), _slow.last());
+    const Price fast = _fast.last();
+    const Price slow = _slow.last();
+    if (_threshold == Decimal::Zero)
+        return compare(fast, slow);
+
+    const Price threshold = slow * _threshold;
+    if (fast - slow > threshold)
+        return Buy;
+    if (slow - fast > threshold)
+        return Sell;
+
+    return Invalid;
 }
 
 OrderSide DEMA::signal() const {

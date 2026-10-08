@@ -10,7 +10,7 @@ namespace indicator {
 class DEMA : public Base {
 public: // methods
     DEMA() = default;
-    DEMA(size_t fast, size_t slow);
+    DEMA(size_t fast, size_t slow, Decimal threshold);
 
     [[nodiscard]] OrderSide trend() const;
     [[nodiscard]] OrderSide signal() const;
@@ -26,6 +26,6 @@ protected: // static
 protected: // vars
     EMA _fast;
     EMA _slow;
+    Decimal _threshold;
 };
 }
-

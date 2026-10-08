@@ -89,7 +89,7 @@ int Script::bind_topup(lua_State *L) {
 
 int Script::bind_dema(lua_State *L) {
     const Context* context = Context::current;
-    if (lua_gettop(L) < 2 || context == nullptr) {
+    if (lua_gettop(L) < 3 || context == nullptr) {
         Logger::info("[script] failed to call `dema`");
         lua_pushinteger(L, OrderSide::Invalid);
         lua_pushinteger(L, OrderSide::Invalid);
@@ -98,8 +98,9 @@ int Script::bind_dema(lua_State *L) {
 
     size_t fast = lua_tointeger(L, 1);
     size_t slow = lua_tointeger(L, 2);
+    Decimal threshold(lua_tonumber(L, 3));
 
-    auto indicator = indicator::DEMA(fast, slow);
+    auto indicator = indicator::DEMA(fast, slow, threshold);
     Context::current->load(indicator);
 
     lua_pushinteger(L, indicator.trend());
